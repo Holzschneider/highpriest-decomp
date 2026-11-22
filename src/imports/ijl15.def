@@ -1,0 +1,6 @@
+LIBRARY ijl15.dll
+EXPORTS
+  ijlFree@4 @3 NONAME
+  ijlInit@4 @2 NONAME
+  ijlRead@8 @4 NONAME
+  ijlWrite@8 @5 NONAME

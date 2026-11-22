@@ -1,0 +1,166 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Korean resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+#ifdef _WIN32
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+// The original script was in code page 949; this copy is UTF-8.
+#pragma code_page(65001)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
+IDI_ICON2               ICON    DISCARDABLE     "icon2.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_EXCEPTION_DIALOG DIALOG DISCARDABLE  0, 0, 215, 161
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Gravity(tm) Error Handler"
+FONT 9, "굴림"
+BEGIN
+    DEFPUSHBUTTON   "복사",IDCOPY,158,7,50,14
+    DEFPUSHBUTTON   "종료",IDEXIT,158,25,50,14
+    EDITTEXT        IDC_EXCEPTION,7,43,201,110,ES_MULTILINE | ES_READONLY |
+                    WS_VSCROLL
+    LTEXT           " 예상치 못한 에러로 프로그램을 종료합니다. 아래 정보를 라그나로크 운영팀에게 보내주시면 빠른 시일내에 수정하도록 하겠습니다.\r\n(복사 버튼을 누르면 클립보드로 복사됩니다.)",
+                    IDC_STATIC,7,7,143,32
+END
+
+#endif    // Korean resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SIMPLE_ASSERT DIALOGEX 0, 0, 250, 79
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Assert Failed!"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Debug",IDDEBUG,2,62,56,13
+    PUSHBUTTON      "Ignore",IDIGNORE,65,62,56,13
+    PUSHBUTTON      "Ignore Always",IDIGNOREALWAYS,127,62,56,13
+    PUSHBUTTON      "Exit",IDEXIT,192,62,56,13
+    EDITTEXT        IDC_FILENAME,45,7,131,12,ES_AUTOHSCROLL | ES_READONLY |
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_LINENUMBER,209,7,39,12,ES_AUTOHSCROLL | ES_READONLY |
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_EXPRESSION,45,24,203,12,ES_AUTOHSCROLL | ES_READONLY |
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_MESSAGE,45,41,203,12,ES_AUTOHSCROLL | ES_READONLY |
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Filename:",IDC_STATIC,2,7,31,8
+    LTEXT           "Expression:",IDC_STATIC,2,24,37,8
+    LTEXT           "Message:",IDC_STATIC,2,42,32,8
+    LTEXT           "Line:",IDC_STATIC,188,7,16,8
+END
+
+IDD_EXCEPTION_DIALOG DIALOG DISCARDABLE  0, 0, 215, 161
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Gravity(tm) Error Handler"
+FONT 8, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "Copy",IDCOPY,158,7,50,14
+    DEFPUSHBUTTON   "Exit",IDEXIT,158,25,50,14
+    EDITTEXT        IDC_EXCEPTION,7,43,201,110,ES_MULTILINE | ES_READONLY |
+                    WS_VSCROLL
+    LTEXT           "Unexpected program error occured !!!\r\nRagnarok will be shutdown because of unexpected program error. Please report these errors to Gravity or Game Master.",
+                    IDC_STATIC,7,7,143,32
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE
+BEGIN
+    IDD_SIMPLE_ASSERT, DIALOG
+    BEGIN
+        LEFTMARGIN, 2
+        RIGHTMARGIN, 248
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
