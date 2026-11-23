@@ -1,0 +1,49 @@
+# Dedicated rAthena for the HighPriest client. Its project name, database
+# volume and (by default) loopback ports are its own, so it does not touch any
+# other rAthena on the same machine; two servers cannot share the same host
+# ports, though, so set HP_LOGIN_PORT etc. when another one is running.
+#
+#   docker compose up -d --build
+#   docker compose logs -f rathena
+#
+# HP_BIND       address the ports are published on (default 127.0.0.1)
+# HP_PUBLIC_IP  address announced to the client for char and map server
+name: hp-rathena
+
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: ragnarok-root
+      MARIADB_DATABASE: ragnarok
+      MARIADB_USER: ragnarok
+      MARIADB_PASSWORD: ragnarok
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  rathena:
+    build:
+      context: .
+      args:
+        PACKETVER: "20080401"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      PUBLIC_IP: ${HP_PUBLIC_IP:-127.0.0.1}
+    volumes:
+      - ./import:/import-src:ro
+      - ./sql/seed_accounts.sql:/seed/seed_accounts.sql:ro
+    ports:
+      - "${HP_BIND:-127.0.0.1}:${HP_LOGIN_PORT:-6900}:6900"
+      - "${HP_BIND:-127.0.0.1}:${HP_CHAR_PORT:-6121}:6121"
+      - "${HP_BIND:-127.0.0.1}:${HP_MAP_PORT:-5121}:5121"
+
+volumes:
+  dbdata:

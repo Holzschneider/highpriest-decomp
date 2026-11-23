@@ -29,7 +29,7 @@ void	CPacketQueue::Init(int capacity)
 	m_frontPos = 0;
 	m_rearPos = 0;
 	m_buffer.resize( capacity ) ;
-	m_buf = m_buffer.begin();
+	m_buf = &*m_buffer.begin();
 }
 
 void	CPacketQueue::InsertData(int len, const char *src)
@@ -40,7 +40,7 @@ void	CPacketQueue::InsertData(int len, const char *src)
 
 		if((m_rearPos-m_frontPos)+len > capacity) {
 			m_buffer.resize(m_buffer.size() * 2);
-			m_buf = m_buffer.begin() ;
+			m_buf = &*m_buffer.begin() ;
 		}
 
 		memmove(m_buf, m_buf+m_frontPos, m_rearPos - m_frontPos);

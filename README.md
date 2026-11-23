@@ -61,6 +61,10 @@ They are in 22 files; `grep -rlE 'RAG_(BUDGET|ENTROPY|SYMBOL)' src --exclude='ra
 - `docs/`: the toolchain's provenance and the compiler notes.
 - `build/`: outputs, untracked.
 
+## macOS port
+
+This branch recovers a general Ragnarok Online client from the source and ports it to macOS as a native arm64 application. [docs/port/spec.md](docs/port/spec.md), [docs/port/technical-plan.md](docs/port/technical-plan.md) and [docs/port/implementation-plan.md](docs/port/implementation-plan.md) describe it; [port/](port/README.md) holds its tools, probes and test server. The Windows build above does not read `port/`.
+
 ## Licence
 
 The build files, `tools/stamp.py` and the documentation are dedicated to the public domain under [CC0 1.0](CC0-1.0.txt). Everything else belongs to its owners and is not covered: the reconstructed game source, the bundled compilers, SDK files and runtime sources, and the third-party libraries. [THIRD-PARTY.md](THIRD-PARTY.md) lists them with the notices their licences require.

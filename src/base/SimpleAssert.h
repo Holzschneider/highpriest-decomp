@@ -16,6 +16,15 @@
 
 
 extern bool g_assert_message ;
+#if defined(HP_PORT)
+
+  #include "hp_trace.h"
+
+  #define sAssert(exp)        { if (!(exp)) hp_assert_failed(#exp, NULL, __FILE__, __LINE__); }
+  #define sAssertM(exp, msg)  { if (!(exp)) hp_assert_failed(#exp, msg, __FILE__, __LINE__); }
+  #define sThrow( str )  if( _sThrowBox( str , __FILE__, __LINE__ ) ) { __builtin_debugtrap(); }
+
+#else
 #ifdef ASSERT_MESSAGE
 
   bool _sAssertDlg_(const char*, const char*,
@@ -51,6 +60,7 @@ extern bool g_assert_message ;
 
 
 #define sThrow( str )  if( _sThrowBox( str , __FILE__, __LINE__ ) ) {_asm { int 3 }}
+#endif
 
 bool _sThrowBox(const char*, const char*, int) ;
 

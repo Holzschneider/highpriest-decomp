@@ -1,0 +1,3 @@
+// A userid ending in _M or _F registers a new account.
+new_account: yes
+use_MD5_passwords: no

@@ -9,9 +9,15 @@
 #include "../Session.h"
 
 
+#if defined(HP_PORT)
+#define DUMP_ADDRESS(a)    HP_TRACE(HPT_NET, "%s %s:%d", (a) + ((a)[0] == '\n'), inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port))
+#define DUMP_DATA(a, b)    hp_count("net.bytes.received", (b))
+#define DUMP_PACKET(a,b,c) hp_trace_packet((a)[0], (b), (c))
+#else
 #define DUMP_ADDRESS(a)    ((void)0)
 #define DUMP_DATA(a, b)    ((void)0)
 #define DUMP_PACKET(a,b,c) ((void)0)
+#endif
 
 
 extern void InitPacketLenWithClient();
@@ -248,6 +254,29 @@ HINSTANCE__* CConnection::s_wsmodule;
 int (__stdcall* CConnection::s_wsSend)(unsigned int, const char*, int, int);
 int (__stdcall* CConnection::s_wsRecv)(unsigned int, char*, int, int);
 
+#if defined(HP_PORT)
+static int __stdcall PortSend(unsigned int s, const char* buf, int len, int flags) { return (int)send(s, buf, len, flags); }
+static int __stdcall PortRecv(unsigned int s, char* buf, int len, int flags) { return (int)recv(s, buf, len, flags); }
+
+bool CConnection::Startup()
+{
+	WSAStartup(MAKEWORD(1, 1), &s_wsaData);
+	s_wsmodule = NULL;
+	s_wsSend = PortSend;
+	s_wsRecv = PortRecv;
+	return true;
+}
+
+void CConnection::Cleanup()
+{
+	WSACleanup();
+}
+
+bool CConnection::CheckModulePt()
+{
+	return true;
+}
+#else
 bool CConnection::Startup()
 {
 	if (WSAStartup(MAKEWORD(1, 1), &s_wsaData) != 0) {
@@ -310,6 +339,8 @@ bool CConnection::CheckModulePt()
 	return true;
 }
 
+#endif
+
 CRagConnection::CRagConnection()
 {
 	InitPacketMap();
@@ -320,6 +351,7 @@ CRagConnection::CRagConnection()
 
 bool CRagConnection::SendPacket(int size, const char *buf)
 {
+	DUMP_PACKET("S", buf, size);
 	Send(size, buf);
 
 	return true;

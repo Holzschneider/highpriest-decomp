@@ -49,7 +49,18 @@ int    CheckDevice() ;
 BOOL    InitApp(HINSTANCE hInstance, int nCmdShow);
 void    ExitApp();
 
-#if defined(DEBUG) || defined(_DEBUG)
+#if defined(HP_PORT)
+	#include "hp_trace.h"
+	inline	void	Trace(const char *str, ...)
+	{
+		if (hp_trace_mask & HPT_GAME) {
+			va_list args;
+			va_start(args, str);
+			hp_tracev(HPT_GAME, str, args);
+			va_end(args);
+		}
+	}
+#elif defined(DEBUG) || defined(_DEBUG)
 	void	Trace(const char *str, ...);
 #else
 	inline	void	Trace(const char *str, ...) {}

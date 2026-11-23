@@ -1,0 +1,6 @@
+userid: s1
+passwd: p1
+server_name: HighPriest
+login_ip: 127.0.0.1
+pincode_enabled: no
+start_point_pre: prontera,155,183

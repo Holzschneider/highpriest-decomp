@@ -36,25 +36,41 @@ bool CFileMgr::AddPak(const char* name)
 	return m_pakList.front().second->Open(m_pakList.front().first);
 }
 
+#if defined(HP_PORT)
+// Traces one lookup and passes its result through.
+static void* TraceLookup(const char* name, const char* source, void* data)
+{
+	if (data) {
+		HP_TRACE(HPT_FILE, "%-7s %s", source, name);
+	} else if (!source[0]) {
+		HP_TRACE(HPT_FILE, "MISSING %s", name);
+		hp_count("file.missing", 1);
+	}
+	return data;
+}
+#else
+#define TraceLookup(name, source, data) (data)
+#endif
+
 void* CFileMgr::GetData(const char* name, unsigned long* size)
 {
 	if (g_readFolderFirst) {
 		void* data;
-		if (data = GetFile(name, size)) {
+		if (data = TraceLookup(name, "folder", GetFile(name, size))) {
 			return data;
-		} else if (data = GetPak(name, size)) {
+		} else if (data = TraceLookup(name, "archive", GetPak(name, size))) {
 			return data;
 		} else {
-			return NULL;
+			return TraceLookup(name, "", NULL);
 		}
 	} else {
 		void* data;
-		if (data = GetPak(name, size)) {
+		if (data = TraceLookup(name, "archive", GetPak(name, size))) {
 			return data;
-		} else if (data = GetFile(name, size)) {
+		} else if (data = TraceLookup(name, "folder", GetFile(name, size))) {
 			return data;
 		} else {
-			return NULL;
+			return TraceLookup(name, "", NULL);
 		}
 	}
 }
