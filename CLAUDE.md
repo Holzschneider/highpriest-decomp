@@ -79,7 +79,7 @@ Nothing else is a reason to stop or to ask. Open design questions are decided fr
 
 ## Conventions
 
-- **Names:** the application name is `Bifrost`, defined once in the build and never hard-coded in a path. The port's own identifiers use `BF_` (build switches, environment variables: `BF_PORT`, `BF_TRACE`, `BF_CLIENT_DIR`) and `bf_` (functions, files, programs). After M1, any `HP_` left in the source is a leftover of the single-player game and a defect.
+- **Names:** the application name is `Bifrost`, defined once in the build and never hard-coded in a path. The port's own identifiers use `BF_` (build switches, environment variables: `BF_PORT`, `BF_TRACE`, `BF_CLIENT_DIR`) and `bf_` (functions, files); programs are named `bifrost-<name>`. After M1, any `HP_` left in the source is a leftover of the single-player game and a defect.
 - **The client source** (`src/`) keeps its style and its structure: the smallest change that works, no reformatting, no modernising. New code lives under `port/` (`port/native` for modules that stay, `port/compat` for Windows-shaped adapters that M11 deletes).
 - **Tests:** scripted play through the control socket, confirmed in the server's SQL logs. Game-master commands may set a scene up (place, level, equip a character); the action under test is always played through the client.
 - **Missing data** never stops the client: placeholder, counted trace line, continue.

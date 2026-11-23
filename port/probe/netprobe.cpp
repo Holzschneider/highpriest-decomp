@@ -1,5 +1,5 @@
 /*
- * hp-netprobe: logs in to a Ragnarok server with the game's own connection
+ * bifrost-netprobe: logs in to a Ragnarok server with the game's own connection
  * and packet code (device/Connection.cpp, device/PacketQueue.cpp,
  * packet.cpp), compiled for macOS. It follows the steps of CLoginMode:
  * account server, character server, zone server, and stops once the zone
@@ -11,21 +11,21 @@
  * client's length table does not know ends the run with a report, because
  * the client could not find the next packet boundary after it either.
  *
- *   hp-netprobe [--host 127.0.0.1] [--port 6900] [--user hptest] [--pass hptest]
- *               [--char-name HPProbe] [--listen-ms 2000]
+ *   bifrost-netprobe [--host 127.0.0.1] [--port 6900] [--user bftest] [--pass bftest]
+ *               [--char-name BFProbe] [--listen-ms 2000]
  *
- * HP_TRACE=net,pkt prints every packet; HP_PKT_LOG=file records them.
+ * BF_TRACE=net,pkt prints every packet; BF_PKT_LOG=file records them.
  */
 #include "common.h"
 #include "device/Connection.h"
 #include "packet.h"
 #include "PaddingPacket.h"
-#include "hp_trace.h"
+#include "bf_trace.h"
 
 #include <map>
 #include <string>
 
-extern "C" const char *hp_packet_name(int header);
+extern "C" const char *bf_packet_name(int header);
 
 namespace {
 
@@ -64,7 +64,7 @@ struct Options {
 
 const char *Name(int header)
 {
-	const char *name = hp_packet_name(header);
+	const char *name = bf_packet_name(header);
 	return name ? name : "(no name)";
 }
 
@@ -72,7 +72,7 @@ int Fail(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	fprintf(stderr, "hp-netprobe: FAILED: ");
+	fprintf(stderr, "bifrost-netprobe: FAILED: ");
 	vfprintf(stderr, format, args);
 	fprintf(stderr, "\n");
 	va_end(args);
@@ -102,8 +102,8 @@ int Wait(ProbeConnection &conn, char *buf, int timeoutMs)
 		case ProbeConnection::UNKNOWN_HEADER: {
 			char raw[32];
 			int size = conn.PeekRaw(raw, sizeof(raw));
-			fprintf(stderr, "hp-netprobe: the server sent header 0x%04x, which the client's length table does not contain\n", header);
-			hp_trace_hex(HPT_ERR, "bytes at the unknown header", raw, size);
+			fprintf(stderr, "bifrost-netprobe: the server sent header 0x%04x, which the client's length table does not contain\n", header);
+			bf_trace_hex(BFT_ERR, "bytes at the unknown header", raw, size);
 			return -1;
 		}
 		case ProbeConnection::NOTHING:
@@ -126,7 +126,7 @@ int WaitFor(ProbeConnection &conn, char *buf, int timeoutMs, int first, int seco
 		int header = remaining > 0 ? Wait(conn, buf, remaining) : 0;
 		if (header <= 0 || header == first || header == second)
 			return header;
-		HP_TRACE(HPT_NET, "passing over 0x%04x %s", header, Name(header));
+		BF_TRACE(BFT_NET, "passing over 0x%04x %s", header, Name(header));
 	}
 }
 
@@ -310,7 +310,7 @@ int Run(const Options &o)
 		printf("  %d bytes of an incomplete packet were left in the queue\n", conn.Pending());
 
 	conn.Disconnect();
-	printf("hp-netprobe: OK\n");
+	printf("bifrost-netprobe: OK\n");
 	return 0;
 }
 
@@ -319,8 +319,8 @@ int Run(const Options &o)
 int main(int argc, char **argv)
 {
 	Options o;
-	o.host = "127.0.0.1"; o.port = 6900; o.user = "hptest"; o.pass = "hptest";
-	o.charName = "HPProbe"; o.listenMs = 2000;
+	o.host = "127.0.0.1"; o.port = 6900; o.user = "bftest"; o.pass = "bftest";
+	o.charName = "BFProbe"; o.listenMs = 2000;
 	for (int i = 1; i + 1 < argc; i += 2) {
 		std::string key = argv[i];
 		if (key == "--host") o.host = argv[i + 1];
@@ -332,12 +332,12 @@ int main(int argc, char **argv)
 		else { fprintf(stderr, "unknown option %s\n", key.c_str()); return 2; }
 	}
 
-	hp_trace_init();
-	hp_trace_set_packet_namer(hp_packet_name);
+	bf_trace_init();
+	bf_trace_set_packet_namer(bf_packet_name);
 	if (!CConnection::Startup())
 		return Fail("socket startup");
 	int result = Run(o);
 	CConnection::Cleanup();
-	hp_trace_dump_counters();
+	bf_trace_dump_counters();
 	return result;
 }

@@ -3,8 +3,8 @@
  * BSD sockets. Sockets are plain descriptors; nothing here is emulated
  * except the error numbers of a non-blocking connect.
  */
-#ifndef HP_WINSOCK_H
-#define HP_WINSOCK_H
+#ifndef BF_WINSOCK_H
+#define BF_WINSOCK_H
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -68,12 +68,12 @@ static inline int closesocket(SOCKET s) { return close(s); }
 
 /* Winsock ignores the first argument of select and the game passes 0; BSD
    select examines only descriptors below it. */
-static inline int hp_winsock_select(fd_set *readable, fd_set *writable, fd_set *failed, struct timeval *timeout)
+static inline int bf_winsock_select(fd_set *readable, fd_set *writable, fd_set *failed, struct timeval *timeout)
 {
 	return select(FD_SETSIZE, readable, writable, failed, timeout);
 }
 #define select(count, readable, writable, failed, timeout) \
-	hp_winsock_select((readable), (writable), (failed), (timeout))
+	bf_winsock_select((readable), (writable), (failed), (timeout))
 
 static inline int ioctlsocket(SOCKET s, unsigned long request, void *argument)
 {

@@ -2,7 +2,7 @@
 
 Everything the macOS port adds lives here. The documents are in [docs/port](../docs/port): the [specification](../docs/port/spec.md) says what the client must be, the [technical plan](../docs/port/technical-plan.md) how it is built and why, the [implementation plan](../docs/port/implementation-plan.md) in which order.
 
-Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. Until the port pins its own Windows headers (milestone M2), they read the Wine headers of Homebrew's `game-porting-toolkit` in `/usr/local/include/wine/windows`; `HP_WIN_HEADERS` names another directory.
+Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. Until the port pins its own Windows headers (milestone M2), they read the Wine headers of Homebrew's `game-porting-toolkit` in `/usr/local/include/wine/windows`; `BF_WIN_HEADERS` names another directory.
 
 ## Measuring the compile work
 
@@ -24,14 +24,14 @@ Of the 1,142, 642 are inside the Bink SDK headers, which one unit includes, and 
 
 ```bash
 port/probe/build.sh                       # builds both probes as arm64 programs
-build/port/bin/hp-packetlen               # the client's packet length table
-build/port/bin/hp-netprobe                # logs in through to the zone server
+build/port/bin/bifrost-packetlen               # the client's packet length table
+build/port/bin/bifrost-netprobe                # logs in through to the zone server
 port/tools/packetdiff.py --rathena <rathena checkout> 20080401 20080910
 ```
 
-The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp`. Because `src/` still declares 32-bit fields as `long`, `build.sh` takes the sources from the rewritten copy; `HP_SRC=src` switches to the real tree once the rewrites are applied there.
+The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp`. Because `src/` still declares 32-bit fields as `long`, `build.sh` takes the sources from the rewritten copy; `BF_SRC=src` switches to the real tree once the rewrites are applied there.
 
-`hp-netprobe` follows the steps of the game's login mode against a running server and reports the first packet whose header the client's length table does not know.
+`bifrost-netprobe` follows the steps of the game's login mode against a running server and reports the first packet whose header the client's length table does not know.
 
 ## Auditing game data
 
@@ -43,16 +43,16 @@ Reads the format version of every world, ground, attribute, model, sprite and ac
 
 ## Instrumentation
 
-`instrument/hp_trace.h` is compiled into the port and into the probes. The game sources call it where `HP_PORT` is defined: the game's own `Trace()` calls, `ErrorMsg`, assertions, connection events, every packet in both directions, file lookups, and mode changes.
+`instrument/bf_trace.h` is compiled into the port and into the probes. The game sources call it where `BF_PORT` is defined: the game's own `Trace()` calls, `ErrorMsg`, assertions, connection events, every packet in both directions, file lookups, and mode changes.
 
 | Variable | Effect |
 |---|---|
-| `HP_TRACE=net,pkt,file` | categories to print: `err game net pkt file res gfx snd input ui mode w32 stub all` |
-| `HP_TRACE_FILE=path` | write the trace to a file instead of stderr |
-| `HP_PKT_LOG=path` | append every packet as a line: time, direction, header, size, name, hex bytes |
-| `HP_ASSERT=abort` | stop in the debugger on a failed `sAssert` |
+| `BF_TRACE=net,pkt,file` | categories to print: `err game net pkt file res gfx snd input ui mode w32 stub all` |
+| `BF_TRACE_FILE=path` | write the trace to a file instead of stderr |
+| `BF_PKT_LOG=path` | append every packet as a line: time, direction, header, size, name, hex bytes |
+| `BF_ASSERT=abort` | stop in the debugger on a failed `sAssert` |
 
-Failed assertions and the first call of each unimplemented compatibility function (`HP_STUB()`) are printed without any setting.
+Failed assertions and the first call of each unimplemented compatibility function (`BF_STUB()`) are printed without any setting.
 
 ## Test server
 
@@ -63,6 +63,6 @@ docker compose logs -f rathena
 docker compose stop
 ```
 
-The server listens on 127.0.0.1:6900 (account), :6121 (character) and :5121 (zone). Accounts: `hptest` / `hptest` and `hpadmin` / `hpadmin` (group 99). To reach it from another machine, set `HP_BIND=0.0.0.0` and `HP_PUBLIC_IP` to the address the client connects to; `HP_LOGIN_PORT`, `HP_CHAR_PORT` and `HP_MAP_PORT` move the host ports when another server holds the defaults.
+The server listens on 127.0.0.1:6900 (account), :6121 (character) and :5121 (zone). Accounts: `bftest` / `bftest` and `bfadmin` / `bfadmin` (group 99). To reach it from another machine, set `BF_BIND=0.0.0.0` and `BF_PUBLIC_IP` to the address the client connects to; `BF_LOGIN_PORT`, `BF_CHAR_PORT` and `BF_MAP_PORT` move the host ports when another server holds the defaults.
 
 `PACKETVER` must stay between 20080401 and 20080820: `packetdiff.py` shows the client's zone packets matching that range and 15 client requests differing from 20080910 on.

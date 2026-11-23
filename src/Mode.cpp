@@ -41,8 +41,8 @@ inline BOOL CheckKeyPressed(int vkcode)
 
 void ErrorMsg(const char *msg)
 {
-#if defined(HP_PORT)
-	HP_TRACE(HPT_ERR, "ErrorMsg: %s", msg);
+#if defined(BF_PORT)
+	BF_TRACE(BFT_ERR, "ErrorMsg: %s", msg);
 #endif
 	GDIFlip();
 	MessageBoxA(g_hMainWnd, msg, "Error", 0);
@@ -52,8 +52,8 @@ void ErrorMsg(int num)
 {
 	char buf[0x50];
 	wsprintfA(buf, "%d\n", num);
-#if defined(HP_PORT)
-	HP_TRACE(HPT_ERR, "ErrorMsg: %d", num);
+#if defined(BF_PORT)
+	BF_TRACE(BFT_ERR, "ErrorMsg: %d", num);
 #endif
 	GDIFlip();
 	MessageBoxA(g_hMainWnd, buf, "Error", 0);
@@ -631,8 +631,8 @@ void CModeMgr::Run(int modeType, const char *worldName)
 				m_curMode = new CGameMode;
 				break;
 		}
-#if defined(HP_PORT)
-		HP_TRACE(HPT_MODE, "mode %s \"%s\"", m_curModeType == MT_LOGIN ? "login" : "game", m_curModeName);
+#if defined(BF_PORT)
+		BF_TRACE(BFT_MODE, "mode %s \"%s\"", m_curModeType == MT_LOGIN ? "login" : "game", m_curModeName);
 #endif
 		m_curMode->OnInit(m_curModeName);
 		m_curMode->OnRun();

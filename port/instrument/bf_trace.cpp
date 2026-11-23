@@ -1,4 +1,4 @@
-#include "hp_trace.h"
+#include "bf_trace.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,17 +10,17 @@
 #include <set>
 #include <string>
 
-// Errors and stub reports are printed even when HP_TRACE is unset.
-unsigned hp_trace_mask = HPT_ERR | HPT_STUB;
+// Errors and stub reports are printed even when BF_TRACE is unset.
+unsigned bf_trace_mask = BFT_ERR | BFT_STUB;
 
 namespace {
 
 struct Category { const char *name; unsigned bit; };
 const Category kCategories[] = {
-	{ "err", HPT_ERR }, { "game", HPT_GAME }, { "net", HPT_NET }, { "pkt", HPT_PKT },
-	{ "file", HPT_FILE }, { "res", HPT_RES }, { "gfx", HPT_GFX }, { "snd", HPT_SND },
-	{ "input", HPT_INPUT }, { "ui", HPT_UI }, { "mode", HPT_MODE }, { "w32", HPT_W32 },
-	{ "stub", HPT_STUB }, { "all", ~0u },
+	{ "err", BFT_ERR }, { "game", BFT_GAME }, { "net", BFT_NET }, { "pkt", BFT_PKT },
+	{ "file", BFT_FILE }, { "res", BFT_RES }, { "gfx", BFT_GFX }, { "snd", BFT_SND },
+	{ "input", BFT_INPUT }, { "ui", BFT_UI }, { "mode", BFT_MODE }, { "w32", BFT_W32 },
+	{ "stub", BFT_STUB }, { "all", ~0u },
 };
 
 // The worker threads of the game (model loading, music fades) trace too.
@@ -52,12 +52,12 @@ long long Milliseconds()
 void EnsureReady()
 {
 	if (!g_ready)
-		hp_trace_init();
+		bf_trace_init();
 }
 
 } // namespace
 
-void hp_trace_init(void)
+void bf_trace_init(void)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 
@@ -65,8 +65,8 @@ void hp_trace_init(void)
 		clock_gettime(CLOCK_MONOTONIC, &g_start);
 	g_ready = true;
 
-	unsigned mask = HPT_ERR | HPT_STUB;
-	if (const char *spec = getenv("HP_TRACE")) {
+	unsigned mask = BFT_ERR | BFT_STUB;
+	if (const char *spec = getenv("BF_TRACE")) {
 		std::string list(spec);
 		size_t begin = 0;
 		while (begin <= list.size()) {
@@ -81,41 +81,41 @@ void hp_trace_init(void)
 					known = true;
 				}
 			if (!known)
-				fprintf(stderr, "HP_TRACE: unknown category '%s'\n", word.c_str());
+				fprintf(stderr, "BF_TRACE: unknown category '%s'\n", word.c_str());
 			begin = end + 1;
 		}
 	}
-	hp_trace_mask = mask;
+	bf_trace_mask = mask;
 
 	if (g_out && g_out != stderr)
 		fclose(g_out);
 	g_out = stderr;
-	if (const char *path = getenv("HP_TRACE_FILE")) {
+	if (const char *path = getenv("BF_TRACE_FILE")) {
 		if (FILE *file = fopen(path, "w"))
 			g_out = file;
 		else
-			fprintf(stderr, "HP_TRACE_FILE: cannot write %s\n", path);
+			fprintf(stderr, "BF_TRACE_FILE: cannot write %s\n", path);
 	}
 
 	if (g_packetLog) {
 		fclose(g_packetLog);
 		g_packetLog = NULL;
 	}
-	if (const char *path = getenv("HP_PKT_LOG")) {
+	if (const char *path = getenv("BF_PKT_LOG")) {
 		g_packetLog = fopen(path, "a");
 		if (!g_packetLog)
-			fprintf(stderr, "HP_PKT_LOG: cannot write %s\n", path);
+			fprintf(stderr, "BF_PKT_LOG: cannot write %s\n", path);
 	}
 
-	const char *onAssert = getenv("HP_ASSERT");
+	const char *onAssert = getenv("BF_ASSERT");
 	g_abortOnAssert = onAssert && !strcmp(onAssert, "abort");
 }
 
-void hp_tracev(unsigned category, const char *format, va_list args)
+void bf_tracev(unsigned category, const char *format, va_list args)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
-	if (!(hp_trace_mask & category))
+	if (!(bf_trace_mask & category))
 		return;
 
 	fprintf(g_out, "[%8lld %-5s] ", Milliseconds(), CategoryName(category));
@@ -126,19 +126,19 @@ void hp_tracev(unsigned category, const char *format, va_list args)
 	fflush(g_out);
 }
 
-void hp_tracef(unsigned category, const char *format, ...)
+void bf_tracef(unsigned category, const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	hp_tracev(category, format, args);
+	bf_tracev(category, format, args);
 	va_end(args);
 }
 
-void hp_trace_hex(unsigned category, const char *label, const void *data, int size)
+void bf_trace_hex(unsigned category, const char *label, const void *data, int size)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
-	if (!(hp_trace_mask & category))
+	if (!(bf_trace_mask & category))
 		return;
 
 	const unsigned char *bytes = static_cast<const unsigned char *>(data);
@@ -149,19 +149,19 @@ void hp_trace_hex(unsigned category, const char *label, const void *data, int si
 		snprintf(cell, sizeof(cell), "%02x ", bytes[i]);
 		line += cell;
 	}
-	hp_tracef(category, "%s (%d bytes)%s %s", label, size, shown < size ? " first 256:" : ":", line.c_str());
+	bf_tracef(category, "%s (%d bytes)%s %s", label, size, shown < size ? " first 256:" : ":", line.c_str());
 }
 
-void hp_trace_set_packet_namer(const char *(*namer)(int header))
+void bf_trace_set_packet_namer(const char *(*namer)(int header))
 {
 	g_packetNamer = namer;
 }
 
-void hp_trace_packet(char direction, const void *data, int size)
+void bf_trace_packet(char direction, const void *data, int size)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
-	if (size < 2 || (!(hp_trace_mask & HPT_PKT) && !g_packetLog))
+	if (size < 2 || (!(bf_trace_mask & BFT_PKT) && !g_packetLog))
 		return;
 
 	const unsigned char *bytes = static_cast<const unsigned char *>(data);
@@ -170,7 +170,7 @@ void hp_trace_packet(char direction, const void *data, int size)
 	if (!name)
 		name = "?";
 
-	HP_TRACE(HPT_PKT, "%c 0x%04x %-32s %d bytes", direction, header, name, size);
+	BF_TRACE(BFT_PKT, "%c 0x%04x %-32s %d bytes", direction, header, name, size);
 
 	if (g_packetLog) {
 		fprintf(g_packetLog, "%lld %c 0x%04x %d %s ", Milliseconds(), direction, header, size, name);
@@ -181,13 +181,13 @@ void hp_trace_packet(char direction, const void *data, int size)
 	}
 }
 
-void hp_count(const char *name, long long amount)
+void bf_count(const char *name, long long amount)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	g_counters[name] += amount;
 }
 
-void hp_trace_dump_counters(void)
+void bf_trace_dump_counters(void)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
@@ -196,20 +196,20 @@ void hp_trace_dump_counters(void)
 	fflush(g_out);
 }
 
-void hp_stub(const char *function, const char *file, int line)
+void bf_stub(const char *function, const char *file, int line)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	char site[512];
 	snprintf(site, sizeof(site), "%s:%d", file, line);
-	hp_count((std::string("stub.") + function).c_str(), 1);
+	bf_count((std::string("stub.") + function).c_str(), 1);
 	if (g_stubsSeen.insert(site).second)
-		hp_tracef(HPT_STUB, "unimplemented: %s (%s)", function, site);
+		bf_tracef(BFT_STUB, "unimplemented: %s (%s)", function, site);
 }
 
-void hp_assert_failed(const char *expression, const char *message, const char *file, int line)
+void bf_assert_failed(const char *expression, const char *message, const char *file, int line)
 {
-	hp_count("assert.failed", 1);
-	hp_tracef(HPT_ERR, "assertion failed: %s%s%s (%s:%d)", expression,
+	bf_count("assert.failed", 1);
+	bf_tracef(BFT_ERR, "assertion failed: %s%s%s (%s:%d)", expression,
 		message ? " - " : "", message ? message : "", file, line);
 	if (g_abortOnAssert)
 		__builtin_debugtrap();

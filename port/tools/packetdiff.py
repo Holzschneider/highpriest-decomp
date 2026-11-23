@@ -6,7 +6,7 @@ with and the packets that still differ.
   packetdiff.py --rathena DIR [--client FILE | --probe PATH] PACKETVER [PACKETVER ...]
 
   --rathena  a rAthena checkout (src/map/clif_packetdb.hpp, src/config/packets.hpp)
-  --client   output of hp-packetlen; default: runs build/port/bin/hp-packetlen
+  --client   output of bifrost-packetlen; default: runs build/port/bin/bifrost-packetlen
   -v         list every differing packet, not only the totals
 
 Only zone packets (header 0x72 and above) are compared: rAthena's table
@@ -39,7 +39,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--rathena', required=True)
     ap.add_argument('--client')
-    ap.add_argument('--probe', default=os.path.join(here, '..', '..', 'build', 'port', 'bin', 'hp-packetlen'))
+    ap.add_argument('--probe', default=os.path.join(here, '..', '..', 'build', 'port', 'bin', 'bifrost-packetlen'))
     ap.add_argument('-v', '--verbose', action='store_true')
     ap.add_argument('packetver', nargs='+')
     args = ap.parse_args()

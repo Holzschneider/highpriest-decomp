@@ -36,15 +36,15 @@ bool CFileMgr::AddPak(const char* name)
 	return m_pakList.front().second->Open(m_pakList.front().first);
 }
 
-#if defined(HP_PORT)
+#if defined(BF_PORT)
 // Traces one lookup and passes its result through.
 static void* TraceLookup(const char* name, const char* source, void* data)
 {
 	if (data) {
-		HP_TRACE(HPT_FILE, "%-7s %s", source, name);
+		BF_TRACE(BFT_FILE, "%-7s %s", source, name);
 	} else if (!source[0]) {
-		HP_TRACE(HPT_FILE, "MISSING %s", name);
-		hp_count("file.missing", 1);
+		BF_TRACE(BFT_FILE, "MISSING %s", name);
+		bf_count("file.missing", 1);
 	}
 	return data;
 }

@@ -86,7 +86,7 @@ Unlike the pointer casts, a 64-bit `long` compiles silently. `CHARACTER_INFO` in
 
 ### 2.3 The client's network code against rAthena
 
-`hp-netprobe` links the client's own `Connection.cpp`, `PacketQueue.cpp` and `packet.cpp` as arm64 code and follows the login mode's steps. Against rAthena (master of 2026-11-23, pre-renewal, `PACKETVER=20080401`) running on this Mac:
+`bifrost-netprobe` links the client's own `Connection.cpp`, `PacketQueue.cpp` and `packet.cpp` as arm64 code and follows the login mode's steps. Against rAthena (master of 2026-11-23, pre-renewal, `PACKETVER=20080401`) running on this Mac:
 
 ```
 account server: accepted, account 2000101, 1 character server(s), first "HighPriest" at 127.0.0.1:6121
@@ -231,7 +231,7 @@ Already in place (see `port/README.md`): categorised trace, packet log, counters
 Added as the port grows:
 
 - Scripted play through the control interface (3.8), judged by the test server's SQL logs and captured frames. This is how milestones that need playing are accepted.
-- A headless bot grown from `hp-netprobe` as the second player for trade, party and chat.
+- A headless bot grown from `bifrost-netprobe` as the second player for trade, party and chat.
 - A check that every packet and file structure has the size and field offsets of the original, computed by clang for the 32-bit Windows target from the same headers.
 - Frame capture to PNG on request, for comparing screens between changes.
 - Replay of a recorded packet log into the client, to exercise game mode without a server.
@@ -264,7 +264,7 @@ The later part is not built, but three rules keep it possible: input enters only
 |---|---|---|---|
 | The single-player game replaced more online code than the known switches | Medium | Features fail in ways that look like port bugs | Inventory with a verdict per site (3.2); reference binary for cases in doubt; packet replay separates protocol from engine faults |
 | Pointer truncation left in a place the compiler did not flag (int back to pointer) | Medium | Crashes far from the cause | Warnings for int-to-pointer conversion treated as errors; address sanitizer |
-| 2008 UI files changed or gone in the 2021 archive | Medium | Missing or wrong-sized interface pieces | `HP_TRACE=file` lists every miss; replacements go into the loose `data/` folder |
+| 2008 UI files changed or gone in the 2021 archive | Medium | Missing or wrong-sized interface pieces | `BF_TRACE=file` lists every miss; replacements go into the loose `data/` folder |
 | Readable maps that refer to `.rsm2` models | Unknown | Missing objects on those maps | Extend the audit to model references before relying on a map |
 | Layout or precision differences from x87 and 64-bit | Low | Visual or pathfinding differences | Structure-layout check; captured frames |
 | Text metrics differ from GDI | Medium | Clipped or misaligned UI text | Font test screen; per-face adjustments |

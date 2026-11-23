@@ -1,14 +1,14 @@
 # Dedicated rAthena for the HighPriest client. Its project name, database
 # volume and (by default) loopback ports are its own, so it does not touch any
 # other rAthena on the same machine; two servers cannot share the same host
-# ports, though, so set HP_LOGIN_PORT etc. when another one is running.
+# ports, though, so set BF_LOGIN_PORT etc. when another one is running.
 #
 #   docker compose up -d --build
 #   docker compose logs -f rathena
 #
-# HP_BIND       address the ports are published on (default 127.0.0.1)
-# HP_PUBLIC_IP  address announced to the client for char and map server
-name: hp-rathena
+# BF_BIND       address the ports are published on (default 127.0.0.1)
+# BF_PUBLIC_IP  address announced to the client for char and map server
+name: bifrost-rathena
 
 services:
   db:
@@ -36,14 +36,14 @@ services:
         condition: service_healthy
     environment:
       DB_HOST: db
-      PUBLIC_IP: ${HP_PUBLIC_IP:-127.0.0.1}
+      PUBLIC_IP: ${BF_PUBLIC_IP:-127.0.0.1}
     volumes:
       - ./import:/import-src:ro
       - ./sql/seed_accounts.sql:/seed/seed_accounts.sql:ro
     ports:
-      - "${HP_BIND:-127.0.0.1}:${HP_LOGIN_PORT:-6900}:6900"
-      - "${HP_BIND:-127.0.0.1}:${HP_CHAR_PORT:-6121}:6121"
-      - "${HP_BIND:-127.0.0.1}:${HP_MAP_PORT:-5121}:5121"
+      - "${BF_BIND:-127.0.0.1}:${BF_LOGIN_PORT:-6900}:6900"
+      - "${BF_BIND:-127.0.0.1}:${BF_CHAR_PORT:-6121}:6121"
+      - "${BF_BIND:-127.0.0.1}:${BF_MAP_PORT:-5121}:5121"
 
 volumes:
   dbdata:

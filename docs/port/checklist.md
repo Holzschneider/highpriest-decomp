@@ -10,7 +10,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M1.0 Rename the port's prefix from `HP`/`hp` to `BF`/`bf` (switches, environment variables, files, programs, docker project) | src | |
+| [x] | M1.0 Rename the port's prefix from `HP`/`hp` to `BF`/`bf` (switches, environment variables, files, programs, docker project) | src | |
 | [ ] | M1.1 Inventory tool and committed inventory with a verdict per site | src | M1.0 |
 | [ ] | M1.2 Remove the `HP_*` files, declarations, globals and the sites classed as added | src | M1.1 |
 | [ ] | M1.3 Restore start-up: `MT_LOGIN` with `login.rsw`, `PollNetworkStatus`, `CGameMode::Initialize` tail, archive list from configuration | src | M1.2 |

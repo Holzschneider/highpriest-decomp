@@ -1,1 +1,1 @@
-/* <minmax.h>: min and max come from hp_prefix.h. */
+/* <minmax.h>: min and max come from bf_prefix.h. */

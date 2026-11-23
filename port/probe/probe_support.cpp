@@ -14,5 +14,5 @@ DWORD WINAPI timeGetTime(void)
 
 void ErrorMsg(const char *msg)
 {
-	HP_TRACE(HPT_ERR, "ErrorMsg: %s", msg);
+	BF_TRACE(BFT_ERR, "ErrorMsg: %s", msg);
 }

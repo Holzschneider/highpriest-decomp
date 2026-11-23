@@ -3,8 +3,8 @@
  * It supplies what Visual C++ 6.0 and its C runtime provided implicitly and
  * the Windows headers do not declare.
  */
-#ifndef HP_PREFIX_H
-#define HP_PREFIX_H
+#ifndef BF_PREFIX_H
+#define BF_PREFIX_H
 
 #include <stdint.h>
 #include <stddef.h>

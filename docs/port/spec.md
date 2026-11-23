@@ -82,7 +82,7 @@ The client can be driven and observed from outside. Scripted tests use it now; a
 - **Game-master commands for set-up only.** A script may place, level or equip a character by command before a step. The step under test is played through the client as a player would play it.
 - **What "looks right" means.** Frames are judged on their own evidence and against public screenshots of 2008-era clients, collected into a reference folder outside git. No Windows build of the client is made for comparison.
 - **Frames stay out of git.** Captured frames that show game artwork live under the game folder's `test/` directory. The repository holds their checksums, the script that regenerates them, and the written verdicts. Synthetic test draws from generated textures may be committed.
-- **Second player:** a headless bot grown from `hp-netprobe` logs in a second character and answers trades, party invites and chat at packet level. The real client stays single-instance.
+- **Second player:** a headless bot grown from `bifrost-netprobe` logs in a second character and answers trades, party invites and chat at packet level. The real client stays single-instance.
 - **Server:** only the rAthena in `port/server` on the development Mac. No other server is used, changed or deployed to. It stays stock rAthena, changed by configuration only: where client and server disagree, the client adapts, even where that departs from the 2008 original.
 
 ## 8. How the work is run

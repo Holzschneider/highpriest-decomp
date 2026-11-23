@@ -38,10 +38,10 @@ M7 and M9 do not depend on M8 and can be done whenever M6 is reached. M11 can st
 - Review of the source and its platform dependencies.
 - `port/tools/census.sh`, `codemod.py`, `shadow.sh`: measure and preview the compile work.
 - `port/tools/packetdiff.py`, `grfaudit.py`: measure the protocol against a server and an archive against the client's loaders.
-- `port/instrument/hp_trace`: trace, packet log, counters, stub and assertion reports. Hooks under `HP_PORT` in `common.h`, `base/SimpleAssert.h`, `base/File.cpp`, `Mode.cpp`, `device/Connection.cpp`.
+- `port/instrument/bf_trace`: trace, packet log, counters, stub and assertion reports. Hooks under `BF_PORT` in `common.h`, `base/SimpleAssert.h`, `base/File.cpp`, `Mode.cpp`, `device/Connection.cpp`.
 - `port/compat/include`: prefix header, runtime header stand-ins, `winsock.h` on BSD sockets.
-- `port/probe`: `hp-packetlen` and `hp-netprobe`, the first arm64 programs built from the client's sources.
-- `port/server`: rAthena pre-renewal at `PACKETVER=20080401`, with which `hp-netprobe` logs in through to the zone server.
+- `port/probe`: `bifrost-packetlen` and `bifrost-netprobe`, the first arm64 programs built from the client's sources.
+- `port/server`: rAthena pre-renewal at `PACKETVER=20080401`, with which `bifrost-netprobe` logs in through to the zone server.
 
 ## M1. Recover the client source
 
@@ -80,14 +80,14 @@ Make every source acceptable to clang as 64-bit code.
 **Done when**
 - `port/tools/census.sh` reports every unit clean, with each exclusion listed in the build file.
 - The layout check passes for `packet.h`, `PaddingPacket.h` and the resource headers.
-- `HP_SRC=src port/probe/build.sh` builds the probes from the real tree and `hp-netprobe` still ends with `OK`.
+- `BF_SRC=src port/probe/build.sh` builds the probes from the real tree and `bifrost-netprobe` still ends with `OK`.
 
 ## M3. Links and starts without a window
 
 Give the binary enough of an operating system to start, and give it its data.
 
 1. Native modules and adapters for files, settings, time, threads and the shell functions. The clock is read in one place.
-2. Every other imported function exists as a stub that calls `HP_STUB()`, so the binary links and reports what it reached.
+2. Every other imported function exists as a stub that calls `BF_STUB()`, so the binary links and reports what it reached.
 3. Files: a read-only game folder named by setting or `BF_CLIENT_DIR`, by default `~/Games/Bifrost`; backslashes translated; loose-file lookups case-insensitive; CP949 file names converted. Writes go to Application Support, Pictures and Documents under the application's name.
 4. Settings: built-in defaults; the registry adapter reads and writes a property list. All access goes through one settings object.
 5. Missing files and table entries produce a placeholder and a counted trace line instead of an error box.
@@ -132,7 +132,7 @@ Give the binary enough of an operating system to start, and give it its data.
 
 **Done when**
 - The login script types an account and password, clicks through and reaches character selection with characters drawn; a second script creates a character.
-- The packet log of that session matches the sequence `hp-netprobe` produces.
+- The packet log of that session matches the sequence `bifrost-netprobe` produces.
 - The same login works from launch arguments alone.
 
 ## M6. In the world
@@ -163,7 +163,7 @@ Give the binary enough of an operating system to start, and give it its data.
 Work through the client feature by feature against rAthena, fixing what the recovery, the port or the protocol breaks.
 
 1. Checklist in play order, each item a script (game-master commands may set a scene up, the action under test is played): movement and camera, chat, combat and damage numbers, items on the ground, inventory and equipment, NPC dialogue, shops, storage, skills and the skill tree, status window, emotes, options, screenshots, map change, logout and character switch.
-2. Second player: `hp-netprobe` grows into a headless bot that logs in another character and answers trade, party, guild and chat at packet level. Scripts for those features run the client against it.
+2. Second player: `bifrost-netprobe` grows into a headless bot that logs in another character and answers trade, party, guild and chat at packet level. Scripts for those features run the client against it.
 3. Each failure is first attributed: a recovery site (compare with the inventory and the reference binary), a port fault (stub report, sanitizers), or a protocol difference (packet log against the server's log).
 4. Protocol differences: the four known length mismatches (mail and auction), anything `BF_TRACE=pkt` or the server log reports. The server stays stock rAthena; each difference is resolved in the client.
 5. Worker threads that call into the renderer and effects without locks (far-model loading) are made safe.
@@ -194,7 +194,7 @@ Prepare for a later packet version without implementing one.
 3. The request packets whose layout changed in later versions (the ones `packetdiff.py` flags from 20080910 on) are built and parsed in one place each.
 4. A short note in `docs/port` on what adding a version takes, with the `packetdiff.py` output for one later version as the worked example.
 
-**Done when** no handler or sender contains a numeric packet id, `hp-packetlen` prints the same table as before, and the gate test passes.
+**Done when** no handler or sender contains a numeric packet id, `bifrost-packetlen` prints the same table as before, and the gate test passes.
 
 ## M11. Native calls only
 

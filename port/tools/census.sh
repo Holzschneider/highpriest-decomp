@@ -8,7 +8,7 @@
 #   --tree  the source tree to check (default: src)
 #   --out   where the per-file logs go (default: build/port/census)
 #
-# HP_WIN_HEADERS names the directory that holds windows.h, d3d.h and the rest
+# BF_WIN_HEADERS names the directory that holds windows.h, d3d.h and the rest
 # (default: the Wine headers of Homebrew's game-porting-toolkit).
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
@@ -22,13 +22,13 @@ while [ $# -gt 0 ]; do
   esac
 done
 . "$ROOT/port/tools/flags.sh"
-[ -f "$WIN_HEADERS/windows.h" ] || { echo "no windows.h in $WIN_HEADERS; set HP_WIN_HEADERS" >&2; exit 1; }
+[ -f "$WIN_HEADERS/windows.h" ] || { echo "no windows.h in $WIN_HEADERS; set BF_WIN_HEADERS" >&2; exit 1; }
 mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd); find "$OUT" -name '*.log' -delete
 
 # The link order of sources.mk lists the game's translation units.
 GAME=$(awk '/^GAME :=/{f=1} f{print} f&&!/\\$/{f=0}' "$ROOT/sources.mk" | sed 's/GAME :=//; s/\\//g')
 
-FLAGS="$HP_TARGET -fsyntax-only -ferror-limit=0 $HP_DEFINES $HP_INCLUDES -I$TREE -isystem $WIN_HEADERS $*"
+FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE -isystem $WIN_HEADERS $*"
 export FLAGS TREE OUT
 
 check() {
@@ -53,6 +53,6 @@ echo "  everything else:  $(errors all.txt | grep -v 'cast from pointer to small
 echo
 echo "most frequent messages (distinct locations, pointer casts left out):"
 errors all.txt | grep -v 'cast from pointer to smaller type' | sort -u -t: -k1,3 \
-  | sed -E "s/^[^ ]+ (fatal )?error: //; s/'[^']*'/'X'/g; s/[0-9]+/N/g" | sort | uniq -c | sort -rn | head -${HP_CENSUS_TOP:-15}
+  | sed -E "s/^[^ ]+ (fatal )?error: //; s/'[^']*'/'X'/g; s/[0-9]+/N/g" | sort | uniq -c | sort -rn | head -${BF_CENSUS_TOP:-15}
 echo
 echo "logs: $OUT"

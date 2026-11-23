@@ -9,10 +9,10 @@
 #include "../Session.h"
 
 
-#if defined(HP_PORT)
-#define DUMP_ADDRESS(a)    HP_TRACE(HPT_NET, "%s %s:%d", (a) + ((a)[0] == '\n'), inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port))
-#define DUMP_DATA(a, b)    hp_count("net.bytes.received", (b))
-#define DUMP_PACKET(a,b,c) hp_trace_packet((a)[0], (b), (c))
+#if defined(BF_PORT)
+#define DUMP_ADDRESS(a)    BF_TRACE(BFT_NET, "%s %s:%d", (a) + ((a)[0] == '\n'), inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port))
+#define DUMP_DATA(a, b)    bf_count("net.bytes.received", (b))
+#define DUMP_PACKET(a,b,c) bf_trace_packet((a)[0], (b), (c))
 #else
 #define DUMP_ADDRESS(a)    ((void)0)
 #define DUMP_DATA(a, b)    ((void)0)
@@ -254,7 +254,7 @@ HINSTANCE__* CConnection::s_wsmodule;
 int (__stdcall* CConnection::s_wsSend)(unsigned int, const char*, int, int);
 int (__stdcall* CConnection::s_wsRecv)(unsigned int, char*, int, int);
 
-#if defined(HP_PORT)
+#if defined(BF_PORT)
 static int __stdcall PortSend(unsigned int s, const char* buf, int len, int flags) { return (int)send(s, buf, len, flags); }
 static int __stdcall PortRecv(unsigned int s, char* buf, int len, int flags) { return (int)recv(s, buf, len, flags); }
 

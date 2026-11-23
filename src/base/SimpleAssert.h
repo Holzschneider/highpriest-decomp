@@ -16,12 +16,12 @@
 
 
 extern bool g_assert_message ;
-#if defined(HP_PORT)
+#if defined(BF_PORT)
 
-  #include "hp_trace.h"
+  #include "bf_trace.h"
 
-  #define sAssert(exp)        { if (!(exp)) hp_assert_failed(#exp, NULL, __FILE__, __LINE__); }
-  #define sAssertM(exp, msg)  { if (!(exp)) hp_assert_failed(#exp, msg, __FILE__, __LINE__); }
+  #define sAssert(exp)        { if (!(exp)) bf_assert_failed(#exp, NULL, __FILE__, __LINE__); }
+  #define sAssertM(exp, msg)  { if (!(exp)) bf_assert_failed(#exp, msg, __FILE__, __LINE__); }
   #define sThrow( str )  if( _sThrowBox( str , __FILE__, __LINE__ ) ) { __builtin_debugtrap(); }
 
 #else
