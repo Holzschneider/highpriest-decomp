@@ -7,6 +7,8 @@ Each milestone ends in something that can be run and checked. Sizes are relative
 How the work is run (specification, section 8):
 
 - All work is on the branch `macos-port`; `main` is not touched. One commit per completed step; the branch is pushed as work proceeds.
+- The milestones are run in one go by an orchestrated fleet of agents (specification, section 9; rules in `CLAUDE.md`; prompt in [run-prompt.md](run-prompt.md)). The state of every step is in [checklist.md](checklist.md).
+- **Tracks run ahead, exits close in order.** A step starts as soon as the steps it needs are done, whatever its milestone: the native modules, the game data, the test harness, the tools and the format readers are built in parallel from the start, each with its own test program, while the client source goes through M1 to M3. A milestone is closed by a fresh verifier, and only after the milestone before it.
 - Work does not stop between milestones. At each exit, `docs/port/progress.md` gets an entry: what passed, the commands that show it, captured frames, open recovery sites, deviations from this plan.
 - Development runs against the rAthena in `port/server` on the development Mac and no other server.
 - Criteria that need playing are scripts driving the client through its control interface, judged by the server's SQL logs and captured frames.
@@ -27,7 +29,7 @@ How the work is run (specification, section 8):
 | M9 | English | No Korean in the standard flows | M | A |
 | M10 | Protocol seam | Packet ids and lengths behind one table | M | A |
 | M11 | Native calls only | No Windows headers or adapters in the build | L | B |
-| M12 | Application | `.app` bundle, settings, agent support, optional features | open | B |
+| M12 | Application | `.app` bundle, settings window, Granny and Bink readers | L | B |
 
 M7 and M9 do not depend on M8 and can be done whenever M6 is reached. M11 can start per subsystem as soon as that subsystem is stable.
 
@@ -45,6 +47,7 @@ M7 and M9 do not depend on M8 and can be done whenever M6 is reached. M11 can st
 
 Turn the source back into the online client, before any effort goes into porting code that will be deleted.
 
+0. Rename the port's own prefix from `HP`/`hp` to `BF`/`bf` (build switch, environment variables, trace functions, probe and docker project names), so that after this milestone any `HP_` in the source is a leftover of the single-player game.
 1. Inventory tool: lists every line outside the `HP_*` files that mentions one of their 54 functions or 58 globals, with the enclosing function. The list is committed with a verdict per site: *added* (delete) or *replaced* (restore, with the evidence used).
 2. Remove what was added: the five `HP_*` files, their declarations in `UIWindowMgr` and `window/UISys.h`, the globals, and the call sites classed as added.
 3. Restore what is known to have been replaced:
@@ -85,18 +88,18 @@ Give the binary enough of an operating system to start, and give it its data.
 
 1. Native modules and adapters for files, settings, time, threads and the shell functions. The clock is read in one place.
 2. Every other imported function exists as a stub that calls `HP_STUB()`, so the binary links and reports what it reached.
-3. Files: a read-only game folder named by setting or `HP_CLIENT_DIR`; backslashes translated; loose-file lookups case-insensitive; CP949 file names converted. Writes go to Application Support, Pictures and Documents under the application's name.
+3. Files: a read-only game folder named by setting or `BF_CLIENT_DIR`, by default `~/Games/Bifrost`; backslashes translated; loose-file lookups case-insensitive; CP949 file names converted. Writes go to Application Support, Pictures and Documents under the application's name.
 4. Settings: built-in defaults; the registry adapter reads and writes a property list. All access goes through one settings object.
 5. Missing files and table entries produce a placeholder and a counted trace line instead of an error box.
 6. zlib and JPEG replacements.
 7. A `--headless` option that runs the start-up and stops before the first frame.
-8. Game folder on the development Mac, outside the repository: `rdata.grf`, `data.grf` and `BGM/` copied from the owner's other Mac (about 3.5 GB), and a script that assembles the loose `data/` folder: the 12 text tables missing from the archives, taken unchanged from ROenglishRE, and a `clientinfo.xml` for the local server with the English service type.
+8. Game folder on the development Mac, `~/Games/Bifrost`, outside the repository: `rdata.grf`, `data.grf` and `BGM/` copied from the owner's other Mac (about 3.5 GB), and a script that assembles the loose `data/` folder: the 12 text tables missing from the archives, taken unchanged from ROenglishRE, and a `clientinfo.xml` for the local server with the English service type.
 9. Table checker: entry counts and separators of each table against what the client's parsers expect.
 10. Extend `grfaudit.py` to follow each readable map's model references, and write the list of maps the client can enter; apply that list to the test server's map configuration.
 
 **Done when**
 - The client started with `--headless` opens both archives, parses `clientinfo.xml`, loads the name tables, constructs the login mode and exits 0.
-- `HP_TRACE=file` shows each lookup with its source, and the stub report lists only graphics, sound, input and window functions.
+- `BF_TRACE=file` shows each lookup with its source, and the stub report lists only graphics, sound, input and window functions.
 - Nothing was written inside the game folder.
 - The table checker passes, and the list of enterable maps exists.
 
@@ -109,10 +112,11 @@ Give the binary enough of an operating system to start, and give it its data.
 5. Text module on CoreText and the GDI adapter: fonts, DIB sections, text output and extents, region fill. Text is not smoothed.
 6. Control interface, first part: the socket, the JSON-lines framing, and the frame-capture command.
 7. The options to skip the licence and intro screens, on by default.
+8. Public screenshots of 2008-era clients, collected under `~/Games/Bifrost/test/reference/` for the verifier.
 
 **Done when**
 - The login screen appears with wallpaper, window frames, buttons and text, at one frame per display refresh.
-- Frames captured through the socket at UI scale 1, 2 and 3 and at a 4:3 and a wide window size are checked in as reference images; UI pixels are clean blocks at every scale.
+- Frames captured through the socket at UI scale 1, 2 and 3 and at a 4:3 and a wide window size are kept under `~/Games/Bifrost/test/frames/` with their checksums and the regenerating script in the repository; UI pixels are clean blocks at every scale.
 - The 16 multitexture presets and the blend modes each have a test draw whose capture has been reviewed.
 - Every interface file the login screen asked for and did not find is listed, with a replacement or a decision.
 
@@ -137,7 +141,7 @@ Give the binary enough of an operating system to start, and give it its data.
 2. The camera, mouse picking and click-to-move; the free-camera option, on by default.
 3. Settle the recovery sites left open in M1 that concern game mode, now that their effect can be seen.
 4. Control interface, third part: own position, HP and SP, visible actors.
-5. Packet replay (`HP_PKT_REPLAY`): feed a recorded log to the client so game mode can be debugged without a server.
+5. Packet replay (`BF_PKT_REPLAY`): feed a recorded log to the client so game mode can be debugged without a server.
 6. An unsupported map version becomes a traced error and a return to character selection.
 
 **Done when**
@@ -158,10 +162,10 @@ Give the binary enough of an operating system to start, and give it its data.
 
 Work through the client feature by feature against rAthena, fixing what the recovery, the port or the protocol breaks.
 
-1. Checklist in play order, each item a script: movement and camera, chat, combat and damage numbers, items on the ground, inventory and equipment, NPC dialogue, shops, storage, skills and the skill tree, status window, emotes, options, screenshots, map change, logout and character switch.
+1. Checklist in play order, each item a script (game-master commands may set a scene up, the action under test is played): movement and camera, chat, combat and damage numbers, items on the ground, inventory and equipment, NPC dialogue, shops, storage, skills and the skill tree, status window, emotes, options, screenshots, map change, logout and character switch.
 2. Second player: `hp-netprobe` grows into a headless bot that logs in another character and answers trade, party, guild and chat at packet level. Scripts for those features run the client against it.
 3. Each failure is first attributed: a recovery site (compare with the inventory and the reference binary), a port fault (stub report, sanitizers), or a protocol difference (packet log against the server's log).
-4. Protocol differences: the four known length mismatches (mail and auction), anything `HP_TRACE=pkt` or the server log reports. Each is fixed on the side that is wrong for this client era.
+4. Protocol differences: the four known length mismatches (mail and auction), anything `BF_TRACE=pkt` or the server log reports. The server stays stock rAthena; each difference is resolved in the client.
 5. Worker threads that call into the renderer and effects without locks (far-model loading) are made safe.
 6. Sanitizer runs and a one-hour scripted soak.
 
@@ -205,15 +209,23 @@ Order, easiest first: time and threads, network (the socket code is already nati
 
 ## M12. Application
 
-Open-ended; each item stands alone.
+In the run:
 
-- `.app` bundle with a chosen game folder and a settings window.
+1. `.app` bundle, ad-hoc signed.
+2. A game-folder chooser and a settings window.
+3. Granny reader: an own loader for `.gr2`, written from public descriptions of the format and from the game's files, so guild flags, the Emperium and guardians appear. No third-party code is copied.
+4. Bink reader: an own decoder for the intro movie, on the same terms.
+
+Both readers are the most uncertain work in the plan. Each starts early as its own track with a standalone test program (dump a model, write movie frames), and is parked with its findings if it does not get there.
+
+**Done when** the bundle starts from Finder with a chosen game folder and passes the gate test; a Granny model is drawn in a War of Emperium castle frame; the intro movie plays with sound. Readers that were parked are listed as such.
+
+Future work, not in the run:
+
 - First-class agent support: drawing without a visible window, advancing the loop by a fixed number of logic steps, a fuller state feed, and the control interface documented as stable.
 - Settings profiles and more than one client at a time.
 - A user-editable key map.
 - World files 2.2 to 2.5 and `.rsm2` models, for the 79 maps the client cannot read today.
-- Granny models: an own loader for `.gr2` so guild flags, the Emperium and guardians appear.
-- Intro movie through an own Bink decoder.
 - Korean and other input methods through the system text input.
 - A second packet version, on the seam of M10.
 - An archive from 2008–2010, if one is found, as an alternative data set.
@@ -222,5 +234,5 @@ Open-ended; each item stands alone.
 
 | Point | State |
 |---|---|
-| The application's name | A neutral working name is used until the owner chooses one |
+| The application's name | "Bifrost" is the working name until the owner chooses a final one |
 | The owner's play test | After M8 and M9; it judges feel and sound, which scripts cannot |

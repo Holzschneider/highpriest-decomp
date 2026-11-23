@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Bash(cmake *)", "Bash(ninja *)", "Bash(make *)", "Bash(clang *)", "Bash(clang++ *)",
+      "Bash(xcrun *)", "Bash(xcodebuild *)", "Bash(codesign *)", "Bash(lldb *)", "Bash(otool *)",
+      "Bash(nm *)", "Bash(lipo *)", "Bash(dsymutil *)", "Bash(leaks *)", "Bash(plutil *)",
+      "Bash(sips *)", "Bash(sw_vers*)", "Bash(sysctl -n *)", "Bash(caffeinate *)",
+      "Bash(python3 *)", "Bash(bash port/*)", "Bash(port/*)", "Bash(./port/*)",
+      "Bash(build/*)", "Bash(./build/*)",
+      "Bash(git status*)", "Bash(git add *)", "Bash(git commit *)", "Bash(git diff*)",
+      "Bash(git log*)", "Bash(git show*)", "Bash(git branch*)", "Bash(git switch *)",
+      "Bash(git checkout *)", "Bash(git worktree *)", "Bash(git rebase *)", "Bash(git merge *)",
+      "Bash(git cherry-pick *)", "Bash(git stash*)", "Bash(git restore *)", "Bash(git rev-parse *)",
+      "Bash(git ls-files*)", "Bash(git grep *)", "Bash(git mv *)", "Bash(git rm *)",
+      "Bash(git fetch*)", "Bash(git apply *)", "Bash(git blame *)", "Bash(git merge-base *)",
+      "Bash(git push origin macos-port*)", "Bash(git push -u origin macos-port*)",
+      "Bash(docker compose *)", "Bash(docker build *)", "Bash(docker exec *)", "Bash(docker logs *)",
+      "Bash(docker ps*)", "Bash(docker images*)", "Bash(docker inspect *)",
+      "Bash(brew install *)", "Bash(brew list*)", "Bash(brew info *)", "Bash(brew --prefix*)",
+      "Bash(curl *)",
+      "Bash(ls*)", "Bash(cat *)", "Bash(head *)", "Bash(tail *)", "Bash(grep *)", "Bash(rg *)",
+      "Bash(find *)", "Bash(wc *)", "Bash(sort *)", "Bash(uniq *)", "Bash(diff *)", "Bash(cmp *)",
+      "Bash(shasum *)", "Bash(file *)", "Bash(du *)", "Bash(df *)", "Bash(mkdir *)", "Bash(cp *)",
+      "Bash(mv *)", "Bash(touch *)", "Bash(sed *)", "Bash(awk *)", "Bash(perl *)", "Bash(tr *)",
+      "Bash(cut *)", "Bash(xxd *)", "Bash(hexdump *)", "Bash(strings *)", "Bash(tee *)",
+      "Bash(echo *)", "Bash(printf *)", "Bash(test *)", "Bash(true)", "Bash(which *)",
+      "Bash(date*)", "Bash(env *)", "Bash(time *)", "Bash(timeout *)", "Bash(kill *)",
+      "Bash(pkill *)", "Bash(pgrep *)", "Bash(ps *)", "Bash(lsof *)", "Bash(nc *)",
+      "Bash(unzip *)", "Bash(tar *)", "Bash(zip *)", "Bash(jq *)", "Bash(xargs *)",
+      "Bash(cd *)", "Bash(pwd)", "Bash(stat *)", "Bash(basename *)", "Bash(dirname *)",
+      "Bash(rm -rf build/*)", "Bash(rm -r build/*)", "Bash(rm -f build/*)", "Bash(rm build/*)"
+    ],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(git push --force*)", "Bash(git push -f*)",
+      "Bash(git push origin main*)", "Bash(git push origin +*)", "Bash(git push origin :*)",
+      "Bash(docker system prune*)", "Bash(docker volume prune*)"
+    ]
+  },
+  "worktree": {
+    "baseRef": "head"
+  },
+  "workflowSizeGuideline": "unrestricted"
+}

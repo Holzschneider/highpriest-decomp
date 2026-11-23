@@ -1,6 +1,6 @@
 # macOS port: specification
 
-What the finished client is and how the work is run, as decided with the project owner on 2026-11-23. The [technical plan](technical-plan.md) explains how it is built and the [implementation plan](implementation-plan.md) in which order; where they and this document disagree, this document holds.
+What the finished client is and how the work is run, as decided with the project owner on 2026-11-23 and, for the unattended run (section 9), on 2026-11-24. The [technical plan](technical-plan.md) explains how it is built and the [implementation plan](implementation-plan.md) in which order; where they and this document disagree, this document holds.
 
 ## 1. Product
 
@@ -11,7 +11,7 @@ A general Ragnarok Online client, recovered from the HighPriest source, running 
 | Users | A person playing comes first. An agent driving the client (as in the owner's aiRO project) comes later as a first-class use; no design decision may rule it out (section 6) |
 | Platforms | arm64 only, macOS 14 or later. No Intel build, no iPad requirement |
 | Dependencies | The shipped application links Apple frameworks and zlib only. Formats Apple cannot decode (Bink, Granny) get their own minimal reader or stay stubbed |
-| Name | A neutral working name, defined in one place, until the owner chooses one. Not "HighPriest", not "Ragnarok" |
+| Name | **Bifrost**, as a working name defined in one place, until the owner chooses a final one. The bundle identifier is `com.example.bifrost` until then. The port's own identifiers use the prefixes `BF_` and `bf_` |
 | Single-player game | Removed. The reference commit on `main` preserves it |
 
 ## 2. Recovery
@@ -50,7 +50,7 @@ A general Ragnarok Online client, recovered from the HighPriest source, running 
 ## 5. Data, text and files
 
 - **Game data:** the 2021 kRO archives, read as they are. An archive from 2008–2010 is used if one is found; nothing waits for it.
-- **Game folder is read-only.** The client is pointed at a folder holding the archives and never writes there.
+- **Game folder is read-only.** The client is pointed at a folder holding the archives and never writes there. On the development Mac it is `~/Games/Bifrost`, which is also the default when no setting or environment variable names another.
 
 | Written | Where |
 |---|---|
@@ -79,8 +79,11 @@ The client can be driven and observed from outside. Scripted tests use it now; a
 ## 7. Testing and acceptance
 
 - **Scripted play decides.** Milestone criteria that need playing are scripts that drive the client through the control interface. A step passes when the test server's SQL logs show the action and the captured frames look right. The owner plays by hand at the end, not between milestones.
+- **Game-master commands for set-up only.** A script may place, level or equip a character by command before a step. The step under test is played through the client as a player would play it.
+- **What "looks right" means.** Frames are judged on their own evidence and against public screenshots of 2008-era clients, collected into a reference folder outside git. No Windows build of the client is made for comparison.
+- **Frames stay out of git.** Captured frames that show game artwork live under the game folder's `test/` directory. The repository holds their checksums, the script that regenerates them, and the written verdicts. Synthetic test draws from generated textures may be committed.
 - **Second player:** a headless bot grown from `hp-netprobe` logs in a second character and answers trades, party invites and chat at packet level. The real client stays single-instance.
-- **Server:** only the rAthena in `port/server` on the development Mac. No other server is used, changed or deployed to.
+- **Server:** only the rAthena in `port/server` on the development Mac. No other server is used, changed or deployed to. It stays stock rAthena, changed by configuration only: where client and server disagree, the client adapts, even where that departs from the 2008 original.
 
 ## 8. How the work is run
 
@@ -94,3 +97,24 @@ The client can be driven and observed from outside. Scripted tests use it now; a
   - Pushing `macos-port` to the GitHub remote.
   - Installing build tools with Homebrew.
 - **What goes into git:** port code, tools, documents, and the Wine headers the build reads, with their licence notice. Never game data, the reference executable, or translation tables; those are fetched or copied by script.
+
+## 9. The unattended run
+
+M1 to M12 are run in one go by the prompt in [run-prompt.md](run-prompt.md), under the standing rules in the repository's `CLAUDE.md`.
+
+| | Decision |
+|---|---|
+| Restart | The prompt is re-entrant: the same text starts the run and resumes it. The state is in `docs/port/checklist.md` and `docs/port/progress.md` |
+| Rules | Standing rules live in `CLAUDE.md` on `macos-port`, so they survive context compaction; the prompt is a short kick-off |
+| Agents | An orchestrated fleet with no size cap. One lead is the only writer of `macos-port`; workers return local branches from their own worktrees. A tree-wide mechanical rewrite runs alone |
+| Order | Free parallel tracks: native modules, data, harness, tools and format readers start at once and are written to the technical plan, before the client can exercise them. Milestone exits close in order |
+| Models | Mechanical, compiler-checked sweeps on a smaller model; design, debugging, the lead and the verifiers on the top model |
+| Exit judge | A fresh verifier per milestone that did none of the work and is given only the criteria and the commit |
+| Stuck work | Park and continue: recorded with evidence, retried later, listed in the final report. A criterion is never reworded to pass |
+| Stop-loss | A package is parked after three failed verifications. Three rounds without a closed step stop the run |
+| Documents | This specification is changed by the owner only; a conflict with it stops the run. The plans may be amended by the run, each change logged as a deviation |
+| Permissions | An allowlist in `.claude/settings.json`; a command outside it waits for the owner |
+| Notifications | Only when the run stops or is about to wait for an approval |
+| Machine | The development Mac is unattended during the run: tests may take focus and play sound |
+| M12 in the run | The `.app` bundle with folder chooser and settings window, and own Granny and Bink readers. The rest of M12 stays future work |
+| Format readers | Written from public descriptions and the game's own files. Open-source decoders may be read, no code is copied |
