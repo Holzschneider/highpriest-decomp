@@ -350,8 +350,12 @@ void	CSession :: InitOptionWithRegistry()
 				m_isNoCtrl = 0;
 			if (m_isNoCtrl)
 				m_isNoCtrl = 1;
-			if (RegQueryValueExA(hKey, "g_isGravityID", 0, &REG_TYPE, (LPBYTE)&g_isGravityID, &DATALENGTH) != ERROR_SUCCESS)
+			DWORD isGravityID = 0;
+			DATALENGTH = 4;
+			if (RegQueryValueExA(hKey, "g_isGravityID", 0, &REG_TYPE, (LPBYTE)&isGravityID, &DATALENGTH) != ERROR_SUCCESS)
 				g_isGravityID = 0;
+			else
+				g_isGravityID = (char)isGravityID;
 			RegCloseKey(hKey);
 		}
 	} else {
@@ -489,7 +493,8 @@ void	CSession :: WriteOptionToRegistry()
 		RegSetValueExA(hKey, "onHoUserAI", 0, REG_DWORD, (LPBYTE)&m_onHoUserAI, 4);
 		RegSetValueExA(hKey, "onMerUserAI", 0, REG_DWORD, (LPBYTE)&m_onMerUserAI, 4);
 		RegSetValueExA(hKey, "m_isNoCtrl", 0, REG_DWORD, (LPBYTE)&m_isNoCtrl, 4);
-		RegSetValueExA(hKey, "g_isGravityID", 0, REG_DWORD, (LPBYTE)&g_isGravityID, 4);
+		DWORD isGravityID = g_isGravityID;
+		RegSetValueExA(hKey, "g_isGravityID", 0, REG_DWORD, (LPBYTE)&isGravityID, 4);
 
 		RECT windowRect;
 		GetWindowRect(g_hMainWnd, &windowRect);
@@ -8546,7 +8551,7 @@ DWORD	CSession :: GetCurSystemTime()
 {
 	SYSTEMTIME	st;
 	GetSystemTime(&st);
-	return	(((st.wYear&0xff) * 32140800) + (st.wMonth * 2678400) + (st.wDay * 86400) + ((st.wHour+9) * 3600) + (st.wMinute * 60) + st.wSecond)*1000 + st.wMilliseconds;
+	return	(((st.wYear&0xff) * 32140800u) + (st.wMonth * 2678400u) + (st.wDay * 86400u) + ((st.wHour+9) * 3600u) + (st.wMinute * 60u) + st.wSecond)*1000u + st.wMilliseconds;
 }
 
 void	CSession :: AddToExNameList(const char *exName)

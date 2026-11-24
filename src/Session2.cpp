@@ -4963,8 +4963,10 @@ void	CSession :: InitMapTypeInfoTable()
 	int     a, b, i, j, k;
 
 	i = fp.GetLength();
-	buf = new char[i];
+	buf = new char[i + 16];
+	memset(buf, 0, i + 16);
 	fp.Read(buf, i);
+	buf[i] = 0x0a;
 
 	a = 0;
 	b = 0;
