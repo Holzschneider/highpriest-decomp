@@ -2152,7 +2152,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_USE_SKILL_TOGROUND_WITH_TALKBOX: {
-		int *values = (int *)val1;
+		INT_PTR *values = (INT_PTR *)val1;
 		PACKET_CZ_USE_SKILL_TOGROUND_WITHTALKBOX p;
 		p.PacketType    = 126;
 		p.selectedLevel = (short)values[3];

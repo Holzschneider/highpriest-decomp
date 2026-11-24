@@ -322,7 +322,7 @@ void CMode::ProcessFadeIn()
 	if (m_fadeInCount) {
 		dwFadeStart = timeGetTime();
 		unsigned int hFadeBgmThread;
-		_beginthreadex(NULL, 0, FadeBgm, (void*)g_session.m_BgmVolume, 0, &hFadeBgmThread);
+		_beginthreadex(NULL, 0, FadeBgm, (void*)(INT_PTR)g_session.m_BgmVolume, 0, &hFadeBgmThread);
 		m_fadeInCount = FALSE;
 	}
 	DWORD dwFadeCurrent = (timeGetTime() - dwFadeStart);

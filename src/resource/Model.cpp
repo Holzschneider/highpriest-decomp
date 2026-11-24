@@ -1232,7 +1232,7 @@ granny_world_pose*  C3dGrannyModelRes :: UpdateAni(float GameClock, granny_model
 	return Model->WorldPose;
 }
 
-VOID* C3dGrannyModelRes :: RenderMesh(int nMeshIdx, int* RetTex, int* RetFaceArr, int* nIndexNo, matrix* poseMat,
+VOID* C3dGrannyModelRes :: RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat,
 																			granny_world_pose* pWorldpose )
 {
   return RenderModel(m_Scene.Model, nMeshIdx, RetTex, RetFaceArr, nIndexNo, poseMat, pWorldpose );
@@ -1263,7 +1263,7 @@ bool C3dGrannyModelRes :: SetHairAndHeadMesh( void )
 	return false;
 }
 
-VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, int* RetTex, int* RetFaceArr, int* nIndexNo,
+VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo,
 																			 matrix* poseMat, granny_world_pose* pWorldpose )
 {
 	GrannyMesh *Mesh;

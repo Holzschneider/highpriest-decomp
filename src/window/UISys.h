@@ -1358,7 +1358,7 @@ public:
 	void SetFontBold(unsigned char);
 	void SetFontColor(unsigned int);
 	void SetSelectColor(unsigned int selectColor) { m_selectColor = selectColor; }
-	void SetId2(int id) { m_id2 = id; }
+	void SetId2(INT_PTR id) { m_id2 = id; }
 protected:
 	unsigned int m_btnColor;
 	unsigned int m_fontColor;
@@ -1367,7 +1367,7 @@ protected:
 	bool m_isFontBold;
 	int m_fontSize;
 	int m_fontFace;
-	int m_id2;
+	INT_PTR m_id2;
 	std::string m_text2;
 };
 

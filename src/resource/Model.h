@@ -215,7 +215,7 @@ public:
 	granny_control* ActAnimation(int idx, granny_model_instance* instance, granny_control* control, int nLoop);
 	void DeActAnimation(granny_control* control);
 	granny_world_pose* UpdateAni(float GameClock, granny_model_instance* instance);
-	void* RenderMesh(int nMeshIdx, int* RetTex, int* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
+	void* RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
 	void* GetRigidMesh(int nMeshIdx);
 	bool CalculateHitArea(RENDER_INFO_RECT& info, matrix& view, matrix& dispTrans, vector3d& cam);
 	int GetMeshNo() { return m_Scene.Model->MeshCount; }
@@ -236,7 +236,7 @@ protected:
 	CTexture* CreateRGBATexture(granny_texture* GrannyTexture, int g);
 	void CreateModel(GrannyModel* Model, granny_model* GrannyModel);
 	void CreateMesh(GrannyMesh* Mesh, granny_mesh* GrannyMesh, granny_model_instance* InModel);
-	void* RenderModel(GrannyModel* Model, int nMeshIdx, int* RetTex, int* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
+	void* RenderModel(GrannyModel* Model, int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
 	void SetProjectZ(float fClip);
 	GrannyTexture* FindTexture(granny_material* GrannyMaterial);
 	granny_file* LoadFile(const char* BaseFileName, const char* Suffix);

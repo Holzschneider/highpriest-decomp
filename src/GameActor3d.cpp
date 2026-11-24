@@ -171,8 +171,8 @@ void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo
 {
 	RPMesh* rp;
 	granny_pnt332_vertex* srcVert;
-	int pTex = 0;
-	int pFaceArr = 0;
+	INT_PTR pTex = 0;
+	INT_PTR pFaceArr = 0;
 
 	if (m_gid == -1)
 		return;
@@ -370,8 +370,8 @@ void C3dGrannyGameActor::RenderCell(matrix& view) {}
 
 void C3dGrannyGameActor::RenderGuildMark(matrix& view)
 {
-	int pTex = 0;
-	int pFaceArr = 0;
+	INT_PTR pTex = 0;
+	INT_PTR pFaceArr = 0;
 
 	if (m_gid == -1)
 		return;
@@ -753,12 +753,12 @@ bool CGrannyCorpse3d::ProcessAni() {
 void CGrannyCorpse3d::Render(matrix &view)
 {
 	RPMesh* rp;
-	int pTex = 0;
+	INT_PTR pTex = 0;
 	granny_pnt332_vertex* srcVert;
 	float oow;
 	matrix revView;
 	unsigned int vertOffs;
-	int pFaceArr = 0;
+	INT_PTR pFaceArr = 0;
 	float sinDeg;
 	float y;
 	int i;

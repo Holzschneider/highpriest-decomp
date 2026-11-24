@@ -41,7 +41,7 @@ void	CGameActor :: SetModifyFactorOfmotionSpeed(int attackMT)
 	m_modifyFactorOfmotionSpeed2 = m_modifyFactorOfmotionSpeed;
 }
 
-void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
+void	CGameActor :: Am_Action(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);
@@ -225,7 +225,7 @@ void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
 	}
 }
 
-void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
+void	CGameActor :: Am_Skill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 
 
@@ -678,7 +678,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 
 extern int durationTable[];
 
-void	CGameActor :: Am_Groundskill(CGameObject *sender, int arg1, int arg2, int arg3)
+void	CGameActor :: Am_Groundskill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);
@@ -892,7 +892,7 @@ void	CGameActor :: Am_Groundskill(CGameObject *sender, int arg1, int arg2, int a
 	}
 }
 
-void	CGameActor :: Am_Make_Number(CGameObject *sender, int arg1, int arg2, int arg3)
+void	CGameActor :: Am_Make_Number(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	int				number = arg1;
 	DWORD		sprArgb = arg2;

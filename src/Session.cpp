@@ -5044,7 +5044,7 @@ BOOL	CSession :: IsFriendName(const char * cName)
 }
 
 #if 1
-void	CSession :: HiFriends(int val1)
+void	CSession :: HiFriends(INT_PTR val1)
 {
 	string temp = "(Hi) ";
 	if(val1 == NULL || val1 == 0)

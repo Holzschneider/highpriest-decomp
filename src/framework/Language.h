@@ -46,9 +46,9 @@ public:
 	const char* GetCompositionString() { return m_compStr.c_str(); }
 	int GetCompositionStringSize() { return m_compStr.size(); }
 	int GetCompositionCursorPos() { return m_compCursorPos; }
-	virtual int ProcessImeMessage(HWND__* hWnd, unsigned int message, unsigned int wParam, int lParam, bool* trapped);
-	void OnKeyDown(unsigned int wParam, int lParam);
-	void OnChar(unsigned int wParam, int lParam);
+	virtual LRESULT ProcessImeMessage(HWND__* hWnd, unsigned int message, WPARAM wParam, LPARAM lParam, bool* trapped);
+	void OnKeyDown(WPARAM wParam, LPARAM lParam);
+	void OnChar(WPARAM wParam, LPARAM lParam);
 	const char* GetCandidateString(int nCandidate);
 	int GetCandidateCount() { return m_candidateCount; }
 	int GetCandidateSelection() { return m_candidateSelection; }

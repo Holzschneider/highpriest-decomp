@@ -635,10 +635,10 @@ public:
 	void SetHeadType(int headType) { m_headType = headType; }
 	int GetHeadType() { return m_headType; }
 	int GetActorType() { return m_actorType; }
-	void Am_Skill(CGameObject* sender, int arg1, int arg2, int arg3);
-	void Am_Action(CGameObject* sender, int arg1, int arg2, int arg3);
-	void Am_Groundskill(CGameObject* sender, int arg1, int arg2, int arg3);
-	void Am_Make_Number(CGameObject* sender, int arg1, int arg2, int arg3);
+	void Am_Skill(CGameObject* sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
+	void Am_Action(CGameObject* sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
+	void Am_Groundskill(CGameObject* sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
+	void Am_Make_Number(CGameObject* sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	void MakePartyEffect(int job);
 	void DeleteTotalNumber();
 	void AddMsgEffect(CMsgEffect* msgEffect);

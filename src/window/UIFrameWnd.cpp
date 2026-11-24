@@ -1476,7 +1476,7 @@ void UINoticeWnd::PrintNotice()
 	int count = 1;
 	lineStart[0] = 0;
 	if (fileLen > 0) {
-		int lineBase = count - (INT_PTR)fileBuf;
+		INT_PTR lineBase = count - (INT_PTR)fileBuf;
 		for (char* p = fileBuf; fileLen > 0; ++p, --fileLen) {
 			char ch = *p;
 			if (ch != '\n') {
@@ -4663,7 +4663,7 @@ void UITalkboxTrapInputWnd::OnCreate(int cx, int cy)
 
 INT_PTR UITalkboxTrapInputWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
-	int values[5];
+	INT_PTR values[5];
 
 	switch (message) {
 	case UM_SET_SKILL_INFO: {
@@ -5195,7 +5195,7 @@ void UIMerInfoWnd::OnDraw()
 {
 	char windowName[32];
 	int textLen;
-	int tt;
+	time_t tt;
 	char text[24];
 
 	CBitmapRes* bitmap = (CBitmapRes*)g_resMgr().Get(
@@ -5255,7 +5255,7 @@ void UIMerInfoWnd::OnDraw()
 		textLen = sprintf(text, "%d / %d", g_session.m_merSP, g_session.m_merMaxSP);
 		TextOutA(218, 85, text, textLen, 1, 14, 0);
 
-		tt = (INT_PTR)&g_session.m_merExpireDate;
+		tt = g_session.m_merExpireDate;
 		tm* expireTime = localtime(&tt);
 		strftime(text, 128, MsgStr(MSI_TIME_TYPE2), expireTime);
 		textLen = strlen(text);

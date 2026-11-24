@@ -5158,7 +5158,7 @@ void	CSession :: InitChattingProhibitLog()
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (INT_PTR)strstr(curPath, "\\data");
+	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
 		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
@@ -5284,7 +5284,7 @@ void	CSession :: AppendProhibit(DWORD AID, DWORD prohibitTime)
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 	if (Pos) {
 		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
@@ -5351,7 +5351,7 @@ void	CSession :: RerecordProhibitLog()
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (INT_PTR)strstr(curPath, "\\data");
+	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
 		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);

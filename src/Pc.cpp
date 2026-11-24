@@ -4121,13 +4121,13 @@ void CGrannyPc::Render(matrix& vtm)
 void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrannyModelRes *pModelRes, int nPartMeshIdx, C3dGrannyModelRes *pAniModelRes)
 {
 	RPMesh* rp;
-	int pTex;
+	INT_PTR pTex;
 	granny_pnt332_vertex* srcVert;
 	float oow;
 	matrix revView;
 	unsigned char isHairMesh;
 	unsigned int vertOffs;
-	int pFaceArr;
+	INT_PTR pFaceArr;
 	RPMesh** rpArr;
 	granny_world_pose* pWorldPose;
 	float y;

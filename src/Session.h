@@ -1055,7 +1055,7 @@ public:
 	void RefreshFriendUI();
 	int IsFriendName(const char* itemName);
 	int IsCheatName(const char* itemName);
-	void HiFriends(int money);
+	void HiFriends(INT_PTR money);
 	int IsGuildMember(const char* itemName);
 	int IsCheatGuildName(const char* itemName);
 	int CompareTwoNames(const char* cName1, const char* cName2);
@@ -1560,7 +1560,7 @@ public:
 	std::vector<AUCTION_ITEM_SEARCH_INFO> m_auctionList;
 	unsigned char m_waitForAddAuction;
 	int m_auctionSeachOption;
-	int m_auctionSeachOption2;
+	INT_PTR m_auctionSeachOption2;
 	std::map<std::string, MapPosInfo> m_mapPosTable;
 	std::map<std::string, MapPosInfo>* m_divisionMapPosTable;
 	std::map<int, MapPosInfo> m_divisionMapPosIndexTable;

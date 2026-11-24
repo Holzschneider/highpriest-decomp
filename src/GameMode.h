@@ -281,7 +281,7 @@ public:
 	int GetDragItemIndex() { return m_dragInfo.m_dragItemIndex; }
 	ChatRoomInfo* GetLastChatroomInfo() { return &m_lastChatroomInfo; }
 	unsigned int GetAid(const char* cName);
-	void ProcessTalkType(int val1, int val2);
+	void ProcessTalkType(int val1, INT_PTR val2);
 	void ProcessLockOnMouse();
 	void ProcessAssignAID();
 	int ProcessActorPick(int processType, CActorPickInfo* actorInfo);

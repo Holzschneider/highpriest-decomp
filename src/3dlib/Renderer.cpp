@@ -752,7 +752,7 @@ START:
 }
 
 
-CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, unsigned int palID, CacheInfo *info)
+CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, UINT_PTR palID, CacheInfo *info)
 {
 	CRenderer *renderer = this;
 	int sector;

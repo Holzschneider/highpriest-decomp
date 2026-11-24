@@ -234,8 +234,8 @@ private:
 
 struct CacheInfo {
 	CacheInfo() { memset(this, 0, sizeof(CacheInfo)); }
-	DWORD id;
-	DWORD palID;
+	UINT_PTR id;
+	UINT_PTR palID;
 	DWORD lastTime;
 	float tu, tv;
 	float tu1, tv1;
@@ -308,7 +308,7 @@ public:
 	void AddLmRP(RPLmFace* rp, RfLmType renderFlag);
 	void FlushRenderList();
 	CTexture* AddSpriteIndex(SprImg& img, unsigned int pal[], CacheInfo* info);
-	CTexture* GetSpriteIndex(SprImg& img, unsigned int palID, CacheInfo* info);
+	CTexture* GetSpriteIndex(SprImg& img, UINT_PTR palID, CacheInfo* info);
 	void DoFog();
 	void FogSwitch(int clearScreen);
 	int FogFactor(float);

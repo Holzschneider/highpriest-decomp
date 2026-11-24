@@ -8171,7 +8171,7 @@ void UIGraffiStrboxWnd::OnDraw()
 
 INT_PTR UIGraffiStrboxWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
-	int values[5];
+	INT_PTR values[5];
 
 	switch (message) {
 	case UM_SET_SKILL_INFO: {

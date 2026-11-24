@@ -5517,7 +5517,7 @@ void CGameMode::MoveBalloonTextWindow(UIWindow *window, CRenderObject *renderObj
 
 	window->Move(x, y);
 }
-void	CGameMode :: ProcessTalkType(int val1, int val2)
+void	CGameMode :: ProcessTalkType(int val1, INT_PTR val2)
 {
 	rag_symbol_shift(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); rag_symbol_shift(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); rag_symbol_shift(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); rag_symbol_shift(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	TALKTYPE talkType = (TALKTYPE)val1;
@@ -6167,7 +6167,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					char curPath[256];
 					GetCurrentDirectory(256, curPath);
 
-					int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+					INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 
 					if (Pos)
 					{
@@ -6401,7 +6401,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			break;
 		case TT_HELP:
 			{
-#define PUSH_HELP_MSG(id) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr((MSGSTRINGID)(id))), int(RGB(100,255,255)), 0, 0)
+#define PUSH_HELP_MSG(id) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr((MSGSTRINGID)(id))), int(RGB(100,255,255)), 0, 0)
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 
 				PUSH_HELP_MSG(0xb1);
@@ -6948,7 +6948,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 
 		case	TT_SHOW_EMOTIONLIST:
 			{
-#define PUSH_EMOTION_HELP_MSG(id) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr((MSGSTRINGID)(id))), int(RGB(100,255,255)), 0, 0)
+#define PUSH_EMOTION_HELP_MSG(id) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr((MSGSTRINGID)(id))), int(RGB(100,255,255)), 0, 0)
 				PUSH_EMOTION_HELP_MSG(0x25d);
 				PUSH_EMOTION_HELP_MSG(0x224);
 				PUSH_EMOTION_HELP_MSG(0x22b);

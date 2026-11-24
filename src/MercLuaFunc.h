@@ -209,7 +209,7 @@ static	int	l_TraceAI ( lua_State* L )
 		char curPath[256];
 		GetCurrentDirectory(256, curPath);
 
-		int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+		INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 		if (Pos) {
 			Pos = Pos - (INT_PTR)curPath;
 			memcpy(curPath, curPath, Pos);
