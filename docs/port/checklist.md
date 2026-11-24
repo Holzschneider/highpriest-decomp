@@ -119,7 +119,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] e2ff959 | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
 | [x] 059ea41 | M8.4 Protocol differences resolved on the client side | src | M6 exit |
 | [x] e0bfadc | M8.5 Worker threads made safe | src | M6 exit |
-| [ ] | M8.6 Sanitizer runs and one-hour soak | src | M8.1 |
+| [x] | M8.6 Sanitizer runs and one-hour soak | src | M8.1 |
 | [ ] | M8 exit (verifier) | | M7 exit, M8.1–M8.6 |
 
 ## M9. English
