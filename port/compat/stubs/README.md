@@ -16,7 +16,7 @@ The other removals of M2.5 are inside `src/`, under `BF_PORT`, because that was 
 
 - **GameGuard**: `src/base/FindHack.cpp` makes its four entry points (`SetHwnd`, `SendID`, `ExitFindHack`, `Auth2`) empty and leaves out `FindHack1`, `FindHack2`, `ProcessFindHack` and the monitor callback, which nothing calls. `CNPGameLib`'s inline wrappers are no longer used, so no GameGuard function is referenced.
 - **Bink**: `src/movie/CBink.cpp` keeps the class and reports no movie (`Break` returns 1, `Pause` does nothing, `OpenningMain` writes a `ui` trace line); `CBink.h` no longer includes the Bink SDK headers.
-- **Granny**: `src/resource/Model.cpp` keeps `C3dGrannyModelRes` and `C3dGrannyBoneRes` and loads nothing (`Load` and `AddBone` return false with a `res` trace line and the counter `granny model not loaded`); `CGameMode::NewNpc` and `MakeGrannyCorpse3d` create no Granny actor, so the `.gr2` job names draw nothing (NewNpc falls back to `CNpc`). The six SDK functions the actor classes still name are empty there too. `src/granny/granny.h` stays: it is declarations only.
+- **Granny** (M2.5 to M12.3a): `src/resource/Model.cpp` stubbed `C3dGrannyModelRes` and `C3dGrannyBoneRes` until M12.3a; they are now built as the 2008 client had them, on the granny2 names of [`port/compat/granny`](../granny/README.md). `CGameMode::NewNpc` makes a Granny actor for a `.gr2` job name whose model loads, and a `CNpc` (the placeholder) for the two whose file is not in the archives.
 
 ## The entry point and the start-up glue (M3.2, M3.7)
 
