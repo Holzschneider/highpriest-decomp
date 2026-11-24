@@ -16,7 +16,9 @@ entering Prontera; the main windows by their shortcuts (Alt+O options, Alt+E
 items, Alt+Q equipment, Alt+S skills, Alt+A status) and the party window
 (`/organize`, the sharing rules, the party window it opens; @allskill as set-up gives the
 Novice the Basic Skill a party needs); the Job Master's dialogue to
-Swordsman (job level 10 by @jlvl as set-up, before @allskill uses the points); the Tool Dealer's deal type and
+Swordsman (job level 10 by @jlvl as set-up, before @allskill uses the points); a
+Poring killed and its drop picked up at the south gate (as in the gate test,
+reached by @warp); the Tool Dealer's deal type and
 purchase windows in prt_in (reached by @warp as set-up); a chat line in
 chatlog. Frames of every window go under the game folder.
 """
@@ -36,6 +38,8 @@ MANIFEST = "port/harness/manifests/m9-english-session.sha256"
 NEEDS_SERVER = True
 
 SWORDMAN = 1
+PORING = 1002
+SOUTH_GATE = ("prt_fild08", 170, 372)
 JOBMASTER = ("prontera", 153, 193)
 DEALER = ("prt_in", 126, 76)
 DEALER_START = ("prt_in", 126, 72)
@@ -152,6 +156,33 @@ def run(t):
         while ctl.state("self")["self"]["job"] != SWORDMAN and time.monotonic() < deadline:
             ctl.wait({"frames": 10}, timeout=10)
         s.equal(ctl.state("self")["self"]["job"], SWORDMAN, "job reported by the client")
+
+    with t.step("kill and pick up", "the gate's Poring at the south gate (@warp as set-up): picklog M, then P") as s:
+        gm(t, s, ctl, t.gm.warp(*SOUTH_GATE))
+        ctl.wait_map(SOUTH_GATE[0], 60)
+        ctl.wait({"frames": 60}, timeout=20)
+        mark = t.logs.mark()
+        deadline = time.monotonic() + 120
+        drops = []
+        while not drops and time.monotonic() < deadline:
+            a = ctl.actor(lambda a: a["type"] == "monster" and a["job"] == PORING)
+            if a and a.get("screen"):
+                ctl.click(a["screen"]["x"], a["screen"]["y"])
+            drops = wait_rows(lambda: t.logs.monster_drops(PORING, map=SOUTH_GATE[0], after=mark), timeout=3)
+        s.rows("picklog M from mob %d on %s" % (PORING, SOUTH_GATE[0]), drops)
+        s.frame("poring-killed")
+        mark = t.logs.mark()
+        deadline = time.monotonic() + 30
+        rows = []
+        while not rows and time.monotonic() < deadline:
+            a = ctl.actor(lambda a: a["type"] == "item")
+            if a and a.get("screen"):
+                ctl.click(a["screen"]["x"], a["screen"]["y"])
+            rows = wait_rows(lambda: t.logs.picked_up(char_id, after=mark), timeout=3)
+        s.rows("picklog P by %d" % char_id, rows)
+        ctl.wait({"frames": 10}, timeout=10)
+        s.frame("picked-up")
+        toggle(ctl, s, "e", "ITEMWND", "window-itemwnd-loot")
 
     with t.step("shop windows", "the Tool Dealer's deal type and purchase windows (prt_in by @warp)") as s:
         gm(t, s, ctl, t.gm.warp(*DEALER_START))
