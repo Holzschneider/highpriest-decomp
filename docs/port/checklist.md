@@ -109,8 +109,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M8.1 Feature checklist in play order, each item a script (expanded into sub-steps when M6 closes) | src | M6 exit |
 | [ ] | M8.1a Movement, camera and map change (M6's scripts), and the stuck walk after an NPC dialog | src | M6 exit |
 | [x] 5aac618 | M8.1b Chat: public, whisper, party and guild with the bot; emotes | src | M6 exit |
-| [ ] | M8.1c Combat and damage numbers; items on the ground | src | M6 exit |
-| [ ] | M8.1d Inventory and equipment; status window | src | M6 exit |
+| [x] c0188ca | M8.1c Combat and damage numbers; items on the ground | src | M6 exit |
+| [x] 09e6e81 | M8.1d Inventory and equipment; status window | src | M6 exit |
 | [ ] | M8.1e NPC dialogue, shops, storage | src | M6 exit |
 | [ ] | M8.1f Skills and the skill tree | src | M6 exit |
 | [ ] | M8.1g Options; screenshots | src | M6 exit |
