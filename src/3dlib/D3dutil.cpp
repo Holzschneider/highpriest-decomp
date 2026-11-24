@@ -53,13 +53,13 @@ HRESULT _DbgOut(TCHAR* strFile, DWORD dwLine, HRESULT hr, TCHAR* strMsg)
 {
 #ifdef OUTPUTSTR
 	TCHAR buffer[256];
-	sprintf(buffer, "%s(%ld): ", strFile, dwLine);
+	sprintf(buffer, "%s(%ld): ", strFile, (long)dwLine);
 	OutputDebugString(buffer);
 	OutputDebugString(strMsg);
 
 	if (hr)
 	{
-		sprintf(buffer, "(hr=%08lx)\n", hr);
+		sprintf(buffer, "(hr=%08lx)\n", (unsigned long)hr);
 		OutputDebugString(buffer);
 	}
 

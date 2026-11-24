@@ -2123,13 +2123,15 @@ void CLoginMode::SendCaIpSecurity()
 	ncb.ncb_length = sizeof(Adapter);
 	UCHAR uRetCode = Netbios(&ncb);
 	if (uRetCode == 0) {
-		sprintf((char *)p.MacAdress, "%02x%02x%02x%02x%02x%02x\n",
+		char mac[sizeof(p.MacAdress) + 1];   // 12 digits, '\n', NUL: the NUL fell into IP, which is written next
+		sprintf(mac, "%02x%02x%02x%02x%02x%02x\n",
 			Adapter.adapt.adapter_address[0],
 			Adapter.adapt.adapter_address[1],
 			Adapter.adapt.adapter_address[2],
 			Adapter.adapt.adapter_address[3],
 			Adapter.adapt.adapter_address[4],
 			Adapter.adapt.adapter_address[5]);
+		memcpy(p.MacAdress, mac, sizeof(p.MacAdress));
 	} else {
 		strcpy((char *)p.MacAdress, "111111111111");
 	}

@@ -1181,7 +1181,7 @@ void	CRenderer :: ShowInfo()
 	sprintf(buf, "Total : %d - %d", 0, 0);
 	TextOutScreen(0, 0, buf, 0, 12, 0);
 
-	sprintf(buf, "Unused : %d - %d", m_unusedCacheSurfaces.size(), m_unusedCacheSurfaces.size() << 17);
+	sprintf(buf, "Unused : %d - %d", (int)m_unusedCacheSurfaces.size(), (int)(m_unusedCacheSurfaces.size() << 17));
 	TextOutScreen(0, 16, buf, 0, 12, 0);
 
 	sprintf(buf, "%.01f fps", FPS);
