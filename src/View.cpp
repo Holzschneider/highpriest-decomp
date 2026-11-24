@@ -26,6 +26,7 @@ extern tagRECT g_drawRect;
 tagRECT g_drawRect;
 extern GroundAttrPosInfo g_groundAttrPosInfo;
 extern float AVG_DIST;
+extern int g_isFixedCamera;   // GameMode.cpp; /camera
 extern float g_zOffset;
 extern float g_zHover;
 
@@ -407,9 +408,25 @@ void	CView :: InterpolateViewInfo()
 	interpolateAmt /= INTERPNUMAngle1;
 	m_cur.latitude += interpolateAmt;
 
+#if defined(BF_PORT)
+	// Restored from the reference (0x517bd0, the read of g_isFixedCamera at
+	// 0x517cf0): the camera follows the character a tenth of the way each
+	// step, as it turns and zooms; /camera (g_isFixedCamera) fixes it on the
+	// character. The reconstruction always did the latter.
+	if (!g_isFixedCamera) {
+		m_cur.at.x += (m_dest.at.x - m_cur.at.x) / INTERPNUMAngle1;
+		m_cur.at.y += (m_dest.at.y - m_cur.at.y) / INTERPNUMAngle1;
+		m_cur.at.z += (m_dest.at.z - m_cur.at.z) / INTERPNUMAngle1;
+	} else {
+		m_cur.at.x = m_dest.at.x;
+		m_cur.at.z = m_dest.at.z;
+		m_cur.at.y = m_dest.at.y;
+	}
+#else
 	m_cur.at.x = m_dest.at.x;
 	m_cur.at.z = m_dest.at.z;
 	m_cur.at.y = m_dest.at.y;
+#endif
 
 	interpolateAmt = m_dest.distance - m_cur.distance;
 	interpolateAmt /= INTERPNUMAngle1;
