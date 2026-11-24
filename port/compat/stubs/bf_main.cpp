@@ -65,6 +65,8 @@
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
 extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
 extern "C" int bf_client_modal_frame(void);                  // WinMain.cpp
+extern "C" void *objc_autoreleasePoolPush(void);            // libobjc: the frame's autorelease pool
+extern "C" void objc_autoreleasePoolPop(void *pool);
 
 namespace {
 
@@ -215,9 +217,14 @@ void ViewChanged(const bf_view_metrics *now, const bf_view_metrics *, void *)
 	bf_client_view_changed(now->logical_w, now->logical_h);
 }
 
+int g_modal_frames;          // frames run from inside AppKit's live-resize loop
+void *g_frame_pool;          // the autorelease pool of the frame in progress
+
 void ModalFrame(void *)
 {
+	++g_modal_frames;
 	bf_client_modal_frame();
+	--g_modal_frames;
 }
 
 // Installed at the first frame, once the client's device, renderer and
@@ -549,6 +556,16 @@ extern "C" int bf_port_start_graphics(void)
 
 extern "C" void bf_port_frame(void)
 {
+	// One autorelease pool per frame. The client's loop never returns to an
+	// event loop that would drain one, so whatever Cocoa autoreleased during
+	// a frame (outside the modules' own pools) piled up for the whole
+	// session (the soak's NSMutableArray growth). Not inside the live-resize
+	// loop, whose pools AppKit owns.
+	if (!g_modal_frames) {
+		if (g_frame_pool)
+			objc_autoreleasePoolPop(g_frame_pool);
+		g_frame_pool = objc_autoreleasePoolPush();
+	}
 	bool control = bf_control_is_open();
 	if (g_gfx && control) {
 		long long frames = 0;
