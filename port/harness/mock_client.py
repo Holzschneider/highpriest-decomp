@@ -43,7 +43,8 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "WAITWND": 6, "LOADINGWND": 7, "SAYDIALOGWND": 16, "CHOOSEWND": 17, "RESTARTWND": 19,
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
-       "PARTYSETTINGWND": 53, "WHISPERWND": -1}
+       "PARTYSETTINGWND": 53, "WHISPERWND": -1,
+       "MAILLISTWND": 98, "MAILVIEWWND": 99}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 EVENTS = ["mode", "map", "chat", "window", "sound", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
@@ -58,7 +59,9 @@ NPCS = [  # map, x, y, name, sprite, role
     ("prontera", 156, 187, "Kafra Employee", 113, "talk"),
     ("prontera", 156, 22, "Gate Guard", 105, "talk"),
     ("prt_in", 126, 76, "Tool Dealer", 53, "shop"),
+    ("prontera", 146, 86, "Mailbox", 888, "mailbox"),   # npc/other/mail.txt
 ]
+MAILBOX_FEE = 130
 PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362), ("prt_fild08", 170, 360)]
 PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
            ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
@@ -134,6 +137,8 @@ class Window:
         out = []
         for c in self.controls:
             d = {k: c[k] for k in ("id", "kind", "rect", "text")}
+            if c["kind"] == "list":
+                d["items"] = list(c.get("items", []))
             if c.get("password"):
                 d["text"] = "*" * len(c["text"])
             d["focus"] = focused and c["id"] == self.focus_control
@@ -349,7 +354,7 @@ class Mock:
             return
         if w and w.focus_control:
             c = w.control(w.focus_control)
-            if len(c["text"]) < 23:
+            if len(c["text"]) < c.get("limit", 23):
                 c["text"] += ch
 
     def on_key(self, key, down, mods):
@@ -444,6 +449,8 @@ class Mock:
                         w.focus_control = c["id"]
                     else:
                         self.on_control(w, c, dbl)
+                elif w.name == "MAILLISTWND" and x - wx < 20 and 77 <= y - wy < 137:
+                    self.mail_write()     # UIMailListWnd::OnLBtnDown: the write tab
                 return
         if self.mode == "game":
             self.on_world_click(x, y)
@@ -505,6 +512,19 @@ class Mock:
             self.close_window(w.name)
             if cid == "ok":
                 self.make_party(w.data["name"])
+        elif w.name == "SAYDIALOGWND" and cid in ("next", "close"):
+            self.close_window(w.name)
+            if self.talk and self.talk.get("role") == "mailbox":
+                self.mailbox_step(cid)
+        elif w.name == "MAILLISTWND":
+            if cid == "close":
+                self.close_window(w.name)
+            elif cid.startswith("header"):
+                self.mail_open(c["mail_id"])
+            elif cid == "send_mail":
+                self.mail_send()
+        elif w.name == "MAILVIEWWND" and cid == "close":
+            self.close_window(w.name)
 
     # -- login, characters ---------------------------------------------------
 
@@ -695,6 +715,8 @@ class Mock:
                     ctl("buy", "button", L[0] // 2 - 55, L[1] // 2 - 20, 50, 20, "Buy"),
                     ctl("sell", "button", L[0] // 2 + 5, L[1] // 2 - 20, 50, 20, "Sell"),
                     ctl("cancel", "button", L[0] // 2 - 25, L[1] // 2 + 5, 50, 20, "Cancel")]))
+            elif a["role"] == "mailbox":
+                self.mailbox_step(None)
             elif a["role"] == "jobmaster":
                 s = self.self_
                 if s["class"] != 0 or s["job_level"] < 10:
@@ -715,11 +737,103 @@ class Mock:
     def choose(self, cid):
         name = cid.split(":", 1)[1]
         s = self.self_
+        if self.talk and self.talk.get("role") == "mailbox":
+            if name == "Yes.":
+                self.talk["paid"] = s["zeny"] >= MAILBOX_FEE
+                if self.talk["paid"]:
+                    self.add_zeny(-MAILBOX_FEE, "N")
+                self.mailbox_step("close-pending")
+            else:
+                self.talk = None
+            return
         if name in JOBS:
             s["class"], s["job_level"] = JOBS[name], 1
             self.system("[Job Master] You are now a %s." % name, "normal")
             self.trace("game", "job change %s" % name)
         self.talk = None
+
+    # -- mail (npc/other/mail.txt, then rAthena's pre-RODEX mail) ------------
+
+    def mailbox_step(self, after):
+        """The Mailbox's dialog: text and next, the menu, a closing line and
+        close, then `openmail` opens the mail list."""
+        L = self.logical()
+        rect = [L[0] // 2 - 150, L[1] // 2 - 60, 300, 120]
+        button = lambda cid: ctl(cid, "button", L[0] // 2 + 90, L[1] // 2 + 35, 42, 20, "")
+        if after is None:
+            self.open_window(Window("SAYDIALOGWND", rect, [
+                ctl("text", "text", rect[0] + 10, rect[1] + 10, 280, 60, "[Mailbox] 130 zeny?"), button("next")]))
+        elif after == "next":
+            self.open_window(Window("CHOOSEWND", [L[0] // 2 - 100, L[1] // 2 - 70, 200, 80], [
+                ctl("choice:Yes.", "button", L[0] // 2 - 90, L[1] // 2 - 60, 180, 18, "Yes."),
+                ctl("choice:No.", "button", L[0] // 2 - 90, L[1] // 2 - 40, 180, 18, "No.")]))
+        elif after == "close-pending":
+            self.open_window(Window("SAYDIALOGWND", rect, [
+                ctl("text", "text", rect[0] + 10, rect[1] + 10, 280, 60, "[Mailbox] Thank you."), button("close")]))
+        elif after == "close":
+            paid = self.talk.get("paid")
+            self.talk = None
+            if paid:
+                self.mail_list()
+
+    def inbox(self):
+        return [m for m in self.db.rows("mail") if m["dest_id"] == self.self_["char_id"]]
+
+    def mail_list(self):
+        L = self.logical()
+        x, y = L[0] // 2 - 300, L[1] // 2 - 220
+        ctls = [ctl("close", "button", x + 288, y + 4, 7, 7)]
+        for i, m in enumerate(self.inbox()[:7]):
+            ctls.append(ctl("from_name" + (":%d" % (2 * i + 1) if i else ""), "button", x + 70, y + 32 + 50 * i,
+                            120, 14, m["send_name"]))
+            ctls.append(ctl("header" + (":%d" % (2 * i + 2) if i else ""), "button", x + 70, y + 49 + 50 * i,
+                            190, 14, m["title"], mail_id=m["id"]))
+        w = self.window("MAILLISTWND") or self.open_window(Window("MAILLISTWND", [x, y, 300, 400]))
+        w.controls = ctls
+        w.focus_control = None
+
+    def mail_write(self):
+        w = self.window("MAILLISTWND")
+        x, y = w.rect[0], w.rect[1]
+        w.controls = [c for c in w.controls if c["id"] == "close"] + [
+            ctl("edit:0", "edit", x + 90, y + 34, 110, 16, limit=23),
+            ctl("edit:1", "edit", x + 90, y + 65, 170, 16, limit=39),
+            ctl("edit:2", "edit", x + 41, y + 100, 238, 216, limit=198),
+            ctl("edit:3", "edit", -100, -100, 65, 16, limit=9),
+            ctl("send_mail", "button", x + 183, y + 370, 43, 21),
+            ctl("cancel_mail", "button", x + 231, y + 370, 43, 21)]
+        w.focus_control = "edit:2"
+
+    def mail_open(self, mid):
+        m = next((m for m in self.inbox() if m["id"] == mid), None)
+        if not m:
+            return
+        self.db.update("mail", mid, status=2)        # MAIL_READ
+        L = self.logical()
+        x, y = L[0] // 2, L[1] // 2 - 220
+        self.close_window("MAILVIEWWND")
+        self.open_window(Window("MAILVIEWWND", [x, y, 300, 400], [
+            ctl("close", "button", x + 288, y + 4, 7, 7),
+            ctl("list:0", "list", x + 13, y + 96, 258, 216, items=[m["message"]]),
+            ctl("return_mail", "button", x + 127, y + 370, 43, 21),
+            ctl("send_mail", "button", x + 175, y + 370, 43, 21),
+            ctl("delete_mail", "button", x + 223, y + 370, 43, 21)]))
+
+    def mail_send(self):
+        w = self.window("MAILLISTWND")
+        to, title, text = (w.control("edit:%d" % i)["text"] for i in range(3))
+        dest = next((c for c in self.db.rows("char") if c["name"] == to), None)
+        if not title:
+            return
+        if not dest:
+            self.system("The recipient does not exist.")
+            return
+        mid = max([m["id"] for m in self.db.rows("mail")] or [0]) + 1
+        s = self.self_
+        self.db.put("mail", id=mid, send_name=s["name"], send_id=s["char_id"], dest_name=to,
+                    dest_id=dest["char_id"], title=title, message=text, time=int(time.time()), status=0,
+                    zeny=0, type=0)
+        self.system("You have successfully mailed a message.")
 
     def open_shop(self):
         L = self.logical()

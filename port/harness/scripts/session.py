@@ -8,6 +8,9 @@ Set-up: the character at prontera 155,183 (SQL, offline); a second player
 (bifrost-bot, group 99) beside it, which says a line now and then and
 walks between two cells, so the client receives other players' chat and
 movement; a Poring spawned beside the bot (@monster).
+`--param user=, password=, char=` name the player (default bftest/BFProbe),
+`--param bot_user=, bot_char=` the bot (default bfhsessgm/BfhSessGM), so
+that runs beside each other on the shared server keep apart.
 Played for `--param seconds=300` (default five minutes), round after round:
 walk to a picked cell, say a line, open and close the item, equipment,
 skill, status and option windows with their Alt shortcuts, turn the camera
@@ -170,7 +173,8 @@ def run(t):
         s.state("char row", {k: c[k] for k in ("char_id", "last_map", "last_x", "last_y", "online")})
 
     with t.step("set-up: second player", "bifrost-bot by atcommand: @warp, @monster") as s:
-        bot = Bot.start(t, "session", "bfhsessgm", "bfbot", "BfhSessGM", gm=True)
+        bot = Bot.start(t, "session", t.param("bot_user", "bfhsessgm"), "bfbot",
+                        t.param("bot_char", "BfhSessGM"), gm=True)
         if bot is None:
             s.note("mock: no second player")
         else:

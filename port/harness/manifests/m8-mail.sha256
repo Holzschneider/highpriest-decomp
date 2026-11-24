@@ -1,0 +1,5 @@
+# frames under <game folder>/test/frames/mail/; regenerate with port/harness/run.py
+9da3a2fa03ea2cb168b599a593b7f5bc3987d8006547029cc49e1bd8f7e834ca  2048x1536  login-typed.png
+1510593cf6c36194eceaffda11601fc42fcaa0f31726887079003aa229ff436d  2048x1536  mail-list.png
+2a917088251c7ef7a1799c7ad7ea21cc3c166d8878527980bf11238d0fe4332d  2048x1536  mail-view.png
+affdff20394d70b5d6af7e003b02a64ee300ed0da2ad756bcfa15134ef7e6962  2048x1536  mail-write.png
