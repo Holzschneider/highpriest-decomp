@@ -792,6 +792,9 @@ protected:
 	int m_curOrderBtn;
 	int m_curSearchBtn;
 	ITEM_INFO m_item;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIAuctionMsgWnd : public UIFrameWnd {
@@ -808,6 +811,9 @@ protected:
 	int m_price;
 	int m_auctionID;
 	char itemName[25];
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIImgMenuWnd : public UIFrameWnd {
@@ -821,6 +827,9 @@ public:
 	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIImgMenu* m_imgMenu;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UILoadingWnd : public UIFrameWnd {

@@ -842,6 +842,9 @@ protected:
 	std::string m_bgImg;
 	std::string m_bgImgOver;
 	WINDOWID m_callerWid;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIEditCtrl : public UIWindow {

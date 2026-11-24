@@ -744,6 +744,61 @@ struct BfUiProbe {
 		}
 	}
 
+	// The auction windows (M8.4): UIAuctionWnd's fields and rows, its radio
+	// buttons (not UIButtons, so not in the walk), UIAuctionMsgWnd's price
+	// field, and the two entries of the image menu its right-click opens.
+	static void Auction(Window &w)
+	{
+		if (UIAuctionWnd *a = dynamic_cast<UIAuctionWnd *>(w.wnd)) {
+			Rename(w, a->m_search, "search_edit");
+			Rename(w, a->m_nowMoney, "now_money");
+			Rename(w, a->m_maxMoney, "max_money");
+			Rename(w, a->m_deleteHour, "delete_hour");
+			Rename(w, a->m_itemNameBtn, "add_item");
+			Rename(w, a->m_userNameBtn, "add_seller");
+			// Rows: OnDraw puts row i of g_session.m_auctionList in place;
+			// a row's name buttons keep their place until InitAllBtnPos.
+			for (int i = 0; i < 5 && i < (int)g_session.m_auctionList.size(); ++i) {
+				unsigned int id = g_session.m_auctionList[i].AuctionID;
+				char name[48];
+				snprintf(name, sizeof name, "auction:%u", id);
+				Rename(w, a->m_btnItemNameList[i], name);
+				snprintf(name, sizeof name, "seller:%u", id);
+				Rename(w, a->m_sellerNameList[i], name);
+				snprintf(name, sizeof name, "buyer:%u", id);
+				Rename(w, a->m_buyerNameList[i], name);
+			}
+			static const char *const kOrder[4] = {"order:armor", "order:weapon", "order:card", "order:etc"};
+			static const char *const kSearch[2] = {"search_by:name", "search_by:number"};
+			for (int i = 0; i < 6; ++i) {
+				UIRadioBtn *r = i < 4 ? a->m_btnOrder[i] : a->m_btnSearch[i - 4];
+				if (!r || r->m_x < 0)
+					continue;
+				Control k;
+				k.wnd = r;
+				k.id = i < 4 ? kOrder[i] : kSearch[i - 4];
+				k.kind = "check";
+				k.text = r->m_state ? "on" : "off";
+				k.focus = 0;
+				Rect(r, k);
+				w.controls.push_back(k);
+			}
+		} else if (UIAuctionMsgWnd *m = dynamic_cast<UIAuctionMsgWnd *>(w.wnd)) {
+			Rename(w, m->m_Money, "money");
+		} else if (UIImgMenuWnd *m = dynamic_cast<UIImgMenuWnd *>(w.wnd)) {
+			UIImgMenu *menu = m->m_imgMenu;
+			if (menu && menu->m_size > 0) {
+				for (int i = 0; i < menu->m_size; ++i) {
+					char id[16];
+					snprintf(id, sizeof id, "menu:%d", i);
+					int cw = menu->m_type ? (menu->m_w - 3) / menu->m_size : menu->m_w - 3;
+					int ch = menu->m_type ? menu->m_h - 3 : (menu->m_h - 3) / menu->m_size;
+					Add(w, menu, id, "button", menu->m_type ? i * cw : 0, menu->m_type ? 0 : i * ch, cw, ch, "");
+				}
+			}
+		}
+	}
+
 	// The names port/harness/README.md lists for the windows of the login.
 	// The messenger window's two tabs (`tab:friend`, `tab:party`, kind
 	// `button`, text "on" for the open one; Alt+H and Alt+Z open it on each),
@@ -1142,6 +1197,8 @@ struct BfUiProbe {
 			Items(w);
 			Npc(w);
 			Tabs(w);
+
+			Auction(w);
 			g_windows.push_back(w);
 		}
 	}
