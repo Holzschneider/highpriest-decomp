@@ -867,7 +867,49 @@ HANDLE ExcuteProgram(const char* excutiveFile)
 	return pi.hProcess;
 }
 
+// The archives, in search order, as later clients list them in DATA.INI in
+// the game folder:
+//   [Data]
+//   1=rdata.grf
+//   2=data.grf
+// The lowest number is searched first. Without the file, data.grf alone.
+void AddPaksFromDataIni()
+{
+	int keys[16];
+	char names[16][MAX_PATH];
+	int numPak = 0;
 
+	FILE* fp = fopen("DATA.INI", "r");
+	if (fp) {
+		char line[MAX_PATH + 16];
+		bool inData = false;
+		while (numPak < 16 && fgets(line, sizeof(line), fp)) {
+			char* p = line + strspn(line, " \t");
+			p[strcspn(p, "\r\n")] = 0;
+			char* value = strchr(p, '=');
+			if (*p == '[') {
+				inData = _strnicmp(p, "[Data]", 6) == 0;
+			} else if (inData && isdigit((unsigned char)*p) && value && value[1]) {
+				int key = atoi(p);
+				int i = numPak++;
+				for (; i > 0 && keys[i - 1] > key; --i) {
+					keys[i] = keys[i - 1];
+					strcpy(names[i], names[i - 1]);
+				}
+				keys[i] = key;
+				strncpy(names[i], value + 1, MAX_PATH - 1);
+				names[i][MAX_PATH - 1] = 0;
+			}
+		}
+		fclose(fp);
+	}
+	if (numPak == 0)
+		strcpy(names[numPak++], "data.grf");
+
+	// CFileMgr searches the archive added last first.
+	while (numPak > 0)
+		g_fileMgr.AddPak(names[--numPak]);
+}
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					 LPSTR lpCmdLine, int nCmdShow)
@@ -884,10 +926,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		g_EXE_way = 2;
 
 
-	if (g_serviceType != 0)
-		g_fileMgr.AddPak("data.grf");
+	AddPaksFromDataIni();
 	g_session.m_isCheckToPcbang = (strstr(lpCmdLine, "pc") != NULL);
-	g_fileMgr.AddPak("data_hp.grf");
 
 
 
@@ -995,20 +1035,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	else
 		g_loginStartMode = g_serviceType ? 2 : 0;
 
-
-
-	g_session.SetHp(1000);
-	g_session.SetMaxhp(1000);
-	g_session.SetSp(100);
-	g_session.SetMaxsp(100);
-
-	g_session.SetExp(0);
-	g_session.SetLevel(1);
-	g_session.SetJobexp(0);
-	g_session.SetJoblevel(1);
-	g_session.SetGold(0);
-
-	g_modeMgr.Run(MT_GAME, "World_HP.rsw");
+	g_modeMgr.Run(MT_LOGIN, "login.rsw");
 
 	UnInitMSS();
 	g_windowMgr.DestroyDC();

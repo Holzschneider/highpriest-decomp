@@ -110,7 +110,6 @@ extern int GetSkipFrameCount();
 extern int g_isStopByLogin;
 extern int g_isBlackWorld;
 extern int g_showTipsAtStartup;
-extern int g_BackTexture;
 extern int g_isGoodSkillHanging;
 extern CSnapMgr g_snapMgr;
 extern tagRECT g_drawRect;
@@ -156,7 +155,6 @@ CPathFinder g_pathFinder;
 GroundAttrPosInfo g_groundAttrPosInfo;
 std::list<DWORD> g_pingLogList;
 unsigned long g_pingLogStart;
-int g_BackTexture = 0;
 int g_isFixedCamera = FALSE;
 unsigned long CGameMode::m_lastLockOnPcGid = 0L;
 unsigned long CGameMode::m_dwOldAutoFollowTime = 0L;
@@ -580,17 +578,6 @@ void CGameMode::Initialize()
 		if (!strcmp("comodo.rsw", m_rswName) && g_session.m_isEffectOn)
 			g_Weather.LaunchPokJuk();
 	}
-
-	g_modeMgr.GetGameMode()->GetClientCoor(13, 0, m_world->m_player->m_pos.x, m_world->m_player->m_pos.z);
-
-	if (!g_BackTexture)
-		g_BackTexture = 1;
-
-	char msg[256];
-	sprintf(msg, "\xb0\xd4\xc0\xd3\xc1\xb6\xc0\xdb\xc0\xba \xb8\xb6\xbf\xec\xbd\xba\xbf\xcd \xc5\xb0\xba\xb8\xb5\xe5\xb7\xce \xc7\xd5\xb4\xcf\xb4\xd9");
-	g_windowMgr.SendMsg(WID_CHATWND, int(msg), int(RGB(250,250,250)), 0, 0);
-	sprintf(msg, "\xb8\xde\xb4\xba\xbc\xb1\xc5\xc3\xc0\xba \xbb\xf3\xc7\xcf \xc5\xb0\xb7\xce \xb0\xed\xb8\xa5\xb5\xda\xbf\xa1 A\xb8\xa6 \xb4\xa9\xb8\xa3\xb8\xe9 \xbc\xb1\xc5\xc3\xc0\xcc \xb5\xcb\xb4\xcf\xb4\xd9");
-	g_windowMgr.SendMsg(WID_CHATWND, int(msg), int(RGB(250,250,250)), 0, 0);
 }
 
 BOOL	CGameMode :: OnRun()
@@ -619,6 +606,7 @@ void CGameMode::OnUpdate()
 	static unsigned long time_update_start = ::timeGetTime();
 
 	CheckSystemMessage();
+	PollNetworkStatus();
 	m_scheduler.OnRun();
 
 	if (m_loopCond) {
