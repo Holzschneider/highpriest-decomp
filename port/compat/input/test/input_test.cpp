@@ -272,11 +272,15 @@ void Keyboard()
 	s = Down(BF_KEY_L);
 	Text("@", s);          // Option+L on a German layout
 	Up(BF_KEY_L);
+	s = Down(BF_KEY_F);
+	Text("\xc6\x92", s);   // Option+F on a US layout: f with hook, CP1252 0x83
+	Up(BF_KEY_F);
 	Up(BF_KEY_LALT);
 	v = Run();
-	Check(Find(v, WM_SYSKEYDOWN) && Find(v, WM_SYSKEYDOWN)->w == 'L' && Chars(v) == "@",
-	      "Option+L (no game shortcut): WM_SYSKEYDOWN 'L' and WM_CHAR '@'", Describe(v));
-	Check(Find(v, WM_SYSKEYUP, 1) && Find(v, WM_SYSKEYUP, 1)->w == VK_MENU && !HIBYTE(GetAsyncKeyState(VK_MENU)),
+	Check(Find(v, WM_SYSKEYDOWN, 0) && Find(v, WM_SYSKEYDOWN, 0)->w == 'L' && Find(v, WM_SYSKEYDOWN, 1) &&
+	      Find(v, WM_SYSKEYDOWN, 1)->w == 'F' && Chars(v) == "\x83",
+	      "Option+L (Alt+L, emotion list): WM_SYSKEYDOWN 'L', no '@'; Option+F (no game shortcut): WM_CHAR", Describe(v));
+	Check(Find(v, WM_SYSKEYUP, 2) && Find(v, WM_SYSKEYUP, 2)->w == VK_MENU && !HIBYTE(GetAsyncKeyState(VK_MENU)),
 	      "Option up: WM_SYSKEYUP VK_MENU, Alt reads up", Describe(v));
 
 	// Ctrl: no text.

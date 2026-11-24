@@ -195,13 +195,16 @@ extern "C" unsigned bf_compat_input_vk_for_key(int key, unsigned *scan, int *ext
 extern "C" int bf_compat_input_is_alt_shortcut(unsigned vk)
 {
 	// UIWindowMgr::ProcessPushButton, the cases that test VK_MENU: the
-	// basic-info window's buttons, the shortcut bar, X (quit), Insert
-	// (compass), Home (attribute indicator), F10 (chat window).
+	// basic-info window's buttons and the other windows (A-Z but F, K, N),
+	// the shortcut bar, X (quit), Insert (compass), Home (attribute
+	// indicator), End (HP bar), F10 (chat window). U is a shortcut on the
+	// Korean service only, but is kept here for all.
 	switch (vk) {
-	case 'A': case 'B': case 'E': case 'G': case 'J': case 'O': case 'P': case 'Q':
-	case 'R': case 'S': case 'T': case 'V': case 'W': case 'X':
+	case 'A': case 'B': case 'C': case 'D': case 'E': case 'G': case 'H': case 'I':
+	case 'J': case 'L': case 'M': case 'O': case 'P': case 'Q': case 'R': case 'S':
+	case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
 	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-	case VK_INSERT: case VK_HOME: case VK_F10:
+	case VK_INSERT: case VK_HOME: case VK_END: case VK_F10:
 		return 1;
 	default:
 		return 0;
