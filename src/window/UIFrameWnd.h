@@ -1493,6 +1493,9 @@ protected:
 	int m_itemHorzNum;
 	int m_vertScrEnabled;
 	std::list<ITEM_INFO> m_itemList;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIItemShopWnd : public UIItemBaseWnd {

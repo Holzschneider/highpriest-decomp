@@ -7,6 +7,7 @@
 #include "LoginMode.h"
 #include "window/UISys.h"
 #include "window/UIFrameWnd.h"
+#include "Session.h"
 
 #include <cxxabi.h>
 #include <ctype.h>
@@ -666,6 +667,140 @@ struct BfUiProbe {
 		}
 	}
 
+	static void AddControl(Window &w, UIWindow *wnd, const char *id, const char *kind, int x, int y,
+	                       int cw, int ch, const std::string &text)
+	{
+		Control k;
+		k.wnd = nullptr;
+		k.id = id;
+		k.kind = kind;
+		int gx = x, gy = y;
+		wnd->GetGlobalCoor(gx, gy);
+		k.x = gx;
+		k.y = gy;
+		k.w = cw;
+		k.h = ch;
+		k.text = text;
+		k.focus = 0;
+		w.controls.push_back(k);
+	}
+
+	static std::string ItemName(ITEM_INFO &item)
+	{
+		char name[128];
+		name[0] = 0;
+		item.GetItemName(name);
+		return name;
+	}
+
+	// What the item, equipment and status windows draw themselves, as
+	// controls (M8.1d): the item window's tabs (`tab:item`, `tab:equip`,
+	// `tab:etc`, text "on" for the open one) and the items it shows
+	// (`item:<index>`, the server's inventory index, as UIItemWnd::OnDraw
+	// lays them out); the equipment window's worn items (`item:<index>`, at
+	// the slot UIEquipWnd::GetItemInfo hit-tests); the status window's
+	// values (`stat:str` ... with the bonus as "5 + 1", `need:str` ..., the
+	// points a raise costs, and `atk`, `matk`, `hit`, `critical`, `def`,
+	// `mdef`, `flee`, `aspd`, `status_point`, formatted as
+	// UIStatusWnd::OnDraw prints them).
+	static void Items(Window &w)
+	{
+		if (UIItemWnd *iw = dynamic_cast<UIItemWnd *>(w.wnd)) {
+			if (iw->m_h == 17)
+				return;
+			for (std::list<UIWindow *>::iterator it = iw->m_children.begin(); it != iw->m_children.end(); ++it) {
+				UITab *tab = dynamic_cast<UITab *>(*it);
+				if (!tab || !tab->m_show || tab->m_numTab != 3)
+					continue;
+				static const char *const kTabs[3] = {"tab:item", "tab:equip", "tab:etc"};
+				int th = tab->m_h / tab->m_numTab;
+				for (int i = 0; i < 3; ++i)
+					AddControl(w, tab, kTabs[i], "button", 0, i * th, tab->m_w, th,
+					           tab->GetState() == i ? "on" : "");
+			}
+			int drawCount = 0, itemCount = 0;
+			for (std::list<ITEM_INFO>::iterator it = iw->m_itemList.begin(); it != iw->m_itemList.end(); ++it, ++itemCount) {
+				if (itemCount < iw->m_viewOffset * iw->m_itemHorzNum)
+					continue;
+				if (g_session.IsPetEgg(atoi(it->m_itemName.c_str())) && it->m_isDamaged)
+					continue;
+				if (iw->m_itemHorzNum <= 0 || drawCount >= iw->m_itemVertNum * iw->m_itemHorzNum)
+					break;
+				char id[32];
+				snprintf(id, sizeof id, "item:%u", it->m_itemIndex);
+				AddControl(w, iw, id, "item", (drawCount % iw->m_itemHorzNum) * 32 + 40,
+				           (drawCount / iw->m_itemHorzNum) * 32 + 17, 32, 32, ItemName(*it));
+				++drawCount;
+			}
+		} else if (UIEquipWnd *ew = dynamic_cast<UIEquipWnd *>(w.wnd)) {
+			if (ew->m_h == 17 || ew->m_typeWnd != 0)
+				return;
+			// slot -> the cell UIEquipWnd::GetItemInfo maps to it
+			static const int kSlotX[10] = {6, 6, 6, 6, 251, 251, 251, 251, 6, 251};
+			static const int kSlotY[10] = {43, 69, 95, 121, 43, 69, 95, 121, 17, 17};
+			std::vector<unsigned int> seen;
+			for (int slot = 0; slot < 10; ++slot) {
+				ITEM_INFO item = g_session.GetEquipedItems(slot);
+				if (!item.m_itemIndex || item.m_num <= 0)
+					continue;
+				bool dup = false;
+				for (size_t i = 0; i < seen.size(); ++i)
+					dup = dup || seen[i] == item.m_itemIndex;
+				if (dup)
+					continue;   // a two-slot item answers at its first slot
+				seen.push_back(item.m_itemIndex);
+				char id[32];
+				snprintf(id, sizeof id, "item:%u", item.m_itemIndex);
+				AddControl(w, ew, id, "item", kSlotX[slot], kSlotY[slot], 24, 24, ItemName(item));
+			}
+		} else if (UIStatusWnd *sw = dynamic_cast<UIStatusWnd *>(w.wnd)) {
+			if (sw->m_h == 17 || sw->m_state)
+				return;
+			static const char *const kStat[6] = {"str", "agi", "vit", "int", "dex", "luk"};
+			const int base[6] = {g_session.GetStr(), g_session.GetAgi(), g_session.GetVit(),
+			                     g_session.GetInt(), g_session.GetDex(), g_session.GetLuk()};
+			const int plus[6] = {g_session.GetPlusStr(), g_session.GetPlusAgi(), g_session.GetPlusVit(),
+			                     g_session.GetPlusInt(), g_session.GetPlusDex(), g_session.GetPlusLuk()};
+			const int *need[6] = {g_session.GetStandardStrPointer(), g_session.GetStandardAgiPointer(),
+			                      g_session.GetStandardVitPointer(), g_session.GetStandardIntPointer(),
+			                      g_session.GetStandardDexPointer(), g_session.GetStandardLukPointer()};
+			static const int kPosY[6] = {6, 22, 38, 54, 70, 86};
+			char text[64], id[32];
+			for (int i = 0; i < 6; ++i) {
+				if (plus[i])
+					snprintf(text, sizeof text, "%d + %d", base[i], plus[i]);
+				else
+					snprintf(text, sizeof text, "%d", base[i]);
+				snprintf(id, sizeof id, "stat:%s", kStat[i]);
+				AddControl(w, sw, id, "text", 54, kPosY[i] + 16, 34, 14, text);
+				snprintf(text, sizeof text, "%d", *need[i]);
+				snprintf(id, sizeof id, "need:%s", kStat[i]);
+				AddControl(w, sw, id, "text", 100, kPosY[i] + 16, 14, 14, text);
+			}
+			struct Value { const char *id; int x, y; };
+			static const Value kValues[9] = {
+				{"atk", 192, 21}, {"matk", 192, 37}, {"hit", 192, 53}, {"critical", 192, 69},
+				{"def", 273, 21}, {"mdef", 273, 37}, {"flee", 273, 53}, {"aspd", 273, 69},
+				{"status_point", 273, 85},
+			};
+			for (int i = 0; i < 9; ++i) {
+				switch (i) {
+				case 0: snprintf(text, sizeof text, "%d + %d", g_session.GetAttPower(), g_session.GetRefiningPower()); break;
+				case 1: snprintf(text, sizeof text, "%d ~ %d", g_session.GetMin_mattPower(), g_session.GetMax_mattPower()); break;
+				case 2: snprintf(text, sizeof text, "%d", g_session.GetHitSuccessValue()); break;
+				case 3: snprintf(text, sizeof text, "%d", g_session.GetCriticalSuccessValue()); break;
+				case 4: snprintf(text, sizeof text, "%d + %d", g_session.GetItemDefPower(), g_session.GetPlusdefPower()); break;
+				case 5: snprintf(text, sizeof text, "%d + %d", g_session.GetMdefPower(), g_session.GetPlusmdefPower()); break;
+				case 6: snprintf(text, sizeof text, "%d + %d", g_session.GetAvoidSuccessValue(), g_session.GetPlusAvoidSuccessValue()); break;
+				case 7: snprintf(text, sizeof text, "%d", (2000 - g_session.GetASPD()) / 10); break;
+				default: snprintf(text, sizeof text, "%d", g_session.GetPoint()); break;
+				}
+				// right-aligned at x, as TextOutWithRightAlign draws them
+				AddControl(w, sw, kValues[i].id, "text", kValues[i].x - 60, kValues[i].y, 60, 14, text);
+			}
+		}
+	}
+
 	static void Describe()
 	{
 		g_windows.clear();
@@ -700,6 +835,7 @@ struct BfUiProbe {
 					w.focus = 1;
 			Collect(wnd, w, 0);
 			Specific(w);
+			Items(w);
 			g_windows.push_back(w);
 		}
 	}

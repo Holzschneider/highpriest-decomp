@@ -373,6 +373,57 @@ extern "C" int bf_client_game_take_chat(const bf_client_game_chat **lines)
 	return (int)g_chatOut.size();
 }
 
+// ---- items
+
+namespace {
+std::vector<bf_client_game_item> g_items;
+std::vector<std::string> g_itemNames;
+
+void AddItem(ITEM_INFO &it, int equipped)
+{
+	char name[128];
+	name[0] = 0;
+	it.GetItemName(name);
+	g_itemNames.push_back(name);
+	bf_client_game_item o;
+	o.index = it.m_itemIndex;
+	o.id = it.GetItemId();
+	o.name = NULL;
+	o.amount = it.m_num;
+	o.equipped = equipped;
+	o.type = it.m_itemType;
+	o.identified = it.m_isIdentified;
+	g_items.push_back(o);
+}
+}  // namespace
+
+extern "C" int bf_client_game_items(const bf_client_game_item **items)
+{
+	g_items.clear();
+	g_itemNames.clear();
+	*items = NULL;
+	if (!ReadyMode())
+		return 0;
+	for (int k = 0, n = g_session.GetNumItem(); k < n; ++k) {
+		ITEM_INFO item = g_session.GetItemInfoBySequence(k);
+		AddItem(item, 0);
+	}
+	for (int slot = 0; slot < 10; ++slot) {
+		ITEM_INFO item = g_session.GetEquipedItems(slot);
+		if (!item.m_itemIndex || item.m_num <= 0)
+			continue;
+		bool dup = false;
+		for (size_t k = 0; k < g_items.size(); ++k)
+			dup = dup || (g_items[k].equipped && g_items[k].index == item.m_itemIndex);
+		if (!dup)
+			AddItem(item, item.m_wearLocation ? item.m_wearLocation : item.m_location);
+	}
+	for (size_t k = 0; k < g_items.size(); ++k)
+		g_items[k].name = g_itemNames[k].c_str();
+	*items = g_items.empty() ? NULL : &g_items[0];
+	return (int)g_items.size();
+}
+
 // ---- damage numbers
 
 namespace {

@@ -83,6 +83,21 @@ void bf_client_chat_line(int second, const char *text, int type, const char *tal
 // into the chat window when it opens such windows (the default).
 void bf_client_whisper_window_line(const char *partner, const char *text);
 
+typedef struct bf_client_game_item {
+	unsigned int index;     // the server's inventory index
+	int id;                 // the item id
+	const char *name;       // as the client names it (GetItemName); valid until the next call
+	int amount;
+	int equipped;           // the worn location bits; 0 when not worn
+	int type;               // the client's item type (ITEM_INFO::m_itemType)
+	int identified;
+} bf_client_game_item;
+
+// The character's items as the client holds them: CSession's item list,
+// then the worn items (m_equipedItems, each once). Returns their number
+// (0 when not ready); *items stays valid until the next call.
+int bf_client_game_items(const bf_client_game_item **items);
+
 typedef struct bf_client_game_damage {
 	unsigned int target;    // the server's id of the actor the number is drawn over
 	int number;             // the number as given (the client clamps it to 0..999999 to draw it)

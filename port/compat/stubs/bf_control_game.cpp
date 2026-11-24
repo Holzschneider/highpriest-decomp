@@ -5,6 +5,7 @@
 //   actors   the actors the client holds, other than self; [] outside a map
 //   pointer  {x, y, buttons, cell}: the pointer as the app module has it,
 //            in logical pixels, and the map cell the client's picking finds
+//   items    the character's items, worn ones included, on a loaded map, else null
 // The events: `map` when game mode enters a map, `chat` per chat line,
 // `damage` per number drawn over an actor.
 #include <windows.h>
@@ -125,6 +126,31 @@ void WriteActors(bf_control_writer *w, void *)
 	bf_control_write_end_array(w);
 }
 
+void WriteInventory(bf_control_writer *w, void *)
+{
+	if (!bf_client_game_ready()) {
+		bf_control_write_null(w);
+		return;
+	}
+	const bf_client_game_item *it = nullptr;
+	int n = bf_client_game_items(&it);
+	bf_control_write_begin_array(w);
+	for (int i = 0; i < n; ++i) {
+		bf_control_write_begin_object(w);
+		WriteIntKey(w, "index", it[i].index);
+		WriteIntKey(w, "id", it[i].id);
+		bf_control_write_key(w, "name");
+		bf_control_game_write_text(w, it[i].name);
+		WriteIntKey(w, "amount", it[i].amount);
+		WriteIntKey(w, "equipped", it[i].equipped);
+		WriteIntKey(w, "type", it[i].type);
+		bf_control_write_key(w, "identified");
+		bf_control_write_bool(w, it[i].identified != 0);
+		bf_control_write_end_object(w);
+	}
+	bf_control_write_end_array(w);
+}
+
 void WritePointer(bf_control_writer *w, void *)
 {
 	bf_app_pointer p;
@@ -233,6 +259,7 @@ void bf_control_game_install(void)
 	bf_control_register_state("self", WriteSelf, nullptr);
 	bf_control_register_state("actors", WriteActors, nullptr);
 	bf_control_register_state("pointer", WritePointer, nullptr);
+	bf_control_register_state("items", WriteInventory, nullptr);
 	bf_control_declare_event("map");
 	bf_control_declare_event("chat");
 	bf_control_declare_event("damage");
