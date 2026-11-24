@@ -71,11 +71,13 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 /* time_t is 32 bits in Visual C++ 6.0 and 64 bits here. The structure fields
    that travel on the wire stay 32-bit int (M2.2); these overloads let the
    game's calls on them keep their shape: the C library is called with a
-   64-bit copy and the 32-bit value is what the caller sees. */
+   64-bit copy and the 32-bit value is what the caller sees. The value is
+   moved byte-wise: the fields sit in packed packet structures (MAIL_LIST's
+   DeleteTime at offset 69), where an int load is misaligned. */
 #include <time.h>
 #include <type_traits>
-template <class T> inline typename std::enable_if<std::is_same<T, int>::value, time_t>::type time(T *value) { time_t now; ::time(&now); if (value) *value = (int)now; return now; }
-template <class T> inline typename std::enable_if<std::is_same<typename std::remove_const<T>::type, int>::value, struct tm *>::type localtime(T *value) { static time_t copy; copy = (time_t)*value; return ::localtime(&copy); }
+template <class T> inline typename std::enable_if<std::is_same<T, int>::value, time_t>::type time(T *value) { time_t now; ::time(&now); if (value) { int v = (int)now; __builtin_memcpy((void *)value, &v, sizeof v); } return now; }
+template <class T> inline typename std::enable_if<std::is_same<typename std::remove_const<T>::type, int>::value, struct tm *>::type localtime(T *value) { static time_t copy; int v; __builtin_memcpy(&v, (const void *)value, sizeof v); copy = (time_t)v; return ::localtime(&copy); }
 #endif
 
 /* Names the DirectX 7 SDK gives its enumerations and the Wine headers do not. */
