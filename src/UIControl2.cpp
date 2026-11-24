@@ -957,7 +957,8 @@ void UIChatHisBox::SetShow(int visible) {
 void UIChatHisBox::DeleteFirstHalfItem()
 {
 	int half = m_items.size() / 2;
-	for (int i = 0; i < half; i++)
+	int i;
+	for (i = 0; i < half; i++)
 		m_items[i] = m_items[i + half];
 
 	m_items.resize(half);

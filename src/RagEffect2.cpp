@@ -23345,7 +23345,8 @@ void	CEffectPrim :: RenderGroundSample(matrix &wtm)
 					uv[2].Set(u0*cos_r + v1*sin_r, -u0*sin_r + v1*cos_r);
 					uv[3].Set(u1*cos_r + v1*sin_r, -u1*sin_r + v1*cos_r);
 
-				for (int a=0;a<4;a++)
+				int a;
+				for (a=0;a<4;a++)
 					uv[a].Set(uv[a].x*m_GI[ec].max_height,uv[a].y*m_GI[ec].max_height);
 
 					uv[0].Set((uv[0].x+half_scope_size)/7, (uv[0].y+half_scope_size)/7);

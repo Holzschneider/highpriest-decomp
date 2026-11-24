@@ -800,7 +800,8 @@ bool	C3dAnimModelRes :: Load(const char *fName)
 		RAG_BUDGET_FILL(4)
 		fp.Read(&temp->m_numVertices, sizeof(int));
 
-		for (int k=0; k<m_numFrame; k++) {
+		int k;
+		for (k=0; k<m_numFrame; k++) {
 			temp->m_frames[k].CreateVertex(temp->m_numVertices);
 			fp.Read(temp->m_frames[k].m_vertices, sizeof(vector3d)*temp->m_numVertices);
 		}

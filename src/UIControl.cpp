@@ -1679,7 +1679,8 @@ void UIEditCtrl3::DrawEditText()
 	int lastItem = (unsigned int)(m_scrollOffset + nItem) < strings.size() ? m_scrollOffset + nItem : strings.size();
 
 	int thisLineSize = 0;
-	for (int i = 0; i < firstItem; ++i)
+	int i;
+	for (i = 0; i < firstItem; ++i)
 		thisLineSize += strlen(strings[i].c_str());
 
 	for (i = firstItem; i < lastItem; ++i) {
@@ -1909,7 +1910,8 @@ void UIWhisperEditCtrl::StoreInHistory()
 		m_hisChat.push_back(GetText());
 	} else {
 		bool found = false;
-		for (int i = 0; i < m_hisChat.size(); ++i) {
+		int i;
+		for (i = 0; i < m_hisChat.size(); ++i) {
 			if (m_hisChat[i] == GetText()) {
 				found = true;
 				break;
@@ -2330,7 +2332,8 @@ void UIChatRoomTitle::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int count = (m_w - 24) / 12 + ((m_w - 24) % 12 != 0);
-	for (int i = 0; i < count; i++) {
+	int i;
+	for (i = 0; i < count; i++) {
 		bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\sysbox_mu.bmp"), false);
 		DrawBitmap(i * 12 + 12, 0, bmp, false);
 	}
@@ -2428,7 +2431,8 @@ void UIMerchantShopTitle::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int count = (m_w - 24) / 12 + ((m_w - 24) % 12 != 0);
-	for (int i = 0; i < count; i++) {
+	int i;
+	for (i = 0; i < count; i++) {
 		bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\sysbox_mu.bmp"), false);
 		DrawBitmap(i * 12 + 12, 0, bmp, false);
 	}

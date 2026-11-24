@@ -226,7 +226,8 @@ void UIFrameWnd::DrawLatticeFrame(int x, int y, int width, int height)
 	if (width == 0) width = m_w;
 	if (height == 0) height = m_h;
 
-	for (int i = 0; i < (width - 28) / 14 + ((width - 28) % 14 != 0); ++i) {
+	int i;
+	for (i = 0; i < (width - 28) / 14 + ((width - 28) % 14 != 0); ++i) {
 		CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\sysbox_mu.bmp"), false);
 		DrawBitmap(x + (i + 1) * 14, y, bmp, false);
 	}

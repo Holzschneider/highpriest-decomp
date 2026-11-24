@@ -19,7 +19,8 @@ inline CMssVariables::CMssVariables()
 {
 	numSamples = MAXSAMPLE;
 	num3DSamples = MAX3DSAMPLE;
-	for (int i = 0; i < MAXSAMPLE; ++i)
+	int i;
+	for (i = 0; i < MAXSAMPLE; ++i)
 		hSamples[i] = 0;
 	provider_default = 0;
 	for (i = 0; i < MAX_PROVIDERS; ++i) {

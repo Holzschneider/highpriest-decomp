@@ -1912,7 +1912,8 @@ void UIBattleMsgOptionWnd::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int loopCnt = (m_w - 24) / 12 + (((m_w - 24) % 12) ? 1 : 0);
-	for (int i = 0; i < loopCnt; ++i) {
+	int i;
+	for (i = 0; i < loopCnt; ++i) {
 		bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_mid.bmp"), false);
 		DrawBitmap((i + 1) * 12, 0, bmp, false);
 	}
@@ -2162,7 +2163,8 @@ void UIShortCutWnd::OnCreate(int cx, int cy)
 	char* toolTip[8] = { "F12" };
 	std::string preBmpName2("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\sys_");
 
-	for (int i = 0; i < 1; ++i) {
+	int i;
+	for (i = 0; i < 1; ++i) {
 		UIBitmapButton* button = new UIBitmapButton;
 		button->SetBitmapName((preBmpName2 + buttonName2[i] + "_off.bmp").c_str(), BS_NORMAL);
 		button->SetBitmapName((preBmpName2 + buttonName2[i] + "_on.bmp").c_str(), BS_MOUSEON);

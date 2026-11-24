@@ -5288,7 +5288,8 @@ void UITipOfTheDayWnd::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int loopCnt = (m_w - 24) / 12 + (((m_w - 24) % 12) ? 1 : 0);
-	for (int i = 0; i < loopCnt; ++i) {
+	int i;
+	for (i = 0; i < loopCnt; ++i) {
 		bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_mid.bmp"), false);
 		DrawBitmap((i + 1) * 12, 0, bmp, false);
 	}
@@ -8263,7 +8264,8 @@ void UIProhibitListWnd::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int titleBarMidCount = ((m_w - 24) % 12 != 0) + (m_w - 24) / 12;
-	for (int c = 0; c < titleBarMidCount; c++) {
+	int c;
+	for (c = 0; c < titleBarMidCount; c++) {
 		bmp = (CBitmapRes*)g_resMgr().Get(
 			UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_mid.bmp"), false);
 		DrawBitmap((c + 1) * 12, 0, bmp, false);
@@ -8867,7 +8869,8 @@ void UICommandListWnd::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
 
 	int count = (m_w - 24) / 12 + ((m_w - 24) % 12 != 0);
-	for (int i = 0; i < count; ++i) {
+	int i;
+	for (i = 0; i < count; ++i) {
 		bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_mid.bmp"), false);
 		DrawBitmap((i + 1) * 12, 0, bmp, false);
 	}
