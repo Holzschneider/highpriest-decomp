@@ -1,0 +1,4 @@
+# frames under <game folder>/test/frames/asan/world/; regenerate with port/harness/run.py
+e6cdd91faf3d1d1d0b6df13c4db2bfbaa8150ce8fa86e81488159595dd2fddc8  2048x1536  prontera-30s.png
+b6b7dc21e81f215b15687ece77a0fcb2c678ff5acd8f0e8bd20520fcab9678c0  2048x1536  prontera-3s.png
+d3046571839b787270e9d8ddcb59f67ed0817f8e67f988d3d590d46955aaa61a  2048x1536  prontera-60s.png

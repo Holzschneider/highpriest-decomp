@@ -55,6 +55,7 @@ private:
 	void UpdateBound();
 private:
 	friend class CWorld;
+	friend class CView;
 	friend class C3dNode;
 	friend struct SceneGraphNode;
 	C3dNode* m_node;

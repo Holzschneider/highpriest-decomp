@@ -87,6 +87,14 @@ protected:
 	GndCellFmt17* m_V17cells;
 
 	CFile m_fp;
+#if defined(BF_PORT)
+	// The records above point into the file buffer, where they start at any
+	// offset (the texture names before them are 80 bytes each, the lightmap
+	// header 16): on arm64 they are copied when misaligned (Ground.cpp).
+	std::vector<LMIndex> m_bfLmIndex;
+	std::vector<GndSurfaceFmt> m_bfSurfaces;
+	std::vector<GndCellFmt17> m_bfCells;
+#endif
 };
 
 #endif

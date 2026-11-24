@@ -215,6 +215,15 @@ CGameMode::CGameMode()
 	m_world = NULL;
 	m_view = NULL;
 	m_mousePointer = NULL;
+#if defined(BF_PORT)
+	// read by UIItemDropCntWnd::OnCreate, which can run before Initialize()
+	// sets them (seen under the sanitizer preset in the first game frame)
+	m_dragInfo.m_dragType = DT_NODRAG;
+	m_dragInfo.m_dragItemIndex = 0;
+	m_dragInfo.m_numDragItem = 0;
+	m_dragInfo.m_slotNum = -1;
+	m_dragInfo.m_isIdentified = 0;
+#endif
 }
 
 
@@ -634,6 +643,10 @@ void CGameMode::OnUpdate()
 		if (skipCount > 0) {
 			for (int i = skipCount; i > 0; --i) {
 				m_world->ProcessActors();
+				// the 2008 client advances the water animation here (0x57BDFA
+				// calls C3dGround::UpdateWater, 0x500250); without it the
+				// water stays on its first texture
+				m_world->m_ground->UpdateWater();
 				m_view->OnCalcViewInfo();
 			}
 		}

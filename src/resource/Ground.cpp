@@ -8,7 +8,7 @@
 #ifndef LMAPHEIGHT
 #endif
 #ifndef LMAPPF
-#define LMAPPF 0
+#define LMAPPF PF_A4R4G4B4
 #endif
 #ifndef LMAPIDATASIZE
 #endif
@@ -17,6 +17,20 @@
 
 
 static CGndRes CGndResInstance(Exemplar(), "gnd", "");
+
+#if defined(BF_PORT)
+// raw is where the records start in the file buffer; it is passed as it
+// comes from GetCurBuf, never as a T*, which would already be misaligned.
+template <class T> static T *BfAligned(const void *raw, size_t n, std::vector<T> &store)
+{
+	if (raw == NULL || ((uintptr_t)raw % alignof(T)) == 0)
+		return (T *)raw;
+	store.resize(n);
+	if (n)
+		memcpy(&store[0], raw, n * sizeof(T));
+	return &store[0];
+}
+#endif
 void	ColorChannel::GetChannel(BYTE channel[64])
 {
 	for(int i=0; i<64; ++i) channel[i] = GetBuffer(i);
@@ -102,6 +116,11 @@ void	CGndRes :: Reset()
 	m_lminfo = NULL;
 	m_surface = NULL;
 	m_V17cells = NULL;
+#if defined(BF_PORT)
+	m_bfLmIndex.clear();
+	m_bfSurfaces.clear();
+	m_bfCells.clear();
+#endif
 }
 
 bool	CGndRes :: LoadGnd()
@@ -154,7 +173,11 @@ bool	CGndRes :: LoadGnd()
 		}
 		else
 		{
+#if defined(BF_PORT)
+			m_lmindex = BfAligned(m_fp.GetCurBuf(sizeof(LMIndex) * m_numLightmap), m_numLightmap, m_bfLmIndex);
+#else
 			m_lmindex = (LMIndex*)m_fp.GetCurBuf(sizeof(LMIndex) * m_numLightmap);
+#endif
 
 			int		colorchannel;
 
@@ -165,8 +188,13 @@ bool	CGndRes :: LoadGnd()
 
 		m_fp.Read(&m_numSurface, sizeof(int));
 
+#if defined(BF_PORT)
+		m_surface = BfAligned(m_fp.GetCurBuf(sizeof(GndSurfaceFmt) * m_numSurface), m_numSurface, m_bfSurfaces);
+		m_V17cells = BfAligned(m_fp.GetCurBuf(), (size_t)m_width * m_height, m_bfCells);
+#else
 		m_surface = (GndSurfaceFmt*)m_fp.GetCurBuf(sizeof(GndSurfaceFmt) * m_numSurface);
 		m_V17cells = (GndCellFmt17*)m_fp.GetCurBuf();
+#endif
 
 		return true;
 	}

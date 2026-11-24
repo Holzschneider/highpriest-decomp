@@ -24,6 +24,7 @@ extern CRenderer* g_renderer;
 extern tagRECT g_drawRect;
 
 tagRECT g_drawRect;
+extern GroundAttrPosInfo g_groundAttrPosInfo;
 extern float AVG_DIST;
 extern float g_zOffset;
 extern float g_zHover;
@@ -290,6 +291,58 @@ void CView::OnRender()
 	g_drawRect.left = 999;
 	g_drawRect.bottom = 0;
 	g_drawRect.right = 0;
+
+	// The cubelets the frustum keeps are drawn here, partly visible ones with
+	// clipping first, as the 2008-09-03 client does (CView::OnRender, 0x517770):
+	// each node's models once per frame, then its ground area; g_drawRect is
+	// the union of the ground areas drawn. The reconstruction had lost this,
+	// so neither ground nor models were drawn.
+	std::list<SceneGraphNode *>::iterator nit;
+	for (nit = m_viewFrustum.m_cubeletListPartial.begin(); nit != m_viewFrustum.m_cubeletListPartial.end(); ++nit)
+	{
+		SceneGraphNode *node = *nit;
+		for (std::vector<C3dActor *>::iterator ait = node->m_actorList.begin(); ait != node->m_actorList.end(); ++ait)
+		{
+			C3dActor *actor = *ait;
+			if (actor->m_renderSignature != g_renderer->m_curFrame)
+			{
+				int result = m_viewFrustum.CheckOBBIntersect(actor->m_oBoundingBox);
+				actor->OnProcess();
+				if (result == 1)
+					actor->Render(m_viewMatrix, false, 0);
+				else if (result == 2)
+					actor->Render(m_viewMatrix, true, 0);
+				actor->m_renderSignature = g_renderer->m_curFrame;
+			}
+		}
+		node->m_ground->Render(m_viewMatrix, node->m_groundArea, true);
+		if (node->m_groundArea.left < g_drawRect.left) g_drawRect.left = node->m_groundArea.left;
+		if (node->m_groundArea.right > g_drawRect.right) g_drawRect.right = node->m_groundArea.right;
+		if (node->m_groundArea.top < g_drawRect.top) g_drawRect.top = node->m_groundArea.top;
+		if (node->m_groundArea.bottom > g_drawRect.bottom) g_drawRect.bottom = node->m_groundArea.bottom;
+	}
+	for (nit = m_viewFrustum.m_cubeletListTotal.begin(); nit != m_viewFrustum.m_cubeletListTotal.end(); ++nit)
+	{
+		SceneGraphNode *node = *nit;
+		for (std::vector<C3dActor *>::iterator ait = node->m_actorList.begin(); ait != node->m_actorList.end(); ++ait)
+		{
+			C3dActor *actor = *ait;
+			if (actor->m_renderSignature != g_renderer->m_curFrame)
+			{
+				actor->Render(m_viewMatrix, false, 0);
+				actor->m_renderSignature = g_renderer->m_curFrame;
+			}
+		}
+		node->m_ground->Render(m_viewMatrix, node->m_groundArea, false);
+		if (node->m_groundArea.top < g_drawRect.top) g_drawRect.top = node->m_groundArea.top;
+		if (node->m_groundArea.bottom > g_drawRect.bottom) g_drawRect.bottom = node->m_groundArea.bottom;
+		if (node->m_groundArea.left < g_drawRect.left) g_drawRect.left = node->m_groundArea.left;
+		if (node->m_groundArea.right > g_drawRect.right) g_drawRect.right = node->m_groundArea.right;
+	}
+
+	// the cell under the pointer, coloured by its attribute (GameMode.cpp)
+	if (!g_groundAttrPosInfo.isRendered)
+		m_world->m_ground->RenderAttrTile(m_viewMatrix, g_groundAttrPosInfo.x, g_groundAttrPosInfo.y, g_groundAttrPosInfo.cellColor);
 
 	std::list<CGameObject *>::iterator it = m_world->m_gameObjectList.begin();
 	while (it != m_world->m_gameObjectList.end())

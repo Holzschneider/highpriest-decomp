@@ -6109,11 +6109,11 @@ void	CGameActor :: SetAttrState(int bodyState, int effectState, int healthState,
 		SetArgb(-1,255,255,255);
 	}
 
+	// The 2008-09-03 client (0x5725C0, the end of this function) only counts
+	// g_FirstEffect here; the reconstruction also hid the player's own
+	// character, which then never appeared in the world.
 	if (m_gid == g_session.GetAid())
 	{
-		m_isVisibleBody = false;
-		m_isVisible = false;
-		m_shadowOn = false;
 		if (g_FirstEffect <= 2)
 		{
 			if (g_FirstEffect == 2)

@@ -52,12 +52,23 @@ static const int EF_BEGINSPELLWHITE = 1013;
 
 #define SAVE_FOOD_PARAM
 
+#if defined(BF_PORT)
+// The key has 56 bytes and the name buffer 64 (Session.h): the loops below
+// read past the key's end, into whatever the linker put after it.
+#define BF_NAME_KEY(i) szCharNameEcryption[(i) % 56]
+#else
+#define BF_NAME_KEY(i) szCharNameEcryption[i]
+#endif
+
 const char* CSession::GetCharName()
 {
 	static char cName[sizeof(m_cName)];
 	memcpy(cName, m_cName, sizeof(m_cName));
 
-	for(int i=0; i<sizeof(m_cName); ++i) cName[i] ^= szCharNameEcryption[i];
+	for(int i=0; i<sizeof(m_cName); ++i) cName[i] ^= BF_NAME_KEY(i);
+#if defined(BF_PORT)
+	cName[sizeof(cName) - 1] = 0;   // a name never set decodes to the key, unterminated
+#endif
 
 	return cName;
 }
@@ -66,7 +77,7 @@ void CSession::SetCharName(const char* cName)
 {
 	memcpy(m_cName, cName, sizeof(m_cName));
 
-	for(int i=0; i<sizeof(m_cName); ++i) m_cName[i] ^= szCharNameEcryption[i];
+	for(int i=0; i<sizeof(m_cName); ++i) m_cName[i] ^= BF_NAME_KEY(i);
 }
 
 

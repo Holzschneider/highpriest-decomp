@@ -45,17 +45,6 @@ inline FLOAT fmax(FLOAT a, FLOAT b) { return (a>b?a:b); }
 inline FLOAT fmin(FLOAT a, FLOAT b) { return (a<b?a:b); }
 #endif
 
-class C3dGroundHeightDispatch {
-public:
-	virtual ~C3dGroundHeightDispatch();
-	virtual void Create(int w, int h);
-	virtual void AssignGnd(CGndRes *gnd, vector3d &lightDir, vector3d &diffuseCol, vector3d &ambientCol);
-	virtual void Reset();
-	virtual void FlushGround(const matrix &wtm);
-	virtual void RenderLod(const matrix &wtm, const tagRECT &area, bool needClip);
-	virtual void Render(const matrix &wtm, const tagRECT &area, bool needClip);
-	virtual void GetHeightMinMax(int x, int y, float &topHeight, float &bottomHeight);
-};
 
 
 CLightmapMgr::CLightmapMgr()
@@ -1186,7 +1175,7 @@ void C3dGround15::CalcLmIntensityFloatRGBAll()
 			if (cell) gatHeight = (cell->h1 + cell->h2 + cell->h3 + cell->h4) / 4.0f;
 
 			float topHeight, bottomHeight;
-			((C3dGroundHeightDispatch *)this)->GetHeightMinMax(sx / 2, sy / 2, topHeight, bottomHeight);
+			GetHeightMinMax(sx / 2, sy / 2, topHeight, bottomHeight);
 			bool isOnGround = (gatHeight >= topHeight - 2.5f);
 			float lmRIntensity = 1.0f;
 			float lmGIntensity = 1.0f;

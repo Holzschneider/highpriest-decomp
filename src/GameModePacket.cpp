@@ -14199,7 +14199,12 @@ inline void CGameMode::Zc_Notify_Npc_Standentry__m5(const char *buf)
 
 void	CGameMode :: Zc_Config(const char *buf)
 {
+#if defined(BF_PORT)
+	int		val;
+	memcpy(&val, buf + 6, sizeof(val));   // offset 6: misaligned on arm64
+#else
 	int		val = *(int *)(buf + 6);
+#endif
 	g_session.m_bOpenEquipedItem = val;
 	if (val)
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OPEN_EQUIPEDITEM_ACCEPT)), 0x64ffff, 0, 0);

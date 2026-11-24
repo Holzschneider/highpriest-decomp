@@ -16,6 +16,7 @@ public:
 
 class CViewFrustum {
 public:
+	friend class CView;
 	CViewFrustum();
 	void Free();
 	void Build(float hratio, float vratio, const matrix& viewMatrix, SceneGraphNode* rootNode);
