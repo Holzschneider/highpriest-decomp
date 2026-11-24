@@ -8,6 +8,9 @@
 #   --tree  the source tree to check (default: src)
 #   --out   where the per-file logs go (default: build/port/census)
 #
+# The units the build excludes (BF_CLIENT_EXCLUDE in the root CMakeLists.txt)
+# are skipped and counted on the "excluded" line; BF_CENSUS_ALL=1 checks them.
+#
 # BF_WIN_HEADERS names the directory that holds windows.h, d3d.h and the rest
 # (default: port/compat/winheaders, the vendored Wine headers).
 set -u
@@ -27,6 +30,12 @@ mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd); find "$OUT" -name '*.log' -delete
 
 # The link order of sources.mk lists the game's translation units.
 GAME=$(awk '/^GAME :=/{f=1} f{print} f&&!/\\$/{f=0}' "$ROOT/sources.mk" | sed 's/GAME :=//; s/\\//g')
+# The units the build leaves out, each with its reason (BF_CLIENT_EXCLUDE in
+# the root CMakeLists.txt), are not checked; BF_CENSUS_ALL=1 checks them too.
+EXCLUDED=$(awk '/^set\(BF_CLIENT_EXCLUDE/{f=1;next} f&&/^\)/{f=0} f' "$ROOT/CMakeLists.txt" | sed 's/#.*//')
+if [ -z "${BF_CENSUS_ALL:-}" ]; then
+  GAME=$(echo $GAME | tr ' ' '\n' | grep -vxF -f <(echo $EXCLUDED | tr ' ' '\n'))
+fi
 
 FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE -isystem $WIN_HEADERS $*"
 export FLAGS TREE OUT
@@ -45,6 +54,7 @@ cd "$OUT"
 cat *.log > all.txt
 errors() { grep -E ' (fatal )?error: ' "$@"; }
 echo "sources:            $(ls *.log | wc -l | tr -d ' ')"
+[ -z "${BF_CENSUS_ALL:-}" ] && echo "excluded:           $(echo $EXCLUDED | wc -w | tr -d ' ') (BF_CLIENT_EXCLUDE in CMakeLists.txt)"
 echo "clean:              $(grep -L -E ' (fatal )?error: ' *.log | wc -l | tr -d ' ')"
 echo "errors:             $(errors all.txt | wc -l | tr -d ' ')"
 echo "distinct locations: $(errors all.txt | cut -d: -f1-3 | sort -u | wc -l | tr -d ' ')"
