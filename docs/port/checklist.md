@@ -106,7 +106,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M8.1 Feature checklist in play order, each item a script (expanded into sub-steps when M6 closes) | src | M6 exit |
+| [x] fe8b008 | M8.1 Feature checklist in play order, each item a script (expanded into sub-steps when M6 closes) | src | M6 exit |
 | [x] a215c18 | M8.1a Movement, camera and map change (M6's scripts), and the stuck walk after an NPC dialog | src | M6 exit |
 | [x] 5aac618 | M8.1b Chat: public, whisper, party and guild with the bot; emotes | src | M6 exit |
 | [x] c0188ca | M8.1c Combat and damage numbers; items on the ground | src | M6 exit |
@@ -115,7 +115,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] be9c114 | M8.1f Skills and the skill tree | src | M6 exit |
 | [x] 1b7ee91 | M8.1g Options; screenshots | src | M6 exit |
 | [x] 8e917ee | M8.1h Logout and character switch | src | M6 exit |
-| [ ] | M8.1i The scripted gate test | src | M8.1a–M8.1h |
+| [x] fe8b008 | M8.1i The scripted gate test | src | M8.1a–M8.1h |
 | [x] e2ff959 | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
 | [x] 059ea41 | M8.4 Protocol differences resolved on the client side | src | M6 exit |
 | [ ] | M8.5 Worker threads made safe | src | M6 exit |
@@ -130,7 +130,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] f18f603 | M9.2 Extraction script for displayed literals; translation table keyed by original bytes; runtime lookup in `port/` (its call sites in `src/` follow with M3.2) | tools | M1.2 |
 | [x] 9a31eb4 | M9.3 Translation of the table | tools | M9.2 |
 | [x] 72ebb50 | M9.4 Font mapping and text test screen | src | M4.5a |
-| [ ] | M9.5 Coverage report | src | M9.2, M6 exit |
+| [x] e1ef316 | M9.5 Coverage report | src | M9.2, M6 exit |
 | [ ] | M9 exit (verifier) | | M8 exit, M9.1–M9.5 |
 
 ## M10. Protocol seam
