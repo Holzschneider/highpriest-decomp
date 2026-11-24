@@ -10,6 +10,7 @@
 #include "ItemInfo.h"
 #include "Session.h"
 #include "SkillInfo.h"
+#include "UIMessengerWnd.h"
 
 #include <cxxabi.h>
 #include <ctype.h>
@@ -744,6 +745,31 @@ struct BfUiProbe {
 	}
 
 	// The names port/harness/README.md lists for the windows of the login.
+	// The messenger window's two tabs (`tab:friend`, `tab:party`, kind
+	// `button`, text "on" for the open one; Alt+H and Alt+Z open it on each),
+	// its first two radio buttons; and the tip of the day's text viewer as
+	// `text` (kind `list`, its lines).
+	static void Tabs(Window &w)
+	{
+		if (UIMessengerGroupWnd *m = dynamic_cast<UIMessengerGroupWnd *>(w.wnd)) {
+			static const char *const kTabs[2] = {"tab:friend", "tab:party"};
+			int n = 0;
+			for (std::list<UIWindow *>::iterator it = m->m_children.begin(); it != m->m_children.end() && n < 2; ++it) {
+				UIRadioBtn *r = dynamic_cast<UIRadioBtn *>(*it);
+				if (!r)
+					continue;
+				Add(w, r, kTabs[n], "button", 0, 0, r->m_w, r->m_h, m->m_curRadioBtn == n ? "on" : "off");
+				++n;
+			}
+		} else if (dynamic_cast<UITipOfTheDayWnd *>(w.wnd)) {
+			for (size_t i = 0; i < w.controls.size(); ++i)
+				if (dynamic_cast<UITextViewer *>(w.controls[i].wnd)) {
+					w.controls[i].id = "text";
+					w.controls[i].text = ListText((UIListBox *)w.controls[i].wnd);
+				}
+		}
+	}
+
 	static void Specific(Window &w)
 	{
 		static const char *const kStats[12] = {"name", "job", "level", "exp", "hp", "sp",
@@ -1115,6 +1141,7 @@ struct BfUiProbe {
 			Specific(w);
 			Items(w);
 			Npc(w);
+			Tabs(w);
 			g_windows.push_back(w);
 		}
 	}
