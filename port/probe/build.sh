@@ -24,6 +24,7 @@ compile() { $CXX -c "$1" -o "$OUT/obj/$(basename "${1%.*}").o"; }
 compile "$SRC/packet.cpp"
 compile "$SRC/device/PacketQueue.cpp"
 compile "$SRC/device/Connection.cpp"
+compile "$ROOT/port/compat/stubs/bf_replay.cpp"
 compile "$ROOT/port/instrument/bf_trace.cpp"
 compile "$OUT/obj/bf_packet_names.cpp"
 compile "$ROOT/port/probe/probe_support.cpp"
@@ -32,6 +33,6 @@ compile "$ROOT/port/probe/netprobe.cpp"
 
 link() { clang++ -target arm64-apple-macos14 "$@"; }
 link "$OUT/obj/packetlen.o" "$OUT/obj/packet.o" -o "$OUT/bin/bifrost-packetlen"
-link "$OUT/obj/netprobe.o" "$OUT/obj/Connection.o" "$OUT/obj/PacketQueue.o" "$OUT/obj/packet.o" \
+link "$OUT/obj/netprobe.o" "$OUT/obj/Connection.o" "$OUT/obj/bf_replay.o" "$OUT/obj/PacketQueue.o" "$OUT/obj/packet.o" \
      "$OUT/obj/bf_trace.o" "$OUT/obj/bf_packet_names.o" "$OUT/obj/probe_support.o" -o "$OUT/bin/bifrost-netprobe"
 file "$OUT/bin/bifrost-packetlen" "$OUT/bin/bifrost-netprobe"

@@ -10,13 +10,20 @@
 
 
 #if defined(BF_PORT)
+#include "bf_replay.h"
+extern "C" const char *bf_packet_name(int header);
 #define DUMP_ADDRESS(a)    BF_TRACE(BFT_NET, "%s %s:%d", (a) + ((a)[0] == '\n'), inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port))
 #define DUMP_DATA(a, b)    bf_count("net.bytes.received", (b))
-#define DUMP_PACKET(a,b,c) bf_trace_packet((a)[0], (b), (c))
+#define DUMP_PACKET(a,b,c) bf_trace_packet_ex((a)[0], (b), (c), NULL, m_bfStream)
+#define DUMP_RAW(a,b,c)    bf_trace_packet_ex((a)[0], (b), (c), "raw", m_bfStream)
+// Stands for the socket of a replayed connection (BF_PKT_REPLAY): none is opened.
+#define BF_REPLAY_SOCKET   0x7ffffffe
+static int s_bfSerial;
 #else
 #define DUMP_ADDRESS(a)    ((void)0)
 #define DUMP_DATA(a, b)    ((void)0)
 #define DUMP_PACKET(a,b,c) ((void)0)
+#define DUMP_RAW(a,b,c)    ((void)0)
 #endif
 
 
@@ -28,6 +35,10 @@ CConnection::CConnection()
 ,	m_bBlock(false)
 ,	m_dwTime(0)
 {
+#if defined(BF_PORT)
+	m_bfStream[0] = 0;
+	m_bfNamed = false;
+#endif
 	ResetQueue();
 }
 
@@ -59,6 +70,22 @@ bool CConnection::Connect(const ServerAddress *addr)
 
 	SetBlock(false);
 	ResetQueue();
+
+#if defined(BF_PORT)
+	snprintf(m_bfStream, sizeof(m_bfStream), "server/%d", ++s_bfSerial);
+	m_bfNamed = false;
+	if (bf_replay_active()) {
+		memset(&m_addr, 0, sizeof(m_addr));
+		m_addr.sin_addr.s_addr = inet_addr(addr->ip);
+		m_addr.sin_family = AF_INET;
+		m_addr.sin_port = htons(addr->port);
+		if (!bf_replay_connect(addr->ip, addr->port))
+			return false;
+		m_socket = BF_REPLAY_SOCKET;
+		DUMP_ADDRESS("\nConnecting (replay)");
+		return true;
+	}
+#endif
 
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_socket != INVALID_SOCKET) {
@@ -102,6 +129,20 @@ bool CConnection::Connect(const ServerAddress *addr)
 
 bool CConnection::Poll()
 {
+#if defined(BF_PORT)
+	if (m_socket != INVALID_SOCKET && bf_replay_active()) {
+		char tempBuf[2048];
+		int ret = bf_replay_receive(tempBuf, sizeof(tempBuf));
+		if (ret > 0) {
+			m_recvQueue.InsertData(ret, tempBuf);
+			DUMP_DATA(tempBuf, ret);
+		} else if (ret < 0) {
+			Disconnect();
+			return false;
+		}
+		return true;
+	}
+#endif
 	if (m_socket != INVALID_SOCKET)
 		return OnRecv() && OnSend();
 	else
@@ -113,6 +154,11 @@ bool CConnection::Poll()
 void CConnection::Disconnect()
 {
 	if (m_socket != INVALID_SOCKET) {
+#if defined(BF_PORT)
+		if (bf_replay_active())
+			bf_replay_disconnect();
+		else
+#endif
 		closesocket(m_socket);
 		m_socket = INVALID_SOCKET;
 		m_sendQueue.Init(QUEUE_SIZE);
@@ -138,9 +184,10 @@ int CConnection::Recv(char *buf, int size, bool mustRecv)
 {
 	if (mustRecv) {
 
-		if (m_recvQueue.GetData(size, buf))
+		if (m_recvQueue.GetData(size, buf)) {
+			DUMP_RAW("R", buf, size);
 			return size;
-		else
+		} else
 			return 0;
 
 	} else {
@@ -162,6 +209,12 @@ void CConnection::ResetQueue()
 
 bool CConnection::OnSend()
 {
+#if defined(BF_PORT)
+	if (bf_replay_active()) {
+		m_sendQueue.RemoveData(m_sendQueue.GetSize());	// compared in SendPacket
+		return true;
+	}
+#endif
 	while (m_dwTime < timeGetTime() && m_sendQueue.GetSize()) {
 		int ret;
 		fd_set fdwrite;
@@ -343,6 +396,9 @@ bool CConnection::CheckModulePt()
 
 CRagConnection::CRagConnection()
 {
+#if defined(BF_PORT)
+	bf_trace_set_packet_namer(bf_packet_name);
+#endif
 	InitPacketMap();
 }
 
@@ -351,6 +407,23 @@ CRagConnection::CRagConnection()
 
 bool CRagConnection::SendPacket(int size, const char *buf)
 {
+#if defined(BF_PORT)
+	if (!m_bfNamed && size >= 2) {
+		// The first packet tells which server this is: CA_ account, CH_ char,
+		// anything else zone (the zone's entry packet varies with the version).
+		const char *name = bf_packet_name(GetPacketType(buf) & 0xffff);
+		const char *role = name && !strncmp(name, "CA_", 3) ? "account" : name && !strncmp(name, "CH_", 3) ? "char" : "zone";
+		const char *serial = strchr(m_bfStream, '/');
+		if (serial) {
+			char label[sizeof(m_bfStream)];
+			snprintf(label, sizeof(label), "%s%s", role, serial);
+			strcpy(m_bfStream, label);
+		}
+		m_bfNamed = true;
+	}
+	if (m_socket != INVALID_SOCKET && bf_replay_active())
+		bf_replay_sent(buf, size);
+#endif
 	DUMP_PACKET("S", buf, size);
 	Send(size, buf);
 

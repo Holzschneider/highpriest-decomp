@@ -159,6 +159,11 @@ void bf_trace_set_packet_namer(const char *(*namer)(int header))
 
 void bf_trace_packet(char direction, const void *data, int size)
 {
+	bf_trace_packet_ex(direction, data, size, NULL, NULL);
+}
+
+void bf_trace_packet_ex(char direction, const void *data, int size, const char *name, const char *connection)
+{
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
 	if (size < 2 || (!(bf_trace_mask & BFT_PKT) && !g_packetLog))
@@ -166,16 +171,22 @@ void bf_trace_packet(char direction, const void *data, int size)
 
 	const unsigned char *bytes = static_cast<const unsigned char *>(data);
 	int header = bytes[0] | (bytes[1] << 8);
-	const char *name = g_packetNamer ? g_packetNamer(header) : NULL;
+	if (!name)
+		name = g_packetNamer ? g_packetNamer(header) : NULL;
 	if (!name)
 		name = "?";
+	if (connection && !*connection)
+		connection = NULL;
 
-	BF_TRACE(BFT_PKT, "%c 0x%04x %-32s %d bytes", direction, header, name, size);
+	BF_TRACE(BFT_PKT, "%c 0x%04x %-32s %d bytes%s%s", direction, header, name, size, connection ? " on " : "",
+	         connection ? connection : "");
 
 	if (g_packetLog) {
 		fprintf(g_packetLog, "%lld %c 0x%04x %d %s ", Milliseconds(), direction, header, size, name);
 		for (int i = 0; i < size; ++i)
 			fprintf(g_packetLog, "%02x", bytes[i]);
+		if (connection)
+			fprintf(g_packetLog, " %s", connection);
 		fputc('\n', g_packetLog);
 		fflush(g_packetLog);
 	}

@@ -25,6 +25,7 @@ compile() { $GAME -c "$1" -o "$OBJ/$(basename "${1%.*}").o"; }
 compile "$SRC/packet.cpp" &
 compile "$SRC/device/PacketQueue.cpp" &
 compile "$SRC/device/Connection.cpp" &
+compile "$ROOT/port/compat/stubs/bf_replay.cpp" &
 compile "$ROOT/port/instrument/bf_trace.cpp" &
 compile "$OBJ/bf_packet_names.cpp" &
 compile "$ROOT/port/probe/probe_support.cpp" &
@@ -33,6 +34,6 @@ $PLAIN -c "$ROOT/port/bot/bot_io.cpp" -o "$OBJ/bot_io.o" &
 for job in $(jobs -p); do wait "$job"; done
 
 clang++ -target arm64-apple-macos13 \
-	"$OBJ/bot.o" "$OBJ/bot_io.o" "$OBJ/Connection.o" "$OBJ/PacketQueue.o" "$OBJ/packet.o" \
+	"$OBJ/bot.o" "$OBJ/bot_io.o" "$OBJ/Connection.o" "$OBJ/bf_replay.o" "$OBJ/PacketQueue.o" "$OBJ/packet.o" \
 	"$OBJ/bf_trace.o" "$OBJ/bf_packet_names.o" "$OBJ/probe_support.o" -o "$OUT/bin/bifrost-bot"
 file "$OUT/bin/bifrost-bot"

@@ -56,9 +56,20 @@ void bf_trace_hex(unsigned category, const char *label, const void *data, int si
 /*
  * One packet. direction is 'S' or 'R'; the first two bytes are the header.
  * Writes an BFT_PKT line and, with BF_PKT_LOG set, a capture line:
- *   <milliseconds> <S|R> <header> <size> <name> <hex bytes>
+ *   <milliseconds> <S|R> <header> <size> <name> <hex bytes> [<connection>]
  */
 void bf_trace_packet(char direction, const void *data, int size);
+
+/*
+ * The same with a name and a connection. name NULL takes the packet namer's;
+ * "raw" marks bytes read outside the packet framing (the account id the
+ * character and zone servers send first). connection, when not NULL, is
+ * written as a seventh field: the server role and the connection's serial in
+ * the process, "account/1", "char/2", "zone/3" (device/Connection.cpp).
+ * Readers of the six-field format can ignore it; BF_PKT_REPLAY uses it to
+ * find where each connection begins.
+ */
+void bf_trace_packet_ex(char direction, const void *data, int size, const char *name, const char *connection);
 
 /* Supplies names for packet headers (see port/tools/gen_packet_names.py). */
 void bf_trace_set_packet_namer(const char *(*namer)(int header));

@@ -49,6 +49,10 @@ protected:
 	CPacketQueue m_sendQueue;
 	CPacketQueue m_recvQueue;
 	CPacketQueue m_blockQueue;
+#if defined(BF_PORT)
+	char m_bfStream[24];	// "zone/3": role and serial for BF_PKT_LOG; named by the first packet sent
+	bool m_bfNamed;
+#endif
 };
 
 class CRagConnection : public CConnection {

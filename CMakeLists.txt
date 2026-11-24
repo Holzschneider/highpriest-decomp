@@ -329,7 +329,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 # an excluded unit (port/compat/stubs/README.md).
 set(BF_CLIENT_PORT_SOURCES
 	port/compat/stubs/bf_crash.cpp
-	port/compat/stubs/bf_client_state.cpp)
+	port/compat/stubs/bf_client_state.cpp
+	port/compat/stubs/bf_replay.cpp)
 # The entry point and the start-up glue (main, the zlib wrappers, the C
 # runtime names macOS lacks), compiled as port code (bf_compat_flags) with the
 # native modules' headers. main is pulled out of the library by the linker.
@@ -375,7 +376,8 @@ message(STATUS "probes: from ${bf_probe_tree}")
 add_library(bf_probe_game STATIC
 	${bf_probe_tree}/packet.cpp
 	${bf_probe_tree}/device/PacketQueue.cpp
-	${bf_probe_tree}/device/Connection.cpp)
+	${bf_probe_tree}/device/Connection.cpp
+	port/compat/stubs/bf_replay.cpp)
 bf_client_flags(bf_probe_game ${bf_probe_tree})
 add_executable(${BF_EXE}-packetlen port/probe/packetlen.cpp)
 bf_client_flags(${BF_EXE}-packetlen ${bf_probe_tree})
