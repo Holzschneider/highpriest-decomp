@@ -71,6 +71,8 @@ cmake -S port/native/<module> -B build/native/<module> -G Ninja && cmake --build
 | [`codec`](native/codec/README.md) | zlib, JPEG through ImageIO | game folder optional |
 | [`app`](native/app/README.md) | window, Metal layer, event queue, input state, clipboard, single instance | opens a window; `--interactive` logs real input |
 | [`text`](native/text/README.md) | CoreText fonts, metrics, unsmoothed drawing into bitmaps, code pages | nothing |
+| [`audio`](native/audio/README.md) | AVAudioEngine voices, one music stream, WAV/MP3 decoding | plays sound; game folder optional (`BF_AUDIO_TEST_ALL=1` surveys every readable `.wav`) |
+| [`formats/bink`](native/formats/bink/README.md) | Bink 1 movie decoder, video and audio | game folder; public sample movies under the test folder |
 
 ## Test harness
 
