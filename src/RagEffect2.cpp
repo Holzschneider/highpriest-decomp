@@ -5883,6 +5883,13 @@ void	CEffectPrim :: Render3DCasting(matrix &wtm)
 					if ( order == E_DIVISION-1 )
 						Angle = m_GI[ec].RotStart;
 				}
+#ifdef BF_PORT
+				// a start angle below 0 indexed before the tables; the 2008
+				// build read the neighbouring global there
+				Angle%=360;
+				if (Angle < 0)
+					Angle += 360;
+#endif
 
 				cs1 = g_cosTable[Angle];
 				sn1 = g_sinTable[Angle];
