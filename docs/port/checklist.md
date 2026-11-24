@@ -90,7 +90,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] dc78e35 | M6.4 Control interface, third part: position, HP and SP, visible actors | native | M5.6 |
 | [x] a39806e | M6.5 Packet replay | src | M3.7 |
 | [x] 835c758 | M6.6 Unsupported map version returns to character selection | src | M6.1 |
-| [ ] | M6 exit (verifier) | | M5 exit, M6.1–M6.6 |
+| [x] 7de3981 | M6 exit (verifier): passed (session script failing, defect carried) | | M5 exit, M6.1–M6.6 |
 
 ## M7. Sound
 
