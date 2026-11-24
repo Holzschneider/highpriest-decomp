@@ -5,6 +5,7 @@
  * includes the module's other parts:
  *
  *   bf_clock.h      the one clock (time, sleep, calendar)
+ *   bf_file.h       the game folder, the write locations, file access
  *
  * No Windows types. The adapters in port/compat give these functions the
  * Win32 names the client calls today (CreateThread, critical sections,
@@ -21,6 +22,7 @@
 #include <stdint.h>
 
 #include "bf_clock.h"
+#include "bf_file.h"
 
 #ifdef __cplusplus
 extern "C" {

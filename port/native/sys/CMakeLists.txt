@@ -17,6 +17,7 @@ option(BF_SYS_SANITIZE "Build bf_sys and its test with address and undefined-beh
 add_library(bf_sys STATIC
 	src/bf_clock.cpp
 	src/bf_thread.cpp
+	src/bf_file.cpp
 	src/bf_shell.mm
 )
 target_include_directories(bf_sys

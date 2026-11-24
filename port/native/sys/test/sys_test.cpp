@@ -99,6 +99,19 @@ __attribute__((unused)) std::string ReadText(const std::string &path)
 	return out;
 }
 
+// UTF-8 in NFD, as the Finder would write a Korean name.
+std::string Nfd(const char *utf8)
+{
+	CFStringRef s = CFStringCreateWithCString(NULL, utf8, kCFStringEncodingUTF8);
+	CFMutableStringRef m = CFStringCreateMutableCopy(NULL, 0, s);
+	CFRelease(s);
+	CFStringNormalize(m, kCFStringNormalizationFormD);
+	char buffer[1024];
+	CFStringGetCString(m, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+	CFRelease(m);
+	return buffer;
+}
+
 std::string ExecutableFolder()
 {
 	char path[PATH_MAX];
@@ -111,6 +124,17 @@ std::string ExecutableFolder()
 	std::string s = real;
 	return s.substr(0, s.rfind('/'));
 }
+
+std::string Resolve(const char *clientPath, int mode)
+{
+	char out[2048];
+	if (bf_file_resolve(clientPath, mode, out, sizeof(out)) < 0)
+		return std::string();
+	return out;
+}
+
+const char kKoreanUtf8[] = "\xEC\x9C\xA0\xEC\xA0\x80\xEC\x9D\xB8\xED\x84\xB0\xED\x8E\x98\xEC\x9D\xB4\xEC\x8A\xA4"; // 유저인터페이스
+const char kKoreanCp949[] = "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba";
 
 // ---- Clock --------------------------------------------------------------------
 
@@ -272,6 +296,250 @@ void TestThreads()
 	bf_sys_mutex_destroy(c.mutex);
 }
 
+// ---- Locations and files --------------------------------------------------------
+
+void TestLocations(const std::string &home)
+{
+	const char *support = bf_file_location(BF_LOCATION_SUPPORT);
+	const char *pictures = bf_file_location(BF_LOCATION_PICTURES);
+	const char *documents = bf_file_location(BF_LOCATION_DOCUMENTS);
+	Check(std::string(bf_file_home()) == home, "locations: BF_HOME replaces the home folder");
+	Check(support && std::string(support) == home + "/Library/Application Support/" BF_APP_NAME && Exists(support),
+	      Format("locations: support folder created at %s", support ? support : "(null)").c_str());
+	Check(pictures && std::string(pictures) == home + "/Pictures/" BF_APP_NAME && Exists(pictures),
+	      "locations: pictures folder created");
+	Check(documents && std::string(documents) == home + "/Documents/" BF_APP_NAME && Exists(documents),
+	      "locations: documents folder created");
+}
+
+void TestLookup(const std::string &game)
+{
+	// A game folder like the real one: mixed case, a Korean name stored in NFD.
+	std::string korean = Nfd(kKoreanUtf8);
+	std::string texture = game + "/Data/Texture/" + korean;
+	mkdir((game + "/Data").c_str(), 0755);
+	mkdir((game + "/Data/Texture").c_str(), 0755);
+	mkdir(texture.c_str(), 0755);
+	WriteText(texture + "/Bgi_Temp.BMP", "BM-test");
+	WriteText(game + "/Data/clientinfo.xml", "<clientinfo/>");
+	WriteText(game + "/data.grf", "Master of Magic\0fake");
+	bf_file_set_game_folder(game.c_str());
+	Check(std::string(bf_file_location(BF_LOCATION_GAME)) == game, "lookup: game folder set");
+
+	std::string hit = Resolve("data\\clientinfo.xml", BF_RESOLVE_READ);
+	Check(hit == game + "/Data/clientinfo.xml" || (!hit.empty() && Exists(hit)),
+	      Format("lookup: backslashes and lower case find Data/clientinfo.xml (%s)", hit.c_str()).c_str());
+
+	hit = Resolve("DATA/CLIENTINFO.XML", BF_RESOLVE_READ);
+	Check(!hit.empty() && Exists(hit), "lookup: upper case with slashes");
+
+	hit = Resolve("C:\\data\\..\\data\\.\\clientinfo.xml", BF_RESOLVE_READ);
+	Check(!hit.empty() && Exists(hit), "lookup: drive letter, '.' and '..' handled");
+
+	hit = Resolve((game + "\\data\\clientinfo.xml").c_str(), BF_RESOLVE_READ);
+	Check(!hit.empty() && Exists(hit), "lookup: absolute game-folder prefix with a backslash tail");
+
+	errno = 0;
+	Check(Resolve("..\\outside.txt", BF_RESOLVE_READ).empty(), "lookup: '..' cannot leave the game folder");
+
+	std::string cp949Path = std::string("data\\texture\\") + kKoreanCp949 + "\\bgi_temp.bmp";
+	hit = Resolve(cp949Path.c_str(), BF_RESOLVE_READ);
+	Check(!hit.empty() && ReadText(hit) == "BM-test",
+	      Format("lookup: CP949 name finds the NFD folder %s", hit.c_str()).c_str());
+
+	errno = 0;
+	bool missing = Resolve("data\\texture\\nothere.bmp", BF_RESOLVE_READ).empty() && errno == ENOENT;
+	Check(missing, "lookup: an absent file fails with ENOENT");
+
+	// Enumeration goes through the folded directory listing, whatever the volume's case rules.
+	bf_file_info info;
+	bf_file_find *find = bf_file_find_first((std::string("DATA\\TEXTURE\\") + kKoreanCp949 + "\\B?I_*.bmp").c_str(), &info);
+	Check(find && strcmp(info.name_utf8, "Bgi_Temp.BMP") == 0 && info.read_only == 1 && info.size == 7
+	      && !bf_file_find_next(find, &info),
+	      "find: wildcard pattern in other case finds the one file, read-only");
+	bf_file_find_close(find);
+
+	find = bf_file_find_first("data\\texture\\*.*", &info);
+	Check(find && info.is_folder && strcmp(info.name, kKoreanCp949) == 0,
+	      "find: a folder's Korean name comes back in CP949 bytes");
+	bf_file_find_close(find);
+
+	Check(bf_file_find_first("data\\*.nothing", &info) == NULL, "find: no match gives NULL");
+	Check(bf_file_stat("DATA\\Texture", &info) == 1 && info.is_folder, "stat: folder found case-insensitively");
+
+	size_t size = 0;
+	char *data = (char *)bf_file_read_all("data\\clientinfo.xml", &size);
+	Check(data && size == 13 && strcmp(data, "<clientinfo/>") == 0 && data[size + 7] == 0,
+	      "read_all: contents and zero padding");
+	bf_file_free(data);
+
+	bf_file_mapping *map = bf_file_map("DATA.GRF");
+	Check(map && bf_file_mapping_size(map) >= 15 && memcmp(bf_file_mapping_data(map), "Master of Magic", 15) == 0,
+	      "mmap: a test archive's header");
+	bf_file_unmap(map);
+}
+
+void TestRefusal(const std::string &game)
+{
+	errno = 0;
+	bf_file *f = bf_file_open("data\\new.txt", BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
+	Check(!f && errno == EACCES && !Exists(game + "/Data/new.txt"), "refusal: a write into the game folder is refused");
+	errno = 0;
+	f = bf_file_open((game + "/data.grf").c_str(), BF_FILE_READ | BF_FILE_WRITE | BF_FILE_NATIVE);
+	Check(!f && errno == EACCES, "refusal: also through a native absolute path");
+	errno = 0;
+	Check(Resolve("data\\clientinfo.xml", BF_RESOLVE_WRITE).empty() && errno == EACCES,
+	      "refusal: resolve for writing refuses existing game files");
+	Check(bf_file_make_folder("data\\newfolder") == -1 && !Exists(game + "/Data/newfolder"),
+	      "refusal: no folders made in the game folder");
+	Check(bf_file_remove("data.grf") == -1 && Exists(game + "/data.grf"), "refusal: nothing removed from the game folder");
+}
+
+void TestWritePaths(const std::string &game)
+{
+	std::string pictures = bf_file_location(BF_LOCATION_PICTURES);
+	std::string documents = bf_file_location(BF_LOCATION_DOCUMENTS);
+	std::string support = bf_file_location(BF_LOCATION_SUPPORT);
+
+	Check(bf_file_write_location("ScreenShot\\screen000.jpg") == BF_LOCATION_PICTURES
+	      && bf_file_write_location("chat\\Chat.txt") == BF_LOCATION_DOCUMENTS
+	      && bf_file_write_location("_tmpEmblem\\a.ebm") == BF_LOCATION_SUPPORT
+	      && bf_file_write_location("data\\x") == BF_LOCATION_GAME,
+	      "write paths: the table sends screenshots, chat and caches to their places");
+
+	bf_file *f = bf_file_open((game + "\\ScreenShot\\screen000.jpg").c_str(),
+	                          BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
+	bool wrote = f && bf_file_write(f, "jpeg", 4) == 4;
+	bf_file_close(f);
+	Check(wrote && ReadText(pictures + "/screen000.jpg") == "jpeg" && !Exists(game + "/ScreenShot"),
+	      "write paths: <game>\\ScreenShot\\screen000.jpg lands in Pictures");
+
+	Check(bf_file_make_folder("Chat") == 1 && bf_file_make_folder("Chat") == 0 && Exists(documents + "/Chat"),
+	      "write paths: _mkdir Chat creates Documents/<name>/Chat once");
+	f = bf_file_open("Chat\\Chat.txt", BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
+	wrote = f && bf_file_write(f, "hello", 5) == 5;
+	bf_file_close(f);
+	bf_file_info info;
+	Check(wrote && ReadText(documents + "/Chat/Chat.txt") == "hello" && bf_file_stat("chat\\chat.txt", &info) == 1
+	      && info.read_only == 0 && info.size == 5,
+	      "write paths: a chat log goes to Documents and is found again for reading");
+
+	f = bf_file_open("Report\\Someone.txt", BF_FILE_WRITE | BF_FILE_CREATE);   // folder made on demand
+	bf_file_close(f);
+	Check(f && Exists(documents + "/Report/Someone.txt"), "write paths: missing folders are made on demand");
+
+	bf_file_make_folder("_tmpEmblem");
+	f = bf_file_open("_tmpEmblem\\srv_1_2.ebm", BF_FILE_WRITE | BF_FILE_CREATE);
+	bf_file_close(f);
+	bf_file_find *find = bf_file_find_first("_tmpemblem\\srv_1_*.ebm", &info);
+	Check(find && strcmp(info.name, "srv_1_2.ebm") == 0 && Exists(support + "/_tmpEmblem/srv_1_2.ebm"),
+	      "write paths: emblem cache in Application Support, listed by wildcard");
+	bf_file_find_close(find);
+	Check(bf_file_rename("_tmpEmblem\\srv_1_2.ebm", "_tmpEmblem\\srv_1_3.ebm") == 0
+	      && bf_file_remove("_TMPEMBLEM\\srv_1_3.ebm") == 0 && !Exists(support + "/_tmpEmblem/srv_1_3.ebm"),
+	      "write paths: rename and remove inside a write location");
+
+	// Names the client makes from user text, in the user code page.
+	bf_file_set_user_codepage(1252);
+	f = bf_file_open("Whisper\\J\xf6hn.txt", BF_FILE_WRITE | BF_FILE_CREATE);
+	bf_file_close(f);
+	find = bf_file_find_first("Whisper\\*.txt", &info);
+	Check(f && Exists(documents + "/Whisper/J\xc3\xb6hn.txt") && find && strcmp(info.name, "J\xf6hn.txt") == 0,
+	      "write paths: a CP1252 name is stored as UTF-8 and listed back as CP1252");
+	bf_file_find_close(find);
+	bf_file_set_user_codepage(949);
+
+	// Paths native code built (UTF-8) under a write location stay UTF-8.
+	std::string nativeKorean = documents + "/Chat/" + kKoreanUtf8 + ".txt";
+	f = bf_file_open(nativeKorean.c_str(), BF_FILE_WRITE | BF_FILE_CREATE);
+	bf_file_close(f);
+	Check(f && Exists(nativeKorean) && bf_file_stat(nativeKorean.c_str(), &info) == 1,
+	      "write paths: an absolute UTF-8 path in a write location is taken as UTF-8");
+
+	// File handle operations.
+	f = bf_file_open("savedata\\test.bin", BF_FILE_READ | BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
+	bool ops = f && bf_file_write(f, "0123456789", 10) == 10 && bf_file_size(f) == 10 && bf_file_seek(f, 4, 0) == 4;
+	char buffer[16] = { 0 };
+	ops = ops && bf_file_read(f, buffer, 3) == 3 && memcmp(buffer, "456", 3) == 0 && bf_file_tell(f) == 7;
+	ops = ops && bf_file_seek(f, -2, 2) == 8 && bf_file_read(f, buffer, 10) == 2 && bf_file_read(f, buffer, 10) == 0;
+	ops = ops && bf_file_seek(f, 5, 0) == 5 && bf_file_truncate_here(f) == 0 && bf_file_size(f) == 5;
+	bf_file_close(f);
+	f = bf_file_open("savedata\\test.bin", BF_FILE_APPEND | BF_FILE_WRITE);
+	ops = ops && f && bf_file_write(f, "X", 1) == 1;
+	bf_file_close(f);
+	ops = ops && ReadText(support + "/savedata/test.bin") == "01234X";
+	errno = 0;
+	f = bf_file_open("savedata\\test.bin", BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_EXCLUSIVE);
+	ops = ops && !f && errno == EEXIST;
+	Check(ops, "files: write, size, seek, read, short read at the end, truncate, append, exclusive create");
+
+	errno = 0;
+	f = bf_file_open("data\\texture", BF_FILE_READ);
+	Check(!f && errno == EISDIR, "files: a folder cannot be opened as a file");
+}
+
+uint32_t ResolveMany(void *raw)
+{
+	const std::string *expected = (const std::string *)raw;
+	for (int i = 0; i < 2000; ++i) {
+		std::string got = Resolve(i % 2 ? "DATA\\CLIENTINFO.XML" : "data/clientinfo.xml", BF_RESOLVE_READ);
+		if (got != *expected)
+			return 1;
+	}
+	return 0;
+}
+
+void TestConcurrentLookups()
+{
+	std::string expected = Resolve("data\\clientinfo.xml", BF_RESOLVE_READ);
+	std::vector<bf_sys_thread *> threads;
+	for (int i = 0; i < 8; ++i)
+		threads.push_back(bf_sys_thread_create(ResolveMany, &expected, "bf-lookup"));
+	uint32_t failures = 0;
+	for (bf_sys_thread *t : threads)
+		failures += bf_sys_thread_join(t);
+	Check(failures == 0, "lookup: 8 threads x 2000 lookups agree");
+}
+
+void TestRealGameFolder(const std::string &folder)
+{
+	if (!Exists(folder + "/data.grf")) {
+		Skip("game folder: data.grf header", ("no data.grf in " + folder).c_str());
+		Skip("game folder: listing *.grf", "no game folder");
+		Skip("game folder: bgm listing", "no game folder");
+		return;
+	}
+	bf_file_set_game_folder(folder.c_str());
+	bf_file_mapping *map = bf_file_map("data.grf");
+	Check(map && bf_file_mapping_size(map) > 46 && memcmp(bf_file_mapping_data(map), "Master of Magic", 15) == 0,
+	      Format("game folder: mmap of data.grf (%.1f GB) reads \"Master of Magic\"",
+	             map ? bf_file_mapping_size(map) / 1e9 : 0.0).c_str());
+	if (map) {
+		// touch the last page too: the whole archive is mapped
+		volatile unsigned char last = ((const unsigned char *)bf_file_mapping_data(map))[bf_file_mapping_size(map) - 1];
+		(void)last;
+	}
+	bf_file_unmap(map);
+
+	bf_file_info info;
+	int grfs = 0;
+	bf_file_find *find = bf_file_find_first("*.GRF", &info);
+	for (bool more = find != NULL; more; more = bf_file_find_next(find, &info) != 0)
+		++grfs;
+	bf_file_find_close(find);
+	Check(grfs >= 2, Format("game folder: *.GRF lists %d archives", grfs).c_str());
+
+	int mp3 = 0;
+	find = bf_file_find_first("bgm\\*.mp3", &info);
+	for (bool more = find != NULL; more; more = bf_file_find_next(find, &info) != 0)
+		++mp3;
+	bf_file_find_close(find);
+	if (Exists(folder + "/BGM"))
+		Check(mp3 > 0, Format("game folder: bgm\\*.mp3 lists %d files", mp3).c_str());
+	else
+		Skip("game folder: bgm listing", "no BGM folder");
+}
+
 // ---- Keychain and shell ----------------------------------------------------------
 
 void TestShell()
@@ -312,8 +580,13 @@ int main()
 	printf("bifrost-sys-test: home %s\n", home.c_str());
 	TestClock();
 	TestThreads();
-	(void)realGame;
+	TestLocations(home);
+	TestLookup(game);
+	TestRefusal(game);
+	TestWritePaths(game);
+	TestConcurrentLookups();
 	TestShell();
+	TestRealGameFolder(realGame);
 
 	printf("%d passed, %d failed, %d skipped\n", g_passes, g_failures, g_skips);
 	return g_failures ? 1 : 0;
