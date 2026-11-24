@@ -15535,6 +15535,12 @@ void CGameMode::PollNetworkStatus()
 			}
 			break;
 		default:
+#if defined(BF_PORT)
+			// The 2008 client drops the rest of the receive queue silently;
+			// the port says so (the M6 session script looks for this line).
+			BF_TRACE(BFT_ERR, "game: unknown packet header 0x%04x (%s in the length table); receive queue dropped",
+			         packetType & 0xffff, g_packetLenMap.count(packetType) ? "listed" : "not");
+#endif
 			CRagConnection::instanceR().ResetQueue(); RAG_BUDGET_SITES(14)
 			break;
 		}
