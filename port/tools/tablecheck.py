@@ -27,6 +27,12 @@ the token stream is checked against how the loader walks it:
   map tables      groups of the size the reader expects, names end in .rsw
   clientinfo      parses as the client's XML reader needs (no <x/>), names
                   servicetype, servertype and one connection
+  tip of the day  found where CTipOfTheDay::Load looks (data\\english\\
+                  tipofday.txt, data\\tipofday.txt, else tipOfTheday_e.txt in
+                  the game folder itself, for the English service); at least
+                  one tip ('#' ends a tip, LF a line), no CR (the 2008 client
+                  read it in Windows text mode, which dropped them; the port
+                  reads bytes and would keep one at the end of every line)
 
 Faults are printed as FILE:LINE: expectation, and the exit status is 1 if
 there is any. Warnings (oddities that do not misplace an entry) do not fail.
@@ -271,6 +277,46 @@ def check_sp(ck, where, data, skills):
     return f'{known} skills' + (f', {unknown} unknown' if unknown else '')
 
 
+CP1252_UNDEFINED = {0x81, 0x8d, 0x8f, 0x90, 0x9d}
+
+
+def tip_list(data):
+    """CTipOfTheDay::Load: '#' ends a tip (the text before it is its last
+    line), LF ends a line; whatever follows the last '#' is dropped."""
+    tips, cur, base = [], [], 0
+    for i, c in enumerate(data):
+        if c == 0x23:
+            cur.append(data[base:i])
+            tips.append(cur)
+            cur, base = [], i + 1
+        elif c == 10:
+            cur.append(data[base:i])
+            base = i + 1
+    return tips
+
+
+def check_tips(ck, where, data):
+    if data[:3] == b'\xef\xbb\xbf':
+        ck.fault(where, 1, 'starts with a UTF-8 byte order mark: the first tip shows it')
+    if b'\r' in data:
+        ck.fault(where, data[:data.index(b'\r')].count(b'\n') + 1,
+                 f'{data.count(b"\r")} CR: the 2008 client read the file in Windows text mode, which dropped them; '
+                 'the port reads bytes, so every line would end in a CR')
+    bad = sorted({c for c in data if c in CP1252_UNDEFINED})
+    if bad:
+        ck.warn(where, 0, 'bytes CP1252 does not define: ' + ' '.join(f'0x{c:02x}' for c in bad))
+    tips = tip_list(data)
+    if not tips:
+        ck.fault(where, 0, 'no tip ("#" ends one): the window never opens (g_tipOfTheDay.Size() is 0)')
+    empty = sum(1 for tip in tips if not any(l.strip() for l in tip))
+    if empty:
+        ck.warn(where, 0, f'{empty} empty tips')
+    tail = data[data.rfind(b'#') + 1:] if b'#' in data else data
+    if tail.strip():
+        ck.warn(where, data.count(b'\n'), 'text after the last "#" is dropped')
+    return f'{len(tips)} tips'
+
+
 # name, how the client loads it, which check
 SPECS = [
     ('msgStringTable.txt', 'msg'),
@@ -368,6 +414,22 @@ def main():
             res = f'{len(data)} bytes'
         state = 'ok   ' if ck.faults == before else 'FAULT'
         print(f'  {state} {name:32} {res:48} {where}')
+
+    # The tip of the day (CTipOfTheDay::Load): LanguageFile("tipofday.txt")
+    # through CFile, else for the English service tipOfTheday_e.txt, which
+    # fopen opens in the game folder itself.
+    before = ck.faults
+    where, data = files.table('tipofday.txt')
+    if data is None:
+        path = os.path.join(args.game, 'tipOfTheday_e.txt')
+        where, data = (path, open(path, 'rb').read()) if os.path.exists(path) else (None, None)
+    if data is None:
+        ck.fault('tipOfTheday_e.txt', 0, 'missing: neither data\\tipofday.txt nor the game folder\'s '
+                 'tipOfTheday_e.txt; the tip of the day never opens')
+    else:
+        res = check_tips(ck, where, data)
+        state = 'ok   ' if ck.faults == before else 'FAULT'
+        print(f'  {state} {"tip of the day":32} {res:48} {where}')
 
     print(f'\n{ck.faults} faults, {ck.warnings} warnings')
     sys.exit(1 if ck.faults else 0)
