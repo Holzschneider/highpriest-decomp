@@ -82,6 +82,32 @@ class Accounts:
                 [_q(userid), _q(password), _q(sex), _q(email), int(group_id)]))
         return self.logs.account(userid)["account_id"]
 
+    def make_char(self, userid, name, slot=0, map="prontera", x=155, y=183):
+        """Set-up: a Novice in `slot` of the account (made like the character
+        server makes one: stats 5, hair 1, 42/11 HP/SP); returns its row. An
+        existing character of that name is returned unchanged."""
+        c = self.logs.char(name)
+        if c:
+            return c
+        acc = self.logs.account(userid)
+        if not acc:
+            raise SqlError("no account %r" % userid)
+        mock = getattr(self.sql, "db", None)
+        if mock is not None:  # MockSql
+            cid = max([r["char_id"] for r in mock.rows("char")] or [150000]) + 1
+            mock.put("char", char_id=cid, account_id=acc["account_id"], char_num=int(slot), name=name, **{
+                "class": 0, "base_level": 1, "job_level": 1, "zeny": 0, "last_map": map,
+                "last_x": int(x), "last_y": int(y), "online": 0, "max_hp": 42, "hp": 42,
+                "max_sp": 11, "sp": 11})
+            return self.logs.char(name)
+        self.sql.execute(
+            "INSERT INTO `char` (`account_id`, `char_num`, `name`, `class`, `str`, `agi`, `vit`, `int`, "
+            "`dex`, `luk`, `max_hp`, `hp`, `max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, "
+            "`last_y`, `save_map`, `save_x`, `save_y`) VALUES (%d, %d, %s, 0, 5, 5, 5, 5, 5, 5, 42, 42, "
+            "11, 11, 1, 0, %s, %d, %d, 'prontera', 155, 183)"
+            % (acc["account_id"], int(slot), _q(name), _q(map), int(x), int(y)))
+        return self.logs.char(name)
+
     def set_char(self, name, map=None, x=None, y=None, job=None, base_level=None,
                  job_level=None, zeny=None, save_point=False, hp=None, status_point=None):
         """Change an offline character's row before it logs in."""

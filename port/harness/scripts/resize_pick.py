@@ -23,7 +23,7 @@ Frames: the pointer over the cell before each click (the ground cursor is
 drawn on the picked cell), under <game folder>/test/frames/resize_pick/.
 """
 
-from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home
+from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home, own_character
 from bfharness.sql import wait_rows
 
 NAME = "resize_pick"
@@ -57,9 +57,7 @@ def under_pointer(t, ctl, label):
 
 
 def run(t):
-    user = t.param("user", "bftest")
-    password = t.param("password", "bftest")
-    name = t.param("char", "BFProbe")
+    user, password, name = own_character(t, "bfhresize", "BfhResizer")
 
     with t.step("set-up: place character", "SQL, offline: prontera 155,183") as s:
         c = t.accounts.set_char(name, map="prontera", x=155, y=183)

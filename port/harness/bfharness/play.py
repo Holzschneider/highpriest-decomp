@@ -205,3 +205,16 @@ def fresh_character(t, user, password, name, sex="M", place=None, **columns):
         s.state("char row", {k: c.get(k) for k in ("char_id", "last_map", "last_x", "last_y", "hp", "max_hp",
                                                     "str", "status_point", "base_exp", "job_exp")})
         return c
+
+
+def own_character(t, user, char, password="bfh-test", slot=0):
+    """The script's own account and character (made in SQL on first use), so
+    that scripts running at the same time never share a character; `--param
+    user=... password=... char=...` names another one. Returns (user,
+    password, char)."""
+    user = t.param("user", user)
+    password = t.param("password", password)
+    char = t.param("char", char)
+    t.accounts.create_account(user, password)
+    t.accounts.make_char(user, char, slot=slot)
+    return user, password, char
