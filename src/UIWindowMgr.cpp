@@ -1630,7 +1630,9 @@ void UIWindowMgr::SetFocusEdit(UIWindow* wnd)
 {
 	if (m_editWindow)
 		m_editWindow->OnFinishEdit();
-	if (wnd != (UIWindow*)m_chatWnd->m_commonChat) {
+	// In login mode there is no chat window (the login window focuses its
+	// edit fields before any game window exists).
+	if (!m_chatWnd || wnd != (UIWindow*)m_chatWnd->m_commonChat) {
 		m_editWindow = wnd;
 		if (wnd)
 			wnd->OnBeginEdit();
