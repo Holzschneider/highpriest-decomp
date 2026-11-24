@@ -1716,6 +1716,9 @@ void CGameMode::MakeCorpse(float cx, float cy, float cz, const char* actName, co
 
 void CGameMode::MakeGrannyCorpse3d(float cx, float cy, float cz, float fRot, const char* Gr2Name)
 {
+#ifdef BF_PORT
+	return;	// no Granny models in the port yet (resource/Model.cpp)
+#endif
 	CGrannyCorpse3d* corpse = new CGrannyCorpse3d((char*)Gr2Name);
 	corpse->SetPos(vector3d(cx, cy, cz));
 	corpse->SetRot(fRot);
@@ -5362,8 +5365,10 @@ void CGameMode::OnProcessState(int state)
 CGameActor* CGameMode::NewNpc(int job)
 {
 	char* strJobFn = (char*)g_session.GetJobName(job);
+#ifndef BF_PORT
 	if (strstr(strJobFn, ".gr2"))
 		return new C3dGrannyGameActor(strJobFn);
+#endif
 
 	return new CNpc;
 }

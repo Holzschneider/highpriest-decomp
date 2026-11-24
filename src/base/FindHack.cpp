@@ -162,6 +162,21 @@ bool IsEnableNewKeycrypt()
 	return bUseNewKeycrypt[g_serviceType][g_serverType];
 }
 
+#ifdef BF_PORT
+
+// GameGuard is not part of the port (technical plan 3.3, "Protection";
+// M2.5): its library is not built, and the four entry points the client
+// calls (WinMain, LoginMode, Mode, GameModePacket) do nothing. FindHack1,
+// FindHack2, ProcessFindHack and the monitor's callback, which nothing
+// calls, are left out with it.
+
+void SetHwnd() {}
+void SendID(char* szUserID) {}
+void ExitFindHack() {}
+void Auth2(unsigned int* pAuth) {}
+
+#else
+
 int FindHack2()
 {
 	switch (g_serviceType) {
@@ -351,6 +366,8 @@ BOOL CALLBACK NPGameMonCallback(DWORD dwMsg, DWORD dwArg)
 
 	return true;
 }
+
+#endif // BF_PORT
 
 void DeleteHack()
 {

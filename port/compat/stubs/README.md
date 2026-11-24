@@ -1,0 +1,13 @@
+# Replacements for units out of the build
+
+Port code that is compiled into the client with the client's own flags (`bf_client_flags`; listed in `BF_CLIENT_PORT_SOURCES` in the root `CMakeLists.txt`) because it stands in for a unit of `sources.mk` that the port does not build (`BF_CLIENT_EXCLUDE`, implementation plan M2.5).
+
+| File | Replaces | What it does |
+|---|---|---|
+| `bf_crash.cpp` | `src/ExceptionHandler.cpp` (crash dialog, minidump) | A static constructor installs a handler for SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT and SIGTRAP on an alternate stack. On a crash it writes the signal, the faulting address, pc, lr and a backtrace as `crash:` lines through the trace (category `err`, always on), dumps the counters, then re-raises with the default action so the system's crash report still sees the fault. `BF_NO_CRASH_HANDLER=1` turns it off. It also defines `ExceptionFilter`, the one name of the old unit that `WinMain` uses (`SetUnhandledExceptionFilter`, which the Win32 adapter provides as a stub). |
+
+The other removals of M2.5 are inside `src/`, under `BF_PORT`, because that was the smaller change:
+
+- **GameGuard**: `src/base/FindHack.cpp` makes its four entry points (`SetHwnd`, `SendID`, `ExitFindHack`, `Auth2`) empty and leaves out `FindHack1`, `FindHack2`, `ProcessFindHack` and the monitor callback, which nothing calls. `CNPGameLib`'s inline wrappers are no longer used, so no GameGuard function is referenced.
+- **Bink**: `src/movie/CBink.cpp` keeps the class and reports no movie (`Break` returns 1, `Pause` does nothing, `OpenningMain` writes a `ui` trace line); `CBink.h` no longer includes the Bink SDK headers.
+- **Granny**: `src/resource/Model.cpp` keeps `C3dGrannyModelRes` and `C3dGrannyBoneRes` and loads nothing (`Load` and `AddBone` return false with a `res` trace line and the counter `granny model not loaded`); `CGameMode::NewNpc` and `MakeGrannyCorpse3d` create no Granny actor, so the `.gr2` job names draw nothing (NewNpc falls back to `CNpc`). The six SDK functions the actor classes still name are empty there too. `src/granny/granny.h` stays: it is declarations only.

@@ -852,6 +852,8 @@ bool	C3dAnimModelRes :: Load(const char *fName)
 
 static C3dGrannyModelRes C3dGrannyModelResInstance(Exemplar(), "gr2", "model\\3dmob\\");
 
+#ifndef BF_PORT
+
 
 C3dGrannyModelRes :: C3dGrannyModelRes()
 {
@@ -1728,3 +1730,69 @@ granny_file* C3dGrannyBoneRes :: LoadFile(char const *BaseFileName, char const *
 	fp.Close();
   return(File);
 }
+
+#else // BF_PORT
+
+// The port has no Granny runtime (technical plan 3.3, "Granny"; M2.5). The
+// two resource classes keep their interface and load nothing: a .gr2 file
+// is reported once per name through the trace and the resource manager gets
+// no resource. CGameMode creates no Granny actor (NewNpc, MakeGrannyCorpse3d),
+// so the 69 .gr2 job names draw nothing until the port's own reader
+// (port/native/formats/granny) is wired in (M12.3a). The six SDK functions
+// below are named by the actor classes in GameActor3d.cpp and Pc.cpp, which
+// are compiled but never constructed.
+
+C3dGrannyModelRes :: C3dGrannyModelRes()
+{
+	memset(&m_Scene, 0, sizeof(m_Scene));
+	m_pModel = NULL;
+	m_nBoneType = 0;
+	m_pBoneRes = NULL;
+	m_hair = NULL;
+	m_pSkeleton = NULL;
+	m_ProjectZ = 0.0f;
+	m_HitRadx = m_HitRady = 10.0f;
+}
+
+C3dGrannyModelRes :: ~C3dGrannyModelRes() {}
+
+bool C3dGrannyModelRes :: Load( const char* fName )
+{
+	BF_TRACE(BFT_RES, "granny: %s not loaded (no Granny reader yet)", fName);
+	bf_count("granny model not loaded", 1);
+	return false;
+}
+
+void C3dGrannyModelRes :: Release() {}
+granny_control* C3dGrannyModelRes :: ActAnimation( int idx, granny_model_instance* instance, granny_control* control, int nLoop ) { return NULL; }
+void C3dGrannyModelRes :: DeActAnimation( granny_control* control ) {}
+granny_world_pose* C3dGrannyModelRes :: UpdateAni(float GameClock, granny_model_instance* instance) { return NULL; }
+VOID* C3dGrannyModelRes :: RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose) { return NULL; }
+VOID* C3dGrannyModelRes :: GetRigidMesh( int nMeshIdx ) { return NULL; }
+bool C3dGrannyModelRes :: SetHairAndHeadMesh( void ) { return false; }
+bool C3dGrannyModelRes :: CalculateHitArea(RENDER_INFO_RECT &info, matrix &view, matrix &dispTrans, vector3d &cam) { return false; }
+int C3dGrannyModelRes :: GetMeshIndexCount( int nMeshNo ) { return 0; }
+void C3dGrannyModelRes :: BindMeshToSkeleton( C3dGrannyModelRes* pDstRes ) {}
+
+C3dGrannyBoneRes :: C3dGrannyBoneRes( void ) { memset(&m_Scene, 0, sizeof(m_Scene)); memset(m_Animation, 0, sizeof(m_Animation)); m_ProjectZ = 0.0f; }
+C3dGrannyBoneRes :: ~C3dGrannyBoneRes() {}
+void C3dGrannyBoneRes :: Init( void ) {}
+bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
+{
+	BF_TRACE(BFT_RES, "granny: bones %s not loaded (no Granny reader yet)", fName);
+	return false;
+}
+granny_animation* C3dGrannyBoneRes :: GetAnimation( int nType, int nAniIdx ) { return NULL; }
+void C3dGrannyBoneRes :: FreeModel( void ) {}
+void C3dGrannyBoneRes :: Release() {}
+
+extern "C" {
+granny_model_instance * GrannyInstantiateModel(granny_model *Model) { return NULL; }
+void GrannyFreeModelInstance(granny_model_instance *ModelInstance) {}
+void GrannyFreeControl(granny_control *Control) {}
+granny_real32 GrannyGetControlDurationLeft(granny_control *Control) { return 0.0f; }
+granny_system_clock GrannyGetSystemSeconds() { granny_system_clock c; memset(&c, 0, sizeof(c)); return c; }
+granny_real32 GrannyGetSecondsElapsed(granny_system_clock *StartClock, granny_system_clock *EndClock) { return 0.0f; }
+}
+
+#endif // BF_PORT

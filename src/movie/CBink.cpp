@@ -5,8 +5,42 @@
 
 
 #include <windows.h>
+#ifndef BF_PORT
 #include <ddraw.h>
+#endif
 #include "CBink.h"
+
+#ifdef BF_PORT
+
+// The port has no Bink runtime (technical plan 3.3, "Bink"; M2.5): CBink
+// keeps its interface and reports that no movie plays, so the intro button
+// of the login screen does nothing. The decoder in port/native/formats/bink
+// is not wired in yet.
+
+CBink::CBink()
+{
+    m_Bink = 0;
+    m_BinkBuffer = 0;
+    m_IsBinkPlaying = 0;
+    m_BinkMode = 1;
+}
+
+int CBink::Break(unsigned short param)
+{
+    return 1;
+}
+
+void CBink::Pause(int flag)
+{
+}
+
+void CBink::OpenningMain(int flag)
+{
+    BF_TRACE(BFT_UI, "bink: no movie (openning.bik not played)");
+}
+
+#else
+
 #include "../3dlib/Device.h"
 #include "../3dlib/D3dutil.h"
 #include "../3dlib/Renderer.h"
@@ -190,3 +224,5 @@ void CBink::OpenningMain(int flag)
     CloseOpenning();
     WriteBinkModeRegistry();
 }
+
+#endif // BF_PORT

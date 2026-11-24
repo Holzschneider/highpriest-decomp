@@ -268,14 +268,20 @@ if(bf_count EQUAL 0)
 	message(FATAL_ERROR "sources.mk: no GAME list")
 endif()
 
-# Units taken out of the build (implementation plan M2.5, technical plan 3.3).
-# Each with its reason; M2.5 finalises the list. GameGuard's 9 files
-# (NPGameLib, SafeAPI, FileAuthClient, CommPipe, rc4, Common, MemIni,
-# PacketProtect, Crc32) are not here because they are not game units:
-# sources.mk builds them into npgamelibpro.lib, which the port never compiles.
-# Its four entry points become empty functions in the port's code.
+# Units taken out of the build (implementation plan M2.5, technical plan 3.3),
+# each with its reason. Nothing else in the GAME list names what they define,
+# except where noted. GameGuard's 9 files (NPGameLib, SafeAPI, FileAuthClient,
+# CommPipe, rc4, Common, MemIni, PacketProtect, Crc32) are not here because
+# they are not game units: sources.mk builds them into npgamelibpro.lib, which
+# the port never compiles. Its four entry points (SetHwnd, SendID,
+# ExitFindHack, Auth2 in base/FindHack.cpp) are empty under BF_PORT.
+# Replaced behind their interfaces under BF_PORT, and so still built:
+# movie/CBink (reports no movie; the Bink SDK headers are not included) and
+# the Granny resource classes in resource/Model.cpp (load nothing; CGameMode
+# creates no Granny actor).
 set(BF_CLIENT_EXCLUDE
-	# Keyboard encryption (npkcrypt): protection, removed (3.3, "Protection").
+	# Keyboard encryption (npkcrypt) and the self-patching code that installs
+	# it: protection, removed (3.3, "Protection").
 	device/EncClient
 	# The hook probe: protection, removed (3.3, "Protection").
 	cKeyProtector
@@ -284,12 +290,11 @@ set(BF_CLIENT_EXCLUDE
 	# The Vietnamese input classes: the Vietnamese service's key processor and
 	# its Telex and VNI input modes, not needed by this client (M2.5).
 	LanguageKeyProcess telexInputMode VietnamLanguage VniInputMode
-	# The crash dialog and minidump writer: replaced by a signal handler that
-	# writes a backtrace through the trace (3.3, "Protection").
+	# The crash dialog and minidump writer: replaced by the signal handler in
+	# port/compat/stubs/bf_crash.cpp, which writes a backtrace through the
+	# trace and defines ExceptionFilter, the one name WinMain uses (3.3,
+	# "Protection").
 	ExceptionHandler
-	# The Bink wrapper over binkw32.dll: replaced by a stub behind the same
-	# interface that reports no movie (3.3, "Bink"; M2.5).
-	movie/CBink
 )
 foreach(unit IN LISTS BF_CLIENT_EXCLUDE)
 	if(NOT unit IN_LIST BF_GAME_UNITS)
@@ -317,7 +322,11 @@ string(REPLACE ";" "\n" bf_units "${BF_CLIENT_SOURCES}")
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 
 # The executable is the application name in lower case. The .app bundle is M12.
-add_executable(${BF_EXE} ${BF_CLIENT_SOURCES})
+# Port code compiled into the client with the client's flags: what replaces
+# an excluded unit (port/compat/stubs/README.md).
+set(BF_CLIENT_PORT_SOURCES
+	port/compat/stubs/bf_crash.cpp)
+add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
 bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # Apple frameworks and zlib only (technical plan 3.1, 9): the native modules
 # bring their frameworks; nothing of Wine is linked. The modules are linked

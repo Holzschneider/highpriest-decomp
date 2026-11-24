@@ -1,8 +1,10 @@
 #ifndef HIGHPRIEST_MOVIE_CBINK_H
 #define HIGHPRIEST_MOVIE_CBINK_H
 
+#ifndef BF_PORT
 #include "RAD.H"
 #include "BINK.H"
+#endif
 
 struct BINK;
 struct BINKBUFFER;
