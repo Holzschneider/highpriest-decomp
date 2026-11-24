@@ -67,6 +67,16 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
    (port/compat/win32). */
 #include "bf_win32_crt.h"
 
+#ifdef __cplusplus
+/* time_t is 32 bits in Visual C++ 6.0 and 64 bits here. The structure fields
+   that travel on the wire stay 32-bit int (M2.2); these overloads let the
+   game's calls on them keep their shape: the C library is called with a
+   64-bit copy and the 32-bit value is what the caller sees. */
+#include <time.h>
+inline time_t time(int *value) { time_t now; ::time(&now); if (value) *value = (int)now; return now; }
+inline struct tm *localtime(const int *value) { static time_t copy; copy = (time_t)*value; return ::localtime(&copy); }
+#endif
+
 /* Names the DirectX 7 SDK gives its enumerations and the Wine headers do not. */
 #define _D3DPRIMITIVETYPE D3DPRIMITIVETYPE
 
