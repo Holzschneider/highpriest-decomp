@@ -96,7 +96,8 @@ GUILD_FLAGS = [("prontera", 155, 190, "Kriemhild"), ("prontera", 146, 194, "Swan
                ("prontera", 167, 203, "Skoegul")]
 PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362), ("prt_fild08", 170, 360)]
 PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
-           ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
+           ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188),
+           ("prontera", 134, 221, "prt_in", 131, 71), ("prt_in", 135, 71, "prontera", 136, 219)]
 # Sound (the `sound` part): the music per map as mp3nametable.txt has it, and a
 # stream that loops every MOCK_MUSIC_SECONDS (the mock's files are short).
 MUSIC = {"login": "bgm\\01.mp3", "prontera": "bgm\\08.mp3", "prt_in": "bgm\\08.mp3",
@@ -365,6 +366,12 @@ class SkillsOptionsMixin:
         k = keys.get(slot + s.get("page", 0) * 9)
         if k and int(k["type"]) == 1 and k["itemskill_id"]:
             self.begin_use(k["itemskill_id"])
+        elif k and int(k["type"]) == 0 and k["itemskill_id"] in HEAL:
+            # an item on the bar is used as by a double-click (CZ_USE_ITEM)
+            if any(r["nameid"] == k["itemskill_id"] and r["amount"] > 0 for r in self.inventory()):
+                s["hp"] = min(s["max_hp"], s["hp"] + HEAL[k["itemskill_id"]])
+                self.add_item(k["itemskill_id"], -1, "C")
+                self.item_windows()
 
     # -- input hooks -------------------------------------------------------------
 
