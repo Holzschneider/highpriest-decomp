@@ -32,7 +32,7 @@ placeholder).
 The script is idempotent: a file whose content is already right is left
 alone, and it removes nothing it did not write. --check only reports.
 """
-import argparse, hashlib, os, subprocess, sys
+import argparse, hashlib, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'tools'))
@@ -62,10 +62,45 @@ MAPS = [(m + ext, os.path.join(PRE, m + ext)) for m in PRE_MAPS for ext in ('.rs
 
 
 
+def drop_unknown_skills(data):
+    """Removes the blocks of skills this client does not know (third jobs and
+    later). SKILL_INFO::InitSkillInfoTables files every line after an unknown
+    skill name under the skill before it: a description would gain another
+    skill's text, an SP list another skill's numbers. A block runs from its
+    "NAME#" line to the next one; the text of the blocks kept is untouched."""
+    import tablecheck
+    known = tablecheck.client_skill_names()
+    header = re.compile(rb'^([A-Z][A-Z0-9_]*)#\s*$')
+    out, keep = [], True
+    for line in data.splitlines(keepends=True):
+        m = header.match(line)
+        if m:
+            keep = m.group(1) in known
+        if keep or line.startswith(b'//'):
+            out.append(line)
+    return b''.join(out)
+
+
+def pad_messages(data):
+    """Appends "?msg N#" for every message id the table lacks (none for the
+    current ROenglishRE table, which has 4,022 lines for the client's 1,387)."""
+    import tablecheck
+    have = len(tablecheck.tokens(data, 0))
+    need = tablecheck.client_msg_ids()
+    if have >= need:
+        return data
+    if not data.endswith(b'\n'):
+        data += b'\r\n'
+    return data + b''.join(b'?msg %d#\r\n' % i for i in range(have, need))
+
 
 # Repairs: data/ name -> (function bytes -> bytes, reason). Each answers a
 # fault tablecheck.py reports on the file as ROenglishRE has it.
-REPAIRS = {}
+REPAIRS = {
+    'msgstringtable.txt': (pad_messages, 'placeholders for missing message ids'),
+    'skilldesctable.txt': (drop_unknown_skills, 'blocks of skills the client does not know removed'),
+    'leveluseskillspamount.txt': (drop_unknown_skills, 'blocks of skills the client does not know removed'),
+}
 
 CLIENTINFO = '''<?xml version="1.0" encoding="windows-1252" ?>
 <clientinfo>
