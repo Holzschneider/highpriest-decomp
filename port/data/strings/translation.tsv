@@ -1,0 +1,70 @@
+# Translation table for the client's displayed Korean literals (port/tools/strings.py, M9.2).
+# One line per distinct original: <original bytes, hex> TAB <English> TAB <Korean, for reference>.
+# The file is UTF-8. The English column holds only characters Windows-1252 has: bf_strings converts it
+# to Windows-1252 when it loads. Backslash, newline and tab are written \\, \n, \t. An empty English
+# column means "not translated yet": the client then shows the original and counts the miss.
+# A translation keeps the original's printf conversions (%d, %s, ...) in the same order.
+47464320b8a620b1b8b5bfc7d220bcf620bef8b4c220baf1b5f0bfc0bdc3bdbac5dbc0d4b4cfb4d9		GFC 를 구동할 수 없는 비디오시스템입니다
+b8c5c4a1b5c7b4c220bfa1b7afc4dab5e520bef8c0bd2e		매치되는 에러코드 없음.
+b1cdc7cfb4c220c8a5c7d5bfe4b1ddc1a620bbe7bfebc0da20c0d4b4cfb4d92e2028c1beb7e1c0cfbdc3203a20253034642f253032642f25303264202c20b3b2c0babdc3b0a3203a20256420bdc3b0a320256420bad020256420c3ca29		귀하는 혼합요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d , 남은시간 : %d 시간 %d 분 %d 초)
+b1cdc7cfb4c220c1a4bed7bfe4b1ddc1a620bbe7bfebc0da20c0d4b4cfb4d92e2028c1beb7e1c0cfbdc3203a20253034642f253032642f253032642029		귀하는 정액요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d )
+b1cdc7cfb4c220c1a4b7aebfe4b1ddc1a620bbe7bfebc0da20c0d4b4cfb4d92e2028b3b2c0babdc3b0a3203a20256420bdc3b0a320256420bad020256420c3ca29		귀하는 정량요금제 사용자 입니다. (남은시간 : %d 시간 %d 분 %d 초)
+b1cdc7cfb4c220b9abb7e1bfe4b1ddc1a620bbe7bfebc0da20c0d4b4cfb4d92e		귀하는 무료요금제 사용자 입니다.
+5043b9e6c0c720bfe4b1ddc1a620c1a4bab8b4c220bfe4c3bbc7d220bcf620bef8bdc0b4cfb4d92e		PC방의 요금제 정보는 요청할 수 없습니다.
+b1cdc7cfb4c220bbe7c5a9b6f3c0cc2032bdc3b0a320b9abb7e1bfe4b1ddc1a620bbe7bfebc0da20c0d4b4cfb4d92e		귀하는 사크라이 2시간 무료요금제 사용자 입니다.
+b0fab1ddc1a4bab820bfe4c3bbbfa120bdc7c6d020c7dfbdc0b4cfb4d92e		과금정보 요청에 실패 했습니다.
+b0b3c0ce20c1a4bed7c1a620bdc3b0a3c0cc202564bad0202564c3ca20b3b2bed2bdc0b4cfb4d92e		개인 정액제 시간이 %d분 %d초 남았습니다.
+b0b3c0ce20c1a4b7aec1a620bdc3b0a3c0cc202564bad0202564c3ca20b3b2bed2bdc0b4cfb4d92e		개인 정량제 시간이 %d분 %d초 남았습니다.
+3d3d3d3d3d3d3d3d3d3d3d20c7d0bbecc0da2052414e4b203d3d3d3d3d3d3d3d3d3d3d3d3d3d		=========== 학살자 RANK ==============
+776f726c64bfa1204e554c4cb0aac0cc20b5e9beeebfd4bdc0b4cfb4d9		world에 NULL값이 들어왔습니다
+6174747220c6c4c0cfc0cc2072737720b3bbbfa120c1f6c1a4b5c7beee20c0d6c1f620becabdc0b4cfb4d9		attr 파일이 rsw 내에 지정되어 있지 않습니다
+6174747220c6c4c0cf20c0d0b1e2bfa120bdc7c6d0		attr 파일 읽기에 실패
+676e6420c6c4c0cfc0cc2072737720b3bbbfa120c1f6c1a4b5c7beee20c0d6c1f620becabdc0b4cfb4d9		gnd 파일이 rsw 내에 지정되어 있지 않습니다
+67726f756e64bfa1204e554c4cc0cc20b5e9beeebfd4bdc0b4cfb4d92e		ground에 NULL이 들어왔습니다.
+b8cac0cc20bfbe20b9f6c1afc0d4b4cfb4d9		맵이 옛 버젼입니다
+6974656d2e74787420bdbac5a9b8b3c6aeb8a620c8aec0cec7d8c1d6bcbcbfe42e		item.txt 스크립트를 확인해주세요.
+b8aeb5f0bec62bc6e6b8b1		리디아+펜릴
+bec6c0ccb8aebdba2bc5e4b8a3		아이리스+토르
+b7cec5b02bb9dfb5ceb8a3		로키+발두르
+c4c9c0ccbec6bdba2bbfc0b5f2		케이아스+오딘
+baf1b9d0b9f8c8a3b8a62033c8b820c0dfb8f8c0d4b7c2c7cfbfb4bdc0b4cfb4d92e20baf1b9d0b9f8c8a3b8a620c8aec0cec7d8c1d6bcbcbfe42e2020202020202020202020202020c5acb6f3c0ccbef0c6ae20bdc7c7e0c0bb20c1beb7e1c7d5b4cfb4d92e		비밀번호를 3회 잘못입력하였습니다. 비밀번호를 확인해주세요.              클라이언트 실행을 종료합니다.
+baf1b9d020b9f8c8a320baafb0e620c8c42c20b4d9bdc320c1a2bcd320c7d8c1d6bdc3b1e220b9d9b6f8b4cfb4d92e		비밀 번호 변경 후, 다시 접속 해주시기 바랍니다.
+bfebbab4		용병
+b0cbc0bab9b0bee0		검은물약
+bfa1b7afb9dfbbfd2e20c5acb6f3c0ccbef0c6ae20b4e3b4e7c0da20bfa1b0d420bfa1b7af20bbe7bdc7c0bb20c5ebbab820c7cfbcbcbfe42e20c0a7c4a1202d2043506c61796572203a3a204765744d6f6e73746572536b696c6c496e666f		에러발생. 클라이언트 담당자 에게 에러 사실을 통보 하세요. 위치 - CPlayer :: GetMonsterSkillInfo
+616374696f6e20b6c7b4c2206c6f6f705479706520c0cc20c1b8c0e7c7cfc1f620becac0bd2e		action 또는 loopType 이 존재하지 않음.
+b9e8b0edc7c4		배고픔
+c3e2c3e2c7d4		출출함
+bab8c5eb		보통
+b9e8baceb8a7		배부름
+bec6c1d620b9e8baceb8a7		아주 배부름
+b8f4b6f3bfe42e		몰라요.
+bcadb8d4bcadb8d4c7d4		서먹서먹함
+beeebbf6c7d4		어색함
+c4a3c7d4		친함
+c0fdc4a3c7d4		절친함
+c0fab4c220b8f0b8a8b4cfb4d9bec6bec6bec62e		저는 모릅니다아아아.
+c3a4c6c320b7ceb1d720bbe8c1a620bec8c7d4203a20b8b6c0ccb3cabdba20b5c820bdc3b0a3c0cc20b1e2c1b8c0c720c3a4c6c320b1ddc1f620bdc3b0a3bab8b4d920c2aabdc0b4cfb4d92e		채팅 로그 삭제 안함 : 마이너스 된 시간이 기존의 채팅 금지 시간보다 짧습니다.
+c3a4c6c320b7ceb1d720bbe8c1a620bcbab0f8		채팅 로그 삭제 성공
+c3a4c6c320b7ceb1d720bbe8c1a620bdc7c6d0203a20c3a4c6c320b1ddc1f6b8a620c1d820b1e2b7cfc0cc20bef8bdc0b4cfb4d92e		채팅 로그 삭제 실패 : 채팅 금지를 준 기록이 없습니다.
+2573a1ba2573a1bb		%s『%s』
+c0ccb8a720baafb0e6b5ca		이름 변경됨
+c0ccb8a720baafb0e6b5c7c1f6becac0bd		이름 변경되지않음
+b7b9baa7203a20		레벨 : 
+b8b8bab9b5b5203a20		만복도 : 
+c4a3b9d0b5b5203a20		친밀도 : 
+bec7bcbcbbe7b8ae203a20c0e5c2f8b5ca		악세사리 : 장착됨
+bec7bcbcbbe7b8ae203a20c0e5c2f8bec8b5ca		악세사리 : 장착안됨
+50726f686962697454696d65203a202564bad02020204c6f6754696d65203a202564b3e2202564bff9202564c0cf2020202564bdc3202564bad0202564c3ca		ProhibitTime : %d분   LogTime : %d년 %d월 %d일   %d시 %d분 %d초
+bad2b7aeb4dcbeeeb0a120b0cbc3e2b5c7beee20b8dec0cfc0bb20bab8b3bebcf620bef8bdc0b4cfb4d92e		불량단어가 검출되어 메일을 보낼수 없습니다.
+a1da		★
+c7d1c4dac0ce		한코인
+546f74616c203a20256420c7d1c4dac0ce		Total : %d 한코인
+546f74616c203a20256420c4b3bdc3		Total : %d 캐시
+546f74616c203a20257320c7d1c4dac0ce		Total : %s 한코인
+546f74616c203a20257320c4b3bdc3		Total : %s 캐시
+bbf3c1a1b0fa20c3a4c6c3b9e6c0bb20b5bfbdc3bfa120bfadbcf620bef8bdc0b4cfb4d92e		상점과 채팅방을 동시에 열수 없습니다.
+c1dfbab9b5c7b4c220bed7bcc7c0cc20c0d6c0bd		중복되는 액션이 있음
+426c6f636b204174747220c0cc20c1f6bff8b5c7c1f620becab4c220bfbeb9f6c1afc0c72047415420c6c4c0cfc0d4b4cfb4d92e20bbf520b9f6c1afc0c72052504753545544494f20bfa1bcad20b1b3c1a4c7cfbcbcbfe4		Block Attr 이 지원되지 않는 옛버젼의 GAT 파일입니다. 새 버젼의 RPGSTUDIO 에서 교정하세요
+c0dfb8f8b5c820c6f7b8cbc0c720b8f0b5a8c6c4c0cfc0d32e		잘못된 포맷의 모델파일임.
+c1f6bff8b5c7c1f620becab4c220b9f6c1afc0d4b4cfb4d92e20b3bbbfebb9b0c0cc20b1fac1aec0d6c0bb20bcf620c0d6bdc0b4cfb4d9		지원되지 않는 버젼입니다. 내용물이 깨져있을 수 있습니다
