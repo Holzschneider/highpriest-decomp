@@ -194,8 +194,8 @@ set_title_bmp:
 	TITLE_FILE = "\xC0\xAF\xC0\xFA\xC0\xCE\xC5\xCD\xC6\xE4\xC0\xCC\xBD\xBA\\bgi_temp.bmp";
 
 switch_server:
-	g_regPath   = "Software\\Gravity Soft\\HighPriest";
-	WINDOW_NAME = "HighPriest    Version 0.96";
+	g_regPath   = "Software\\" BF_APP_NAME;
+	WINDOW_NAME = BF_APP_NAME;
 
 	switch (g_serverType)
 	{

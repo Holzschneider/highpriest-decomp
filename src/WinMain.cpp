@@ -107,177 +107,6 @@ short g_BOT_y = 0;
 char g_multiSTOP = 0;
 char g_EXE_way = 0;
 
-bool IsWin9X()
-{
-	OSVERSIONINFOEX osi;
-	ZeroMemory(&osi, sizeof(osi));
-	osi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	if (!GetVersionEx((OSVERSIONINFO*)&osi))
-	{
-		osi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		if (!GetVersionEx((OSVERSIONINFO*)&osi))
-			return false;
-	}
-	return osi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
-}
-
-bool SearchProcessIn9X()
-{
-	HINSTANCE hInstLib = LoadLibrary("kernel32.dll");
-	BOOL (WINAPI *lpfProcess32Next)(HANDLE, LPPROCESSENTRY32);
-	HANDLE (WINAPI *lpfCreateToolhelp32Snapshot)(DWORD, DWORD);
-	BOOL (WINAPI *lpfProcess32First)(HANDLE, LPPROCESSENTRY32);
-
-	__try
-	{
-		if (hInstLib)
-		{
-			int bContinue;
-			HANDLE hSnapshot;
-
-			lpfCreateToolhelp32Snapshot =
-				(HANDLE (WINAPI *)(DWORD, DWORD))GetProcAddress(hInstLib, "CreateToolhelp32Snapshot");
-			lpfProcess32First =
-				(BOOL (WINAPI *)(HANDLE, LPPROCESSENTRY32))GetProcAddress(hInstLib, "Process32First");
-			lpfProcess32Next =
-				(BOOL (WINAPI *)(HANDLE, LPPROCESSENTRY32))GetProcAddress(hInstLib, "Process32Next");
-
-			if (!lpfCreateToolhelp32Snapshot || !lpfProcess32First || !lpfProcess32Next)
-				return false;
-
-			hSnapshot = lpfCreateToolhelp32Snapshot(2, 0);
-			if (hSnapshot == (HANDLE)-1)
-			{
-				FreeLibrary(hInstLib);
-				return false;
-			}
-
-			char szProcessName[MAX_PATH] = "unknown";
-			PROCESSENTRY32 pe32;
-
-			if (lpfProcess32First(hSnapshot, &pe32))
-			{
-				do
-				{
-					bContinue = lpfProcess32Next(hSnapshot, &pe32);
-
-					int i = (int)strlen(pe32.szExeFile) - 1;
-					for (; i > 0; i--)
-						if (pe32.szExeFile[i] == '\\')
-						{
-							i++;
-							break;
-						}
-					strcpy(szProcessName, pe32.szExeFile + i);
-
-					{
-						char* p = szProcessName;
-						while (*p)
-						{
-							if (islower(*p))
-								*p = (char)(*p - 0x20);
-							p++;
-						}
-					}
-					puts(szProcessName);
-
-					if (strcmp(szProcessName, "RAGEXE.EXE")     == 0 ||
-						strcmp(szProcessName, "SAKEXE.EXE")     == 0 ||
-						strcmp(szProcessName, "RAGEXEAD.EXE")   == 0 ||
-						strcmp(szProcessName, "SAKTESTEXE.EXE") == 0 ||
-						strcmp(szProcessName, "ADTESTEXE.EXE")  == 0 ||
-						strcmp(szProcessName, "RAGEXE_M.EXE")   == 0 ||
-						strcmp(szProcessName, "SAKEXE_M.EXE")   == 0)
-					{
-						return true;
-					}
-				} while (bContinue);
-			}
-
-			CloseHandle(hSnapshot);
-		}
-	}
-	__finally
-	{
-		if (hInstLib)
-			FreeLibrary(hInstLib);
-	}
-	return false;
-}
-
-bool SearchProcessInNT()
-{
-	BOOL (WINAPI *lpfEnumProcesses)(DWORD *, DWORD, DWORD *);
-	HINSTANCE            hInstLib;
-	DWORD (WINAPI *lpfGetModuleBaseName)(HANDLE, HMODULE, LPTSTR, DWORD);
-	DWORD*               lpdwPIDs;
-	BOOL (WINAPI *lpfEnumProcessModules)(HANDLE, HMODULE *, DWORD, LPDWORD);
-
-	hInstLib = LoadLibrary("psapi.dll");
-
-	__try
-	{
-		if (!hInstLib) __leave;
-
-		DWORD                cProcesses;
-		DWORD                processID[1024];
-		char                 szProcessName[260] = "unknown";
-		int                  i;
-		DWORD                cbNeeded;
-
-		lpfEnumProcesses = (BOOL (WINAPI *)(DWORD *, DWORD, DWORD *))GetProcAddress(hInstLib, "EnumProcesses");
-		lpfEnumProcessModules = (BOOL (WINAPI *)(HANDLE, HMODULE *, DWORD, LPDWORD))GetProcAddress(hInstLib, "EnumProcessModules");
-		lpfGetModuleBaseName = (DWORD (WINAPI *)(HANDLE, HMODULE, LPTSTR, DWORD))GetProcAddress(hInstLib, "GetModuleBaseNameA");
-
-		if (!lpfEnumProcesses || !lpfEnumProcessModules || !lpfGetModuleBaseName)
-			return false;
-
-		if (!lpfEnumProcesses(processID, sizeof(processID), &cbNeeded))
-			return false;
-
-		cProcesses = cbNeeded / sizeof(DWORD);
-		for (i = 0; (DWORD)i < cProcesses; i++)
-		{
-			HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID[i]);
-			if (hProcess)
-			{
-				HMODULE hMod;
-				if (lpfEnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
-				{
-					lpfGetModuleBaseName(hProcess, hMod, szProcessName, sizeof(szProcessName));
-
-					char* p = szProcessName;
-					while (*p)
-					{
-						if (islower(*p))
-							*p = (char)(*p - 0x20);
-						p++;
-					}
-					puts(szProcessName);
-
-					if (strcmp(szProcessName, "RAGEXE.EXE")     == 0 ||
-						strcmp(szProcessName, "SAKEXE.EXE")     == 0 ||
-						strcmp(szProcessName, "RAGEXEAD.EXE")   == 0 ||
-						strcmp(szProcessName, "SAKTESTEXE.EXE") == 0 ||
-						strcmp(szProcessName, "ADTESTEXE.EXE")  == 0 ||
-						strcmp(szProcessName, "RAGEXE_M.EXE")   == 0 ||
-						strcmp(szProcessName, "SAKEXE_M.EXE")   == 0)
-					{
-						return true;
-					}
-				}
-			}
-			CloseHandle(hProcess);
-		}
-	}
-	__finally
-	{
-		if (hInstLib)
-			FreeLibrary(hInstLib);
-	}
-	return false;
-}
-
 void CheckSystemMessage()
 {
 	MSG msg;
@@ -696,7 +525,19 @@ int ReadRegistry()
 
 	LONG lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hResultKey);
 	RegCloseKey(hResultKey);
-	if (lResult != ERROR_SUCCESS) return 0;
+	if (lResult != ERROR_SUCCESS) {
+		// No settings written yet: built-in defaults instead of a setup program.
+		g_registry.m_isFullScreenMode = 0;
+		g_registry.m_width = WINDOW_WIDTH = 1024;
+		g_registry.m_height = WINDOW_HEIGHT = 768;
+		g_registry.m_bitPerPixel = 32;
+		g_registry.m_spriteMode = 2;
+		g_registry.m_textureMode = 2;
+		g_registry.m_soundMode = 1;
+		g_registry.m_numSampleType = 2;
+		g_soundMode = g_registry.m_soundMode;
+		return 0;
+	}
 
 	LONG lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hKey);
 	if (lResult1 == ERROR_SUCCESS)
@@ -959,14 +800,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	g_session.Init();
 
 
-	{
-		char srcPath[20];
-		char dstPath[20];
-		strcpy(srcPath, "Setup_HP.exe");
-		strcpy(dstPath, "Setup\\Setup_HP.exe");
-		while (!ReadRegistry())
-			WaitForSingleObject(ExcuteProgram(srcPath), INFINITE);
-	}
+	ReadRegistry();
 
 	_controlfp(0x20000, 0x30000);
 
@@ -981,20 +815,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	ResetTimer();
 	CoInitialize(NULL);
 	g_session.Create();
-
-	{
-		bool validExeName;
-		if (IsWin9X())
-			validExeName = SearchProcessIn9X();
-		else
-			validExeName = SearchProcessInNT();
-
-		if (!validExeName)
-		{
-			MessageBoxA(g_hMainWnd, "Invalid EXE name !!", NULL, 0);
-			return 0;
-		}
-	}
 
 	g_resMgr().ReadResNameTable("resNameTable.txt");
 
