@@ -25,10 +25,10 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 |---|---|---|---|
 | [x] 829fac4 | M2.1 Wine headers vendored under `port/compat/winheaders` with licence notice and regeneration script | headers | |
 | [x] 634ca47 | M2.2 Codemods on `src/`: `long32`, `allocator`, `enumfwd`, `typename`, and `time_t` fields of `packet.h` to 32 bits (found by M2.8) | src | M1.5 |
-| [ ] | M2.3 Message plumbing widened to `INT_PTR`; `ptrcast` applied; reverse direction reviewed | src | M2.2 |
+| [x] e6ccdcb | M2.3 Message plumbing widened to `INT_PTR`; `ptrcast` applied; reverse direction reviewed | src | M2.2 |
 | [ ] | M2.4 Loop-scope, iterator-as-pointer, runtime-name and one-off errors | src | M2.3, M2.1 |
-| [ ] | M2.5 Units out of the build with reasons; `CBink` and Granny classes stubbed behind their interfaces | src | M2.2 |
-| [ ] | M2.6 The three assembly sites replaced | src | M2.2 |
+| [x] 0f6c768 | M2.5 Units out of the build with reasons; `CBink` and Granny classes stubbed behind their interfaces | src | M2.2 |
+| [x] 8899bf1 | M2.6 The three assembly sites replaced | src | M2.2 |
 | [x] a55de3e | M2.7 CMake project with Ninja: debug, sanitizer, release presets | build | M2.1 |
 | [x] 32ba708 | M2.8 Structure-layout check for packet and file structures | tools | |
 | [ ] | M2 exit (verifier) | | M1 exit, M2.1–M2.8 |
