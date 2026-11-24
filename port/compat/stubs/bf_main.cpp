@@ -46,6 +46,7 @@
 #include "bf_clock.h"
 #include "bf_compat_d3d.h"
 #include "bf_compat_input.h"
+#include "bf_coverage.h"
 #include "bf_control.h"
 #include "bf_file.h"
 #include "bf_gfx.h"
@@ -56,6 +57,7 @@
 #include "bf_trace.h"
 #include "bf_view.h"
 #include "bf_client_ui.h"
+#include "bf_control_coverage.h"
 #include "bf_control_game.h"
 #include "bf_control_movie.h"
 #include "bf_control_sound.h"
@@ -398,6 +400,7 @@ void OpenControl(const char *path)
 	bf_control_game_install();   // map, self, actors, pointer; events map, chat
 	bf_control_sound_install();  // sound; event sound
 	bf_control_movie_install();  // movie; event movie
+	bf_control_coverage_install();  // coverage (M9.5)
 	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
 	if (bf_control_open(&config) != BF_CONTROL_OK)
 		bf_tracef(BFT_ERR, "control: cannot open %s; running without the socket", path);
@@ -416,6 +419,7 @@ int g_exit_status = 0;
 void EndProcess()
 {
 	bf_control_close("quit");
+	bf_control_coverage_write();   // BF_COVERAGE (M9.5)
 	bf_settings_save(bf_settings_shared());
 	if (bf_trace_mask & ~(unsigned)(BFT_ERR | BFT_STUB))   // any category asked for: the counts too
 		bf_trace_dump_counters();
@@ -484,14 +488,21 @@ extern "C" int bf_port_headless(void)
 extern "C" void bf_port_missing(unsigned category, const char *counter, const char *format, ...)
 {
 	bf_count(counter, 1);
-	if (!(bf_trace_mask & category))
+	// A table lookup that fell back to a placeholder (table.missing.<table>)
+	// belongs to the coverage report of M9.5, traced or not.
+	static const char kTable[] = "table.missing.";
+	bool table = strncmp(counter, kTable, sizeof kTable - 1) == 0 && counter[sizeof kTable - 1];
+	if (!table && !(bf_trace_mask & category))
 		return;
 	char text[1024];
 	va_list args;
 	va_start(args, format);
 	vsnprintf(text, sizeof text, format, args);
 	va_end(args);
-	bf_tracef(category, "%s: %s", counter, text);
+	if (table)
+		bf_coverage_placeholder(counter + sizeof kTable - 1, text);
+	if (bf_trace_mask & category)
+		bf_tracef(category, "%s: %s", counter, text);
 }
 
 extern "C" int bf_port_option(const char *option)

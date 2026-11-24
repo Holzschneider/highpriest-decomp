@@ -343,6 +343,7 @@ add_library(bf_port_main STATIC
 	port/compat/stubs/bf_control_game.cpp
 	port/compat/stubs/bf_control_sound.cpp
 	port/compat/stubs/bf_control_movie.cpp
+	port/compat/stubs/bf_control_coverage.cpp
 	port/compat/stubs/bf_zlib.cpp
 	port/compat/stubs/bf_crt.cpp)
 bf_compat_flags(bf_port_main)

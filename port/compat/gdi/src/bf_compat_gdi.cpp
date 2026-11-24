@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "bf_compat_gdi.h"
+#include "bf_coverage.h"
 #include "bf_text.h"
 #include "bf_trace.h"
 
@@ -330,6 +331,8 @@ BOOL TextOutCp(HDC hdc, int x, int y, int codepage, const void *text, int count,
 	bf_text_font *font = FontOf(dc->font);
 	if (!font) return FALSE;
 	if (codepage == 0) codepage = bf_text_codepage_for_charset(dc->font->desc.charset);
+	// The coverage report (M9.5): Korean or other non-Windows-1252 text drawn.
+	bf_coverage_drawn(codepage == BF_TEXT_CP_UTF16 ? BF_COVERAGE_UTF16 : codepage, text, count);
 	int mode = dc->bk_mode == OPAQUE ? BF_TEXT_OPAQUE : BF_TEXT_TRANSPARENT;
 	int cx = bf_text_draw(font, &bm, x, y, codepage, text, count, Pixel(dc->text_color), mode, Pixel(dc->bk_color));
 	if (cx < 0) return FALSE;
