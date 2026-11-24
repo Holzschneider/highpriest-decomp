@@ -112,8 +112,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] c0188ca | M8.1c Combat and damage numbers; items on the ground | src | M6 exit |
 | [x] 09e6e81 | M8.1d Inventory and equipment; status window | src | M6 exit |
 | [x] f4325f0 | M8.1e NPC dialogue, shops, storage | src | M6 exit |
-| [ ] | M8.1f Skills and the skill tree | src | M6 exit |
-| [ ] | M8.1g Options; screenshots | src | M6 exit |
+| [x] be9c114 | M8.1f Skills and the skill tree | src | M6 exit |
+| [x] 1b7ee91 | M8.1g Options; screenshots | src | M6 exit |
 | [ ] | M8.1h Logout and character switch | src | M6 exit |
 | [ ] | M8.1i The scripted gate test | src | M8.1a–M8.1h |
 | [x] e2ff959 | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
