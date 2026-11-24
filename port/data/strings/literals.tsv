@@ -97,78 +97,78 @@ src/GameMode.cpp	1201	CGameMode::DrawTimeAttack	path	argument of Get(), a file o
 src/GameMode.cpp	1358	CGameMode::DrawMiniMap	path	argument of GetTexture(), a file or resource name	c0afc0fac0cec5cdc6e4c0ccbdba5c6d61705c6d61705f6172726f772e626d70	유저인터페이스\\map\\map_arrow.bmp
 src/GameMode.cpp	1359	CGameMode::DrawMiniMap	path	argument of GetTexture(), a file or resource name	c0afc0fac0cec5cdc6e4c0ccbdba5c6d61705c6d61705f6172726f772e626d70	유저인터페이스\\map\\map_arrow.bmp
 src/GameMode.cpp	1658	CGameMode::DrawBossMonsterOnMiniMap	path	argument of GetTexture(), a file or resource name	c0afc0fac0cec5cdc6e4c0ccbdba5c6d61705c626f73736d6f6e737465722e626d70	유저인터페이스\\map\\bossmonster.bmp
-src/GameMode.cpp	1733	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d76702e737072	이팩트\\mvp.spr
-src/GameMode.cpp	1734	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d76702e616374	이팩트\\mvp.act
-src/GameMode.cpp	1740	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e737072	이팩트\\손수레.spr
-src/GameMode.cpp	1741	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e616374	이팩트\\손수레.act
-src/GameMode.cpp	1746	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e737072	이팩트\\손수레1.spr
-src/GameMode.cpp	1747	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e616374	이팩트\\손수레1.act
-src/GameMode.cpp	1752	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e737072	이팩트\\손수레2.spr
-src/GameMode.cpp	1753	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e616374	이팩트\\손수레2.act
-src/GameMode.cpp	1758	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e737072	이팩트\\손수레3.spr
-src/GameMode.cpp	1759	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e616374	이팩트\\손수레3.act
-src/GameMode.cpp	1764	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e737072	이팩트\\손수레4.spr
-src/GameMode.cpp	1765	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e616374	이팩트\\손수레4.act
-src/GameMode.cpp	1770	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e737072	이팩트\\슈노손수레.spr
-src/GameMode.cpp	1771	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e616374	이팩트\\슈노손수레.act
-src/GameMode.cpp	1776	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e737072	이팩트\\손수레.spr
-src/GameMode.cpp	1777	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b92e616374	이팩트\\베이비손수레.act
-src/GameMode.cpp	1782	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e737072	이팩트\\손수레1.spr
-src/GameMode.cpp	1783	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9312e616374	이팩트\\베이비손수레1.act
-src/GameMode.cpp	1788	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e737072	이팩트\\손수레2.spr
-src/GameMode.cpp	1789	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9322e616374	이팩트\\베이비손수레2.act
-src/GameMode.cpp	1794	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e737072	이팩트\\손수레3.spr
-src/GameMode.cpp	1795	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9332e616374	이팩트\\베이비손수레3.act
-src/GameMode.cpp	1800	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e737072	이팩트\\손수레4.spr
-src/GameMode.cpp	1801	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9342e616374	이팩트\\베이비손수레4.act
-src/GameMode.cpp	1806	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e737072	이팩트\\슈노손수레.spr
-src/GameMode.cpp	1807	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bdb4b3ebbcd5bcf6b7b92e616374	이팩트\\베이비슈노손수레.act
-src/GameMode.cpp	1812	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c52e737072	이팩트\\매.spr
-src/GameMode.cpp	1813	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cb8c52e616374	이팩트\\매.act
-src/GameMode.cpp	1818	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c5322e737072	이팩트\\매2.spr
-src/GameMode.cpp	1819	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cb8c5322e616374	이팩트\\매2.act
-src/GameMode.cpp	1824	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c52e737072	이팩트\\매.spr
-src/GameMode.cpp	1825	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1b8c52e616374	이팩트\\베이비매.act
-src/GameMode.cpp	1830	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c64656d6f6e5f70756e6775732e737072	몬스터\\demon_pungus.spr
-src/GameMode.cpp	1831	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c64656d6f6e5f70756e6775732e616374	몬스터\\demon_pungus.act
-src/GameMode.cpp	1836	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c6578706c6f73696f6e2e737072	몬스터\\explosion.spr
-src/GameMode.cpp	1837	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c6578706c6f73696f6e2e616374	몬스터\\explosion.act
-src/GameMode.cpp	1842	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c6c7564652e737072	몬스터\\lude.spr
-src/GameMode.cpp	1843	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c6c7564652e616374	몬스터\\lude.act
-src/GameMode.cpp	1848	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
-src/GameMode.cpp	1849	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
-src/GameMode.cpp	1854	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e737072	이팩트\\얼음땡.spr
-src/GameMode.cpp	1855	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e616374	이팩트\\얼음땡.act
-src/GameMode.cpp	1860	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e737072	이팩트\\얼음땡.spr
-src/GameMode.cpp	1861	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e616374	이팩트\\얼음땡.act
-src/GameMode.cpp	1866	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c736d6f6b652e737072	이팩트\\smoke.spr
-src/GameMode.cpp	1867	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c736d6f6b652e616374	이팩트\\smoke.act
-src/GameMode.cpp	1872	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d63757273652e737072	이팩트\\Status-curse.spr
-src/GameMode.cpp	1873	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d63757273652e616374	이팩트\\Status-curse.act
-src/GameMode.cpp	1878	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d736c6565702e737072	이팩트\\Status-sleep.spr
-src/GameMode.cpp	1879	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d736c6565702e616374	이팩트\\Status-sleep.act
-src/GameMode.cpp	1884	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d7374756e2e737072	이팩트\\Status-stun.spr
-src/GameMode.cpp	1885	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d7374756e2e616374	이팩트\\Status-stun.act
-src/GameMode.cpp	1890	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
-src/GameMode.cpp	1891	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
-src/GameMode.cpp	1896	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1897	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1902	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1903	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1908	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1909	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1914	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c626c75656d73672e737072	이팩트\\bluemsg.spr
-src/GameMode.cpp	1915	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1920	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1921	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1926	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1927	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1940	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1941	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	1960	CGameMode::MakeMissEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
-src/GameMode.cpp	1961	CGameMode::MakeMissEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
-src/GameMode.cpp	2015	CGameMode::MakeEmotion	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
-src/GameMode.cpp	2016	CGameMode::MakeEmotion	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
+src/GameMode.cpp	1736	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d76702e737072	이팩트\\mvp.spr
+src/GameMode.cpp	1737	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d76702e616374	이팩트\\mvp.act
+src/GameMode.cpp	1743	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e737072	이팩트\\손수레.spr
+src/GameMode.cpp	1744	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e616374	이팩트\\손수레.act
+src/GameMode.cpp	1749	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e737072	이팩트\\손수레1.spr
+src/GameMode.cpp	1750	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e616374	이팩트\\손수레1.act
+src/GameMode.cpp	1755	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e737072	이팩트\\손수레2.spr
+src/GameMode.cpp	1756	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e616374	이팩트\\손수레2.act
+src/GameMode.cpp	1761	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e737072	이팩트\\손수레3.spr
+src/GameMode.cpp	1762	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e616374	이팩트\\손수레3.act
+src/GameMode.cpp	1767	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e737072	이팩트\\손수레4.spr
+src/GameMode.cpp	1768	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e616374	이팩트\\손수레4.act
+src/GameMode.cpp	1773	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e737072	이팩트\\슈노손수레.spr
+src/GameMode.cpp	1774	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e616374	이팩트\\슈노손수레.act
+src/GameMode.cpp	1779	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b92e737072	이팩트\\손수레.spr
+src/GameMode.cpp	1780	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b92e616374	이팩트\\베이비손수레.act
+src/GameMode.cpp	1785	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9312e737072	이팩트\\손수레1.spr
+src/GameMode.cpp	1786	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9312e616374	이팩트\\베이비손수레1.act
+src/GameMode.cpp	1791	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9322e737072	이팩트\\손수레2.spr
+src/GameMode.cpp	1792	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9322e616374	이팩트\\베이비손수레2.act
+src/GameMode.cpp	1797	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9332e737072	이팩트\\손수레3.spr
+src/GameMode.cpp	1798	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9332e616374	이팩트\\베이비손수레3.act
+src/GameMode.cpp	1803	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbcd5bcf6b7b9342e737072	이팩트\\손수레4.spr
+src/GameMode.cpp	1804	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bcd5bcf6b7b9342e616374	이팩트\\베이비손수레4.act
+src/GameMode.cpp	1809	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbdb4b3ebbcd5bcf6b7b92e737072	이팩트\\슈노손수레.spr
+src/GameMode.cpp	1810	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1bdb4b3ebbcd5bcf6b7b92e616374	이팩트\\베이비슈노손수레.act
+src/GameMode.cpp	1815	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c52e737072	이팩트\\매.spr
+src/GameMode.cpp	1816	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cb8c52e616374	이팩트\\매.act
+src/GameMode.cpp	1821	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c5322e737072	이팩트\\매2.spr
+src/GameMode.cpp	1822	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cb8c5322e616374	이팩트\\매2.act
+src/GameMode.cpp	1827	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cb8c52e737072	이팩트\\매.spr
+src/GameMode.cpp	1828	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbaa3c0ccbaf1b8c52e616374	이팩트\\베이비매.act
+src/GameMode.cpp	1833	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c64656d6f6e5f70756e6775732e737072	몬스터\\demon_pungus.spr
+src/GameMode.cpp	1834	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c64656d6f6e5f70756e6775732e616374	몬스터\\demon_pungus.act
+src/GameMode.cpp	1839	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c6578706c6f73696f6e2e737072	몬스터\\explosion.spr
+src/GameMode.cpp	1840	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c6578706c6f73696f6e2e616374	몬스터\\explosion.act
+src/GameMode.cpp	1845	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	b8f3bdbac5cd5c6c7564652e737072	몬스터\\lude.spr
+src/GameMode.cpp	1846	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	b8f3bdbac5cd5c6c7564652e616374	몬스터\\lude.act
+src/GameMode.cpp	1851	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
+src/GameMode.cpp	1852	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
+src/GameMode.cpp	1857	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e737072	이팩트\\얼음땡.spr
+src/GameMode.cpp	1858	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e616374	이팩트\\얼음땡.act
+src/GameMode.cpp	1863	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e737072	이팩트\\얼음땡.spr
+src/GameMode.cpp	1864	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5cbef3c0bdb6af2e616374	이팩트\\얼음땡.act
+src/GameMode.cpp	1869	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c736d6f6b652e737072	이팩트\\smoke.spr
+src/GameMode.cpp	1870	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c736d6f6b652e616374	이팩트\\smoke.act
+src/GameMode.cpp	1875	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d63757273652e737072	이팩트\\Status-curse.spr
+src/GameMode.cpp	1876	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d63757273652e616374	이팩트\\Status-curse.act
+src/GameMode.cpp	1881	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d736c6565702e737072	이팩트\\Status-sleep.spr
+src/GameMode.cpp	1882	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d736c6565702e616374	이팩트\\Status-sleep.act
+src/GameMode.cpp	1887	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d7374756e2e737072	이팩트\\Status-stun.spr
+src/GameMode.cpp	1888	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c5374617475732d7374756e2e616374	이팩트\\Status-stun.act
+src/GameMode.cpp	1893	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
+src/GameMode.cpp	1894	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
+src/GameMode.cpp	1899	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1900	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1905	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1906	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1911	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1912	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1917	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c626c75656d73672e737072	이팩트\\bluemsg.spr
+src/GameMode.cpp	1918	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1923	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1924	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1929	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1930	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1943	CGameMode::MakeMsgEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1944	CGameMode::MakeMsgEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	1963	CGameMode::MakeMissEffect	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c6d73672e737072	이팩트\\msg.spr
+src/GameMode.cpp	1964	CGameMode::MakeMissEffect	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c6d73672e616374	이팩트\\msg.act
+src/GameMode.cpp	2018	CGameMode::MakeEmotion	path	assigned to sprActName.sprName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e737072	이팩트\\emotion.spr
+src/GameMode.cpp	2019	CGameMode::MakeEmotion	path	assigned to sprActName.actName, a file or folder name part	c0ccc6d1c6ae5c656d6f74696f6e2e616374	이팩트\\emotion.act
 src/GameMode2.cpp	189	CGameMode::SendMsg	other	appended only for ServiceKorea	20a2bd	 ♡
 src/GameMode2.cpp	200	CGameMode::SendMsg	other	appended only for ServiceKorea	20a2bd	 ♡
 src/GameMode2.cpp	2518	CGameMode::SendMsg	other	compared with text, not shown	a1a1	　
@@ -3982,8 +3982,8 @@ src/UIWindowMgr.cpp	365	UIWindowMgr::InitShortcutItemInfoFromReg	other	registry 
 src/UIWindowMgr.cpp	434	UIWindowMgr::WriteShorcutItemInfoToReg	other	searched for in text, not shown	bbe7c5a9b6f3c0cc	사크라이
 src/UIWindowMgr.cpp	435	UIWindowMgr::WriteShorcutItemInfoToReg	other	registry value text, not shown	bbe7c5a9b6f3c0cc	사크라이
 src/UIWindowMgr.cpp	5392	UIWindowMgr::AddWhisperChatToWhisperWnd	path	argument of PlayWave(), a file or resource name	b9f6c6b0bcd2b8ae2e776176	버튼소리.wav
-src/base/FindHack.cpp	187	FindHack2	other	anti-cheat or security module; not run for the english service type	b0d4c0d3b0a1b5e5b8a620bdc7c7e0c7cfc1f620becab4c220b1b9b0a1c0d4b4cfb4d92e0a	게임가드를 실행하지 않는 국가입니다.\n
-src/base/FindHack.cpp	641	NKCStartKeycrypt	other	anti-cheat or security module; not run for the english service type	41444d494ec0b8b7ceb8b820bdc7c7e0b5cbb4cfb4d92e	ADMIN으로만 실행됩니다.
+src/base/FindHack.cpp	202	FindHack2	other	anti-cheat or security module; not run for the english service type	b0d4c0d3b0a1b5e5b8a620bdc7c7e0c7cfc1f620becab4c220b1b9b0a1c0d4b4cfb4d92e0a	게임가드를 실행하지 않는 국가입니다.\n
+src/base/FindHack.cpp	658	NKCStartKeycrypt	other	anti-cheat or security module; not run for the english service type	41444d494ec0b8b7ceb8b820bdc7c7e0b5cbb4cfb4d92e	ADMIN으로만 실행됩니다.
 src/base/xml.cpp	140	XMLDocument::ReadDocument	other	debug trace (a BFT_GAME line in the port)	c0ccc0fc20584d4c446f63756d656e74b8a620bbe8c1a6c7d5b4cfb4d92e2121	이전 XMLDocument를 삭제합니다.!!
 src/cKeyProtector.cpp	27	cKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f6	키보드 보안 정지
 src/cKeyProtector.cpp	30	cKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f620bdc7c6d0	키보드 보안 정지 실패

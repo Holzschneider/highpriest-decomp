@@ -214,7 +214,7 @@ classes the first examples of each group show the call site the rule looked at.
 
 -- pushed into the chat history (UIM_PUSHINTOCHATHISTORY)  [1]
    src/UIFrameWnd2.cpp:9786  UIMailListWnd::SendMsg
-      g_windowMgr . SendMsg ( UIM_PUSHINTOCHATHISTORY , ( int ) "..." , 0xff , 0 , 0 ) ;
+      g_windowMgr . SendMsg ( UIM_PUSHINTOCHATHISTORY , ( INT_PTR ) "..." , 0xff , 0 , 0 ) ;
       불량단어가 검출되어 메일을 보낼수 없습니다.
 
 -- measures text that is drawn  [1]
@@ -278,10 +278,10 @@ classes the first examples of each group show the call site the rule looked at.
    ... 23 more
 
 -- anti-cheat or security module; not run for the english service type  [16]
-   src/base/FindHack.cpp:187  FindHack2
+   src/base/FindHack.cpp:202  FindHack2
       default : Trace ( "..." ) ;
       게임가드를 실행하지 않는 국가입니다.\n
-   src/base/FindHack.cpp:641  NKCStartKeycrypt
+   src/base/FindHack.cpp:658  NKCStartKeycrypt
       strcpy ( szErrMsg , "..." ) ;
       ADMIN으로만 실행됩니다.
    src/cKeyProtector.cpp:27  cKeyProtector
@@ -581,25 +581,25 @@ classes the first examples of each group show the call site the rule looked at.
    ... 39 more
 
 -- assigned to sprActName.sprName, a file or folder name part  [36]
-   src/GameMode.cpp:1733  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1736  CGameMode::MakeMsgEffect
       case MAKETYPE_MVP_EFFECT : sprActName . sprName = "..." ;
       이팩트\mvp.spr
-   src/GameMode.cpp:1740  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1743  CGameMode::MakeMsgEffect
       case MAKETYPE_CART_EFFECT : sprActName . sprName = "..." ;
       이팩트\손수레.spr
-   src/GameMode.cpp:1746  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1749  CGameMode::MakeMsgEffect
       case MAKETYPE_CART_EFFECT2 : sprActName . sprName = "..." "..." ;
       이팩트\손수레1.spr
    ... 33 more
 
 -- assigned to sprActName.actName, a file or folder name part  [36]
-   src/GameMode.cpp:1734  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1737  CGameMode::MakeMsgEffect
       sprActName . actName = "..." ;
       이팩트\mvp.act
-   src/GameMode.cpp:1741  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1744  CGameMode::MakeMsgEffect
       sprActName . actName = "..." ;
       이팩트\손수레.act
-   src/GameMode.cpp:1747  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1750  CGameMode::MakeMsgEffect
       sprActName . actName = "..." "..." ;
       이팩트\손수레1.act
    ... 33 more
