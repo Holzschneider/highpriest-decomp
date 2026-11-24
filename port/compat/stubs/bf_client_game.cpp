@@ -38,6 +38,18 @@ struct BfClientGame {
 			return NULL;
 		return it->second.cName.c_str();
 	}
+	// Friend of CGameActor too (GameActor.h): the action of emotion.act its
+	// newest emote balloon shows, -1 when none. An emote is a CMsgEffect of
+	// type MET_EMOTION in m_msgEffectList (AM_EMOTION, CGameMode::MakeEmotion)
+	// until AM_MSGEFFECT_DEAD takes it out.
+	static int Emotion(CGameActor *a)
+	{
+		int action = -1;
+		for (std::list<CMsgEffect *>::iterator m = a->m_msgEffectList.begin(); m != a->m_msgEffectList.end(); ++m)
+			if (*m && (*m)->GetMsgEffectType() == MET_EMOTION)
+				action = (*m)->m_curAction;
+		return action;
+	}
 };
 
 namespace {
@@ -115,6 +127,7 @@ void Screen(CGameMode *mode, const vector3d &pos, bf_client_game_actor *out)
 struct ChatLine {
 	std::string channel, from, text;
 	bool hasFrom;
+	std::string window;   // partner of the whisper window, empty for the chat window
 };
 std::vector<ChatLine> g_chatPending;   // since the last take
 std::vector<ChatLine> g_chatTaken;
@@ -203,6 +216,7 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 		Cell(mode, a->m_pos, &e.a.x, &e.a.y);
 		Screen(mode, a->m_pos, &e.a);
 		e.name = BfClientGame::ActorName(mode, a->GetGID());
+		e.a.emotion = BfClientGame::Emotion(a);
 		// CGameMode's name balloons cut the name at '#' for all but players
 		// (UINameBalloonText::SetNameText, cutSharp = !IsThisPC).
 		e.cutSharp = a->IsThisPC(a->GetJob()) == FALSE;
@@ -216,6 +230,7 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 		Entry e = {};
 		e.a.id = i->GetAID();
 		e.a.type = "item";
+		e.a.emotion = -1;
 		e.a.has_job = i->m_bfItemId >= 0;
 		e.a.job = i->m_bfItemId;
 		Cell(mode, i->m_pos, &e.a.x, &e.a.y);
@@ -233,6 +248,7 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 		Entry e = {};
 		e.a.id = s->GetAID();
 		e.a.type = "skill";
+		e.a.emotion = -1;
 		e.a.has_job = 1;
 		e.a.job = s->GetJob();
 		Cell(mode, s->m_pos, &e.a.x, &e.a.y);
@@ -320,6 +336,26 @@ extern "C" void bf_client_chat_line(int second, const char *text, int type, cons
 	g_chatPending.push_back(line);
 }
 
+extern "C" void bf_client_whisper_window_line(const char *partner, const char *text)
+{
+	if (!text || !partner)
+		return;
+	ChatLine line;
+	line.channel = "whisper";
+	line.window = partner;
+	line.text = text;
+	line.hasFrom = false;
+	std::string::size_type sep = line.text.find(" : ");
+	if (sep != std::string::npos && sep > 0) {
+		line.from = line.text.substr(0, sep);
+		line.text = line.text.substr(sep + 3);
+		line.hasFrom = true;
+	}
+	if (g_chatPending.size() >= 256)
+		g_chatPending.erase(g_chatPending.begin());
+	g_chatPending.push_back(line);
+}
+
 extern "C" int bf_client_game_take_chat(const bf_client_game_chat **lines)
 {
 	g_chatTaken.swap(g_chatPending);
@@ -330,6 +366,7 @@ extern "C" int bf_client_game_take_chat(const bf_client_game_chat **lines)
 		c.channel = g_chatTaken[k].channel.c_str();
 		c.from = g_chatTaken[k].hasFrom ? g_chatTaken[k].from.c_str() : NULL;
 		c.text = g_chatTaken[k].text.c_str();
+		c.window = g_chatTaken[k].window.empty() ? NULL : g_chatTaken[k].window.c_str();
 		g_chatOut.push_back(c);
 	}
 	*lines = g_chatOut.empty() ? NULL : &g_chatOut[0];

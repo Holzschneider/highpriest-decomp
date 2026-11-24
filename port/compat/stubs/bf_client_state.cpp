@@ -627,6 +627,38 @@ struct BfUiProbe {
 			Rename(w, m->m_nameEditCtrl, "name_edit");
 			for (int t = 0; t < 6; ++t)
 				Rename(w, m->m_text[t], kStats[6 + t]);
+		} else if (UINewChatWnd *c = dynamic_cast<UINewChatWnd *>(w.wnd)) {
+			// The chat line and the whisper name field left of it (M8.1b).
+			Rename(w, c->m_commonChat, "chat_edit");
+			Rename(w, c->m_whisperChat, "whisper_edit");
+		} else if (UIMenuWnd *m = dynamic_cast<UIMenuWnd *>(w.wnd)) {
+			// The entries are drawn, not child windows (UIMenuWnd::OnDraw):
+			// each UM_ADDITEM adds its text twice, one line of half the
+			// spacing each, a boundary one; "menu:<n>" is the n-th entry,
+			// the index MM_MENUSELECTED receives.
+			int half = m->m_menuItemSpacing / 2, n = 0;
+			for (size_t i = 0; i < m->m_menuItems.size(); ++i) {
+				if (m->IsBoundary((int)i))
+					continue;
+				int seq = (int)i - m->GetNumBoundary((int)i);
+				if (seq % 2)   // the second line of an entry
+					continue;
+				Control k;
+				k.wnd = nullptr;
+				k.kind = "button";
+				char id[32];
+				snprintf(id, sizeof id, "menu:%d", n++);
+				k.id = id;
+				k.text = m->m_menuItems[i];
+				k.focus = 0;
+				int x = 0, y = 0;
+				m->GetGlobalCoor(x, y);
+				k.x = x + 3;
+				k.y = y + half * (int)i + 1;
+				k.w = m->m_w - 6;
+				k.h = m->m_menuItemSpacing - 2;
+				w.controls.push_back(k);
+			}
 		}
 	}
 

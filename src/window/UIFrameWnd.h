@@ -486,6 +486,9 @@ protected:
 	int m_curMenuIndex;
 	int m_menuItemSpacing;
 	std::vector<std::string> m_menuItems;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIRestartWnd : public UIFrameWnd {

@@ -62,6 +62,9 @@ extern DWORD g_codePage;
 extern unsigned char hex_table[];
 extern bool IsNameYellow(unsigned int aid);
 extern bool IsGravityAid(unsigned int aid);
+#if defined(BF_PORT)
+extern "C" void bf_client_whisper_window_line(const char *partner, const char *text);   // the control socket's `chat` event
+#endif
 
 const char* boundaryText = "-";
 char* g_bookmarkPath = "\\BookMark";
@@ -7086,6 +7089,9 @@ INT_PTR UIWhisperWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 		break;
 	}
 	case UM_ADDCHAT: {
+#if defined(BF_PORT)
+		bf_client_whisper_window_line(m_whisperName.c_str(), (const char*)val1);
+#endif
 		std::vector<std::string> strings;
 		CutString((const char*)val1, strings, m_w * 80 / 640);
 		for (int i = 0; i < strings.size(); ++i)

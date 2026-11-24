@@ -49,6 +49,7 @@ typedef struct bf_client_game_actor {
 	int x, y;               // cell
 	int on_screen;          // the feet project into the view
 	int screen_x, screen_y; // logical pixels, when on_screen
+	int emotion;            // action of emotion.act the actor's newest emote balloon shows, -1 none (M8.1b)
 } bf_client_game_actor;
 
 // The actors the client holds, other than its own character: actors, then
@@ -64,6 +65,7 @@ typedef struct bf_client_game_chat {
 	const char *channel;    // normal, party, guild, whisper, broadcast, system
 	const char *from;       // sender's name, NULL when the line has none
 	const char *text;       // the line without the "name : " prefix
+	const char *window;     // the partner of the 1:1 whisper window the line went to, NULL for the chat window (M8.1b)
 } bf_client_game_chat;
 
 // The lines added to the chat window since the previous call, oldest first.
@@ -74,6 +76,12 @@ int bf_client_game_take_chat(const bf_client_game_chat **lines);
 // UIM_PUSHINTOCHATHISTORY2 (second 1): the line, the client's chat type
 // (val3) and the talker (val4, may be NULL).
 void bf_client_chat_line(int second, const char *text, int type, const char *talker);
+
+// Called by UIWhisperWnd::SendMsg for UM_ADDCHAT: a line added to the 1:1
+// whisper window with `partner` ("name : text", as Zc_Whisper and
+// Zc_Ack_Whisper write it). The 2008 client puts a whisper there instead of
+// into the chat window when it opens such windows (the default).
+void bf_client_whisper_window_line(const char *partner, const char *text);
 
 #ifdef __cplusplus
 }

@@ -114,6 +114,11 @@ void WriteActors(bf_control_writer *w, void *)
 			WriteCell(w, a[i].screen_x, a[i].screen_y);
 		else
 			bf_control_write_null(w);
+		bf_control_write_key(w, "emotion");
+		if (a[i].emotion >= 0)
+			bf_control_write_int(w, a[i].emotion);
+		else
+			bf_control_write_null(w);
 		bf_control_write_end_object(w);
 	}
 	bf_control_write_end_array(w);
@@ -183,6 +188,10 @@ void ReportChat()
 			bf_control_game_write_text(w, c[i].from);
 			bf_control_write_key(w, "text");
 			bf_control_game_write_text(w, c[i].text);
+			if (c[i].window) {
+				bf_control_write_key(w, "window");
+				bf_control_game_write_text(w, c[i].window);
+			}
 			bf_control_event_end(w);
 		}
 	}
