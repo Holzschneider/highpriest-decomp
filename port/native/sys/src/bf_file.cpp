@@ -1033,11 +1033,18 @@ extern "C" int bf_file_make_folder(const char *client_path)
 {
 	std::lock_guard<std::recursive_mutex> guard(g_lock);
 	Resolved r;
+	struct stat st;
+	// Whether it is there is asked before resolving for writing: that
+	// creates a write location on its first use, and a path that names the
+	// location itself (<game>\ScreenShot is Pictures/<name>) would then be
+	// reported as existing on the call that made it (CMode::ScreenShot gives
+	// up when _mkdir fails, so the first screenshot was lost).
+	if (Resolve(client_path, kRead, &r) && stat(r.path.c_str(), &st) == 0)
+		return S_ISDIR(st.st_mode) ? 0 : (errno = EEXIST, -1);
 	if (!Resolve(client_path, kWrite, &r))
 		return -1;
-	struct stat st;
 	if (stat(r.path.c_str(), &st) == 0)
-		return S_ISDIR(st.st_mode) ? 0 : (errno = EEXIST, -1);
+		return S_ISDIR(st.st_mode) ? 1 : (errno = EEXIST, -1);
 	if (!MakeFolders(r.path))
 		return -1;
 	return 1;

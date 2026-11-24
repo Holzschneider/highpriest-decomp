@@ -407,6 +407,18 @@ void TestWritePaths(const std::string &game)
 	      && bf_file_write_location("data\\x") == BF_LOCATION_GAME,
 	      "write paths: the table sends screenshots, chat and caches to their places");
 
+	// CMode::ScreenShot: access(<game>\ScreenShot), and when that fails
+	// _mkdir, giving up unless it reports the folder made. On a first run
+	// the pictures folder does not exist yet.
+	rmdir(pictures.c_str());
+	std::string shots = game + "\\ScreenShot";
+	bf_file_info shotInfo;
+	bool absent = !bf_file_stat(shots.c_str(), &shotInfo);
+	int made = bf_file_make_folder(shots.c_str());
+	bool there = bf_file_stat(shots.c_str(), &shotInfo) && shotInfo.is_folder;
+	Check(absent && made == 1 && there && bf_file_make_folder(shots.c_str()) == 0 && Exists(pictures),
+	      Format("write paths: _mkdir <game>\\ScreenShot makes Pictures/<name> (%d %d %d)", absent, made, there).c_str());
+
 	bf_file *f = bf_file_open((game + "\\ScreenShot\\screen000.jpg").c_str(),
 	                          BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
 	bool wrote = f && bf_file_write(f, "jpeg", 4) == 4;
