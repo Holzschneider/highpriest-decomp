@@ -541,6 +541,13 @@ void CMode::ScreenShot()
 			g_renderer->SaveJPG(tmp, logoBitmap);
 		}
 
+#if defined(BF_PORT)
+		// The message names the file where it is, in Pictures/<name> (spec
+		// section 5), not under the game folder the client's path names.
+		char shown[1024];
+		if (bf_file_resolve(tmp, BF_RESOLVE_READ, shown, sizeof(shown)) >= 0)
+			strcpy(tmp, shown);
+#endif
 		std::string screenShotMsg = tmp;
 		screenShotMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)screenShotMsg.c_str(), 0x0000ff00, 0, 0);
