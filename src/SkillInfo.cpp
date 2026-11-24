@@ -277,6 +277,16 @@ const char * SKILL_INFO::GetSkillIdNameBySkillId(int skillId)
 const char * SKILL_INFO::GetSkillNameBySkillId(int skillId)
 {
 	SKILL_DESC& skilldesc = GetDesc(skillId, s_skillDescMap);
+#if defined(BF_PORT)
+	// A skill skillnametable.txt does not name: a placeholder for the coverage
+	// report (M9.5), reported once per skill.
+	if (s_skillDescMap.find(skillId) == s_skillDescMap.end() || !skilldesc.displayName || skilldesc.displayName == unknownSkill) {
+		static std::map<int, bool> s_reported;
+		if (s_reported.insert(std::make_pair(skillId, true)).second)
+			bf_port_missing(BFT_RES, "table.missing.skill", "skill %d: shown as %s", skillId,
+			                skilldesc.displayName ? skilldesc.displayName : "(nothing)");
+	}
+#endif
 	return skilldesc.displayName;
 }
 

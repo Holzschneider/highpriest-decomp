@@ -6924,6 +6924,15 @@ const char *	CSession :: GetMapName(const char *rswName)
 			return	it->second;
 		}
 	}
+#if defined(BF_PORT)
+	// A map mapNameTable.txt does not name: a placeholder for the coverage
+	// report (M9.5), reported once per map.
+	{
+		static std::map<std::string, bool> s_reported;
+		if (s_reported.insert(std::make_pair(modifyRswName, true)).second)
+			bf_port_missing(BFT_RES, "table.missing.map", "map %s: shown as %s", modifyRswName.c_str(), MsgStr(MSI_NOWHERE));
+	}
+#endif
 	return	MsgStr(MSI_NOWHERE);
 }
 

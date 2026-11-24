@@ -1441,6 +1441,17 @@ const char* MsgStr(MSGSTRINGID id)
 		}
 		return s_multimsgStringTable[id].c_str();
 	}
+#if defined(BF_PORT)
+	// An id msgStringTable.txt lacks shows "NO MSG" (or assemble.py's "?msg N"):
+	// a placeholder for the coverage report (M9.5), reported once per id.
+	if (strcmp(s_msgStrings[id], "NO MSG") == 0 || strncmp(s_msgStrings[id], "?msg ", 5) == 0) {
+		static std::vector<bool> s_reported(MSI_LAST);
+		if (!s_reported[id]) {
+			s_reported[id] = true;
+			bf_port_missing(BFT_RES, "table.missing.msg", "message %d: shown as %s", (int)id, s_msgStrings[id]);
+		}
+	}
+#endif
 	return s_msgStrings[id];
 }
 
