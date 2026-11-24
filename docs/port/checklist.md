@@ -117,7 +117,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M9.1 Login packet and code page of the English service type confirmed | src | M5.5 |
+| [x] ec2bf80 | M9.1 Login packet and code page of the English service type confirmed | src | M5.5 |
 | [x] f18f603 | M9.2 Extraction script for displayed literals; translation table keyed by original bytes; runtime lookup in `port/` (its call sites in `src/` follow with M3.2) | tools | M1.2 |
 | [x] 9a31eb4 | M9.3 Translation of the table | tools | M9.2 |
 | [x] 72ebb50 | M9.4 Font mapping and text test screen | src | M4.5a |

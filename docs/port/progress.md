@@ -144,3 +144,4 @@ Verifier's verdict on `1d8155b` (fresh agent, given only the criteria and the co
 
 - Noted by the verifier, not M5 criteria: entering the world crashes in `C3dGround` (M6.1, in the world package); window titles and buttons were Korean at `1d8155b` (the English package, integrated after, replaces the bitmaps); the character server's name is the server's `server_name` (configuration).
 - The runs rewrite the `m5-*.sha256` manifests (cursor position and generated names differ run to run); the frames' checks remain the criterion, the manifests are refreshed with the English frames.
+- M9.1 closed: with `char_name_option: 0` and `default_codepage: latin1` applied (server restarted), `run.py english` passes: `CA_LOGIN` (0x64) on the wire, a character name with é sent as 0xE9 and stored in the `char` table as é. The test server's `server_name` is now `Bifrost`.
