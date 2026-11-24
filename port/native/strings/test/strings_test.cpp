@@ -1,5 +1,6 @@
 // Test of the string lookup: exact-bytes match, fallback, counting, conversion.
 // Runs without game data. Prints one line per check; exits non-zero on a failure.
+#include "bf_coverage.h"
 #include "bf_strings.h"
 #include "bf_trace.h"
 
@@ -7,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 static int g_failed = 0;
 
@@ -29,6 +31,121 @@ static void WriteFile(const std::string &path, const std::string &text) {
 	FILE *f = fopen(path.c_str(), "wb");
 	fwrite(text.data(), 1, text.size(), f);
 	fclose(f);
+}
+
+static std::string ReadFile(const std::string &path) {
+	std::string text;
+	FILE *f = fopen(path.c_str(), "rb");
+	if (!f) return text;
+	char buf[4096];
+	size_t n;
+	while ((n = fread(buf, 1, sizeof buf, f)) > 0) text.append(buf, n);
+	fclose(f);
+	return text;
+}
+
+struct CovEntry {
+	std::string kind, text, drawn, hex, table, where;
+	long long count;
+};
+
+static void EachCov(const bf_coverage_entry *e, void *user) {
+	((std::vector<CovEntry> *)user)->push_back(CovEntry{e->kind, e->text, e->drawn ? e->drawn : "", e->hex,
+	                                                     e->table ? e->table : "", e->where, e->count});
+}
+
+static const CovEntry *FindCov(const std::vector<CovEntry> &v, const char *kind) {
+	for (const CovEntry &e : v)
+		if (e.kind == kind) return &e;
+	return nullptr;
+}
+
+// Stands for the client's drawing call: the coverage hook reads the stack from here.
+__attribute__((noinline)) static int DrawSomething(int codepage, const void *text, int count) {
+	return bf_coverage_drawn(codepage, text, count);
+}
+
+// The coverage report (M9.5): classification, recording, the JSON file.
+static void CoverageTests(const std::string &dir) {
+	bf_coverage_reset();
+	bf_strings_clear();
+	Check(bf_coverage_count() == 0, "coverage: empty after reset");
+
+	// Classification of byte strings.
+	const char *kGa = "\xb0\xa1";                      // 가, KS X 1001
+	const char *kSentence = "\xc6\xc4\xc6\xbc \xb8\xde\xbd\xc3\xc1\xf6";   // 파티 메시지
+	Check(bf_coverage_classify(1252, "Hello, world", -1) == BF_COVERAGE_ENGLISH, "classify: ASCII is English");
+	Check(bf_coverage_classify(1252, "Ren\xe9" "e and Zo\xeb", -1) == BF_COVERAGE_ENGLISH,
+	      "classify: Windows-1252 accents are English");
+	Check(bf_coverage_classify(1252, "\x80 5, caf\xe9, na\xef" "ve", -1) == BF_COVERAGE_ENGLISH,
+	      "classify: euro sign and accents are English");
+	Check(bf_coverage_classify(949, kGa, -1) == BF_COVERAGE_KOREAN, "classify: one KS X 1001 syllable is Korean");
+	Check(bf_coverage_classify(1252, kSentence, -1) == BF_COVERAGE_KOREAN,
+	      "classify: Korean bytes are Korean in any code page");
+	Check(bf_coverage_classify(1252, "\xc4pfel", -1) == BF_COVERAGE_ENGLISH,
+	      "classify: one UHC pair with an ASCII trail (\xc4p) is not enough");
+	Check(bf_coverage_classify(1252, "Lv 3 \xb0\xa1", 5) == BF_COVERAGE_ENGLISH, "classify: count limits the bytes");
+
+	// UTF-16: Hangul drawn as Hangul, Korean bytes drawn through a Western font, foreign characters.
+	const unsigned short kHangul16[] = {0xD30C, 0xD2F0, 0};                  // 파티
+	const unsigned short kMojibake16[] = {0x00C6, 0x00C4, 0x00C6, 0x00BC, 0};  // C6 C4 C6 BC as 1252
+	const unsigned short kAccents16[] = {'R', 'e', 'n', 0x00E9, 'e', 0x20AC, 0};
+	const unsigned short kKanji16[] = {0x65E5, 0x672C, 0};
+	Check(bf_coverage_classify(BF_COVERAGE_UTF16, kHangul16, -1) == BF_COVERAGE_KOREAN, "classify: UTF-16 Hangul");
+	Check(bf_coverage_classify(BF_COVERAGE_UTF16, kMojibake16, -1) == BF_COVERAGE_KOREAN,
+	      "classify: UTF-16 of CP949 bytes read as Windows-1252 is Korean");
+	Check(bf_coverage_classify(BF_COVERAGE_UTF16, kAccents16, -1) == BF_COVERAGE_ENGLISH,
+	      "classify: UTF-16 accents and the euro sign are English");
+	Check(bf_coverage_classify(BF_COVERAGE_UTF16, kKanji16, -1) == BF_COVERAGE_FOREIGN,
+	      "classify: UTF-16 CJK is foreign");
+
+	// Recording: English is not recorded; Korean once per text, counted, with the drawn mojibake and a call site.
+	DrawSomething(BF_COVERAGE_UTF16, kAccents16, -1);
+	DrawSomething(1252, "plain", -1);
+	Check(bf_coverage_count() == 0, "drawn: English leaves no entry");
+	for (int i = 0; i < 3; ++i) DrawSomething(BF_COVERAGE_UTF16, kMojibake16, -1);
+	DrawSomething(949, kGa, -1);
+	DrawSomething(BF_COVERAGE_UTF16, kKanji16, -1);
+	bf_coverage_placeholder("item", "item 31337: shown as ?31337");
+	bf_coverage_placeholder("item", "item 31337: shown as ?31337");
+	std::vector<CovEntry> v;
+	int n = bf_coverage_each(EachCov, &v);
+	Check(n == 4 && bf_coverage_count() == 4, "coverage: 4 entries (2 Korean, 1 foreign, 1 placeholder)");
+	const CovEntry *moj = nullptr;
+	for (const CovEntry &e : v)
+		if (e.kind == "korean" && e.hex == "c6c4c6bc") moj = &e;
+	Check(moj && moj->text == "\xED\x8C\x8C\xED\x8B\xB0" && moj->drawn == "\xC3\x86\xC3\x84\xC3\x86\xC2\xBC" && moj->count == 3,
+	      "drawn mojibake: decoded as 파티, drawn as ÆÄÆ¼, counted 3 times");
+	Check(moj && moj->where.find("DrawSomething") != std::string::npos, "drawn: the call site names the caller");
+	const CovEntry *ph = FindCov(v, "placeholder");
+	Check(ph && ph->table == "item" && ph->count == 2, "placeholder: once per entry, counted");
+	Check(FindCov(v, "foreign") != nullptr, "foreign text recorded");
+
+	// bf_tr fallbacks belong to the report, with the caller of bf_tr.
+	WriteFile(dir + "/coverage_table.tsv", "b0a1\tGa\n");
+	bf_strings_load((dir + "/coverage_table.tsv").c_str());
+	bf_tr(kGa);
+	bf_tr(kSentence);
+	v.clear();
+	bf_coverage_each(EachCov, &v);
+	const CovEntry *un = FindCov(v, "untranslated");
+	Check(un && un->text == "\xED\x8C\x8C\xED\x8B\xB0 \xEB\xA9\x94\xEC\x8B\x9C\xEC\xA7\x80" && un->count == 1,
+	      "untranslated: the bf_tr fallback, decoded");
+	Check(un && un->where.find("CoverageTests") != std::string::npos, "untranslated: the caller of bf_tr");
+
+	// The JSON file.
+	std::string path = dir + "/coverage_test.json";
+	Check(bf_coverage_write(path.c_str()) == 0, "report written");
+	std::string json = ReadFile(path);
+	Check(json.find("\"entries\": 5") != std::string::npos && json.find("\"korean\": 2") != std::string::npos &&
+	          json.find("\"untranslated\": 1") != std::string::npos && json.find("\"table\": \"item\"") != std::string::npos,
+	      "report: counts per kind and the entries");
+	bf_coverage_reset();
+	Check(bf_coverage_count() == 0, "reset forgets everything");
+	Check(bf_coverage_write(path.c_str()) == 0 && ReadFile(path).find("\"list\": []") != std::string::npos,
+	      "an empty session writes an empty list");
+	Check(bf_coverage_write((dir + "/no/such/folder/x.json").c_str()) == -1, "unwritable path: -1");
+	bf_strings_clear();
 }
 
 struct Collect {
@@ -158,6 +275,8 @@ int main() {
 		Check(translated > 0 || (bad == 0 && st.fallbacks == keys && st.distinct_fallbacks == keys),
 		      "committed table: untranslated originals fall back to identical bytes, each counted");
 	}
+
+	CoverageTests(dir);
 
 	printf("%s\n", g_failed ? "FAILED" : "all passed");
 	return g_failed ? 1 : 0;

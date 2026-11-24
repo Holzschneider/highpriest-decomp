@@ -13,10 +13,12 @@ endif()
 
 set(BF_INSTRUMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../instrument)
 
-add_library(bf_strings STATIC src/bf_strings.cpp)
+add_library(bf_strings STATIC src/bf_strings.cpp src/bf_coverage.cpp)
 target_include_directories(bf_strings PUBLIC include PRIVATE ${BF_INSTRUMENT_DIR})
 target_compile_definitions(bf_strings PRIVATE BF_APP_NAME="${BF_APP_NAME}")
 target_compile_options(bf_strings PRIVATE -Wall -Wextra)
+# CP949 and Windows-1252 decoding for the coverage report (M9.5).
+target_link_libraries(bf_strings PUBLIC "-framework CoreFoundation")
 
 add_executable(bifrost-strings-test test/strings_test.cpp ${BF_INSTRUMENT_DIR}/bf_trace.cpp)
 target_include_directories(bifrost-strings-test PRIVATE ${BF_INSTRUMENT_DIR})

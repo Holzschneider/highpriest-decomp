@@ -1,4 +1,5 @@
 #include "bf_strings.h"
+#include "bf_coverage_internal.h"
 #include "bf_trace.h"
 
 #include <cstdio>
@@ -18,6 +19,7 @@ struct Entry {
 std::mutex g_lock;
 std::unordered_map<std::string, Entry> g_table;
 std::map<std::string, long long> g_fallbacks;   // ordered, so reports are stable
+std::map<std::string, std::string> g_fallbackSites;   // the caller of the first fallback (M9.5)
 long long g_lookups = 0, g_hits = 0, g_fallbackCount = 0;
 int g_translated = 0;
 bool g_loadTried = false;
@@ -196,9 +198,11 @@ const char *bf_tr(const char *original) {
 		return it->second.english.c_str();
 	}
 	++g_fallbackCount;
-	if (++g_fallbacks[key] == 1)
+	if (++g_fallbacks[key] == 1) {
+		g_fallbackSites[key] = bf_coverage_symbol(__builtin_return_address(0));
 		BF_TRACE(BFT_UI, "strings: no translation (%s) for %s", it == g_table.end() ? "not in table" : "not translated yet",
 		         HexOf(key, 48).c_str());
+	}
 	bf_count("strings.fallback", 1);
 	return original;
 }
@@ -223,6 +227,15 @@ void bf_strings_reset_counts(void) {
 	std::lock_guard<std::mutex> g(g_lock);
 	g_lookups = g_hits = g_fallbackCount = 0;
 	g_fallbacks.clear();
+	g_fallbackSites.clear();
 }
 
 }  // extern "C"
+
+void bf_strings_each_fallback_site(void (*fn)(const std::string &, long long, const std::string &, void *), void *user) {
+	std::lock_guard<std::mutex> g(g_lock);
+	for (const auto &kv : g_fallbacks) {
+		auto site = g_fallbackSites.find(kv.first);
+		fn(kv.first, kv.second, site == g_fallbackSites.end() ? std::string() : site->second, user);
+	}
+}
