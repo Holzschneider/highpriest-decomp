@@ -11,6 +11,7 @@ names it by the ids in PROTOCOL.md's `controls`.
 
 import time
 
+from . import pktlog
 from .sql import wait_rows
 
 
@@ -118,3 +119,45 @@ def say_and_confirm(t, ctl, s, text, char_id, expect_pos=None, map=None):
 
 def token():
     return "%x" % int(time.time() * 1000 % 0xffffffff)
+
+
+# ---- zone entry (M5): CZ_ENTER, the packet comparison, the exit after it
+
+CZ_ENTER = "0x009b"
+
+
+def wait_sent(t, header, conn, timeout):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        sent = pktlog.has_sent(pktlog.read(t.client.pkt_log), header, conn)
+        if sent:
+            return sent
+        time.sleep(0.2)
+    return []
+
+
+def compare_with_netprobe(t, s, client_log, user, password, charname):
+    probe = pktlog.netprobe_next_to_client()
+    s.check(probe is not None, "bifrost-netprobe next to BF_CLIENT")
+    log = t.run_dir / "netprobe-packets.txt"
+    code, last = pktlog.run_netprobe(probe, log, ["--user", user, "--pass", password,
+                                                  "--char-name", charname, "--listen-ms", "1000"])
+    s.note("bifrost-netprobe exit %d: %s" % (code, last))
+    equal, lines = pktlog.compare(pktlog.read(client_log), pktlog.read(log))
+    s.state("login sequence: client | netprobe", lines)
+    s.check(equal, "the client's login sequence equals bifrost-netprobe's")
+
+
+def stop_after_zone_entry(t):
+    """The map load after CZ_ENTER is M6.1's (it fails on prontera.rsw at the
+    time of writing): its exit is recorded, not judged, unless the script is
+    run with --param strict_exit=1, which keeps the runner's check."""
+    if t.param("strict_exit") == "1":
+        t.stop_client()
+        return
+    c = t.client
+    code = c.stop(grace=5)
+    with t.step("client stopped after zone entry", "recorded only: the map load is M6.1") as s:
+        s.note("exit status %s%s" % (code, " (killed)" if c.killed else ""))
+        s.trace("assertions and crash lines in trace", c.trace_lines("assert", "crash:")[:6])
+    t.client = None

@@ -23,7 +23,8 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 | `bfharness/control.py` | the socket client: requests by id, the event stream, helpers (`type_text`, `say`, `click`, `click_control`, `wait_mode`, `capture` ...) |
 | `bfharness/frames.py` | captures to `<game folder>/test/frames/<script>/<name>.png`, checked against the reply's SHA-256; the checksum manifest |
 | `bfharness/runner.py` | steps with evidence, the reports |
-| `bfharness/play.py` | shared steps: log in, enter the game, walk to a clicked cell, say a line and find it in chatlog |
+| `bfharness/play.py` | shared steps: log in (through the character server list, which the 2008 client shows even for one server), enter the game, walk to a clicked cell, say a line and find it in chatlog; for M5: wait for `CZ_ENTER` in the packet log, compare the login with `bifrost-netprobe`'s, record the exit after zone entry |
+| `bfharness/pktlog.py` | reads `BF_PKT_LOG` files; the login sequence (account and character connections, up to the first zone packet sent) and its comparison: same packets sent in the same order, same packets received per connection (the character server's `HC_BLOCK_CHARACTER` comes before or after `CH_SELECT_CHAR` by timing). Also a command: `pktlog.py <client log> <netprobe log>` |
 | `mock_client.py` | serves PROTOCOL.md with a fake game, and writes what the server would log to a JSON-lines file in the shape of rAthena's tables |
 | `scripts/` | `login.py`, `create_char.py` (M5), `walk.py` (M6), `gate.py` (M8): the shapes the real tests take; all pass against the mock |
 | `tests/` | the self-tests |

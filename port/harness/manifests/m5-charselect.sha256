@@ -1,0 +1,3 @@
+# frames under <game folder>/test/frames/charselect/; regenerate with port/harness/run.py
+a68b62b01a129e2c09706d917ef1ebd998ab41d4ce99adccdf2b6af4015107bc  2048x1536  login-typed.png
+2da34795d30b452388afef5ee5967aa7575b5bb76f80ba41668780683264bf5e  2048x1536  selected.png

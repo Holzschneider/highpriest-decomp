@@ -45,12 +45,38 @@ def run(t):
         ctl.wait_window("MAKECHARWND")
         s.frame("makechar")
 
+    with t.step("hair and stats", "M5: hair style and colour, stats change by their buttons") as s:
+        def texts():
+            w = ctl.window("MAKECHARWND")
+            return {c["id"]: c["text"] for c in w.get("controls", [])}
+        before = texts()
+        s.state("MAKECHARWND controls", before)
+        clicks = [("right", 2), ("up", 1), ("str", 1), ("agi", 2)]
+        if all(c in before for c, _ in clicks):
+            for control, n in clicks:
+                for _ in range(n):
+                    ctl.click_control("MAKECHARWND", control)
+            after = texts()
+            s.state("after", after)
+            # STR takes from INT, AGI from LUK (UIMakeCharWnd::SendMsg)
+            s.equal((after.get("str"), after.get("int")), ("6", "4"), "STR up, INT down")
+            s.equal((after.get("agi"), after.get("luk")), ("7", "3"), "AGI up, LUK down")
+            expect = {"hair": 3, "hair_color": 1, "str": 6, "int": 4, "agi": 7, "luk": 3}
+        else:
+            s.note("controls not exposed (mock): stats and hair left at their defaults")
+            expect = {}
+        s.frame("makechar-set")
+
     with t.step("create", "M5: the server makes the character") as s:
+        if expect:
+            ctl.click_control("MAKECHARWND", "name_edit")   # the buttons may have taken the focus
         ctl.type_text(charname)
         ctl.press("enter")
         ctl.wait_mode("charselect", 30)
         rows = wait_rows(lambda: t.logs.charlog(name=charname, msg="make new char", after=mark))
         s.rows("charlog 'make new char' %s" % charname, rows)
+        for k, v in expect.items():
+            s.equal(rows[-1].get(k), v, "charlog %s" % k)
         c = t.logs.char(charname)
         s.check(c is not None, "char row %s exists" % charname)
         acc = t.logs.account(userid)

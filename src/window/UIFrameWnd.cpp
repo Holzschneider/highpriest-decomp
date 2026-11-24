@@ -1790,7 +1790,14 @@ void UISelectCharWnd::InitFromReg()
 	HKEY hKey;
 	DWORD DATALENGTH;
 	DWORD REG_TYPE;
+#if defined(BF_PORT)
+	// Read even when the value is absent (first start, or never clicked a
+	// slot): uninitialised, as in the 2008 client (0x45FB40), it put the
+	// cursor on a random slot, often an empty one, where Enter opens creation.
+	DWORD CURSLOT = 0;
+#else
 	DWORD CURSLOT;
+#endif
 
 	LONG ret = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, 1, &hResultKey);
 	m_curPage = 0;
