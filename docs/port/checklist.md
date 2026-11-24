@@ -54,7 +54,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M4.1 Application module: window, fullscreen, Metal layer, single instance, event queue, no App Nap | native | |
+| [x] 1fcc699 | M4.1 Application module: window, fullscreen, Metal layer, single instance, event queue, no App Nap | native | |
 | [ ] | M4.2 Graphics module on Metal, with test draws for the 16 multitexture presets and the blend modes | native | |
 | [ ] | M4.3 Logical resolution, UI scale 1×/2×/3×, resize path | native | M4.1, M4.2 |
 | [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2, M3.2 |
