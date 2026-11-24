@@ -1,0 +1,7 @@
+// SQL logs that the test scripts read to confirm what the client did:
+// every item movement (log_filter 1 in the stock file), zeny, chat of all
+// kinds, game-master commands, NPC actions, MVP drops.
+log_zeny: 1
+log_chat: 63
+log_mvpdrop: yes
+log_branch: yes
