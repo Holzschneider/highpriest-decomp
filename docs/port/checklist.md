@@ -31,7 +31,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 8899bf1 | M2.6 The three assembly sites replaced | src | M2.2 |
 | [x] a55de3e | M2.7 CMake project with Ninja: debug, sanitizer, release presets | build | M2.1 |
 | [x] 32ba708 | M2.8 Structure-layout check for packet and file structures | tools | |
-| [ ] | M2.9 Warnings that point at real faults, found by the M2 verifier: `sscanf("%lx")` into 32-bit variables, `sprintf` overflows, a `CHash` passed for `%s`, `%d` with `INT_PTR`; then a census with those warnings as errors | src | M3.2 |
+| [x] f127f9e | M2.9 Warnings that point at real faults, found by the M2 verifier: `sscanf("%lx")` into 32-bit variables, `sprintf` overflows, a `CHash` passed for `%s`, `%d` with `INT_PTR`; then a census with those warnings as errors | src | M3.2 |
 | [x] d400aee | M2 exit (verifier) | | M1 exit, M2.1–M2.8 |
 
 ## M3. Links and starts without a window
@@ -99,7 +99,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] d9c523f | M7.1 Sound module on AVAudioEngine with a test program | native | |
 | [x] 63cf204 | M7.2 WAV and MP3 decoding through AudioToolbox | native | |
 | [x] 528ff44 | M7.2a Miles adapter | compat | M7.1, M7.2 |
-| [ ] | M7.3 Music fades with a lock around the shared volume | src | M7.2a |
+| [x] 2155fb4 | M7.3 Music fades with a lock around the shared volume | src | M7.2a |
 | [ ] | M7 exit (verifier) | | M6 exit, M7.1–M7.3 |
 
 ## M8. Playable

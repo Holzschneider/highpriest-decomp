@@ -19,7 +19,7 @@ port/tools/census.sh     # compiles every game source for arm64 without generati
 port/tools/shadow.sh     # applies the automatic rewrites to a copy of src/ and reports what is left
 ```
 
-`census.sh` is the progress measure of M2. `shadow.sh` leaves `src/` alone: it rewrites `build/port/shadow/src` with `codemod.py` and runs the census on that.
+`census.sh` is the progress measure of M2. `census.sh --warnings` keeps `-Wformat` as an error and counts non-literal format strings. `shadow.sh` leaves `src/` alone: it rewrites `build/port/shadow/src` with `codemod.py` and runs the census on that.
 
 | | clean units of 152 | distinct error locations |
 |---|---:|---:|
