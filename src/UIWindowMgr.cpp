@@ -4920,7 +4920,28 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		}
 		break;
 
+	// Restored from the reference (ProcessPushButton 0x4f58c0, case 0x23):
+	// End turns the book's pages to its end, or sets the skill level to
+	// the lowest; Alt+End toggles the player's HP bar.
 	case VK_END:
+		if (!CheckKeyPressed(VK_MENU)) {
+			if (m_bookWnd) {
+				m_bookWnd->SendMsg(NULL, UM_ENDPUSH, 0, 0, 0, 0);
+				return true;
+			}
+			CMode *curMode = g_modeMgr.GetCurMode();
+			if (curMode && curMode->SendMsg(MM_GET_SKILL_USE_TYPE, 0, 0, 0)) {
+				curMode->SendMsg(MM_USESKILL_LEVEL_MINUS, 5000, 0, 0);
+				return true;
+			}
+		}
+		else if (newKeydown) {
+			CMode *curMode = g_modeMgr.GetCurMode();
+			if (curMode) {
+				curMode->SendMsg(MM_TOGGLE_PLAYERGAGE, 0, 0, 0);
+				return true;
+			}
+		}
 		break;
 
 	case 'A':
@@ -5083,14 +5104,83 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		}
 		break;
 
+	// Restored from the reference (ProcessPushButton 0x4f58c0, cases 0x43,
+	// 0x44, 0x48, 0x49, 0x4c, 0x4d, 0x55, 0x59, 0x5a): Alt+C chat room,
+	// Alt+D detail level, Alt+H friends and Alt+Z party (the messenger
+	// window's two tabs), Alt+I friend options, Alt+L emotion list, Alt+M
+	// emotions, Alt+U quests (Korea only), Alt+Y command list.
 	case 'C':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd) {
+				m_basicInfoWnd->SendMsg(NULL, UM_COMMAND, ID_COMM, 0, 0, 0);
+				return true;
+			}
+		}
+		break;
+
+	case 'D':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd) {
+				m_basicInfoWnd->SendMsg(NULL, UM_COMMAND, ID_DETAILLEVEL, 0, 0, 0);
+				return true;
+			}
+		}
+		break;
+
 	case 'H':
-	case 'I':
-	case 'L':
-	case 'M':
-	case 'U':
-	case 'Y':
 	case 'Z':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd) {
+				int oldRadio = messengerGroupWndInfo.radio;
+				messengerGroupWndInfo.radio = virtualKey == 'Z';
+				if (!DeleteWindow(WID_MESSENGERWND) || oldRadio != messengerGroupWndInfo.radio)
+					MakeWindow(WID_MESSENGERWND);
+			}
+		}
+		break;
+
+	case 'I':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd)
+				if (!DeleteWindow(WID_FRIENDOPTIONWND))
+					MakeWindow(WID_FRIENDOPTIONWND);
+			return true;
+		}
+		break;
+
+	case 'L':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd)
+				if (!DeleteWindow(WID_EMOTIONLISTWND))
+					MakeWindow(WID_EMOTIONLISTWND);
+			return true;
+		}
+		break;
+
+	case 'M':
+		if (CheckKeyPressed(VK_MENU) || newKeydown == 10000) {
+			if (m_basicInfoWnd)
+				if (!DeleteWindow(WID_EMOTIONWND))
+					MakeWindow(WID_EMOTIONWND);
+			return true;
+		}
+		break;
+
+	case 'U':
+		if (g_serviceType == ServiceKorea && (CheckKeyPressed(VK_MENU) || newKeydown == 10000)) {
+			if (m_basicInfoWnd) {
+				m_basicInfoWnd->SendMsg(NULL, UM_COMMAND, ID_QUEST, 0, 0, 0);
+				return true;
+			}
+		}
+		break;
+
+	case 'Y':
+		if (CheckKeyPressed(VK_MENU)) {
+			if (m_basicInfoWnd)
+				if (!DeleteWindow(WID_COMMANDLISTWND))
+					MakeWindow(WID_COMMANDLISTWND);
+		}
 		break;
 
 	case '1':
@@ -5309,7 +5399,14 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		}
 		break;
 
+	// Restored from the reference (ProcessPushButton 0x4f58c0, case 0xc0):
+	// Ctrl+` opens the world map.
 	case 192:
+		if (CheckKeyPressed(VK_CONTROL)) {
+			if (m_basicInfoWnd)
+				if (!DeleteWindow(WID_ROMAPWND))
+					MakeWindow(WID_ROMAPWND);
+		}
 		break;
 
 	case VK_MULTIPLY:
