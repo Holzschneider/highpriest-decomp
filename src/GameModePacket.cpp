@@ -2439,7 +2439,7 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 void CGameMode::Zc_Ack_Reqname(char const *buf)
 {
 	PACKET_ZC_ACK_REQNAME *p = (PACKET_ZC_ACK_REQNAME *)buf;
-	m_actorNameList[p->AID].cName.assign(p->CName, NAME_LENGTH);
+	m_actorNameList[(DWORD)p->AID].cName.assign(p->CName, NAME_LENGTH);	// a copy: the packed field is misaligned for the map's reference
 	RemoveActorNameRequestTimer(p->AID);
 
 	if (p->AID == g_session.m_petGID) {
