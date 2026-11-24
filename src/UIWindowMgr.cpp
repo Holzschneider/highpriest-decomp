@@ -5340,9 +5340,28 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		}
 		break;
 
+#if defined(BF_PORT)
+	// Restored from the reference (ProcessPushButton 0x4f58c0, cases 0x70
+	// and 0x71): F1 and F2 use the shortcut bar's first two slots, as F3-F9
+	// use the others.
+	case VK_F1:
+		if (newKeydown) {
+			if (m_shortCutWnd)
+				m_shortCutWnd->SendMsg(NULL, UM_USE_SHORTEN_ITEM, 0, 0, 0, 0);
+		}
+		break;
+
+	case VK_F2:
+		if (newKeydown) {
+			if (m_shortCutWnd)
+				m_shortCutWnd->SendMsg(NULL, UM_USE_SHORTEN_ITEM, 1, 0, 0, 0);
+		}
+		break;
+#else
 	case VK_F1:
 	case VK_F2:
 		break;
+#endif
 
 	case VK_F3:
 		if (newKeydown) {
@@ -5411,9 +5430,28 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		}
 		break;
 
+#if defined(BF_PORT)
+	// Restored from the reference (ProcessPushButton 0x4f58c0, cases 0x7a
+	// and 0x7b): F11 closes the windows (the basic window's ID_CLOSEALL);
+	// F12 turns the shortcut bar to its next page of three and shows it.
+	case VK_F11:
+		if (m_basicInfoWnd)
+			m_basicInfoWnd->SendMsg(NULL, UM_COMMAND, ID_CLOSEALL, 0, 0, 0);
+		break;
+
+	case VK_F12:
+		if (m_basicInfoWnd) {
+			if (++g_session.m_shortcutSlotCnt > 2)
+				g_session.m_shortcutSlotCnt = 0;
+			ShowWindow(WID_SHORTCUTWND, 0);
+			ShowWindow(WID_SHORTCUTWND, 1);
+		}
+		break;
+#else
 	case VK_F11:
 	case VK_F12:
 		break;
+#endif
 
 	case VK_SNAPSHOT:
 	case VK_SCROLL:
