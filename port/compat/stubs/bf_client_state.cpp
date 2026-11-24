@@ -9,6 +9,7 @@
 #include "window/UIFrameWnd.h"
 #include "ItemInfo.h"
 #include "Session.h"
+#include "SkillInfo.h"
 
 #include <cxxabi.h>
 #include <ctype.h>
@@ -22,6 +23,7 @@
 #include "bf_client_ui.h"
 
 extern UIWindowMgr g_windowMgr;
+extern CSession g_session;
 extern int g_bfModeRunning;   // Mode.cpp: a mode is in OnRun
 
 extern "C" const char *bf_port_mode(const char **detail);
@@ -810,6 +812,19 @@ struct BfUiProbe {
 				k.h = m->m_menuItemSpacing - 2;
 				w.controls.push_back(k);
 			}
+		} else if (UISkillListWnd *k = dynamic_cast<UISkillListWnd *>(w.wnd)) {
+			SkillList(w, k);
+		} else if (UIShortCutWnd *c = dynamic_cast<UIShortCutWnd *>(w.wnd)) {
+			ShortCuts(w, c);
+		} else if (UIOptionWnd *o = dynamic_cast<UIOptionWnd *>(w.wnd)) {
+			Rename(w, o->m_bgmOncheckBox, "bgm_on");
+			Rename(w, o->m_soundOncheckBox, "sound_on");
+			Rename(w, o->m_attackSnapCheckBox, "snap_attack");
+			Rename(w, o->m_skillSnapCheckBox, "snap_skill");
+			Rename(w, o->m_itemSnapCheckBox, "snap_item");
+			Rename(w, o->m_noCtrlCheckBox, "noctrl");
+			Scroll(w, o->m_bgmVolumescrBar, "bgm_volume");
+			Scroll(w, o->m_soundVolumescrBar, "sound_volume");
 		}
 	}
 
@@ -945,6 +960,123 @@ struct BfUiProbe {
 				AddControl(w, sw, kValues[i].id, "text", kValues[i].x - 60, kValues[i].y, 60, 14, text);
 			}
 		}
+	}
+
+	// A scroll bar as a control of kind `scroll`, its position as the text.
+	static void Scroll(Window &w, UIScrollBar *b, const char *id)
+	{
+		if (!b || !b->m_show)
+			return;
+		Control k;
+		k.wnd = b;
+		k.id = id;
+		k.kind = "scroll";
+		k.focus = 0;
+		Rect(b, k);
+		char text[16];
+		snprintf(text, sizeof text, "%d", b->GetPos());
+		k.text = text;
+		w.controls.push_back(k);
+	}
+
+	// The skill window (Alt+S): one `item` per skill row shown,
+	// `skill:<SKID>`, at the row's icon (UISkillListWnd::GetSkillInfo(x, y)
+	// takes x 40..71 and 32 pixels per row from y 17), its text "<id name>
+	// <level>" (SM_BASH 1); the row's level-up arrow, where it is shown, as
+	// `up:<SKID>`; and the free skill points as the text `points`.
+	static void SkillList(Window &w, UISkillListWnd *k)
+	{
+		int x = 0, y = 0;
+		k->GetGlobalCoor(x, y);
+		int index = 0, row = 0;
+		for (std::list<SKILL_INFO>::iterator it = k->m_itemList.begin(); it != k->m_itemList.end(); ++it, ++index) {
+			if (index < k->m_viewOffset)
+				continue;
+			if (row >= k->m_itemVertNum || row >= 7)
+				break;
+			SKILL_INFO &info = *it;
+			const char *idName = SKILL_INFO::GetSkillIdNameBySkillId(info.SKID);
+			char id[32], text[64];
+			snprintf(id, sizeof id, "skill:%d", info.SKID);
+			snprintf(text, sizeof text, "%s %d", idName ? idName : "?", info.level);
+			Control c;
+			c.wnd = nullptr;
+			c.id = id;
+			c.kind = "item";
+			c.x = x + 40;
+			c.y = y + 17 + row * 32;
+			c.w = 32;
+			c.h = 32;
+			c.text = text;
+			c.focus = k->m_curItem == index;
+			w.controls.push_back(c);
+			UIBitmapButton *up = k->m_incArrowButton[row];
+			if (up && up->m_x >= 0)
+				if (Control *u = Find(w, up)) {
+					snprintf(id, sizeof id, "up:%d", info.SKID);
+					u->id = id;
+				}
+			++row;
+		}
+		Control p;
+		p.wnd = nullptr;
+		p.id = "points";
+		p.kind = "text";
+		p.x = x;
+		p.y = y + k->m_h - 24;
+		p.w = 60;
+		p.h = 16;
+		char points[16];
+		snprintf(points, sizeof points, "%d", k->m_typeWnd == 0 ? g_session.GetSkillPoint() : 0);
+		p.text = points;
+		p.focus = 0;
+		w.controls.push_back(p);
+	}
+
+	// The shortcut bar (F12): its nine slots of the page shown, `slot:<n>`
+	// (n 0..8, the F1..F9 keys), as UIShortCutWnd::OnDraw places them; the
+	// text "skill:<SKID>:<level>", "item:<item id>" or empty; and the page
+	// number it draws (1..3, F12 turns it) as the text `page`.
+	static void ShortCuts(Window &w, UIShortCutWnd *s)
+	{
+		int x = 0, y = 0;
+		s->GetGlobalCoor(x, y);
+		int page = g_session.m_shortcutSlotCnt & 0xff;
+		for (int i = 0; i < 9; ++i) {
+			const ShortCutKey &key = s->m_shortCutList[i + page * 9];
+			char id[16], text[48];
+			snprintf(id, sizeof id, "slot:%d", i);
+			if (!key.ID)
+				text[0] = 0;
+			else if (key.isSkill)
+				snprintf(text, sizeof text, "skill:%u:%d", key.ID, key.count);
+			else
+				snprintf(text, sizeof text, "item:%u", key.ID);
+			Control c;
+			c.wnd = nullptr;
+			c.id = id;
+			c.kind = "item";
+			c.x = x + i * 29 + 5;
+			c.y = y + 5;
+			c.w = 24;
+			c.h = 24;
+			c.text = text;
+			c.focus = 0;
+			w.controls.push_back(c);
+		}
+		Control p;
+		p.wnd = nullptr;
+		p.id = "page";
+		p.kind = "text";
+		p.x = x + s->m_w - 13;
+		p.y = y + s->m_h - 16;
+		p.w = 10;
+		p.h = 12;
+		char page1[8];
+		snprintf(page1, sizeof page1, "%d", page + 1);
+		p.text = page1;
+		p.focus = 0;
+		w.controls.push_back(p);
 	}
 
 	static void Describe()

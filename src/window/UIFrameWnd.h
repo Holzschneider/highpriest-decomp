@@ -526,6 +526,9 @@ protected:
 	UICheckBox* m_itemSnapCheckBox;
 	UICheckBox* m_noCtrlCheckBox;
 	UINoneVisibleButton* m_skinSelectButton;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIItemParamChangeDisplayWnd : public UIFrameWnd {
@@ -1959,6 +1962,9 @@ protected:
 	std::vector<StringId> m_menuItems;
 public:
 	int m_typeWnd;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIItemWnd : public UIItemBaseWnd {
@@ -2050,6 +2056,9 @@ protected:
 	ShortCutKey m_shortCutList[27];
 	int m_maxSlot;
 	int m_slot;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIEquipWnd : public UIFrameWnd {

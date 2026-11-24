@@ -76,6 +76,11 @@ int KeyFromName(const std::string &n)
 	if (n.size() == 1 && n[0] >= 'a' && n[0] <= 'z') return BF_KEY_A + (n[0] - 'a');
 	if (n.size() == 1 && n[0] >= '1' && n[0] <= '9') return BF_KEY_1 + (n[0] - '1');
 	if (n == "0") return BF_KEY_0;
+	// f13, f14, f15: the Print Screen, Scroll Lock and Pause of a PC
+	// keyboard on a Mac (the game's screenshot keys, compat/input README).
+	if (n == "f13") return BF_KEY_F13;
+	if (n == "f14") return BF_KEY_F14;
+	if (n == "f15") return BF_KEY_F15;
 	if (n.size() >= 2 && n.size() <= 3 && n[0] == 'f' && n[1] >= '1' && n[1] <= '9') {
 		int k = n[1] - '0';
 		if (n.size() == 3) {

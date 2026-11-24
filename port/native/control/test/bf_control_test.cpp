@@ -671,7 +671,7 @@ void TestKeys(Client &c)
 
 	bool names = true;
 	std::string failed;
-	for (const char *k : {"z", "0", "9", "f1", "f10", "f12", "kp0", "kp9", "kpenter", "kpdecimal", "insert",
+	for (const char *k : {"z", "0", "9", "f1", "f10", "f12", "f13", "f15", "kp0", "kp9", "kpenter", "kpdecimal", "insert",
 	                      "grave", "pagedown", "alt", "cmd"}) {
 		Json j = c.Request(std::string("{\"id\":26,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"") + k + "\"}");
 		if (!j.Ok()) { names = false; failed += std::string(k) + " "; }
@@ -681,7 +681,7 @@ void TestKeys(Client &c)
 	struct Bad { const char *line; const char *code; };
 	const Bad bads[] = {
 		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"hyper\"}", "bad_key"},
-		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"f13\"}", "bad_key"},
+		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"f16\"}", "bad_key"},
 		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"return\"}", "bad_key"},
 		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\"}", "bad_request"},
 		{"{\"id\":27,\"cmd\":\"key\",\"action\":\"press\",\"key\":\"a\",\"mods\":[\"hyper\"]}", "bad_request"},
