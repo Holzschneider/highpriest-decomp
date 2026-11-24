@@ -39,6 +39,12 @@ class ScriptsAgainstMock(unittest.TestCase):
     def test_gate(self):
         self.run_script("gate")
 
+    def test_sound(self):
+        rep = self.run_script("sound")
+        names = [s["name"] for s in rep["steps"]]
+        self.assertIn("login music loops", names)
+        self.assertIn("distance-scaled volume", names)
+
     def test_failure_is_reported(self):
         """A step that fails stops the script and the report says FAIL."""
         import types

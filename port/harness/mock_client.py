@@ -44,7 +44,7 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
-EVENTS = ["mode", "map", "chat", "window", "bye", "error"]
+EVENTS = ["mode", "map", "chat", "window", "sound", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
 DETAIL = {"login": "LSM_IDENTRY", "connecting": "LSM_WAITRESP_FROM_ACSVR",
           "charselect": "LSM_SELECTCHAR", "makechar": "LSM_MAKECHAR",
@@ -58,9 +58,15 @@ NPCS = [  # map, x, y, name, sprite, role
     ("prontera", 156, 22, "Gate Guard", 105, "talk"),
     ("prt_in", 126, 76, "Tool Dealer", 53, "shop"),
 ]
-PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362)]
+PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362), ("prt_fild08", 170, 360)]
 PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
            ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
+# Sound (the `sound` part): the music per map as mp3nametable.txt has it, and a
+# stream that loops every MOCK_MUSIC_SECONDS (the mock's files are short).
+MUSIC = {"login": "bgm\\01.mp3", "prontera": "bgm\\08.mp3", "prt_in": "bgm\\08.mp3",
+         "prt_fild08": "bgm\\12.mp3", "izlude": "bgm\\26.mp3"}
+MOCK_MUSIC_SECONDS = 4.0
+BUTTON_WAV = "버튼소리.wav"   # "button sound", as UIFrameWnd.cpp names it
 ALT_WINDOWS = {"e": "ITEMWND", "q": "EQUIPWND", "s": "SKILLLISTWND", "a": "STATUSWND", "o": "OPTIONWND"}
 
 
@@ -185,6 +191,10 @@ class Mock:
         self.last_click = (-1, 0, 0)
         self.after_connect = None
         self.bye_reason = "quit"
+        self.stream = {"file": "", "started": None, "opened": 0}
+        self.voices = []          # the `sound` part's recent voices
+        self.voice_serial = 0
+        self.voices_started = 0
         self.seed()
         self.set_mode("login")
 
@@ -266,6 +276,7 @@ class Mock:
         L = self.logical()
         cx, cy = L[0] // 2, L[1] // 2
         if mode == "login":
+            self.play_stream(MUSIC["login"])
             self.open_window(Window("LOGINWND", [cx - 140, cy - 60, 280, 120], [
                 ctl("id_edit", "edit", cx - 40, cy - 30, 130, 16),
                 ctl("pw_edit", "edit", cx - 40, cy - 8, 130, 16, password=True),
@@ -478,6 +489,7 @@ class Mock:
     # -- login, characters ---------------------------------------------------
 
     def submit_login(self):
+        self.play_wave(BUTTON_WAV, 0.0)
         w = self.window("LOGINWND")
         userid, pw = w.control("id_edit")["text"], w.control("pw_edit")["text"]
         accounts = self.account_rows()
@@ -501,6 +513,7 @@ class Mock:
             self.after_connect = "loginfail"
 
     def select_char(self):
+        self.play_wave(BUTTON_WAV, 0.0)
         c = self.chars().get(self.selected_slot)
         if not c:
             self.set_mode("makechar")
@@ -535,6 +548,42 @@ class Mock:
         self.self_ = None
         self.map = None
 
+    # -- sound ---------------------------------------------------------------
+
+    def play_stream(self, name):
+        if self.stream["file"] == name:      # PlayStream returns early for the same name
+            return
+        self.stream.update(file=name, started=time.monotonic(), opened=self.stream["opened"] + 1)
+
+    def distance_to(self, a):
+        s = self.self_
+        return 5.0 * ((a["x"] - s["x"]) ** 2 + (a["y"] - s["y"]) ** 2) ** 0.5   # 5 world units per cell
+
+    def play_wave(self, name, dist):
+        """PlayDigital: full volume (100 of 127) within 40 units, 100 * 40 / d to 250, nothing beyond."""
+        if dist >= 250:
+            return
+        vol = 100 if dist <= 40 else int(100 * 40.0 / dist)
+        self.voice_serial += 1
+        self.voices_started += 1
+        v = {"serial": self.voice_serial, "file": name,
+             "volume": vol / 127.0, "pan": 0.0, "distance": dist, "loop": False, "started": True, "duration": 0.5}
+        self.voices = (self.voices + [v])[-16:]
+        self.emit("sound", **v)
+
+    def sound_state(self):
+        st = self.stream
+        dur = MOCK_MUSIC_SECONDS
+        played = time.monotonic() - st["started"] if st["started"] else 0.0
+        return {"mode": "silent", "max_voices": 48, "voices_started": self.voices_started, "voices_playing": 0,
+                "voices_stolen": 0, "voices_rejected": 0, "decodes": self.voices_started, "decode_failures": 0,
+                "effects_volume": 1.0, "music_volume": 1.0,
+                "stream": {"file": "/mock/" + st["file"].replace("\\", "/").upper() if st["file"] else None,
+                           "status": "playing" if st["file"] else "none", "loops": int(played // dur),
+                           "duration": dur, "position": played % dur, "volume": 100 / 127.0,
+                           "opened": st["opened"], "failures": 0},
+                "recent": list(self.voices)}
+
     # -- world ---------------------------------------------------------------
 
     def enter_map(self, name, x, y):
@@ -552,6 +601,7 @@ class Mock:
             if m == name:
                 self.add_actor("portal", "", 45, ax, ay)
         self.attack = self.pick = self.talk = None
+        self.play_stream(MUSIC.get(name, "bgm\\01.mp3"))
         self.trace("game", "enter %s %d %d" % (name, x, y))
         self.emit("map", map=name, x=x, y=y)
 
@@ -783,14 +833,25 @@ class Mock:
             if a not in self.actors:
                 self.attack = None
                 return
-            a["hp"] -= 1 if self.frame % 20 == 0 else 0
+            if self.frame % 20 == 0:
+                a["hp"] -= 1
+                self.play_wave("attack_fist.wav", 0.0)
+                self.play_wave("poring_damage.wav", self.distance_to(a))
             if a["hp"] <= 0:
+                self.play_wave("poring_die.wav", self.distance_to(a))
                 self.actors.remove(a)
                 self.attack = None
                 self.db.put("picklog", char_id=a["job"], type="M", nameid=909, amount=-1, refine=0, map=self.map)
                 self.add_actor("item", "Jellopy", 909, a["x"], a["y"])
                 s["base_exp"] = s.get("base_exp", 0) + 2
                 self.trace("game", "killed %s" % a["name"])
+
+    def ambient(self):
+        """Each monster makes its move sound every two seconds."""
+        if self.frame % 120 == 0:
+            for a in self.actors:
+                if a["type"] == "monster":
+                    self.play_wave("poring_move.wav", self.distance_to(a))
 
     def arrived(self):
         s = self.self_
@@ -830,6 +891,8 @@ class Mock:
                     self.enter_map(s["last_map"], s["last_x"], s["last_y"])
         elif self.mode == "game":
             self.update_world()
+            if self.mode == "game" and self.self_:
+                self.ambient()
         self.frame += 1
 
     def queue_input(self, events):
@@ -1089,6 +1152,7 @@ class Mock:
         put("actors", [{"id": a["id"], "type": a["type"], "name": self.shown_name(a), "job": a["job"], "x": a["x"],
                         "y": a["y"], "screen": self.screen_of(a["x"], a["y"])} for a in self.actors] if s else [])
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
+        put("sound", self.sound_state())
         return out
 
     def cmd_state(self, c, rid, msg):
