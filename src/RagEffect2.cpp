@@ -4025,7 +4025,7 @@ void	CEffectPrim :: RenderTeiRect(int *rpCnt, short alpha, vector3d	vec1,vector3
 	{
 		a=alpha;
 
-		m_argb_B=(b)+(g*256)+(r*256*256)+(a*256*256*256);
+		m_argb_B=(b)+(g*256)+(r*256*256)+((DWORD)a*256*256*256);
 
 		if ( F1 == 0 )
 		{
