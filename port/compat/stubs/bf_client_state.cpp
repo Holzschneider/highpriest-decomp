@@ -467,6 +467,7 @@ struct Control {
 	int x, y, w, h;
 	std::string text;
 	int focus;
+	std::vector<std::string> items;   // a list's lines
 };
 
 struct Window {
@@ -481,6 +482,7 @@ struct Window {
 std::vector<Window> g_windows;
 std::vector<bf_client_ui_window> g_out_windows;
 std::vector<bf_client_ui_control> g_out_controls;
+std::vector<const char *> g_out_items;
 
 std::string ClassName(UIWindow *w)
 {
@@ -540,6 +542,8 @@ struct BfUiProbe {
 				int sel = l->GetSelected();
 				if (sel >= 0 && sel < l->GetNumItem())
 					k.text = l->GetItem(sel);
+				for (int i = 0; i < l->GetNumItem(); ++i)
+					k.items.push_back(l->GetItem(i));
 			} else if (UIStaticText *t = dynamic_cast<UIStaticText *>(c)) {
 				k.kind = "text";
 				k.text = t->m_fullText.empty() ? t->m_text : t->m_fullText;
@@ -717,6 +721,12 @@ extern "C" int bf_client_ui_windows(const bf_client_ui_window **windows, const b
 	BfUiProbe::Describe();
 	g_out_windows.clear();
 	g_out_controls.clear();
+	g_out_items.clear();
+	for (size_t i = 0; i < g_windows.size(); ++i)
+		for (size_t j = 0; j < g_windows[i].controls.size(); ++j)
+			for (size_t k = 0; k < g_windows[i].controls[j].items.size(); ++k)
+				g_out_items.push_back(g_windows[i].controls[j].items[k].c_str());
+	size_t item = 0;
 	for (size_t i = 0; i < g_windows.size(); ++i) {
 		const Window &w = g_windows[i];
 		bf_client_ui_window o = {w.wnd, w.wid, w.name.c_str(), w.x, w.y, w.w, w.h, w.focus,
@@ -724,7 +734,9 @@ extern "C" int bf_client_ui_windows(const bf_client_ui_window **windows, const b
 		g_out_windows.push_back(o);
 		for (size_t j = 0; j < w.controls.size(); ++j) {
 			const Control &c = w.controls[j];
-			bf_client_ui_control k = {c.id.c_str(), c.kind, c.x, c.y, c.w, c.h, c.text.c_str(), c.focus};
+			bf_client_ui_control k = {c.id.c_str(), c.kind, c.x, c.y, c.w, c.h, c.text.c_str(), c.focus,
+			                          c.items.empty() ? nullptr : &g_out_items[item], (int)c.items.size()};
+			item += c.items.size();
 			g_out_controls.push_back(k);
 		}
 	}

@@ -295,6 +295,13 @@ void WriteWindows(bf_control_writer *w, void *)
 			WriteText(w, c.text);
 			bf_control_write_key(w, "focus");
 			bf_control_write_bool(w, c.focus);
+			if (strcmp(c.kind, "list") == 0) {
+				bf_control_write_key(w, "items");
+				bf_control_write_begin_array(w);
+				for (int k = 0; k < c.item_count; ++k)
+					WriteText(w, c.items[k]);
+				bf_control_write_end_array(w);
+			}
 			bf_control_write_end_object(w);
 		}
 		bf_control_write_end_array(w);

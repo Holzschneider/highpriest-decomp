@@ -15,6 +15,8 @@ typedef struct bf_client_ui_control {
 	int x, y, w, h;     // logical pixels, window content origin
 	const char *text;   // the client's bytes (Windows-1252); a masked edit gives '*' per character
 	int focus;          // holds the keyboard
+	const char *const *items;   // a list's lines (client bytes), in order; null for other kinds
+	int item_count;
 } bf_client_ui_control;
 
 typedef struct bf_client_ui_window {
