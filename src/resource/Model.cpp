@@ -1402,8 +1402,9 @@ bool C3dGrannyModelRes :: CalculateHitArea(RENDER_INFO_RECT &info, matrix &view,
 	info.right = g_renderer->m_xoffset + (px*g_renderer->m_hpc) * info.oow;
 	info.bottom = g_renderer->m_yoffset + (py*g_renderer->m_vpc) * info.oow;
 
-	if ((DWORD)info.left>(DWORD)g_renderer->m_width && (DWORD)info.right>(DWORD)g_renderer->m_width &&
-		(DWORD)info.top>(DWORD)g_renderer->m_height && (DWORD)info.bottom>(DWORD)g_renderer->m_height)
+	// through int, as the 2008 build's __ftol: a negative edge wraps to a large DWORD
+	if ((DWORD)(int)info.left>(DWORD)g_renderer->m_width && (DWORD)(int)info.right>(DWORD)g_renderer->m_width &&
+		(DWORD)(int)info.top>(DWORD)g_renderer->m_height && (DWORD)(int)info.bottom>(DWORD)g_renderer->m_height)
 		return	FALSE;
 
 	return	TRUE;
