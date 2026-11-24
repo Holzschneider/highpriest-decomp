@@ -7,7 +7,9 @@ unchanged.
 
 Rules (all run when none is named):
 
-  long32      'long' and 'unsigned long' become 'int' and 'unsigned int'.
+  long32      'long' and 'unsigned long' become 'int' and 'unsigned int'
+              ('long long' and 'long double' stay; so does the misspelt
+              'double long' of GuildInfo.cpp, which is a double).
               Visual C++ makes long 32 bits wide; macOS makes it 64, which
               changes every packet and file structure that uses it.
   allocator   Drops the explicit std::allocator<V> argument of maps. Visual
@@ -35,7 +37,7 @@ def is_lua(rel):
 def rule_long32(text, rel):
     text = re.sub(r'\bunsigned\s+long\b(?!\s+long\b)', 'unsigned int', text)
     text = re.sub(r'\bsigned\s+long\b(?!\s+long\b)', 'int', text)
-    text = re.sub(r'(?<!\blong\s)\blong\b(?!\s+(?:long|double)\b)', 'int', text)
+    text = re.sub(r'(?<!\blong\s)(?<!\bdouble\s)\blong\b(?!\s+(?:long|double)\b)', 'int', text)
     return text.replace('int int ', 'int ')
 
 def rule_allocator(text, rel):
