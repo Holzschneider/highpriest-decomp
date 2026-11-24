@@ -5903,8 +5903,21 @@ void	CEffectPrim :: Render3DCasting(matrix &wtm)
 				else
 					vec2.y=-0;
 
+#ifdef BF_PORT
+				{
+					// a rise angle below 0 (set from a distance past the
+					// effect's end) indexed before the tables; the 2008 build
+					// read the neighbouring global there
+					int rise = m_GI[ec].rise_angle;
+					if (rise < 0)
+						rise = rise % 360 + 360;
+					Rx=g_cosTable[rise] * m_GI[ec].height[order];
+					Ry=g_sinTable[rise] * m_GI[ec].height[order];
+				}
+#else
 				Rx=g_cosTable[m_GI[ec].rise_angle] * m_GI[ec].height[order];
 				Ry=g_sinTable[m_GI[ec].rise_angle] * m_GI[ec].height[order];
+#endif
 
 				Rz=sn1*Rx;
 				Rx=cs1*Rx;
