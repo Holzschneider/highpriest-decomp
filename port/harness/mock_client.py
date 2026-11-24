@@ -85,6 +85,12 @@ NPCS = [  # map, x, y, name, sprite, role
 ]
 MAILBOX_FEE = 130
 NPC_HEIGHT = 60   # an NPC takes clicks on its body, up to this far above its feet
+
+# the guild flags around the fountain (job 722, a Granny model in the client;
+# the server's npc/guild/prtg_cas01..05.txt)
+GUILD_FLAGS = [("prontera", 155, 190, "Kriemhild"), ("prontera", 146, 194, "Swanhild"),
+               ("prontera", 165, 194, "Gondul"), ("prontera", 143, 203, "Fadhgridh"),
+               ("prontera", 167, 203, "Skoegul")]
 PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362), ("prt_fild08", 170, 360)]
 PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
            ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
@@ -843,6 +849,9 @@ class Mock:
         for (m, ax, ay, nm, job, role) in NPCS:
             if m == name:
                 self.add_actor("npc", nm, job, ax, ay, role=role)
+        for (m, ax, ay, nm) in GUILD_FLAGS:
+            if m == name:
+                self.add_actor("npc", nm, 722, ax, ay, role="talk")
         for (m, ax, ay) in PORINGS:
             if m == name:
                 self.add_actor("monster", "Poring", 1002, ax, ay, hp=3)
