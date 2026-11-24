@@ -226,6 +226,84 @@ CGameMode::CGameMode()
 #endif
 }
 
+#if defined(BF_PORT)
+// A map the client cannot read (technical plan 3.4, implementation plan
+// M6.6): a world file newer than 2.1, or a world whose ground or attribute
+// file is missing or unreadable. The original showed an error box and then
+// crashed in the half-built world. Instead the client refuses to enter: a
+// traced error, then the way back to character selection that the game's
+// own menu takes (CZ_RESTART type 1, answered by ZC_RESTART_ACK, which
+// Zc_Restart_Ack turns into a reconnect to the character server). The
+// server ignores every request before CZ_NOTIFY_ACTORINIT, so that is sent
+// first. Until the answer arrives no packet is handled (the handlers need
+// the world) and only a cleared frame is drawn.
+extern int g_mustPumpOutReceiveQueue;
+extern int g_loginStartMode;
+static BOOL s_bfWorldRefused = FALSE;
+static DWORD s_bfRefusedTick = 0;
+
+static bool BfWorldReadable(const char *rswName, char *why, size_t whySize)
+{
+	C3dWorldRes *world = (C3dWorldRes *)g_resMgr().Get(rswName, false);
+	if (world == NULL) {
+		snprintf(why, whySize, "world file unreadable (unsupported version or missing; see the res trace)");
+		return false;
+	}
+	if (world->m_attrFile.empty() || world->m_gndFile.empty()) {
+		snprintf(why, whySize, "world file names no %s", world->m_attrFile.empty() ? "attribute file" : "ground file");
+		return false;
+	}
+	if (g_resMgr().Get(world->m_attrFile.c_str(), false) == NULL) {
+		snprintf(why, whySize, "attribute file %s unreadable", world->m_attrFile.c_str());
+		return false;
+	}
+	CGndRes *ground = (CGndRes *)g_resMgr().Get(world->m_gndFile.c_str(), false);
+	if (ground == NULL || !ground->m_newVer) {
+		snprintf(why, whySize, "ground file %s unreadable", world->m_gndFile.c_str());
+		return false;
+	}
+	return true;
+}
+
+static void BfBackToCharSelect(bool restartAcknowledged)
+{
+	CRagConnection::instanceR().Disconnect();
+	g_mustPumpOutReceiveQueue = 0;
+	g_loginStartMode = restartAcknowledged ? LSM_WAITRESP_FROM_CHSVR : LSM_IDENTRY;
+	BF_TRACE(BFT_ERR, "world: back to %s", restartAcknowledged ? "character selection" : "the login screen (no answer to CZ_RESTART)");
+	g_modeMgr.Switch(0, "login.rsw");
+}
+
+static void BfRefusedUpdate()
+{
+	CRagConnection &c = CRagConnection::instanceR();
+	if (!c.Poll()) {
+		BfBackToCharSelect(false);
+		return;
+	}
+	if (g_mustPumpOutReceiveQueue == 1) {
+		DWORD aid;
+		if (c.Recv((char *)&aid, 4, true))
+			g_mustPumpOutReceiveQueue = 0;
+	} else {
+		char buf[20480];
+		while (c.RecvPacket(buf)) {
+			if (c.GetPacketType(buf) == HEADER_ZC_RESTART_ACK && ((PACKET_ZC_RESTART_ACK *)buf)->type == 1) {
+				BfBackToCharSelect(true);
+				return;
+			}
+		}
+	}
+	if (timeGetTime() > s_bfRefusedTick + 10000) {
+		BfBackToCharSelect(false);
+		return;
+	}
+	g_renderer->ClearBackground();
+	if (g_renderer->DrawScene())
+		g_renderer->Flip(true);
+}
+#endif
+
 
 void	CGameMode :: OnInit(const char *modeName)
 {
@@ -247,6 +325,23 @@ void	CGameMode :: OnInit(const char *modeName)
 	minimapBmpName += ".bmp";
 	sAssert(sizeof(m_minimapBmpName) > minimapBmpName.size());
 	strcpy(m_minimapBmpName, minimapBmpName.c_str());
+
+#if defined(BF_PORT)
+	s_bfWorldRefused = FALSE;
+	char why[200];
+	if (!BfWorldReadable(modeName, why, sizeof(why))) {
+		bf_port_missing(BFT_ERR, "world.refused", "world: %s: %s; refusing to enter", modeName, why);
+		s_bfWorldRefused = TRUE;
+		s_bfRefusedTick = timeGetTime();
+		m_loopCond = 1;
+		PACKET_CZ_NOTIFY_ACTORINIT init;
+		init.PacketType = HEADER_CZ_NOTIFY_ACTORINIT;
+		CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(init.PacketType), (const char *)&init);
+		SendMsg(MM_RESTART, 1, 0, 0);
+		g_renderer->Clear(TRUE);
+		return;
+	}
+#endif
 
 	g_renderer->Clear(TRUE);
 	g_session.SetWeight(0);
@@ -622,6 +717,12 @@ void CGameMode::OnUpdate()
 	static unsigned int time_update_start = ::timeGetTime();
 
 	CheckSystemMessage();
+#if defined(BF_PORT)
+	if (s_bfWorldRefused) {
+		BfRefusedUpdate();
+		return;
+	}
+#endif
 	PollNetworkStatus();
 	m_scheduler.OnRun();
 
@@ -697,6 +798,9 @@ void CGameMode::OnExit()
 	EndDigitalSound();
 
 	if (m_world) {
+#if defined(BF_PORT)
+		if (!s_bfWorldRefused)
+#endif
 		m_world->OnExitFrame();
 		delete m_world;
 	}
