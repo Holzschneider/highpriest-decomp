@@ -235,6 +235,11 @@ void SendKeyDown(int key, int as, bool repeat, bool alt, bool ctrl)
 	          | ((LPARAM)(sys && alt ? 1 : 0) << 29) | ((LPARAM)(prev ? 1 : 0) << 30);
 	g_vk[k.state_vk] = 1;
 	g_down_as[key] = (uint16_t)as;
+	// Windows sends Print Screen as WM_KEYUP only (the key-down is the
+	// system's); the client's WndProc takes the screenshot there. A key-down
+	// as well would take a second picture when a frame falls in between.
+	if (k.vk == VK_SNAPSHOT)
+		return;
 	Post(sys ? WM_SYSKEYDOWN : WM_KEYDOWN, k.vk, lp);
 }
 

@@ -241,7 +241,8 @@ void Keyboard()
 	Down(BF_KEY_F13);
 	Up(BF_KEY_F13);
 	v = Run();
-	Check(Find(v, WM_KEYUP) && Find(v, WM_KEYUP)->w == VK_SNAPSHOT, "F13 (Print Screen of a PC keyboard): VK_SNAPSHOT", Describe(v));
+	Check(Find(v, WM_KEYUP) && Find(v, WM_KEYUP)->w == VK_SNAPSHOT && !Find(v, WM_KEYDOWN),
+	      "F13 (Print Screen of a PC keyboard): VK_SNAPSHOT, as WM_KEYUP only, as Windows sends it", Describe(v));
 
 	// Shift reads as held while its keys are handled.
 	Down(BF_KEY_LSHIFT);

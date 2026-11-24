@@ -94,7 +94,7 @@ start-up glue adds:
 | F1–F12 (as function keys, see the app README) | `VK_F1`…`VK_F12`, scan 0x3B–0x44, 0x57, 0x58; F10 as `WM_SYSKEYDOWN` |
 | **Cmd+I** | **`VK_INSERT`**, scan 0x52, extended: **the Insert substitute** (sit); Cmd+Option+I is Alt+Insert (compass), Cmd+Shift+I is Shift+Insert |
 | Help (kVK 0x72, the Insert of a PC keyboard) | `VK_INSERT` |
-| F13, F14, F15 (Print Screen, Scroll Lock, Pause of a PC keyboard) | `VK_SNAPSHOT` (extended), `VK_SCROLL`, `VK_PAUSE`: the game's screenshot keys |
+| F13, F14, F15 (Print Screen, Scroll Lock, Pause of a PC keyboard) | `VK_SNAPSHOT` (extended), `VK_SCROLL`, `VK_PAUSE`: the game's screenshot keys. `VK_SNAPSHOT` comes as `WM_KEYUP` only, as Windows sends it (the client takes the picture there; a key-down too would take two) |
 | F16–F20 | `VK_F16`…`VK_F20` |
 | Keypad digits, `. / * - + =`, Enter, Clear | `VK_NUMPAD0`…`9` (a Mac keypad has no Num Lock state), `VK_DECIMAL`, `VK_DIVIDE` (ext), `VK_MULTIPLY`, `VK_SUBTRACT`, `VK_ADD`, 0x92, `VK_RETURN` (ext), `VK_NUMLOCK` (ext) |
 | Shift, Control, Option left/right | `VK_SHIFT` 0x2A/0x36, `VK_CONTROL` 0x1D/0x1D ext, `VK_MENU` 0x38/0x38 ext; `GetKeyState` also knows `VK_L*`/`VK_R*` |
