@@ -1030,6 +1030,37 @@ void Bot::Dispatch(const char *p, int size)
 			SendWhisper(from, echoPrefix + text);
 		break;
 	}
+	case HEADER_ZC_NOTIFY_CHAT_PARTY: {
+		// Party chat, the sender's own line included: "name : text".
+		std::string line = Tail(p, 8, size);
+		std::string from, text = line;
+		size_t sep = line.find(" : ");
+		if (sep != std::string::npos) {
+			from = line.substr(0, sep);
+			text = line.substr(sep + 3);
+		}
+		Event("party_chat").S("from", from).I("id", U32(p, 4)).S("text", text).Emit();
+		break;
+	}
+	case HEADER_ZC_GUILD_CHAT: {
+		std::string line = Tail(p, 4, size);
+		std::string from, text = line;
+		size_t sep = line.find(" : ");
+		if (sep != std::string::npos) {
+			from = line.substr(0, sep);
+			text = line.substr(sep + 3);
+		}
+		Event("guild_chat").S("from", from).S("text", text).Emit();
+		break;
+	}
+	case HEADER_ZC_EMOTION: {
+		// Any actor's emote in sight, the bot's own included.
+		DWORD id = U32(p, 2);
+		std::map<DWORD, Actor>::iterator it = actors.find(id);
+		Event("emotion").I("id", id).S("name", id == aid || id == gid ? charName : it != actors.end() ? it->second.name : "")
+			.I("type", U8(p, 6)).B("self", id == aid || id == gid).Emit();
+		break;
+	}
 	case HEADER_ZC_ACK_WHISPER:
 		// 0 sent, 1 not online, 2 ignored, 3 ignoring everyone
 		Event("whisper_result").I("result", U8(p, 2)).Emit();
@@ -1365,6 +1396,31 @@ void Bot::Command(const std::string &line)
 		PutU16(p, 2, sz);
 		memcpy(p + 4, l.c_str(), l.size() + 1);
 		conn.SendRaw(p, sz);
+		Reply(f, true);
+	} else if (cmd == "guild_say") {
+		if (!guildId) {
+			Reply(f, false, "not in a guild");
+			return;
+		}
+		char p[300];
+		std::string l = charName + " : " + text;
+		l.resize(l.size() > 200 ? 200 : l.size());
+		int sz = 4 + (int)l.size() + 1;
+		PutU16(p, 0, HEADER_CZ_GUILD_CHAT);
+		PutU16(p, 2, sz);
+		memcpy(p + 4, l.c_str(), l.size() + 1);
+		conn.SendRaw(p, sz);
+		Reply(f, true);
+	} else if (cmd == "emotion") {
+		std::string v = f.count("type") ? f["type"] : text;
+		if (v.empty() || strspn(v.c_str(), "0123456789") != v.size()) {
+			Reply(f, false, "usage: emotion <type>");
+			return;
+		}
+		PACKET_CZ_REQ_EMOTION p;
+		p.PacketType = HEADER_CZ_REQ_EMOTION;
+		p.type = (BYTE)atoi(v.c_str());
+		conn.SendFixed(&p);
 		Reply(f, true);
 	} else if (cmd == "move") {
 		int tx = atoi(f["x"].c_str()), ty = atoi(f["y"].c_str());

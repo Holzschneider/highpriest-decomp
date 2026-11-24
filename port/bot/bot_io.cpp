@@ -374,7 +374,7 @@ bool bf_bot_parse_command(const std::string &line, BfBotFields *fields, std::str
 
 	std::istringstream words(rest);
 	std::string a, b, c;
-	if (cmd == "say" || cmd == "gm" || cmd == "party_say") {
+	if (cmd == "say" || cmd == "gm" || cmd == "party_say" || cmd == "guild_say") {
 		// gm "@zeny 100": the quotes are optional.
 		if (rest.size() >= 2 && rest[0] == '"' && rest[rest.size() - 1] == '"')
 			rest = rest.substr(1, rest.size() - 2);
@@ -405,6 +405,9 @@ bool bf_bot_parse_command(const std::string &line, BfBotFields *fields, std::str
 		size_t v = value.find_first_not_of(" \t");
 		(*fields)["key"] = a;
 		(*fields)["value"] = v == std::string::npos ? "" : value.substr(v);
+	} else if (cmd == "emotion") {
+		words >> a;
+		(*fields)["type"] = a;
 	} else if (cmd == "raw") {
 		(*fields)["hex"] = rest;
 	} else if (!rest.empty()) {
