@@ -28,6 +28,7 @@
 #include "window/UIMetalWorkWnd.h"
 #include "resource/Skybox.h"
 #include "Mode.h"
+#include "LoginMode.h"
 #include "GameWorld.h"
 #include "MercenaryAI.h"
 #include "GuildInfo.h"
@@ -1496,7 +1497,135 @@ void UIWindowMgr::RenderWallPaper()
 		m_wallpaperSurface->DrawSurfaceStretch(((int)g_3dDevice.GetWidth() - m_w) / 2, ((int)g_3dDevice.GetHeight() - m_h) / 2, m_w, m_h);
 }
 
-void UIWindowMgr::RenderTitleGraphic() {}
+// The title screen of the login mode for the service types that have one
+// (CLoginMode::OnUpdate): a background of 4 x 3 tiles, four tape strips, the
+// age rating, the developer's mark and the logo, each stretched to fractions
+// of the screen, as the reference does (0x4EB2A0, called from
+// CLoginMode::OnUpdate 0x5D54A0). A click picks a piece and a drag moves it.
+// The file names are CP949: "T_<background><row>-<column>.bmp",
+// "T_<tape><n>.tga", "T_12<years>.tga", "T_<developer>.tga", "T_R<n>.tga"
+// in the interface folder.
+void UIWindowMgr::RenderTitleGraphic()
+{
+	extern char title_random;
+	RECT rect = { 0, 0, 255, 255 };
+	float oow = 1.0f / NEARPLANE - 0.0001f;
+	short cw = (short)(g_renderer->m_width / 4);   // a tile: a quarter of the width, a third of the height
+	short ch = (short)(g_renderer->m_height / 3);
+	float fcw = (float)cw;
+	float fch = (float)ch;
+	char name[256];
+
+	if (g_mouse.GetLBtn() == BTN_DOWN) {
+		int mx = g_mouse.GetXPos();
+		int my = g_mouse.GetYPos();
+		T_CLICK = 0;
+		if (fcw * 3.4f + T_12Age_X < mx && mx < fcw * 3.9f + T_12Age_X
+			&& fch * 0.2f + T_12Age_Y < my && my < fch * 0.6f + T_12Age_Y)
+			T_CLICK = 3;
+		if (fcw * 3.3f + T_Grav_X < mx && mx < fcw * 3.9f + T_Grav_X
+			&& fch * 2.4f + T_Grav_Y < my && my < fch * 2.8f + T_Grav_Y)
+			T_CLICK = 2;
+		if (fcw * 0.1f + T_Logo_X < mx && mx < fcw * 1.8f + T_Logo_X
+			&& fch * 0.3f + T_Logo_Y < my && my < fch * 1.2f + T_Logo_Y)
+			T_CLICK = 1;
+		if (g_serviceType != ServiceKorea && title_random > 0
+			&& fcw * 2.2f + T_Char_X < mx && mx < fcw * 3.5f + T_Char_X
+			&& T_Char_Y < my && my < T_Char_Y + ch * 3)
+			T_CLICK = 5;
+		if (fch * 2.7f + T_Tape_Y < my && my < fch * 3.0f + T_Tape_Y)
+			T_CLICK = 4;
+	}
+
+	if (g_mouse.GetLBtn() == BTN_PRESSED) {
+		int dx = g_mouse.GetXDelta();
+		int dy = g_mouse.GetYDelta();
+		switch (T_CLICK) {
+		case 1: T_Logo_X += dx; T_Logo_Y += dy; break;
+		case 2: T_Grav_X += dx; T_Grav_Y += dy; break;
+		case 3: T_12Age_X += dx; T_12Age_Y += dy; break;
+		case 6: T_Intel_X += dx; T_Intel_Y += dy; break;
+		case 4:
+			if (T_Tape_Y + dy >= 0)
+				T_Tape_Y += dy;
+			break;
+		case 5:
+			if (g_serviceType != ServiceKorea || T_Char_X + dx >= 0)
+				T_Char_X += dx;
+			break;
+		}
+	}
+
+	CMode *mode = g_modeMgr.GetLoginMode();
+	if (!mode)
+		return;
+
+	// The background; services other than Korea take the T2_ set for the first title.
+	char col = 0;
+	for (int x = 0; x < cw * 4; x += cw) {
+		++col;
+		char row = 0;
+		for (int y = 0; y < ch * 3; y += ch) {
+			++row;
+			rect.left = x;
+			rect.top = y;
+			rect.right = x + cw;
+			rect.bottom = y + ch;
+			if (g_serviceType != ServiceKorea && title_random == 0)
+				sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T2_\xb9\xe8\xb0\xe6%d-%d.bmp", row, col);
+			else
+				sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_\xb9\xe8\xb0\xe6%d-%d.bmp", row, col);
+			mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture(name, false));
+		}
+	}
+
+	// The tapes along the bottom.
+	char tape = 0;
+	for (int x = 0; x < cw * 4; x += cw) {
+		++tape;
+		rect.left = x;
+		rect.top = (int)(fch * 2.5f + T_Tape_Y);
+		rect.right = x + cw;
+		rect.bottom = (int)(fch * 3.0f + T_Tape_Y);
+		sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_\xc5\xd7\xc0\xd4%d.tga", tape);
+		mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture(name, false));
+	}
+
+	// The age rating, top right.
+	rect.left = (int)(T_12Age_X + fcw * 3.0f);
+	rect.top = T_12Age_Y;
+	rect.right = rect.left + cw;
+	rect.bottom = T_12Age_Y + ch;
+	mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_12\xbc\xbc.tga", false));
+
+	// The developer's mark, bottom right, half a tile high.
+	rect.left = (int)(T_Grav_X + fcw * 3.1f);
+	rect.top = (int)(T_Grav_Y + fch * 2.4f);
+	rect.right = rect.left + cw;
+	rect.bottom = (int)(rect.top + fch * 0.5f);
+	mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_\xc1\xdf\xb7\xc2\xbc\xba\xc0\xce.tga", false));
+
+	// The logo in two columns: R1 over R3, R2 over R4; R1 and R2 a tile high, R3 and R4 half.
+	char piece = -2;
+	for (int x = T_Logo_X; x < T_Logo_X + cw * 2; x += cw) {
+		++piece;
+		int y = (int)(fch * 0.1f + T_Logo_Y);
+		if (!(y < fch * 2.0f + T_Logo_Y))
+			continue;
+		int left = (int)(fcw * 0.2f + x);
+		char n = piece;
+		do {
+			n += 2;
+			rect.left = left;
+			rect.top = y;
+			rect.right = left + cw;
+			rect.bottom = n <= 2 ? y + ch : (int)(y + fch * 0.5f);
+			sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_R%d.tga", n);
+			mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture(name, false));
+			y += ch;
+		} while (y < fch * 2.0f + T_Logo_Y);
+	}
+}
 
 void UIWindowMgr::DrawBitmapToFrame(int x, int y, CBitmapRes* bitmap)
 {
