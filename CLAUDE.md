@@ -16,11 +16,13 @@ A session finds its place by reading the checklist and the tail of the progress 
 
 ## Roles
 
-- **Lead**: the session that received the run prompt. It plans rounds, hands out work packages, integrates results, and is the only writer of `macos-port`. It runs on the session's model.
+- **Lead**: the session that received the run prompt. It plans rounds, hands out work packages, integrates results, and is the only writer of `macos-port`. It runs on Opus 5.5 (`claude-opus-5-5`) at effort high.
 - **Workers**: sub-agents, usually started through workflows. Each gets one work package and returns a local branch plus a short report. The owner authorised orchestration without a size cap; the lead sizes each round by what can be integrated, not by what can be started.
 - **Verifier**: a fresh agent on the lead's model that did none of the work. A milestone closes only on its verdict.
 
 Models: compiler-checked mechanical sweeps (loop-scope fixes, cast widening, stub generation, string extraction, renames) go to a smaller model (`sonnet`). Design and debugging (renderer, recovery sites, protocol faults, format readers) stay on the lead's model.
+
+**Ceiling, set by the owner:** nothing in the run uses a model above Opus 5.5 or an effort above high. No agent, workflow agent or verifier is started with `model: "fable"` or any other model above Opus 5.5, or with an effort of `xhigh` or `max`. Omitting the model (inherit Opus 5.5) or choosing `sonnet` or `haiku` is allowed. `.claude/settings.json` pins the session model, limits the selectable models and caps the effort; if a session finds itself on a higher model, it stops and notifies the owner instead of working.
 
 ## A round
 

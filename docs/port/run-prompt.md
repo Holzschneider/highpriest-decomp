@@ -18,6 +18,7 @@ I authorise multi-agent orchestration for this: use workflows and fan out agents
 whatever scale you can integrate, for the whole run, without asking again.
 
 Do not ask me questions. Decide from the spec and the plans and log what you decided.
+Use no model above Opus 5.5 and no effort above high, for yourself or any agent.
 Park what stays stuck and go on. Stop only for the reasons CLAUDE.md lists under
 "Stopping", and notify me when you do.
 ```
@@ -31,7 +32,7 @@ Park what stays stuck and go on. Stop only for the reasons CLAUDE.md lists under
 | [`implementation-plan.md`](implementation-plan.md) | The milestones, their steps and exit criteria |
 | [`checklist.md`](checklist.md) | Every step as open, done or parked: where a restarted session finds its place |
 | [`progress.md`](progress.md) | Milestone exits with the verifier's verdicts, parked items, deviations, and the reason for any stop |
-| `.claude/settings.json` | The allowlist: build tools, git on `macos-port`, the test server's containers, Homebrew, downloads. A command outside it waits for approval |
+| `.claude/settings.json` | The allowlist: build tools, git on `macos-port`, the test server's containers, Homebrew, downloads. A command outside it waits for approval. Also pins the model to Opus 5.5, allows only Opus 5.5, Sonnet 5.5 and Haiku 5.5, and caps the effort at high |
 | `.claude/settings.local.json` | Machine-specific permissions (the game folder, read-only copies from the other Mac). Not in git; see below |
 
 ## Before the first start on a machine

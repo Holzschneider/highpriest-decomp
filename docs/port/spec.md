@@ -108,7 +108,8 @@ M1 to M12 are run in one go by the prompt in [run-prompt.md](run-prompt.md), und
 | Rules | Standing rules live in `CLAUDE.md` on `macos-port`, so they survive context compaction; the prompt is a short kick-off |
 | Agents | An orchestrated fleet with no size cap. One lead is the only writer of `macos-port`; workers return local branches from their own worktrees. A tree-wide mechanical rewrite runs alone |
 | Order | Free parallel tracks: native modules, data, harness, tools and format readers start at once and are written to the technical plan, before the client can exercise them. Milestone exits close in order |
-| Models | Mechanical, compiler-checked sweeps on a smaller model; design, debugging, the lead and the verifiers on the top model |
+| Models | Mechanical, compiler-checked sweeps on a smaller model; design, debugging, the lead and the verifiers on Opus 5.5 |
+| Ceiling | No model above Opus 5.5 and no effort above high anywhere in the run, sub-agents included. Pinned and capped in `.claude/settings.json` (owner's decision of 2026-11-24) |
 | Exit judge | A fresh verifier per milestone that did none of the work and is given only the criteria and the commit |
 | Stuck work | Park and continue: recorded with evidence, retried later, listed in the final report. A criterion is never reworded to pass |
 | Stop-loss | A package is parked after three failed verifications. Three rounds without a closed step stop the run |
