@@ -790,6 +790,20 @@ void UILoginWnd::WriteToReg()
 		if (checkSave)
 			checkSave = 1;
 
+#if defined(BF_PORT)
+		// "Save" keeps the password too, in the Keychain (spec section 5; the
+		// registry adapter maps PASSWORD to the Keychain item of the account
+		// in ID). Unchecked, the item is deleted while ID still names it.
+		if (m_isCheckOn) {
+			RegSetValueExA(hKey, "ID", 0, REG_SZ, (LPBYTE)idName, 25);
+			strncpy(passwordName, m_password->GetText(), 25);
+			passwordName[24] = 0;
+		}
+		else
+			passwordName[0] = 0;
+		RegSetValueExA(hKey, "PASSWORD", 0, REG_SZ, (LPBYTE)passwordName, (DWORD)strlen(passwordName) + 1);
+		memset(passwordName, 0, sizeof(passwordName));
+#endif
 		RegSetValueExA(hKey, "ID", 0, REG_SZ, (LPBYTE)idName, 25);
 		RegSetValueExA(hKey, "CHECKSAVE", 0, REG_DWORD, (LPBYTE)&checkSave, 4);
 		bitwise = 1;
@@ -866,7 +880,9 @@ void UILoginWnd::OnCreate(int cx, int cy)
 	AddChild(m_login);
 
 	InitFromReg();
-	m_password->SetText("");
+#if !defined(BF_PORT)
+	m_password->SetText("");   // the port keeps the password InitFromReg read from the Keychain
+#endif
 
 	UICheckBox* checkBox = new UICheckBox;
 	std::string on = pathName + "chk_saveon.bmp";
@@ -952,8 +968,15 @@ void UILoginWnd::InitFromReg()
 		if (m_isCheckOn = CHECKSAVE)
 		{
 			m_login->SetText(idName);
+#if defined(BF_PORT)
+			m_password->SetText(passwordName);   // from the Keychain; "" when not stored
+#else
 			m_password->SetText("");
+#endif
 		}
+#if defined(BF_PORT)
+		memset(passwordName, 0, sizeof(passwordName));
+#endif
 		RegCloseKey(hKey);
 		return;
 	}

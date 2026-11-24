@@ -981,10 +981,22 @@ INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR v
 		break;
 	}
 	case LMM_PASSWORD:
+#if defined(BF_PORT)
+		// Zero-filled: the login packets copy 24 bytes, and the bytes after
+		// the end of the text went to the server as they lay in memory.
+		strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword) - 1);
+		m_userPassword[sizeof(m_userPassword) - 1] = 0;
+#else
 		strcpy(m_userPassword, (char *)val1);
+#endif
 		break;
 	case LMM_ID:
+#if defined(BF_PORT)
+		strncpy(m_userId, (char *)val1, sizeof(m_userId) - 1);
+		m_userId[sizeof(m_userId) - 1] = 0;
+#else
 		strcpy(m_userId, (char *)val1);
+#endif
 		strcpy(g_session.m_aName, (char *)val1);
 		break;
 	case LMM_SELECT_CHARACTER:
