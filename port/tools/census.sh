@@ -9,7 +9,7 @@
 #   --out   where the per-file logs go (default: build/port/census)
 #
 # BF_WIN_HEADERS names the directory that holds windows.h, d3d.h and the rest
-# (default: the Wine headers of Homebrew's game-porting-toolkit).
+# (default: port/compat/winheaders, the vendored Wine headers).
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 TREE=$ROOT/src; OUT=$ROOT/build/port/census

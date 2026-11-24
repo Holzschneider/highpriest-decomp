@@ -5,7 +5,7 @@
 #   BF_INCLUDES  the port's include paths, ahead of the Windows headers
 # ROOT must be the repository; BF_WIN_HEADERS may name the directory with
 # windows.h, d3d.h and the rest.
-WIN_HEADERS=${BF_WIN_HEADERS:-/usr/local/include/wine/windows}
+WIN_HEADERS=${BF_WIN_HEADERS:-$ROOT/port/compat/winheaders}
 BF_APP_NAME=$(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' "$ROOT/port/name.cmake")
 BF_DEFINES="-DBF_PORT -DBF_APP_NAME=\\\"$BF_APP_NAME\\\" -DWIN32 -D_WINDOWS -DNDEBUG -D_MBCS -DWEDDING_PATCH -DMOB_SKILL_PATCH -D_UPDATE2005A \
   -D_UPDATE2005C -D_UPDATE2004B -DBALANCE_PATCH -DMOB_SKILL -DSECONDJOB_SKILL2 -D_HOMUN -D_MER -D_MER_R2 \
