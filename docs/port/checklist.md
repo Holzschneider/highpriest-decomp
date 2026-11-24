@@ -70,8 +70,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M5.1 Pointer through the DirectInput adapter | compat | M4.1, M4.4 |
-| [ ] | M5.2 Keyboard with the Mac-adapted defaults; clipboard | compat | M4.1, M4.4 |
+| [ ] | M5.1 Pointer through the DirectInput adapter | compat | M4.1, M4.3 |
+| [ ] | M5.2 Keyboard with the Mac-adapted defaults; clipboard | compat | M4.1, M4.3 |
 | [ ] | M5.3 Edit control for account and password; Keychain | src | M5.2 |
 | [ ] | M5.4 Character selection and creation screens | src | M5.3 |
 | [ ] | M5.5 Launch arguments for server, account, character | src | M5.4 |
@@ -117,7 +117,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [ ] | M9.1 Login packet and code page of the English service type confirmed | src | M5.5 |
-| [ ] | M9.2 Extraction script for displayed literals; translation table keyed by original bytes; runtime lookup | tools | M1.2 |
+| [ ] | M9.2 Extraction script for displayed literals; translation table keyed by original bytes; runtime lookup in `port/` (its call sites in `src/` follow with M3.2) | tools | M1.2 |
 | [ ] | M9.3 Translation of the table | tools | M9.2 |
 | [ ] | M9.4 Font mapping and text test screen | src | M4.5a |
 | [ ] | M9.5 Coverage report | src | M9.2, M6 exit |
