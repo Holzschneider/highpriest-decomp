@@ -125,7 +125,15 @@ struct State {
 	float stream_volume = 1;
 
 	Counters c;
+
+	bf_audio_voice_record recent[BF_AUDIO_RECENT_VOICES];   // a ring, by serial
+	long long serial = 0;                                    // of the last record
 };
+
+// The tag for the next bf_audio_play of this thread (bf_audio_tag_next_voice).
+thread_local bool t_tagged = false;
+thread_local float t_tag_distance = -1;
+thread_local char t_tag_label[256];
 
 State &S()
 {
@@ -759,10 +767,76 @@ int64_t bf_audio_sound_frames(const bf_audio_sound *sound)
 	return sound ? sound->frames : 0;
 }
 
+} // extern "C"
+
+namespace {
+
+// Records a call of bf_audio_play in the ring, with this thread's tag; the
+// lock is held.
+bf_audio_voice record_play(bf_audio_sound *sound, float volume, float pan, int loop, bf_audio_voice voice)
+{
+	State &s = S();
+	bf_audio_voice_record &r = s.recent[s.serial % BF_AUDIO_RECENT_VOICES];
+	memset(&r, 0, sizeof r);
+	r.serial = ++s.serial;
+	r.voice = voice;
+	r.started = voice != 0;
+	r.volume = clamp(volume, 0, 1);
+	r.pan = clamp(pan, -1, 1);
+	r.loop = loop != 0;
+	r.duration = sound ? bf_audio_sound_duration(sound) : 0;
+	r.distance = t_tagged ? t_tag_distance : -1;
+	if (t_tagged) memcpy(r.label, t_tag_label, sizeof r.label);
+	t_tagged = false;
+	return voice;
+}
+
+bf_audio_voice play_voice(bf_audio_sound *sound, float volume, float pan, int loop);
+
+} // namespace
+
+extern "C" {
+
 bf_audio_voice bf_audio_play(bf_audio_sound *sound, float volume, float pan, int loop)
 {
 	State &s = S();
 	Guard g(s.lock);
+	return record_play(sound, volume, pan, loop, play_voice(sound, volume, pan, loop));
+}
+
+void bf_audio_tag_next_voice(const char *label, float distance)
+{
+	t_tagged = label != nullptr;
+	t_tag_distance = distance;
+	t_tag_label[0] = 0;
+	if (label) {
+		strncpy(t_tag_label, label, sizeof t_tag_label - 1);
+		t_tag_label[sizeof t_tag_label - 1] = 0;
+	}
+}
+
+int bf_audio_recent_voices(long long after_serial, bf_audio_voice_record *out, int max)
+{
+	State &s = S();
+	Guard g(s.lock);
+	if (!out || max <= 0) return 0;
+	long long first = s.serial - BF_AUDIO_RECENT_VOICES + 1;
+	if (first < after_serial + 1) first = after_serial + 1;
+	if (first < 1) first = 1;
+	if (s.serial - first + 1 > max) first = s.serial - max + 1;
+	int n = 0;
+	for (long long k = first; k <= s.serial; ++k)
+		out[n++] = s.recent[(k - 1) % BF_AUDIO_RECENT_VOICES];
+	return n;
+}
+
+} // extern "C"
+
+namespace {
+
+bf_audio_voice play_voice(bf_audio_sound *sound, float volume, float pan, int loop)
+{
+	State &s = S();
 	if (s.mode < 0 || !sound) {
 		s.c.voices_rejected++;
 		BF_TRACE(BFT_SND, "audio: play refused: %s\n", s.mode < 0 ? "not started" : "no sound");
@@ -828,6 +902,10 @@ bf_audio_voice bf_audio_play(bf_audio_sound *sound, float volume, float pan, int
 	}
 	return handle_of(slot, v.gen);
 }
+
+} // namespace
+
+extern "C" {
 
 void bf_audio_voice_stop(bf_audio_voice voice)
 {
@@ -990,6 +1068,19 @@ double bf_audio_stream_duration(void)
 	Guard g(s.lock);
 	if (!s.stream_file) return 0;
 	return (double)s.stream_file.length / s.stream_file.processingFormat.sampleRate;
+}
+
+double bf_audio_stream_position(void)
+{
+	State &s = S();
+	Guard g(s.lock);
+	if (!s.engine || !s.stream_file || s.stream_pass <= 0 || s.rate <= 0) return 0;
+	if (s.stream_status != BF_AUDIO_STREAM_PLAYING && s.stream_status != BF_AUDIO_STREAM_PAUSED) return 0;
+	AVAudioTime *t = s.stream_node.lastRenderTime;
+	AVAudioTime *p = t && (t.sampleTimeValid || t.hostTimeValid) ? [s.stream_node playerTimeForNodeTime:t] : nil;
+	if (!p || !p.sampleTimeValid || p.sampleTime < 0) return 0;
+	double in_pass = fmod((double)p.sampleTime, s.stream_pass);
+	return in_pass / s.rate;
 }
 
 void bf_audio_get_counters(bf_audio_counters *out)

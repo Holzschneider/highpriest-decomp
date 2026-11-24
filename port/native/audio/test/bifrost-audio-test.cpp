@@ -418,6 +418,20 @@ static void test_offline()
 	c = counters();
 	check(c.stream_status == BF_AUDIO_STREAM_PLAYING && c.stream_loops >= 4,
 	      "loop count 0 loops forever: %d passes after 1.2 s", c.stream_loops);
+	{
+		// The position within the pass goes up and falls back when the next pass begins.
+		double p0 = bf_audio_stream_position();
+		bool wrapped = false, inside = p0 >= 0 && p0 <= 0.2 + 1e-6;
+		double prev = p0;
+		for (int i = 0; i < 12; ++i) {
+			render(0.03);
+			double p = bf_audio_stream_position();
+			inside = inside && p >= 0 && p <= 0.2 + 1e-6;
+			if (p < prev) wrapped = true;
+			prev = p;
+		}
+		check(inside && wrapped, "stream position stays within the 0.2 s pass and falls back on a loop (last %.3f s)", prev);
+	}
 	bf_audio_stream_set_volume(0.5f);
 	Level s05 = rms(render(0.2), 1024);
 	bf_audio_set_music_volume(0);
@@ -544,6 +558,48 @@ static void test_start_volume()
 	bf_audio_stop();
 	bf_audio_sound_destroy(mono);
 	bf_audio_sound_destroy(stereo);
+}
+
+// The ring of recent voices and the tags: started and refused calls, the tag
+// used by one call only, the newest kept when there are more.
+static void test_recent()
+{
+	bf_audio_config cfg = { BF_AUDIO_MODE_SILENT, 4, 0 };
+	check(bf_audio_start(&cfg) == BF_AUDIO_MODE_SILENT, "recent voices: silent engine starts");
+	bf_audio_sound *s = tone(22050, 1, 0.25, 441);
+	bf_audio_voice_record r[BF_AUDIO_RECENT_VOICES];
+	int n0 = bf_audio_recent_voices(0, r, BF_AUDIO_RECENT_VOICES);
+	long long last = n0 ? r[n0 - 1].serial : 0;
+	bf_audio_tag_next_voice("effect\\near.wav", 12.5f);
+	bf_audio_voice a = bf_audio_play(s, 100 / 127.0f, 0, 0);
+	bf_audio_voice b = bf_audio_play(s, 2.0f, -3.0f, 0);          // untagged, clamped
+	bf_audio_tag_next_voice("refused.wav", 3);
+	bf_audio_play(nullptr, 1, 0, 0);                               // refused
+	bf_audio_tag_next_voice("dropped.wav", 300);
+	bf_audio_tag_next_voice(nullptr, 0);                           // cleared before use
+	bf_audio_play(s, 0.25f, 0.5f, 1);
+	int n = bf_audio_recent_voices(last, r, BF_AUDIO_RECENT_VOICES);
+	check(n == 4 && r[0].serial == last + 1 && r[3].serial == last + 4, "recent voices: 4 new records after serial %lld (%d)", last, n);
+	if (n == 4) {
+		check(r[0].voice == a && r[0].started && !strcmp(r[0].label, "effect\\near.wav") && r[0].distance == 12.5f
+		      && fabsf(r[0].volume - 100 / 127.0f) < 1e-6 && fabs(r[0].duration - 0.25) < 1e-3,
+		      "recent voices: the tagged call keeps label, distance, volume %.4f and duration %.3f", r[0].volume, r[0].duration);
+		check(r[1].voice == b && r[1].label[0] == 0 && r[1].distance == -1 && r[1].volume == 1 && r[1].pan == -1,
+		      "recent voices: the next call is untagged, volume and pan clamped");
+		check(!r[2].started && r[2].voice == 0 && !strcmp(r[2].label, "refused.wav") && r[2].duration == 0,
+		      "recent voices: a refused call is recorded with its tag");
+		check(r[3].started && r[3].label[0] == 0 && r[3].loop && r[3].pan == 0.5f, "recent voices: a cleared tag is not used");
+	}
+	for (int i = 0; i < BF_AUDIO_RECENT_VOICES + 5; ++i) bf_audio_play(s, 0.5f, 0, 0);
+	n = bf_audio_recent_voices(0, r, BF_AUDIO_RECENT_VOICES);
+	check(n == BF_AUDIO_RECENT_VOICES && r[n - 1].serial == last + 4 + BF_AUDIO_RECENT_VOICES + 5
+	      && r[0].serial == r[n - 1].serial - BF_AUDIO_RECENT_VOICES + 1, "recent voices: the ring keeps the newest %d", n);
+	bf_audio_voice_record two[2];
+	n = bf_audio_recent_voices(0, two, 2);
+	check(n == 2 && two[1].serial == r[BF_AUDIO_RECENT_VOICES - 1].serial, "recent voices: a short buffer gets the newest");
+	check(bf_audio_stream_position() == 0, "recent voices: no stream position in silent mode");
+	bf_audio_sound_destroy(s);
+	bf_audio_stop();
 }
 
 static void test_silent()
@@ -742,6 +798,7 @@ int main(int argc, char **argv)
 	test_offline();
 	test_start_volume();
 	test_silent();
+	test_recent();
 	test_device();
 	test_grf(false);
 	if (all) test_grf(true);

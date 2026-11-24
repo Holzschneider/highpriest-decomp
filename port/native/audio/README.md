@@ -28,6 +28,8 @@ What it checks:
 - **Threads:** one recursive lock serialises all calls, so the client's fade thread may call the stream functions. The stream's completion handlers only touch atomics, or take the lock with `try_lock` and otherwise defer to a private serial queue. Stopping a node while holding the lock therefore cannot deadlock.
 - **Stream passes** are counted from the player's own sample clock and from the completions, whichever is further. That keeps the count exact offline, where completions arrive late on another thread.
 - **No output device:** `bf_audio_start` falls back to `BF_AUDIO_MODE_SILENT` and counts a device failure. A device change restarts the engine and restarts the music from the top.
+- **Recent voices, for tests:** every call of `bf_audio_play` (started or refused) goes into a ring of the last 64 (`bf_audio_recent_voices`), with the volume and pan as passed and the sound's length. A caller that knows the file name and the distance tags the next call on its thread (`bf_audio_tag_next_voice`); the client's `PlayWave` does, and the control socket's `sound` part and event read the ring. `bf_audio_stream_position` gives the seconds into the current pass from the player's clock (0 in SILENT mode).
+- **The DES-flagged `.wav` files** of `data.grf` (the button sound, the Poring's, the Novice's) decode once the client's GRF reader has decrypted them: M7's `sound` harness script plays them in the client.
 - **SDK deprecations:** the macOS 27 SDK deprecates `connect:to:…format:` and `play` in favour of `…error:` variants that exist only on macOS 27. The module targets macOS 14 and keeps the old calls, which do not warn at that target.
 
 ## Untested or open

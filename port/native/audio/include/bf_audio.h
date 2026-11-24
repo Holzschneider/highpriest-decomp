@@ -259,6 +259,47 @@ typedef struct bf_audio_counters {
 void bf_audio_get_counters(bf_audio_counters *out);
 void bf_audio_reset_counters(void);
 
+/* Seconds into the current pass of the stream (0 .. duration): how far the
+ * output has played it, so it falls back towards 0 when a loop begins again.
+ * 0 when no file is open, before the start, and in SILENT mode, where
+ * nothing is played. */
+double bf_audio_stream_position(void);
+
+/* ------------------------------------------------------------------------
+ * Recent voices, for tests
+ *
+ * The module keeps a record of the last BF_AUDIO_RECENT_VOICES calls of
+ * bf_audio_play (started or refused) with what the caller passed. A caller
+ * that knows more than the module (a file name, a distance) tags the next
+ * call on its own thread with bf_audio_tag_next_voice; the tag is used by
+ * that one call and then forgotten. Untagged records have label "" and
+ * distance -1. bf_audio_reset_counters does not clear the ring; serials keep
+ * counting.
+ * --------------------------------------------------------------------- */
+
+#define BF_AUDIO_RECENT_VOICES 64
+
+typedef struct bf_audio_voice_record {
+	long long      serial;     /* 1 for the first call since the process started, then +1 per call */
+	bf_audio_voice voice;      /* the handle returned; 0 when refused */
+	int            started;    /* 1 when a voice was started (in SILENT mode too) */
+	float          volume;     /* as passed, clamped to 0..1 (before the effects master volume) */
+	float          pan;        /* as passed, clamped to -1..1 */
+	int            loop;
+	double         duration;   /* of the sound, seconds; 0 without one */
+	float          distance;   /* from the tag; -1 when untagged */
+	char           label[256]; /* from the tag (bytes as given, cut at 255); "" when untagged */
+} bf_audio_voice_record;
+
+/* Tags the next bf_audio_play on the calling thread. label NULL clears a tag
+ * that was not used. The label is copied. */
+void bf_audio_tag_next_voice(const char *label, float distance);
+
+/* Copies the records with a serial above after_serial, oldest first, at most
+ * max of them (the newest max when there are more). Returns the number
+ * copied. after_serial 0 asks for all that are kept. */
+int bf_audio_recent_voices(long long after_serial, bf_audio_voice_record *out, int max);
+
 #ifdef __cplusplus
 }
 #endif
