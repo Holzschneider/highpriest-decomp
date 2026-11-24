@@ -5258,8 +5258,8 @@ struct PACKET_ZC_QUEST_INFO
 struct PACKET_ZC_QUEST_MISSION_INFO
 {
 	DWORD					questID;
-	time_t					quest_svrTime;
-	time_t					quest_endTime;
+	int					quest_svrTime;
+	int					quest_endTime;
 	short					count;
 	PACKET_ZC_MISSION_HUNT	hunt[3];
 };
@@ -5283,8 +5283,8 @@ struct PACKET_ZC_ADD_QUEST
 	CLIENT_ZONE_PACKET_TYPE;
 	DWORD					questID;
 	bool					active;
-	time_t					quest_svrTime;
-	time_t					quest_endTime;
+	int					quest_svrTime;
+	int					quest_endTime;
 	short					count;
 	PACKET_ZC_MISSION_HUNT	hunt[3];
 };
@@ -6159,7 +6159,7 @@ struct	PACKET_ZC_ITEM_PICKUP_ACK2
 	WORD	location;
 	BYTE	type;
 	BYTE	result;
-	time_t  HireExpireDate;
+	int  HireExpireDate;
 };
 
 
@@ -6177,7 +6177,7 @@ struct	PACKET_ZC_ITEM_PICKUP_ACK3
 	WORD	location;
 	BYTE	type;
 	BYTE	result;
-	time_t  HireExpireDate;
+	int  HireExpireDate;
 	WORD	bindOnEquipType;
 };
 
@@ -6898,7 +6898,7 @@ struct	PACKET_ZC_MAIL_REQ_OPEN
 	int		MailID;
 	char    Header[40];
 	char	FromName[NAME_LENGTH];
-	time_t	DeleteTime;
+	int	DeleteTime;
 	DWORD	Money;
 	int		count;
 	WORD	ITID;
@@ -6999,7 +6999,7 @@ struct	EQUIPMENTITEM_EXTRAINFO3
 	bool	IsDamaged;
 	BYTE	RefiningLevel;
 	EQUIPSLOTINFO slot;
-	time_t  HireExpireDate;
+	int  HireExpireDate;
 	WORD        bindOnEquipType;
 };
 
@@ -7037,7 +7037,7 @@ struct	NORMALITEM_EXTRAINFO3
 	short			count;
 	WORD			WearState;
 	EQUIPSLOTINFO	slot;
-	time_t			HireExpireDate;
+	int			HireExpireDate;
 };
 
 
@@ -7173,7 +7173,7 @@ struct	EQUIPMENTITEM_EXTRAINFO2
 	bool	IsDamaged;
 	BYTE	RefiningLevel;
 	EQUIPSLOTINFO slot;
-	time_t  HireExpireDate;
+	int  HireExpireDate;
 };
 
 
