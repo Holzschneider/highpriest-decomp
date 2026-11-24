@@ -10,11 +10,13 @@ What goes there, and why:
                     (servicetype america), the local test server, readfolder.
                     The archive's own clientinfo.xml (kRO, Korean) is left
                     alone; the client does not open it.
-  12 text tables    the tables the client loads that the 2021 archive no
-                    longer has (kRO moved them to Lua), copied unchanged from
-                    ROenglishRE: the pre-renewal tables for pre-2012 clients
-                    where it has them, else its base (Renewal) tables, which
-                    the pre-renewal set overlays.
+  17 text tables    the tables the client loads that the 2021 archive no
+                    longer has (kRO moved them to Lua), and the displayed
+                    tables it holds only in Korean (map names, card name
+                    prefixes and postfixes, forge materials, skill shouts),
+                    copied unchanged from ROenglishRE: the pre-renewal tables
+                    for pre-2012 clients where it has them, else its base
+                    (Renewal) tables, which the pre-renewal set overlays.
   bf_strings.tsv    the client's own translation table for displayed literals
                     (port/data/strings/translation.tsv, written by
                     port/tools/strings.py), copied unchanged; the lookup in
@@ -66,6 +68,17 @@ TABLES = [
     ('skillnametable.txt', os.path.join(PRE, 'skillnametable.txt')),
     ('skilldesctable.txt', os.path.join(PRE, 'skilldesctable.txt')),
     ('leveluseskillspamount.txt', os.path.join(ADD, 'leveluseskillspamount.txt')),
+    # Displayed tables the archive holds in Korean (M9.5, found by the coverage
+    # report): map names (party window, minimap, warp lists), the card name
+    # prefixes and postfixes of item names, the forge window's materials, the
+    # Dancer's and Bard's skill shouts. ROenglishRE has them only in its base
+    # set; the files are plain ASCII in the 2008 formats (tablecheck.py).
+    ('mapnametable.txt', os.path.join(BASE, 'mapnametable.txt')),
+    ('cardprefixnametable.txt', os.path.join(BASE, 'cardprefixnametable.txt')),
+    ('cardpostfixnametable.txt', os.path.join(ADD, 'cardpostfixnametable.txt')),
+    ('metalprocessitemlist.txt', os.path.join(BASE, 'metalprocessitemlist.txt')),
+    ('dc_scream.txt', os.path.join(BASE, 'dc_scream.txt')),
+    ('ba_frostjoke.txt', os.path.join(BASE, 'ba_frostjoke.txt')),
 ]
 PRE_MAPS = ['alberta', 'izlude', 'morocc', 'prontera', 'prt_church', 'prt_fild05', 'prt_fild08', 'prt_in']
 MAPS = [(m + ext, os.path.join(PRE, m + ext)) for m in PRE_MAPS for ext in ('.rsw', '.gnd', '.gat')]
@@ -231,6 +244,21 @@ def drop_unknown_skills(data):
     return b''.join(out)
 
 
+def drop_non_rsw_maps(data):
+    """Removes the lines of mapnametable.txt whose map is not a world file
+    (ROenglishRE lists `alberta_d.gat`). CSession::GetMapName looks maps up
+    by their .rsw name, so such a line is never found; tablecheck.py takes it
+    for fields out of step. Comments, empty lines and every other entry stay
+    as they are."""
+    out = []
+    for line in data.splitlines(keepends=True):
+        head = line.split(b'#', 1)[0].strip()
+        if b'#' in line and head and not head.startswith(b'//') and not head.lower().endswith(b'.rsw'):
+            continue
+        out.append(line)
+    return b''.join(out)
+
+
 def pad_messages(data):
     """Appends "?msg N#" for every message id the table lacks (none for the
     current ROenglishRE table, which has 4,022 lines for the client's 1,387)."""
@@ -248,6 +276,7 @@ def pad_messages(data):
 # fault tablecheck.py reports on the file as ROenglishRE has it.
 REPAIRS = {
     'msgstringtable.txt': (pad_messages, 'placeholders for missing message ids'),
+    'mapnametable.txt': (drop_non_rsw_maps, 'entries that name no .rsw removed'),
     'skilldesctable.txt': (drop_unknown_skills, 'blocks of skills the client does not know removed'),
     'leveluseskillspamount.txt': (drop_unknown_skills, 'blocks of skills the client does not know removed'),
 }
