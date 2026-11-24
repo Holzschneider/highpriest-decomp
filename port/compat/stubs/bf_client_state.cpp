@@ -1197,7 +1197,6 @@ struct BfUiProbe {
 			Items(w);
 			Npc(w);
 			Tabs(w);
-
 			Auction(w);
 			g_windows.push_back(w);
 		}
