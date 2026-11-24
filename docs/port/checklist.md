@@ -107,6 +107,15 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [ ] | M8.1 Feature checklist in play order, each item a script (expanded into sub-steps when M6 closes) | src | M6 exit |
+| [ ] | M8.1a Movement, camera and map change (M6's scripts), and the stuck walk after an NPC dialog | src | M6 exit |
+| [ ] | M8.1b Chat: public, whisper, party and guild with the bot; emotes | src | M6 exit |
+| [ ] | M8.1c Combat and damage numbers; items on the ground | src | M6 exit |
+| [ ] | M8.1d Inventory and equipment; status window | src | M6 exit |
+| [ ] | M8.1e NPC dialogue, shops, storage | src | M6 exit |
+| [ ] | M8.1f Skills and the skill tree | src | M6 exit |
+| [ ] | M8.1g Options; screenshots | src | M6 exit |
+| [ ] | M8.1h Logout and character switch | src | M6 exit |
+| [ ] | M8.1i The scripted gate test | src | M8.1a–M8.1h |
 | [x] e2ff959 | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
 | [ ] | M8.4 Protocol differences resolved on the client side | src | M6 exit |
 | [ ] | M8.5 Worker threads made safe | src | M6 exit |
