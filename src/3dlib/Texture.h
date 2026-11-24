@@ -20,6 +20,10 @@ public:
 	virtual void DrawSurfaceStretch(int x, int y, int width, int height);
 	IDirectDrawSurface7* GetDDSurface() const { return m_pddsSurface; }
 	bool Create(unsigned int w, unsigned int h);
+#if defined(BF_PORT)
+	unsigned int GetSurfaceWidth() const { return m_w; }    // the UI pass's texel test (Renderer.cpp)
+	unsigned int GetSurfaceHeight() const { return m_h; }
+#endif
 protected:
 	unsigned int m_w;
 	unsigned int m_h;

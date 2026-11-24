@@ -1036,15 +1036,83 @@ void	CRenderer :: FlushLMLightList()
 		rp->DrawPri(m_device);
 	}
 }
+#if defined(BF_PORT)
+// The UI pass (RF_UI) on a scaled screen: a face that maps its texels one to
+// one onto logical pixels (window bitmaps, text, the cursor, the title tiles
+// at 1024 x 768) is sampled unfiltered, so that each logical pixel is a clean
+// block at UI scale 2 and 3; a stretched or zoomed one (effects, the title at
+// other sizes) keeps the linear filter. Sprites are drawn one pixel short of
+// their width (Mode.cpp DrawSprite), hence the tolerance of 1.5 texels.
+static bool BfTexelExact(const RPFace *rp)
+{
+	if (!rp->tex || rp->numVerts != 4 || !rp->tex->GetSurfaceWidth() || !rp->tex->GetSurfaceHeight())
+		return false;
+	const tlvertex3d &a = rp->verts[0], &b = rp->verts[3];
+	float dx = fabsf(b.x - a.x), dy = fabsf(b.y - a.y);
+	float du = fabsf(b.tu - a.tu) * rp->tex->GetSurfaceWidth(), dv = fabsf(b.tv - a.tv) * rp->tex->GetSurfaceHeight();
+	return fabsf(dx - du) <= 1.5f && fabsf(dy - dv) <= 1.5f;
+}
+
+// Moves the edges of an axis-aligned quad that is sampled unfiltered onto
+// logical pixel borders and its texture coordinates onto texel centres. At
+// UI scale 1 this changes no pixel: a vertex at x covers the pixels from
+// ceil(x) on either way, and the coordinates are moved with the edge. At
+// scale 2 and 3 a sprite's half-pixel edge (DrawSprite's align) would cover
+// half a block, and a quad whose sample points fall on texel borders
+// (DrawTexture) would pick its texels by rounding noise, differently in its
+// two triangles.
+static void BfSnapToLogicalPixels(RPFace *rp)
+{
+	tlvertex3d *v = rp->verts;
+	float dx = v[3].x - v[0].x, dy = v[3].y - v[0].y;
+	if (dx == 0 || dy == 0)
+		return;
+	for (int k = 1; k < 3; ++k)
+		if ((v[k].x != v[0].x && v[k].x != v[3].x) || (v[k].y != v[0].y && v[k].y != v[3].y))
+			return;   // not axis-aligned
+	float su = (v[3].tu - v[0].tu) / dx, sv = (v[3].tv - v[0].tv) / dy;
+	float w = (float)rp->tex->GetSurfaceWidth(), h = (float)rp->tex->GetSurfaceHeight();
+	float x0 = ceilf(v[0].x < v[3].x ? v[0].x : v[3].x), y0 = ceilf(v[0].y < v[3].y ? v[0].y : v[3].y);
+	float u = (v[0].tu + (x0 - v[0].x) * su) * w, t = (v[0].tv + (y0 - v[0].y) * sv) * h;
+	float shiftU = (0.5f - (u - floorf(u))) / w, shiftV = (0.5f - (t - floorf(t))) / h;
+	for (int k = 0; k < 4; ++k) {
+		float nx = ceilf(v[k].x), ny = ceilf(v[k].y);
+		v[k].tu += (nx - v[k].x) * su + shiftU;
+		v[k].tv += (ny - v[k].y) * sv + shiftV;
+		v[k].x = nx;
+		v[k].y = ny;
+	}
+}
+#endif
+
 void	CRenderer :: FlushAlphaNoDepthList()
 {
+#if defined(BF_PORT)
+	bool point = false;
+#endif
 	rp_rp_map_iter i = m_rpAlphaNoDepthList.begin();
 	for (; i != m_rpAlphaNoDepthList.end(); ++i)
 	{
 		RPFace *rp = i->second;
 		SetTexture(rp->tex);
+#if defined(BF_PORT)
+		bool exact = BfTexelExact(rp);
+		if (exact)
+			BfSnapToLogicalPixels(rp);
+		if (exact != point) {
+			point = !point;
+			m_device->SetTextureStageState(0, D3DTSS_MINFILTER, point ? D3DTFN_POINT : D3DTFN_LINEAR);
+			m_device->SetTextureStageState(0, D3DTSS_MAGFILTER, point ? D3DTFG_POINT : D3DTFG_LINEAR);
+		}
+#endif
 		rp->DrawPri(m_device);
 	}
+#if defined(BF_PORT)
+	if (point) {
+		m_device->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+		m_device->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+	}
+#endif
 }
 void	CRenderer :: FlushAlphaDepthList()
 {
