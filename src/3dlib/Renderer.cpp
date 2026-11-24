@@ -9,6 +9,9 @@
 #include "Renderer.h"
 #include "DrawUtil.h"
 #include "../ijl.h"
+#if defined(BF_PORT)
+#include "bf_port.h"
+#endif
 #include "../GameMode.h"
 #include "../Session.h"
 #include "../GameActor.h"
@@ -2022,6 +2025,15 @@ int CRenderer::SaveJPG(char const *fName, CBitmapRes *bitmap)
 	}
 
 	g_3dDevice.GetRenderSurface()->Unlock(NULL);
+#if defined(BF_PORT)
+	// ImageIO instead of the Intel JPEG Library (technical plan 3.3), at the
+	// library's default quality; the client's path goes to Pictures.
+	char path[1024];
+	int saved = bf_file_resolve(fName, BF_RESOLVE_WRITE, path, sizeof(path)) >= 0
+		&& bf_codec_jpeg_encode_file(path, colorBuf, m_width, m_height, m_width * 3, BF_CODEC_BGR24, 75) == BF_CODEC_OK;
+	delete [] colorBuf;
+	return saved;
+#else
 	JPEG_CORE_PROPERTIES JPGimg;
 	memset(&JPGimg, 0, sizeof(JPEG_CORE_PROPERTIES));
 	if (ijlInit(&JPGimg) != IJL_OK)
@@ -2045,6 +2057,7 @@ int CRenderer::SaveJPG(char const *fName, CBitmapRes *bitmap)
 
 	delete colorBuf;
 	return 1;
+#endif
 }
 
 

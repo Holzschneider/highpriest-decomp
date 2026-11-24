@@ -44,7 +44,9 @@ struct Find : Object {
 };
 
 // Mappings whose views are still in use, also after CloseHandle.
-std::mutex g_mappingLock;
+// Never destroyed: the client's static objects (CFileMgr's archives) close
+// their handles from their destructors at exit, after this file's statics.
+std::mutex &g_mappingLock = *new std::mutex;
 struct Section {
 	bf_file_mapping *mapping;
 	const char *data;

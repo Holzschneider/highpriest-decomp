@@ -32,7 +32,9 @@ struct Key {
 	std::vector<std::string> path;   // components below the root, UTF-8
 };
 
-std::mutex g_keyLock;
+// Never destroyed: the client's static objects (CFileMgr's archives) close
+// their handles from their destructors at exit, after this file's statics.
+std::mutex &g_keyLock = *new std::mutex;
 std::unordered_set<Key *> &Keys()
 {
 	static std::unordered_set<Key *> *keys = new std::unordered_set<Key *>;

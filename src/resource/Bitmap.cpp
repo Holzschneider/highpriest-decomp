@@ -4,6 +4,9 @@
 #include "../base/File.h"
 #include "../3dlib/Device.h"
 #include "../ijl.h"
+#if defined(BF_PORT)
+#include "bf_port.h"
+#endif
 
 
 
@@ -659,6 +662,22 @@ bool	CBitmapRes :: LoadJPGData(const BYTE* bitmap, int size)
 	int					len = size;
 	int					i, j;
 
+#if defined(BF_PORT)
+	// The Intel JPEG Library is replaced by ImageIO (technical plan 3.3). Rows
+	// are decoded unpadded, as the conversion below reads them.
+	if (bf_codec_jpeg_info(temp, len, &m_width, &m_height) != BF_CODEC_OK) {
+		m_width = m_height = 0;
+		return false;
+	}
+	pColorMap = new BYTE[m_width * m_height * 3];
+	m_data = new DWORD[m_width * m_height];
+	if (bf_codec_jpeg_decode(temp, len, pColorMap, m_width, m_height, m_width * 3, BF_CODEC_BGR24) != BF_CODEC_OK) {
+		delete [] pColorMap;
+		delete [] m_data;
+		m_data = NULL;
+		return false;
+	}
+#else
 	memset(&JPGimg, 0, sizeof(JPEG_CORE_PROPERTIES));
 
 	if (ijlInit(&JPGimg) != IJL_OK) return false;
@@ -700,6 +719,7 @@ bool	CBitmapRes :: LoadJPGData(const BYTE* bitmap, int size)
 #endif
 	}
 	ijlFree(&JPGimg);
+#endif
 
 	DWORD *	ptr;
 	int		srcr, srcg, srcb;

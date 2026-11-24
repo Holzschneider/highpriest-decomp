@@ -79,7 +79,14 @@ Called by the client and deliberately failing (`BF_STUB()` or a trace line, with
 
 Not implemented because the client does not call them: events, `ExitThread`/`_endthreadex`, `TerminateThread`, `SetCurrentDirectory`, `CopyFile`, `RegEnumValue`, `_findfirst` (declared by `io.h`).
 
-Names the client calls that belong to no area yet: `wsprintfA` (user32, `Mode.cpp`, `window/UIFrameWnd.cpp`, `base/FindHack.cpp`) and `CoInitialize`/`CoUninitialize` (ole32, `WinMain.cpp`).
+ole32 and netapi32 (`src/bf_win32_misc.cpp`, M3.2):
+
+| Name | Returns | Caller |
+|---|---|---|
+| `CoInitialize`, `CoUninitialize` | `S_OK`, nothing: the client makes no COM object through ole32 (DirectX comes from the adapters' entry points) | `WinMain` |
+| `Netbios` | `NRC_SYSTEM` (`BF_STUB`): no machine identifier is handed out; the login code then sends `111111111111` | `CLoginMode` (Korean and PC-bang login packets) |
+
+`wsprintfA` is the input area's.
 
 ## The registry
 

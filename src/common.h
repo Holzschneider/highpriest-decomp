@@ -79,8 +79,15 @@ extern	char		g_baseDir3[128];
 extern	BOOL		g_isAppActive;
 extern	BOOL		g_activatedNow;
 extern	bool		g_isAssert;
+#if defined(BF_PORT)
+// The system zlib's lengths are 64-bit uLongf; these take the 32-bit DWORD.
+#include "bf_port.h"
+#define uncompress bf_zlib_uncompress
+#define compress bf_zlib_compress
+#else
 extern "C" __declspec(dllimport) int uncompress (BYTE* dest, DWORD *destLen, const BYTE *source, DWORD sourceLen);
 extern "C" __declspec(dllimport) int compress(BYTE* dest, DWORD *destLen, const BYTE *source, DWORD sourceLen);
+#endif
 
 #undef	sqrt
 #undef	sqrtf

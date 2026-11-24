@@ -109,6 +109,9 @@ char g_EXE_way = 0;
 
 void CheckSystemMessage()
 {
+#if defined(BF_PORT)
+	bf_port_frame();
+#endif
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
@@ -825,6 +828,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	g_resMgr().ReadResNameTable("resNameTable.txt");
 
 	if (!InitApp(hInstance, nCmdShow)) return 1;
+#if defined(BF_PORT)
+	if (!bf_port_start_graphics()) return 1;
+#endif
 
 	if (!SetupDriver2()) return 1;
 

@@ -26,7 +26,9 @@ namespace bf_win32 {
 
 namespace {
 
-std::mutex g_handleLock;
+// Never destroyed: the client's static objects (CFileMgr's archives) close
+// their handles from their destructors at exit, after this file's statics.
+std::mutex &g_handleLock = *new std::mutex;
 std::unordered_set<Object *> &Handles()
 {
 	static std::unordered_set<Object *> *handles = new std::unordered_set<Object *>;

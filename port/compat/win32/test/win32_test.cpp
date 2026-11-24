@@ -7,6 +7,8 @@
 #include <mmsystem.h>
 #include <process.h>
 #include <shellapi.h>
+#include <objbase.h>
+#include <nb30.h>
 
 #include <atomic>
 #include <filesystem>
@@ -579,6 +581,13 @@ void TestMisc()
 	Check(!IsDBCSLeadByte(0xC0) && GetACP() == 1252
 	      && MultiByteToWideChar(CP_ACP, 0, "\xE9", 1, wide, 16) == 1 && wide[0] == 0xE9,
 	      "CP_ACP follows bf_file_set_user_codepage (1252)");
+	// WinMain's COM start-up, and CLoginMode's MAC-address query (fails: "111111111111").
+	Check(CoInitialize(NULL) == S_OK, "CoInitialize(NULL): S_OK");
+	CoUninitialize();
+	NCB ncb;
+	memset(&ncb, 0, sizeof(ncb));
+	ncb.ncb_command = NCBASTAT;
+	Check(Netbios(&ncb) != 0 && ncb.ncb_retcode != 0, "Netbios(NCBASTAT): fails, as the login code handles");
 	bf_file_set_user_codepage(949);
 	Check(MulDiv(10, 3, 4) == 8 && MulDiv(-10, 3, 4) == -8 && MulDiv(1, 2, 0) == -1, "MulDiv rounds, -1 for /0");
 	Check(lstrcmpiA("Gulim.BMP", "gulim.bmp") == 0 && lstrcmpiA("a", "B") < 0, "lstrcmpiA");

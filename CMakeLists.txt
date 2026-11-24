@@ -328,7 +328,17 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 # Port code compiled into the client with the client's flags: what replaces
 # an excluded unit (port/compat/stubs/README.md).
 set(BF_CLIENT_PORT_SOURCES
-	port/compat/stubs/bf_crash.cpp)
+	port/compat/stubs/bf_crash.cpp
+	port/compat/stubs/bf_client_state.cpp)
+# The entry point and the start-up glue (main, the zlib wrappers, the C
+# runtime names macOS lacks), compiled as port code (bf_compat_flags) with the
+# native modules' headers. main is pulled out of the library by the linker.
+add_library(bf_port_main STATIC
+	port/compat/stubs/bf_main.cpp
+	port/compat/stubs/bf_zlib.cpp
+	port/compat/stubs/bf_crt.cpp)
+bf_compat_flags(bf_port_main)
+target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_instrument ${BF_NATIVE_LIBS})
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
 bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # Apple frameworks and zlib only (technical plan 3.1, 9): the native modules
@@ -339,7 +349,7 @@ set(bf_link)
 foreach(lib IN LISTS BF_COMPAT_LIBS BF_NATIVE_LIBS)
 	list(APPEND bf_link $<LINK_ONLY:${lib}>)
 endforeach()
-target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_instrument> ${bf_link} z)
+target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_port_main> $<LINK_ONLY:bf_instrument> ${bf_link} z)
 
 # ---------------------------------------------------------------- probes
 # bifrost-packetlen and bifrost-netprobe compile the game's packet.cpp,

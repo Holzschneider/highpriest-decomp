@@ -1,0 +1,310 @@
+// The client's entry point on macOS (M3.2, M3.7): main() builds WinMain's
+// command line from argv, does the start-up the adapters ask for (their
+// READMEs, "What the client must call at start-up"), opens the control socket
+// when asked, and calls the client's own WinMain.
+//
+// Port flags, taken out of the command line WinMain sees:
+//   --headless            start-up only: WinMain stops before the window and
+//                         the first frame and returns 0 (bf_port_headless)
+//   --control <path>      the control socket (or --control=<path>, or the
+//                         environment variable BF_CONTROL)
+// Every other argument is passed on, joined by spaces, as the Windows
+// command line was (WinMain parses it with strstr).
+//
+// The graphics device is created by bf_port_start_graphics, which WinMain
+// calls right after InitApp has made the window (the input adapter's
+// CreateWindowExA creates the window, its Metal layer and the view): one
+// line in WinMain, and neither adapter creates what the other owns.
+//
+// The control socket is served from bf_port_frame, which CheckSystemMessage
+// calls at the top of every frame of both modes: the frame presented last is
+// reported first (bf_control_frame_done; a capture reads the target, which
+// still holds it), then the requests are carried out (bf_control_poll; the
+// events injected earlier have been handled during the previous frame).
+//
+// Compiled with bf_compat_flags (the prefix and the Windows headers, C++17,
+// the C library's own file names) into the library bf_port_main.
+#include <windows.h>
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <string>
+
+#include "bf_app.h"
+#include "bf_clock.h"
+#include "bf_compat_d3d.h"
+#include "bf_compat_input.h"
+#include "bf_control.h"
+#include "bf_file.h"
+#include "bf_gfx.h"
+#include "bf_port.h"
+#include "bf_prefs.h"
+#include "bf_settings.h"
+#include "bf_trace.h"
+#include "bf_view.h"
+
+extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
+
+namespace {
+
+bool g_headless = false;
+bf_gfx_device *g_gfx = nullptr;
+long long g_frames_reported = 0;
+std::string g_mode;   // the last `mode` reported as an event
+
+uint64_t ClockMs()
+{
+	return bf_clock_us() / 1000;
+}
+
+// ---- control hooks
+
+void Quit(void *)
+{
+	// What Cmd+Q does: WM_CLOSE to the window, whose procedure sets g_sysQuit.
+	HWND w = bf_compat_input_main_window();
+	if (w)
+		PostMessageA(w, WM_CLOSE, 0, 0);
+	else
+		exit(0);
+}
+
+int Capture(void *, const char *path, bf_control_capture_info *out, char *message, size_t message_size)
+{
+	if (!g_gfx) {
+		snprintf(message, message_size, "no graphics device (headless or not started yet)");
+		return BF_CONTROL_E_UNSUPPORTED;
+	}
+	if (bf_gfx_capture_png(g_gfx, path) != BF_GFX_OK) {
+		snprintf(message, message_size, "bf_gfx_capture_png failed for %s", path);
+		return BF_CONTROL_E_IO;
+	}
+	int lw = 0, lh = 0, scale = 1, nw = 0, nh = 0;
+	bf_gfx_get_size(g_gfx, &lw, &lh, &scale, &nw, &nh);
+	out->width = nw;
+	out->height = nh;
+	out->scale = scale;
+	out->logical_w = lw;
+	out->logical_h = lh;
+	return BF_CONTROL_E_NONE;
+}
+
+void LogicalToPx(void *, double x, double y, float *x_px, float *y_px)
+{
+	bf_view_metrics m;
+	bf_view_get(&m);
+	double px = x, py = y;
+	if (m.serial)
+		bf_view_logical_to_px(&m, x, y, &px, &py);
+	*x_px = (float)px;
+	*y_px = (float)py;
+}
+
+void PxToLogical(void *, float x_px, float y_px, double *x, double *y)
+{
+	bf_view_metrics m;
+	bf_view_get(&m);
+	*x = x_px;
+	*y = y_px;
+	if (m.serial)
+		bf_view_px_to_logical(&m, x_px, y_px, x, y);
+}
+
+void WriteMode(bf_control_writer *w, void *)
+{
+	bf_control_write_string(w, bf_port_mode(nullptr));
+}
+
+void WriteDetail(bf_control_writer *w, void *)
+{
+	const char *detail = nullptr;
+	bf_port_mode(&detail);
+	bf_control_write_string(w, detail);
+}
+
+void ReportModeChange()
+{
+	const char *detail = nullptr;
+	const char *mode = bf_port_mode(&detail);
+	if (g_mode == mode)
+		return;
+	std::string previous = g_mode.empty() ? "start" : g_mode;
+	g_mode = mode;
+	BF_TRACE(BFT_MODE, "control: mode %s (%s)", mode, detail);
+	if (bf_control_writer *w = bf_control_event_begin("mode")) {
+		bf_control_write_key(w, "mode");
+		bf_control_write_string(w, mode);
+		bf_control_write_key(w, "previous");
+		bf_control_write_string(w, previous.c_str());
+		bf_control_write_key(w, "detail");
+		bf_control_write_string(w, detail);
+		bf_control_event_end(w);
+	}
+}
+
+void OpenControl(const char *path)
+{
+	bf_control_hooks hooks = {};
+	hooks.quit = Quit;
+	hooks.capture = Capture;
+	hooks.logical_to_px = LogicalToPx;
+	hooks.px_to_logical = PxToLogical;
+	bf_control_set_hooks(&hooks);
+	bf_control_register_state("mode", WriteMode, nullptr);
+	bf_control_register_state("detail", WriteDetail, nullptr);
+	bf_control_declare_event("mode");
+	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
+	if (bf_control_open(&config) != BF_CONTROL_OK)
+		bf_tracef(BFT_ERR, "control: cannot open %s; running without the socket", path);
+}
+
+// The end of the process, from exit() (main's return, or any exit(0) of the
+// client and the adapters), registered first in main so that it runs before
+// the destructors of every static object made before main: it saves the
+// settings, writes the counters and ends with _exit. The client's static
+// destructors (CFileMgr closing its archives, CSkinMgr removing its temporary
+// folder) would otherwise run after the port's own statics, in no defined
+// order across units, and call into the file and handle tables after those
+// are gone. They release only what the system reclaims anyway.
+int g_exit_status = 0;
+
+void EndProcess()
+{
+	bf_control_close("quit");
+	bf_settings_save(bf_settings_shared());
+	if (bf_trace_mask & ~(unsigned)(BFT_ERR | BFT_STUB))   // any category asked for: the counts too
+		bf_trace_dump_counters();
+	fflush(NULL);
+	_exit(g_exit_status);
+}
+
+bool IsPortFlag(const char *arg)
+{
+	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
+	       || strncmp(arg, "-psn_", 5) == 0;   // Finder's process serial number
+}
+
+}  // namespace
+
+// ---- what the client calls (bf_port.h)
+
+extern "C" int bf_port_headless(void)
+{
+	return g_headless;
+}
+
+extern "C" int bf_port_option(const char *option)
+{
+	return bf_settings_option(bf_settings_shared(), option);
+}
+
+extern "C" int bf_port_start_graphics(void)
+{
+	if (g_gfx)
+		return 1;
+	void *layer = bf_app_window_metal_layer();
+	bf_view_metrics m;
+	bf_view_get(&m);
+	if (!layer || !m.serial) {
+		bf_tracef(BFT_ERR, "gfx: no window layer or view to draw into (layer %p)", layer);
+		return 0;
+	}
+	bf_gfx_desc desc = {layer, m.logical_w, m.logical_h, m.ui_scale};
+	g_gfx = bf_gfx_create(&desc);
+	if (!g_gfx) {
+		bf_tracef(BFT_ERR, "gfx: bf_gfx_create(%dx%d, scale %d) failed", m.logical_w, m.logical_h, m.ui_scale);
+		return 0;
+	}
+	bf_view_attach_gfx(g_gfx);
+	bf_compat_d3d_set_device(g_gfx);
+	BF_TRACE(BFT_GFX, "gfx: device on the window layer, logical %dx%d, UI scale %d, drawable %dx%d", m.logical_w,
+	         m.logical_h, m.ui_scale, m.drawable_w, m.drawable_h);
+	return 1;
+}
+
+extern "C" void bf_port_frame(void)
+{
+	if (!bf_control_is_open())
+		return;
+	if (g_gfx) {
+		long long frames = 0;
+		bf_gfx_get_stats(g_gfx, nullptr, nullptr, nullptr, &frames);
+		if (frames > g_frames_reported) {
+			g_frames_reported = frames;
+			bf_control_frame_done((uint64_t)frames);
+		}
+	}
+	ReportModeChange();
+	bf_control_poll();
+}
+
+// ---- the entry point
+
+int main(int argc, char **argv)
+{
+	bf_trace_init();   // BF_TRACE reads the mask before any first use would
+	atexit(EndProcess);
+	std::string command_line;
+	for (int i = 1; i < argc; ++i) {
+		if (strcmp(argv[i], "--headless") == 0)
+			g_headless = true;
+		if (IsPortFlag(argv[i])) {
+			if (strcmp(argv[i], "--control") == 0 && i + 1 < argc)
+				++i;
+			continue;
+		}
+		if (!command_line.empty())
+			command_line += ' ';
+		command_line += argv[i];
+	}
+	BF_TRACE(BFT_MODE, "start: %s%s, command line \"%s\", game folder %s", argv[0], g_headless ? " --headless" : "",
+	         command_line.c_str(), bf_file_location(BF_LOCATION_GAME));
+
+	if (!g_headless) {
+		// The application first: the game-folder chooser and the window need NSApp.
+		bf_app_config app = {};
+		app.single_instance = 1;
+		int r = bf_app_init(&app);
+		if (r == BF_APP_ALREADY_RUNNING)
+			return 0;
+		if (r != BF_APP_OK) {
+			bf_tracef(BFT_ERR, "start: bf_app_init failed (%d)", r);
+			return 1;
+		}
+		bf_app_set_clock(ClockMs);
+		char folder[1024];
+		switch (bf_prefs_choose_game_folder(folder, sizeof folder)) {
+		case 1:
+			break;
+		case 0:
+			return 0;   // the user cancelled
+		default:
+			return 1;   // no folder and nobody to ask; traced
+		}
+		bf_prefs_install_menu_item();
+		// Display/UIScale, as the settings window writes it; absent: auto (0),
+		// the view's rule.
+		bf_compat_input_set_scale_setting(bf_settings_int(bf_settings_shared(), BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE, 0));
+	}
+
+	const char *control = bf_control_path_from_args(argc, argv);
+	if (control)
+		OpenControl(control);
+
+	std::string cmd = command_line;   // WinMain may write into it
+	int result = WinMain(GetModuleHandleA(NULL), NULL, &cmd[0], SW_SHOWNORMAL);
+
+	BF_TRACE(BFT_MODE, "exit: WinMain returned %d", result);
+	bf_control_close("quit");
+	if (g_gfx) {
+		bf_compat_d3d_set_device(NULL);
+		bf_view_attach_gfx(NULL);
+		bf_gfx_destroy(g_gfx);
+		g_gfx = nullptr;
+	}
+	g_exit_status = result;
+	return result;   // exit(), then EndProcess
+}

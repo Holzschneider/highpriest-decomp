@@ -11,6 +11,10 @@ zlib and JPEG for the client, replacing `cps.dll` (zlib under another name) and 
 
 Implementation: `src/bf_codec_zlib.cpp` (system zlib, `uncompress2`/`compress2`) and `src/bf_codec_jpeg.mm` (ImageIO and CoreGraphics). Decoded images are retagged as device RGB or grey before drawing, so values are the JPEG's own, with no colour management (the Intel library had none). Any thread may call any function.
 
+## Call sites in the client
+
+Under `BF_PORT`: `src/resource/Bitmap.cpp` `CBitmapRes::LoadJPGData` (`bf_codec_jpeg_info`, `bf_codec_jpeg_decode` to BGR24, unpadded rows), `src/3dlib/Renderer.cpp` `CRenderer::SaveJPG` (`bf_codec_jpeg_encode_file`, quality 75, the path resolved for writing with `bf_file_resolve`), and the client's `uncompress`/`compress`, which `src/common.h` maps to `bf_zlib_uncompress`/`bf_zlib_compress` in `port/compat/stubs/bf_zlib.cpp` (32-bit lengths onto `bf_codec_inflate`/`bf_codec_deflate`).
+
 ## Test
 
     cmake -S port/native/codec -B build/native/codec -G Ninja && cmake --build build/native/codec && build/native/codec/bifrost-codec-test

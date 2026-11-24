@@ -5,6 +5,7 @@
 add_library(bf_compat_win32 STATIC
 	src/bf_win32_base.cpp
 	src/bf_win32_file.cpp
+	src/bf_win32_misc.cpp
 	src/bf_win32_registry.cpp
 	src/bf_win32_shell.cpp
 	src/bf_win32_thread.cpp)

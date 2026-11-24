@@ -670,7 +670,12 @@ CRenderer *	C3dDevice :: CreateRenderer()
 		newRenderer->m_guardBandBottom	=	m_ddDeviceDesc.dvGuardBandBottom;
 	}
 
+#if !defined(BF_PORT)
 	TestScreen();
+#endif
+	// The calibration picks a texel offset of 0.5 on any 32-bit target; the
+	// port's renderer has fixed half-pixel offsets, and that is CTexture's
+	// default (technical plan 3.3).
 
 	return  newRenderer;
 }
