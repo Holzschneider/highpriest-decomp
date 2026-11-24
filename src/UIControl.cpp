@@ -1720,7 +1720,7 @@ void UIEditCtrl3::DrawEditText()
 		strcpy(buf, strings[i].c_str());
 		buf[len] = 0;
 
-		if (buf[len - 2] == '\r')
+		if (len >= 2 && buf[len - 2] == '\r')	// a line of one character has no "\r\n" to cut
 			buf[len - 2] = 0;
 
 		TextOutA(xOffset, yOffset, buf, 0, 0, 12, textColor);
