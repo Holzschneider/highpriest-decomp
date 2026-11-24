@@ -19,7 +19,7 @@ void	UICompositionWnd :: OnCreate(int cx, int cy)
 {
 }
 
-int		UICompositionWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UICompositionWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 		case UM_IME_SET_COMPOSITION_STRING:
@@ -64,7 +64,7 @@ void	UICandidateWnd :: OnCreate(int cx, int cy)
 {
 }
 
-int		UICandidateWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UICandidateWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 		case UM_IME_SET_CANDIDATE:
@@ -205,7 +205,7 @@ void	UIKeyStrokeWnd :: OnCreate(int cx, int cy)
 {
 }
 
-int		UIKeyStrokeWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIKeyStrokeWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	return UIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
 }

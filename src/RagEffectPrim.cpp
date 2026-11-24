@@ -2962,7 +2962,7 @@ void	CEffectPrim :: Render3DSphere(matrix &wtm)
 	}
 }
 
-void	CEffectPrim :: SendMsg(CGameObject *sender, int msgid, int val1, int val2, int val3)
+void	CEffectPrim :: SendMsg(CGameObject *sender, int msgid, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 {
 	if (msgid == 0x18) m_master = NULL;
 }

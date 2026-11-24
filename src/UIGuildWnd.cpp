@@ -185,7 +185,7 @@ void UIGuildWnd::StoreInfo()
 	}
 }
 
-int UIGuildWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -534,7 +534,7 @@ void UIGuildInfoManageWnd::RefreshCompressedEmblemFileImage(const char* emblemBi
 }
 
 #include "rag_budget_sites.h"
-int UIGuildInfoManageWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildInfoManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	m_x = m_x;
 	switch (message) {
@@ -1194,7 +1194,7 @@ void UIGuildMemberManageWnd::OnRBtnDown(int x, int y)
 		Invalidate();
 }
 
-int UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMBOBOX_SELECTED: {
@@ -1586,7 +1586,7 @@ void UIGuildPositionManageWnd::OnCreate(int cx, int cy)
 	RecalcScrbarPos();
 }
 
-int UIGuildPositionManageWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildPositionManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SCROLLVERT:
@@ -2185,7 +2185,7 @@ int UIGuildSkillWnd::GetCurItem(int x, int y)
 	return -1;
 }
 
-int UIGuildSkillWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildSkillWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2633,7 +2633,7 @@ void UIGuildBanishedMemberWnd::OnLBtnDown(int x, int y)
 		Invalidate();
 }
 
-int UIGuildBanishedMemberWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildBanishedMemberWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2803,7 +2803,7 @@ void UIGuildNoticeWnd::OnLBtnDown(int x, int y)
 	UIGuildWnd::OnLBtnDown(x, y);
 }
 
-int UIGuildNoticeWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildNoticeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -3000,7 +3000,7 @@ void UIGuildTotalInfoWnd::OnLBtnDown(int x, int y)
 		Invalidate();
 }
 
-int UIGuildTotalInfoWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildTotalInfoWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -3146,7 +3146,7 @@ void UIGuildLeaveReasonDescWnd::OnCreate(int cx, int cy)
 }
 
 
-int UIGuildLeaveReasonDescWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildLeaveReasonDescWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	if (message != UM_COMMAND)
 		return UIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
@@ -3178,7 +3178,7 @@ void UIGuildBanReasonDescWnd::OnCreate(int cx, int cy)
 	}
 }
 
-int UIGuildBanReasonDescWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGuildBanReasonDescWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO: {

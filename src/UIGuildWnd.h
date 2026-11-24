@@ -30,7 +30,7 @@ public:
 	virtual void OnDraw();
 	virtual void StoreInfo();
 	virtual int GetTab() = 0;
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void DrawTab(int curTab);
 	void InitTabText();
 protected:
@@ -46,7 +46,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnRBtnUp(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual int GetTab() { return 0; }
 	void DeleteCompressedEmblemBitmapFileImage();
 	void RefreshEmblemList();
@@ -73,7 +73,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual int GetTab() { return 1; }
 	virtual void OnWheel(int wheel);
 	virtual void OnRBtnUp(int cx, int cy);
@@ -105,7 +105,7 @@ public:
 	virtual ~UIGuildPositionManageWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void Invalidate();
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
@@ -138,7 +138,7 @@ public:
 	virtual ~UIGuildSkillWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnUp(int cx, int cy);
@@ -171,7 +171,7 @@ public:
 	virtual ~UIGuildBanishedMemberWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual int GetTab() { return 4; }
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnWheel(int wheel);
@@ -195,7 +195,7 @@ public:
 	virtual ~UIGuildNoticeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual int GetTab() { return 5; }
 protected:
@@ -212,7 +212,7 @@ public:
 	virtual ~UIGuildTotalInfoWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnWheel(int wheel);
 	virtual int GetTab() { return 6; }
@@ -235,7 +235,7 @@ public:
 	virtual ~UIGuildLeaveReasonDescWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw() { DrawLatticeFrame(0, 0, 0, 0); }
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIEditCtrl* m_editCtrl;
 	UIStaticText* m_titleText;
@@ -246,7 +246,7 @@ public:
 	UIGuildBanReasonDescWnd();
 	virtual ~UIGuildBanReasonDescWnd();
 	virtual void OnCreate(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_vars[3];
 };

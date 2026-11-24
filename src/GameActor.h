@@ -324,7 +324,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int arg3 = 0);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1 = 0, INT_PTR arg2 = 0, INT_PTR arg3 = 0);
 	virtual void Render(matrix& ptm) {}
 	virtual int Get8Dir(float rot);
 	int Get8Dir2(float rot, int isReal8Dir);
@@ -339,7 +339,7 @@ public:
 	virtual void Render(matrix& vtm);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
 	virtual void SetTlvert(float x, float z);
-	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int arg3 = 0);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1 = 0, INT_PTR arg2 = 0, INT_PTR arg3 = 0);
 	virtual void SetAction(int action, int speed, int type);
 	virtual void ProcessMotion();
 	void OnInit();
@@ -470,7 +470,7 @@ class CAbleToMakeEffect : public CRenderObject {
 public:
 	CAbleToMakeEffect();
 	virtual ~CAbleToMakeEffect();
-	virtual void SendMsg(CGameObject* sender, int msgid, int val1 = 0, int val2 = 0, int val3 = 0);
+	virtual void SendMsg(CGameObject* sender, int msgid, INT_PTR val1 = 0, INT_PTR val2 = 0, INT_PTR val3 = 0);
 	void OnInit();
 	void OnExit();
 	CRagEffect* LaunchEffect(int effectId, vector3d fDeltaPos = vector3d(0.0f, 0.0f, 0.0f), float fRot = 0.0f);
@@ -488,7 +488,7 @@ private:
 class CDummyEffectLauncher : public CAbleToMakeEffect {
 public:
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3, int arg4);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3, INT_PTR arg4);
 private:
 	int m_lastCnt;
 };
@@ -498,7 +498,7 @@ public:
 	CGroundScope();
 	virtual void Render(matrix& vtm);
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 private:
 	int GetScopeSize(int skill_id);
 private:
@@ -517,7 +517,7 @@ public:
 	virtual ~CGndRiser();
 	virtual void Render(matrix& vtm) {}
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	void OnInit();
 	void OnExit();
 private:
@@ -532,7 +532,7 @@ public:
 	virtual ~CEffectMaker();
 	virtual void Render(matrix& vtm) {}
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	void OnInit();
 	void OnExit();
 private:
@@ -548,7 +548,7 @@ public:
 	virtual ~CSoundMaker();
 	virtual void Render(matrix& vtm) {}
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	void OnInit();
 	void OnExit();
 private:
@@ -570,7 +570,7 @@ public:
 	void OnExit();
 	virtual bool OnProcess() = 0;
 	virtual bool ProcessState();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int p = 0);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1 = 0, INT_PTR arg2 = 0, INT_PTR p = 0);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
 	virtual void SetState(int job);
 	virtual void RegisterPos();
@@ -784,7 +784,7 @@ public:
 	virtual void SetBodyPaletteName();
 	virtual int GetWeapon() { return m_weapon; }
 	virtual void SetModifyFactorOfmotionSpeed(int job);
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual void SetBodyPalette(int job);
 	virtual void SetHeadPalette(int job);
 	virtual void SetHonor(int job);
@@ -869,7 +869,7 @@ public:
 	virtual void SetHeadPaletteName();
 	virtual int GetWeapon() { return m_weapon; }
 	virtual void SetModifyFactorOfmotionSpeed(int weapon);
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual void SetHonor(int weapon);
 	virtual void SetPropensityInfo(int honor, int virtue);
 	virtual void ProcessMotion();
@@ -958,7 +958,7 @@ public:
 	void OnExit();
 	virtual bool OnProcess();
 	virtual bool ProcessState();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual void SetState(int stateId);
 	virtual void RegisterPos() {}
 	virtual void UnRegisterPos() {}
@@ -1000,7 +1000,7 @@ public:
 	void ProcessLaunchEffect();
 	virtual void Render(matrix& vtm);
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual void SetState(int head);
 	virtual void RegisterPos();
 	virtual void UnRegisterPos();
@@ -1029,7 +1029,7 @@ public:
 	virtual ~CMousePointer();
 	void OnInit();
 	void OnExit();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual bool OnProcess();
 	int m_visibleTime;
 };
@@ -1041,7 +1041,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 };
 
 class CCorpse : public CRenderObject {
@@ -1051,7 +1051,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 };
 
 class CBlurPC : public CPc {
@@ -1062,7 +1062,7 @@ public:
 	void OnExit();
 	virtual bool OnProcess();
 	virtual void Render(matrix& ptm);
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 protected:
 	float m_motionY;
 	unsigned int m_alphaDelta;
@@ -1079,7 +1079,7 @@ public:
 	void OnExit();
 	virtual bool OnProcess();
 	virtual void Render(matrix& vtm);
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
 	unsigned int GetAID() { return m_aid; }
 	std::string m_itemName;
@@ -1098,7 +1098,7 @@ public:
 	void OnExit();
 	virtual void Render(matrix& vtm);
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int arg3 = 0);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1 = 0, INT_PTR arg2 = 0, INT_PTR arg3 = 0);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
 	unsigned int GetAID() { return m_aid; }
 protected:
@@ -1123,7 +1123,7 @@ public:
 	virtual void OnExit();
 	virtual void Render(matrix& vtm);
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 private:
 	int m_master_gid;
 	int m_ground_pos_x;
@@ -1144,7 +1144,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3, int arg4);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3, INT_PTR arg4);
 protected:
 	vector3d m_sPos;
 	vector3d m_moveSpeed;
@@ -1162,7 +1162,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 protected:
 	float m_hideTime;
 };
@@ -1184,7 +1184,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3);
 protected:
 	float m_orgPosY;
 	float m_orgZoom;
@@ -1197,7 +1197,7 @@ public:
 	void OnInit();
 	void OnExit();
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int arg3 = 0);
+	virtual void SendMsg(CGameObject* sender, int message, INT_PTR arg1 = 0, INT_PTR arg2 = 0, INT_PTR arg3 = 0);
 	void ProcessPosition();
 	int GetMsgEffectType() { return m_msgEffectType; }
 protected:

@@ -63,7 +63,7 @@ bool	CBlowEffect :: OnProcess()
 	return	true;
 }
 
-void	CBlowEffect :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CBlowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETPOS: {
@@ -120,7 +120,7 @@ bool	CCorpse :: OnProcess()
 	return	true;
 }
 
-void CCorpse::SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void CCorpse::SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		default:
@@ -225,7 +225,7 @@ void	CBlurPC :: Render(matrix &ptm)
 		UpdateTlvertex(ptm);
 }
 
-void	CBlurPC :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CBlurPC :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case 0:
@@ -302,7 +302,7 @@ bool	CNumEffect :: OnProcess()
 	return	true;
 }
 
-void	CNumEffect :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CNumEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETMASTERGID: {
@@ -425,7 +425,7 @@ bool	CSoundMaker :: OnProcess()
 	return	true;
 }
 
-void	CSoundMaker :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CSoundMaker :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETPOS: {
@@ -488,7 +488,7 @@ bool	CGndRiser :: OnProcess()
 	return	true;
 }
 
-void	CGndRiser :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CGndRiser :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETPOS: {
@@ -544,7 +544,7 @@ void	CNpc :: OnExit()
 	}
 }
 
-void	CNpc :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CNpc :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_INITSTANDENTRY: {

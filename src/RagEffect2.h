@@ -31,7 +31,7 @@ public:
 	virtual ~CEffectPrim();
 	void Init(CRagEffect* master, EFFECTPRIMID effectPrimId, vector3d fDeltaPos);
 	virtual bool OnProcess();
-	virtual void SendMsg(CGameObject* sender, int msgid, int val1, int val2, int val3);
+	virtual void SendMsg(CGameObject* sender, int msgid, INT_PTR val1, INT_PTR val2, INT_PTR val3);
 	virtual void Render(matrix& wtm);
 private:
 	void InitSegment();

@@ -80,7 +80,7 @@ public:
 	virtual int OnRun();
 	virtual void OnExit();
 	virtual void OnUpdate();
-	virtual int SendMsg(int messageId, int val1, int val2, int val3);
+	virtual INT_PTR SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR val3);
 	void PreLoadAlwaysNeededRes();
 	void SetKeycryptErrorInfo(const char* modeName);
 private:

@@ -210,7 +210,7 @@ void UIEmotionWnd::SetUserDefineText(char* text, int Index)
 	m_UserDefineText[Index]->SetText(text);
 }
 
-int UIEmotionWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIEmotionWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case 0:

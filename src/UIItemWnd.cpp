@@ -150,7 +150,7 @@ void UIItemDropCntWnd::SetShow(int visible)
 	}
 }
 
-int UIItemDropCntWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemDropCntWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -733,7 +733,7 @@ int UIItemBaseWnd::GetCurItem(int x, int y)
 
 	return -1;
 }
-int UIItemBaseWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemBaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_RESIZE: {
@@ -1203,7 +1203,7 @@ void UIItemShopWnd::DragAndDrop(int x, int y, DRAG_INFO const *const dragInfo)
 		return;
 	}
 }
-int UIItemShopWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemShopWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -1440,7 +1440,7 @@ void UIMerchantItemMyShopWnd::OnMouseHover(int x, int y)
 	}
 }
 
-int UIMerchantItemMyShopWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantItemMyShopWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -1791,7 +1791,7 @@ void UIMerchantItemShopWnd::StoreInfo()
 	}
 }
 
-int UIMerchantItemShopWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantItemShopWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -2254,7 +2254,7 @@ void UIItemPurchaseWnd::OnDraw()
 	}
 }
 
-int UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETTITLE: {
@@ -2852,7 +2852,7 @@ void UIMerchantItemPurchaseWnd::StoreInfo()
 		m_info->h = m_h;
 	}
 }
-int UIMerchantItemPurchaseWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -3297,7 +3297,7 @@ void UIItemSellWnd::DragAndDrop(int x, int y, DRAG_INFO const *const dragInfo)
 
 	gameMode->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 }
-int UIItemSellWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemSellWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -3567,7 +3567,7 @@ void UIMerchantItemWnd::StoreInfo()
 	}
 }
 
-int UIMerchantItemWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantItemWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -3775,7 +3775,7 @@ void UIMerchantMirrorItemWnd::StoreInfo()
 		m_info->h = m_h;
 	}
 }
-int UIMerchantMirrorItemWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantMirrorItemWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -4172,7 +4172,7 @@ void UIItemWnd::StoreInfo()
 
 void UIItemWnd::RefreshRadioBtn() { Invalidate(); }
 
-int UIItemWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	RAG_BUDGET_FILL(255)
 	RAG_BUDGET_FILL(255)
@@ -4846,7 +4846,7 @@ void UIQuestWnd::StoreInfo()
 	m_info->orgHeight = m_orgHeight;
 	m_info->curTab = m_curTab;
 }
-int UIQuestWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIQuestWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -5319,7 +5319,7 @@ void UIItemStoreWnd::StoreInfo()
 		m_info->y = m_y;
 	}
 }
-int UIItemStoreWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemStoreWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETCOUNTINFO: {
@@ -6052,7 +6052,7 @@ void UISkillListWnd::StoreInfo()
 		m_info->h = m_h;
 	}
 }
-int UISkillListWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	if (g_isSkillEntry == 1) {
 		int diff = (int)(timeGetTime() - g_SkillEntryTime);
@@ -6738,7 +6738,7 @@ void UIMerchantShopMakeWnd::StoreInfo()
 	}
 }
 
-int UIMerchantShopMakeWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantShopMakeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char cPrice[24];
 

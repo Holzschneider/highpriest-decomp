@@ -73,7 +73,7 @@ void UIIllustWnd::OnDraw()
 }
 
 #include "rag_budget_fill.h"
-int	UIIllustWnd :: SendMsg(UIWindow * sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR	UIIllustWnd :: SendMsg(UIWindow * sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:

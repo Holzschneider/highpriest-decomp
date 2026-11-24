@@ -5202,7 +5202,7 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 	return false;
 }
 
-int UIWindowMgr::SendMsg(int message, int val1, int val2, int val3, int val4)
+INT_PTR UIWindowMgr::SendMsg(int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	RAG_BUDGET_FILL(11)
 	switch (message) {

@@ -557,7 +557,7 @@ void	CPlayer :: SetState(int stateId)
 	CPc::SetState(stateId);
 }
 
-void	CPlayer :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);

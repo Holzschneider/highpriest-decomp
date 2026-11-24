@@ -99,7 +99,7 @@ bool IsSameSentence(int nRepeat)
 
 #include "rag_budget_fill.h"
 #include "rag_budget_sites.h"
-int CGameMode::SendMsg(int messageId, int val1, int val2, int val3)
+INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 { RAG_BUDGET_FILL(122)
 	switch (messageId)
 	{

@@ -220,7 +220,7 @@ int		CGameObject :: GetDir(float rot)
 	return longitude;
 }
 
-void	CGameObject :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CGameObject :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		default:
@@ -711,7 +711,7 @@ void	CRenderObject :: SetAction(int action, int speed, int type)
 	m_isForceState3 = FALSE;
 }
 
-void	CRenderObject :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CRenderObject :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		default:
@@ -2321,7 +2321,7 @@ bool	CMousePointer :: OnProcess()
 }
 
 
-void	CMousePointer :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CMousePointer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case AM_SETPOSMOUSE:
@@ -2492,7 +2492,7 @@ bool CAbleToMakeEffect :: IsExistEffect( CRagEffect* pEffect )
 	return false;
 }
 
-void	CAbleToMakeEffect :: SendMsg(CGameObject * sender, int msgid, int val1, int val2, int val3)
+void	CAbleToMakeEffect :: SendMsg(CGameObject * sender, int msgid, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 {
 
 	switch (msgid) {
@@ -3947,7 +3947,7 @@ void	CGameActor :: SetGroupMemberAndVisible(BOOL bIsMemberAndVisible)
 
 int doubleAttackTerm = 200;
 
-void	CGameActor :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode * gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);

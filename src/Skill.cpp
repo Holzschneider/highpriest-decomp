@@ -831,7 +831,7 @@ void	CSkill :: Render(matrix &vtm)
 	}
 }
 
-void	CSkill :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);
@@ -1267,7 +1267,7 @@ void	CGraffiSkill :: Render(matrix &vtm)
 	}
 }
 
-void	CGraffiSkill :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CGraffiSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETMASTERGID:
@@ -2092,7 +2092,7 @@ bool	CMsgEffect :: OnProcess()
 	return	true;
 }
 
-void	CMsgEffect :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CMsgEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_REQ_ATTACK:
@@ -2395,7 +2395,7 @@ bool	CEffectMaker :: OnProcess()
 	return	true;
 }
 
-void	CEffectMaker :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CEffectMaker :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message)
 	{
@@ -2475,7 +2475,7 @@ bool	CMandraAttackEffect :: OnProcess()
 	return	true;
 }
 
-void	CMandraAttackEffect :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CMandraAttackEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 	case	AM_SETPOS: {
@@ -2624,7 +2624,7 @@ bool	CArrowEffect :: OnProcess()
 	return	true;
 }
 
-void	CArrowEffect :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3, int arg4)
+void	CArrowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3, INT_PTR arg4)
 {
 	switch (message) {
 		case	AM_SETPOS: {
@@ -2741,7 +2741,7 @@ bool	CDummyEffectLauncher :: OnProcess()
 		return true;
 }
 
-void	CDummyEffectLauncher :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3, int arg4)
+void	CDummyEffectLauncher :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3, INT_PTR arg4)
 {
 	switch (message) {
 		case	AM_SETPOS: {
@@ -2831,7 +2831,7 @@ void	CGroundScope :: Render(matrix &vtm)
 	m_rot += m_rot_speed;
 }
 
-void	CGroundScope :: SendMsg(CGameObject *sender, int message, int arg1, int arg2, int arg3)
+void	CGroundScope :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	switch (message) {
 		case	AM_SETMASTERGID:

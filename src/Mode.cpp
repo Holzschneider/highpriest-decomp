@@ -90,7 +90,7 @@ void CMode::Initialize()
 }
 
 extern void ExitFindHack();
-int CMode::SendMsg(int messageId, int val1, int val2, int val3)
+INT_PTR CMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 {
 	switch (messageId) {
 		case MM_QUIT:

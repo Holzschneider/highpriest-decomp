@@ -418,7 +418,7 @@ void UIMessengerGroupWnd::StoreInfo()
 
 #include "rag_budget_fill.h"
 
-int UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -1033,7 +1033,7 @@ void UIFriendOptionWnd::OnDraw()
 	}
 }
 
-int UIFriendOptionWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIFriendOptionWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:

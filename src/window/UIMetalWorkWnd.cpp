@@ -66,7 +66,7 @@ void	UIItemRepairWnd :: OnCreate(int cx, int cy)
 	m_defPushId = ID_OK;
 }
 
-int		UIItemRepairWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIItemRepairWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char itemDisName[64];
 	ITEM_INFO dummyItemInfo;
@@ -241,7 +241,7 @@ void	UIWeaponRefineWnd :: OnCreate(int cx, int cy)
 	m_defPushId = ID_OK;
 }
 
-int		UIWeaponRefineWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIWeaponRefineWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char itemDisName[64];
 	ITEM_INFO dummyItemInfo;
@@ -393,7 +393,7 @@ void	UIMakeTargetListWnd :: OnCreate(int cx, int cy)
 	m_defPushId = ID_OK;
 }
 
-int		UIMakeTargetListWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIMakeTargetListWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char itemDisName[64];
 	ITEM_INFO dummyItemInfo;
@@ -581,7 +581,7 @@ void	UIMakeTargetProcessWnd :: OnLBtnDown(int x, int y)
 	}
 }
 
-int		UIMakeTargetProcessWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIMakeTargetProcessWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch(message)
 	{
@@ -770,7 +770,7 @@ UIMakeTargetResultWnd :: ~UIMakeTargetResultWnd()
 	m_defPushId = ID_OK;
 }
 
-int		UIMakeTargetResultWnd :: SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR		UIMakeTargetResultWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch(message)
 	{

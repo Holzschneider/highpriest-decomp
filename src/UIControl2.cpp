@@ -570,7 +570,7 @@ void UIListBox::OnDraw()
 	}
 }
 
-int UIListBox::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIListBox::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case 40:
@@ -844,7 +844,7 @@ void UIComboBox::OnDraw()
 	}
 }
 
-int UIComboBox::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIComboBox::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case 0:
@@ -1081,7 +1081,7 @@ int UIChatHisBox::WriteChatToFile(char const *fileName)
 	return 1;
 }
 
-int UIChatHisBox::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIChatHisBox::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	return UIListBox::SendMsg(sender, message, val1, val2, val3, val4);
 }
 
@@ -1242,7 +1242,7 @@ void UITextViewer::OnDraw()
 	}
 }
 
-int UITextViewer::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UITextViewer::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case 18:
@@ -1906,7 +1906,7 @@ void UIImgMenu::OnMouseHover(int x, int y) {
 		Invalidate();
 }
 
-int UIImgMenu::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIImgMenu::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:

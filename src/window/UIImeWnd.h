@@ -13,7 +13,7 @@ public:
 	virtual ~UICandidateWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	std::string m_candidateList[9];
 	int m_selection;
@@ -28,7 +28,7 @@ public:
 	virtual ~UICompositionWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	std::string m_compositionString;
 };
@@ -39,7 +39,7 @@ public:
 	virtual ~UIKeyStrokeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 #endif

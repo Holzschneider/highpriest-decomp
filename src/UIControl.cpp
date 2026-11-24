@@ -324,7 +324,7 @@ UISlotBitmap::UISlotBitmap(int nSlotID) {
 
 UISlotBitmap::~UISlotBitmap() {}
 
-int UISlotBitmap::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UISlotBitmap::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message != UM_SETSTATE) {
 		return UIWindow::SendMsg(sender, message, val1, val2, val3, val4);
 	}
@@ -1289,7 +1289,7 @@ void UIEditCtrl::DrawSelectionBox(int xOffset, int width) {
 			(unsigned char)rr);
 }
 
-int UIEditCtrl::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIEditCtrl::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message) {
 		UIWindow::SendMsg(sender, message, val1, val2, val3, val4);
 		return 0;
@@ -1303,7 +1303,7 @@ UIEditCtrl2::UIEditCtrl2() {}
 
 UIEditCtrl2::~UIEditCtrl2() {}
 
-int UIEditCtrl2::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIEditCtrl2::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message) {
 		UIWindow::SendMsg(sender, message, val1, val2, val3, val4);
 	} else {
@@ -1455,7 +1455,7 @@ void UIEditCtrl3::OnDraw() {
 		m_parent->Invalidate();
 }
 
-int UIEditCtrl3::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIEditCtrl3::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case WM_KEYDOWN:
@@ -1933,7 +1933,7 @@ void UIWhisperEditCtrl::OnFinishEdit() {
 	UIEditCtrl::OnFinishEdit();
 }
 
-int UIWhisperEditCtrl::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIWhisperEditCtrl::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_UPPUSH:
@@ -1978,7 +1978,7 @@ void UIEditCtrlVarId::OnFinishEdit() {
 	SendMsg(this, UM_DEFPUSH, 0, 0, 0, 0);
 }
 
-int UIEditCtrlVarId::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIEditCtrlVarId::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message) {
 		UIWindow::SendMsg(sender, message, val1, val2, val3, val4);
 		return 0;
@@ -2022,7 +2022,7 @@ void UIChatEditCtrl::StoreInHistory()
 	}
 }
 
-int UIChatEditCtrl::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatEditCtrl::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_UPPUSH:
@@ -2197,7 +2197,7 @@ void UITab::OnLBtnDown(int x, int y) {
 	}
 }
 
-int UITab::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UITab::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message == 13) {
 		m_state = val1;
 		Invalidate();
@@ -2269,7 +2269,7 @@ void UIRadioBtn::OnDraw()
 	}
 }
 
-int UIRadioBtn::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIRadioBtn::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message == 13) {
 		m_state = val1;
 		Invalidate();
@@ -2358,7 +2358,7 @@ void UIChatRoomTitle::OnDraw()
 	DrawBitmap(3, 3, bmp, true);
 }
 
-int UIChatRoomTitle::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatRoomTitle::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case 6:
@@ -2470,7 +2470,7 @@ void UIMerchantShopTitle::OnRBtnDown(int x, int y) {
 	}
 }
 
-int UIMerchantShopTitle::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerchantShopTitle::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2511,7 +2511,7 @@ UIEmblemWnd::UIEmblemWnd()
 
 UIEmblemWnd::~UIEmblemWnd() {}
 
-int UIEmblemWnd::SendMsg(UIWindow * sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIEmblemWnd::SendMsg(UIWindow * sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char buf[256];
 	if (message == 0x22) {
@@ -2560,7 +2560,7 @@ UIWordDisplayWnd::UIWordDisplayWnd()
 
 UIWordDisplayWnd::~UIWordDisplayWnd() {}
 
-int UIWordDisplayWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIWordDisplayWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message == 0x22)
 	{
 		m_masterAid = val1;

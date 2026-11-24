@@ -324,7 +324,7 @@ public:
 	virtual void OnInit(const char* modeName) {}
 	virtual void OnExit() {}
 	virtual void OnUpdate() {}
-	virtual int SendMsg(int messageId, int val1 = 0, int val2 = 0, int val3 = 0);
+	virtual INT_PTR SendMsg(int messageId, INT_PTR val1 = 0, INT_PTR val2 = 0, INT_PTR val3 = 0);
 	void Initialize();
 	void PostQuitMsg();
 	void ScreenShot();

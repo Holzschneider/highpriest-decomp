@@ -14,7 +14,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnDraw();
 	void InitEmotionName();
 	void InitFromReg();

@@ -940,7 +940,7 @@ void CLoginMode::PollNetworkStatus()
 }
 
 
-int CLoginMode::SendMsg(int messageId, int val1, int val2, int val3)
+INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 {
 	switch (messageId) {
 	case LMM_GET_EMAIL_ADDRESS:

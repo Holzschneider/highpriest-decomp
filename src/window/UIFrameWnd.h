@@ -227,7 +227,7 @@ public:
 	virtual bool IsFrameWnd() { return true; }
 	virtual void SaveOriginalPos();
 	virtual void MoveDelta(int x, int y);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void RefreshSnap();
 protected:
 	void DrawItem(int x, int y, const char* iteminfo, bool forceidentified);
@@ -255,7 +255,7 @@ public:
 	virtual ~UIWaitWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void SetMsg(const char* waitMsg, int fontHeight, int fontType);
 protected:
 	UITextViewer* m_textViewer;
@@ -268,7 +268,7 @@ public:
 	virtual ~UIEmailAddressWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIEditCtrl* m_editCtrl;
 };
@@ -279,7 +279,7 @@ public:
 	virtual ~UINoticeConfirmWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UITextViewer* m_textViewer;
 	int m_target;
@@ -300,7 +300,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void OnRBtnUp(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	virtual void Move(int cx, int cy);
 	void WriteChatToFile();
@@ -322,7 +322,7 @@ public:
 	virtual ~UIGraffiStrboxWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_skillId;
 	int m_gSkillDx;
@@ -340,7 +340,7 @@ public:
 	virtual void OnLBtnDblClk(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnUp(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnWheel(int wheel);
 	virtual void StoreInfo();
 	void RecalcScrbarPos();
@@ -365,7 +365,7 @@ public:
 	virtual ~UIItemCompositionWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	ItemCompositionWndInfo* m_itemCompositionWndInfo;
@@ -379,7 +379,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void Resize(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIComboBox* m_comboBox;
 };
@@ -390,7 +390,7 @@ public:
 	virtual ~UIExchangeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
@@ -418,7 +418,7 @@ public:
 	virtual ~UIChooseSellBuyWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	unsigned int m_naid;
 	UITextViewer* m_textViewer;
@@ -429,7 +429,7 @@ public:
 	UIExchangeAcceptWnd();
 	virtual ~UIExchangeAcceptWnd();
 	virtual void OnCreate(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	ExchangeAcceptWndInfo* m_info;
@@ -441,7 +441,7 @@ public:
 	virtual ~UIQuestDetailWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UITextViewer* m_textViewer;
 	UITextViewer* m_textViewer2;
@@ -475,7 +475,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void Move(int cx, int cy);
 	void AddMenu(const char* menuString);
 	int GetMenuIndex(int x, int y);
@@ -494,7 +494,7 @@ public:
 	virtual ~UIRestartWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UITextViewer* m_textViewer;
 };
@@ -507,7 +507,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnLBtnDblClk(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	int m_orgHeight;
@@ -531,7 +531,7 @@ public:
 	virtual ~UIItemParamChangeDisplayWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	void RecalcEquipedParam();
 	ITEM_INFO GetSlotItem(int __$ReturnUdt);
@@ -556,7 +556,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 private:
 	static const bool s_bUseNewPacket;
@@ -578,7 +578,7 @@ public:
 	virtual ~UITipOfTheDayWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void WriteToReg();
 protected:
 	UITextViewer* m_textViewer;
@@ -594,7 +594,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnProcess();
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 private:
 	int m_delay;
 	int m_curAct;
@@ -611,7 +611,7 @@ public:
 	UIMakingArrowListWnd();
 	virtual ~UIMakingArrowListWnd();
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	short m_mkType;
 };
@@ -624,7 +624,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnProcess();
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 private:
 	UISpriteButton* m_sprButton[5];
 };
@@ -635,7 +635,7 @@ public:
 	virtual ~UIChatRoomMakeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	std::string m_title;
 	UIEditCtrl* m_roomTitle;
@@ -665,7 +665,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnWheel(int wheel);
 	virtual void RecalcScrbarPos();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	int GetCurItem(int x, int y);
 protected:
 	UITab* m_tab;
@@ -687,7 +687,7 @@ public:
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int tmp, int val2, int val3);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR tmp, INT_PTR val2, INT_PTR val3);
 	void ResetMailWrite(bool allInit);
 	void SetType(int type) { m_type = type; }
 	void SetType2(int type2) { m_type2 = type2; }
@@ -726,7 +726,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIChatHisBox3* m_MailContent;
 	UIBitmapButton* m_returnMailBtn;
@@ -749,7 +749,7 @@ public:
 	virtual void OnLBtnUp(int cx, int cy);
 	virtual void OnRBtnUp(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void InitItem() { ITEM_INFO itemInfo; m_item = itemInfo; }
 protected:
 	ITEM_INFO* GetCurAuctionItem(int index);
@@ -794,7 +794,7 @@ public:
 	virtual ~UIAuctionMsgWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIBitmapButton* m_button;
 	UIEditCtrl* m_Money;
@@ -812,7 +812,7 @@ public:
 	virtual void Resize(int cx, int cy);
 	virtual void OnDraw();
 	virtual void Move(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIImgMenu* m_imgMenu;
 };
@@ -823,7 +823,7 @@ public:
 	virtual ~UILoadingWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void SetMsg(const char* waitMsg, int fontHeight, int fontType);
 protected:
 	UIStaticText* m_waitMsg;
@@ -838,7 +838,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnProcess();
@@ -870,7 +870,7 @@ public:
 	UICombinedCardItemCollectionWnd();
 	virtual ~UICombinedCardItemCollectionWnd();
 	virtual void OnCreate(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	CombinedCardItemCollectionWndInfo* m_combinedItemInfo;
 };
@@ -881,7 +881,7 @@ public:
 	virtual ~UISkillDescribeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIBitmapButton* sysButton;
 	UITextViewer* m_textViewer;
@@ -896,7 +896,7 @@ public:
 	virtual ~UIQuitWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UICardItemIllustWnd : public UIFrameWnd {
@@ -905,7 +905,7 @@ public:
 	virtual ~UICardItemIllustWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	std::string m_itemBmp;
 	std::string m_itemName;
@@ -916,7 +916,7 @@ class UIChatRoomChangeWnd : public UIChatRoomMakeWnd {
 public:
 	UIChatRoomChangeWnd();
 	virtual ~UIChatRoomChangeWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIItemDropCntWnd : public UIFrameWnd {
@@ -925,7 +925,7 @@ public:
 	virtual ~UIItemDropCntWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void SetShow(int visible);
 protected:
 	UIEditCtrl* m_editCtrl;
@@ -938,7 +938,7 @@ public:
 	virtual ~UIPasswordWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void SetShow(int visible);
 protected:
 	unsigned int m_roomId;
@@ -948,21 +948,21 @@ class UIJoinPartyAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIJoinPartyAcceptWnd();
 	virtual ~UIJoinPartyAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UICoupleAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UICoupleAcceptWnd();
 	virtual ~UICoupleAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIStarPlaceAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIStarPlaceAcceptWnd();
 	virtual ~UIStarPlaceAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	char which;
 };
@@ -971,7 +971,7 @@ class UIYourItemWnd : public UIExchangeAcceptWnd {
 public:
 	UIYourItemWnd();
 	virtual ~UIYourItemWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int val_index;
 	int val_wear;
@@ -981,21 +981,21 @@ class UIBabyAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIBabyAcceptWnd();
 	virtual ~UIBabyAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIBabyAcceptWnd2 : public UIExchangeAcceptWnd {
 public:
 	UIBabyAcceptWnd2();
 	virtual ~UIBabyAcceptWnd2();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIJoinGuildAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIJoinGuildAcceptWnd();
 	virtual ~UIJoinGuildAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UISkillNameChangeWnd : public UIFrameWnd {
@@ -1004,7 +1004,7 @@ public:
 	virtual ~UISkillNameChangeWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIEditCtrl* m_editCtrl;
 	int m_skillId;
@@ -1017,7 +1017,7 @@ public:
 	virtual ~UINpcEditDialogWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIEditCtrl* m_editCtrl;
 	unsigned int m_naid;
@@ -1029,7 +1029,7 @@ public:
 	virtual ~UINpcTextEditDialogWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIDetailLevelWnd : public UIFrameWnd {
@@ -1038,7 +1038,7 @@ public:
 	virtual ~UIDetailLevelWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	int m_textureDetailLevel;
@@ -1058,7 +1058,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void OnProcess();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_oldLogCnt;
 	unsigned int m_AID;
@@ -1069,7 +1069,7 @@ public:
 	UIPetEggListWnd();
 	virtual ~UIPetEggListWnd();
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UISpellListWnd : public UIItemIdentifyWnd {
@@ -1077,7 +1077,7 @@ public:
 	UISpellListWnd();
 	virtual ~UISpellListWnd();
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	std::vector<int> m_spellList;
 };
 
@@ -1089,7 +1089,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnProcess();
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void WriteBookMarkToRegistry(const char* bookName, int page);
 	int ReadBookMarkFromRegistry(const char* bookName);
 	char* GetContents(const char* text);
@@ -1114,7 +1114,7 @@ class UIJoinFriendAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIJoinFriendAcceptWnd();
 	virtual ~UIJoinFriendAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	unsigned int m_nReqAID;
 	unsigned int m_nReqGID;
@@ -1126,7 +1126,7 @@ public:
 	virtual ~UIAutoMessageWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIEditCtrl* m_editCtrl;
 };
@@ -1138,7 +1138,7 @@ public:
 	void Create(const char* msg, unsigned int autoReturnTime);
 	virtual void OnProcess();
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 private:
 	UITextViewer* m_textViewer;
 	UIBarGraph2* m_barGraph;
@@ -1157,7 +1157,7 @@ public:
 	virtual ~UIMessageBox();
 	void Create(const char* msg, int type, int isDefYes, unsigned int autoReturnTime);
 	virtual void OnProcess();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnDestroy();
 	virtual void OnDraw();
 private:
@@ -1181,7 +1181,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnWheel(int wheel);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void PrintNotice();
 	UIStaticText* m_NoticeMessage[21];
 	int m_NoticeTotalLine;
@@ -1220,7 +1220,7 @@ public:
 	virtual void OnProcess();
 	virtual void OnDestroy();
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void MakeButton();
 	void InitTextControls();
 	void DrawHexagon();
@@ -1239,7 +1239,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void OnLBtnUp(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual bool GetTransBoxInfo(BOXINFO* boxInfo);
 	virtual void Move(int cx, int cy);
 	virtual void Resize(int cx, int cy);
@@ -1267,7 +1267,7 @@ public:
 	virtual ~UIMonsterInfoWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	void DrawPropertyBox(int x, int y, const char* propertyString, int power, unsigned int borderColor, unsigned int surfaceColor);
 protected:
@@ -1280,7 +1280,7 @@ public:
 	virtual ~UITalkboxTrapInputWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_skillId;
 	int m_gSkillDx;
@@ -1295,7 +1295,7 @@ public:
 	virtual ~UICntWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_target;
 	UIEditCtrl* m_editCtrl;
@@ -1308,7 +1308,7 @@ public:
 	virtual ~UIChatRoomWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int isMyName, int val2, int val3);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR isMyName, INT_PTR val2, INT_PTR val3);
 	virtual void StoreInfo();
 	virtual void Move(int cx, int cy);
 	int GetRoomId() { return m_roomInfo.roomId; }
@@ -1334,7 +1334,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	UIEditCtrl2* m_newName;
 	PetInfoWndInfo* m_info;
 	UIBitmapButton* m_button;
@@ -1348,7 +1348,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	UIEditCtrl2* m_newName;
 	UIBitmapButton* m_button;
 	UIBarGraphPlayerHp* m_hpGraph;
@@ -1365,7 +1365,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	UIEditCtrl2* m_newName;
 	UIBitmapButton* m_button;
 	UIBarGraphPlayerHp* m_hpGraph;
@@ -1382,7 +1382,7 @@ public:
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void InvalidateWallPaper();
 	void MakeButton(int id);
 	void DeleteButton(int id);
@@ -1418,7 +1418,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnDestroy();
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void InitFromReg();
 	void WriteToReg();
 	void OpenRegistPage();
@@ -1437,7 +1437,7 @@ class UIAllyGuildAcceptWnd : public UIExchangeAcceptWnd {
 public:
 	UIAllyGuildAcceptWnd();
 	virtual ~UIAllyGuildAcceptWnd();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UISelectServerWnd : public UIFrameWnd {
@@ -1446,7 +1446,7 @@ public:
 	virtual ~UISelectServerWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnDestroy();
 	void InitDefaultCurItemFromReg(const char* regkey);
 	void SaveCurItemToReg(const char* regkey);
@@ -1467,7 +1467,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnWheel(int wheel);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void RecalcScrbarPos();
 protected:
 	ITEM_INFO GetItemInfo(int __$ReturnUdt);
@@ -1498,7 +1498,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	bool IsExistItem(const char* itemName);
 protected:
 	UIStaticText* m_titleText;
@@ -1521,7 +1521,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int enoughMoney, int val2, int val3);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR enoughMoney, INT_PTR val2, INT_PTR val3);
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_priceText;
@@ -1542,7 +1542,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_priceText;
@@ -1561,7 +1561,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	ITEM_INFO GetItemInfo(int __$ReturnUdt, int x);
 public:
@@ -1585,7 +1585,7 @@ public:
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	MerchantItemWndInfo* m_info;
@@ -1600,7 +1600,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void StoreInfo();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int isFull, int val2, int val3);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR isFull, INT_PTR val2, INT_PTR val3);
 	virtual void OnWheel(int wheel);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
 	virtual void OnLBtnDown(int cx, int cy);
@@ -1631,7 +1631,7 @@ public:
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	MerchantMirrorItemWndInfo* m_info;
@@ -1647,7 +1647,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_titleText;
@@ -1664,7 +1664,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_titleText;
@@ -1681,7 +1681,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_priceText;
@@ -1696,7 +1696,7 @@ public:
 	virtual ~UIMiniBtnWnd();
 	virtual void OnDraw();
 	virtual void OnLBtnDown(int x, int y);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void SetBtnImg(CBitmapRes*, CBitmapRes*);
 	void SetWndID(WINDOWID);
 	CBitmapRes* m_OnImgRes;
@@ -1714,7 +1714,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void OnLBtnUp(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual bool GetTransBoxInfo2(BOXINFO* boxInfo);
 	virtual void DrawBoxScreen2();
 	virtual void Move(int cx, int cy);
@@ -1753,7 +1753,7 @@ public:
 	virtual ~UIChangeNameWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 private:
 	UIBitmapButton* m_okButton;
 	UIBitmapButton* m_cancelButton;
@@ -1772,7 +1772,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnMouseMove(int cx, int cy);
 	virtual void OnLBtnUp(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual bool GetTransBoxInfo2(BOXINFO* boxInfo);
 	virtual void DrawBoxScreen2();
 	virtual void Move(int cx, int cy);
@@ -1802,7 +1802,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void OnLBtnDown(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_num;
 	int m_miniWidth;
@@ -1816,7 +1816,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void Move(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void RefreshInfo();
 	void InitInfo();
 protected:
@@ -1830,7 +1830,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
 	virtual void OnMouseMove(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	CHARACTER_INFO* GetCharInfo(int x, int y);
 	void ShowCharInfoBalloon(int x, int y, unsigned int fntColor);
@@ -1852,7 +1852,7 @@ public:
 	virtual ~UIRebirthWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIBattleMsgOptionWnd : public UIFrameWnd {
@@ -1866,7 +1866,7 @@ public:
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnWheel(int wheel);
 	virtual void RecalcScrbarPos();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	int GetCurItem(int x, int y);
 	void WriteToReg();
 protected:
@@ -1892,7 +1892,7 @@ public:
 	virtual void OnDraw();
 	virtual void OnLBtnDblClk(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	void NewHeight(int newHeight);
 protected:
@@ -1915,7 +1915,7 @@ public:
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnRBtnUp(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int count, int val2, int val3);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR count, INT_PTR val2, INT_PTR val3);
 	virtual void StoreInfo();
 	virtual void OnWheel(int wheel);
 	virtual bool IsUpdateNeed() { return true; }
@@ -1958,7 +1958,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
 	virtual void StoreInfo();
 	bool Sort(const ITEM_INFO* const itemInfo);
@@ -1986,7 +1986,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	void RefreshRadioBtn();
 	void RecalcScrbarPos();
@@ -2008,7 +2008,7 @@ public:
 	virtual ~UIToolTipWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw() { DrawLatticeFrame(0, 0, 0, 0); }
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIListBox* m_toolTipList;
 };
@@ -2025,7 +2025,7 @@ public:
 	virtual void OnRBtnDown(int cx, int cy);
 	virtual void OnLBtnDblClk(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
 	virtual void StoreInfo();
 	virtual void SetShow(int visible);
@@ -2044,7 +2044,7 @@ public:
 	virtual bool IsUpdateNeed() { return true; }
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
 	virtual void OnMouseHover(int cx, int cy);
 	virtual void OnMouseMove(int cx, int cy);
@@ -2078,7 +2078,7 @@ public:
 	virtual ~UINotifyItemObtainWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnProcess();
 	virtual bool ShouldDoHitTest() { return false; }
 protected:
@@ -2100,7 +2100,7 @@ public:
 	virtual void OnLBtnDblClk(int cx, int cy);
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnMouseHover(int cx, int cy);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	void ChangeState(int state);
 protected:
@@ -2115,7 +2115,7 @@ public:
 	virtual ~UISayDialogWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw() { DrawLatticeFrame(0, 0, 0, 0); }
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 	virtual void Resize(int cx, int cy);
 protected:
@@ -2136,7 +2136,7 @@ public:
 	virtual ~UIChooseWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw() { DrawLatticeFrame(0, 0, 0, 0); }
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void StoreInfo();
 protected:
 	int m_index;
@@ -2152,7 +2152,7 @@ public:
 	virtual ~UIChooseWarpWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw() { DrawLatticeFrame(0, 0, 0, 0); }
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIListBox* m_choostList;
 	unsigned int m_skid;
@@ -2165,7 +2165,7 @@ public:
 	virtual ~UIMinimapZoomWnd() {}
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UINotifyLevelUpWnd : public UIFrameWnd {
@@ -2174,14 +2174,14 @@ public:
 	virtual ~UINotifyLevelUpWnd() {}
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UINotifyJobLevelUpWnd : public UINotifyLevelUpWnd {
 public:
 	UINotifyJobLevelUpWnd() {}
 	virtual ~UINotifyJobLevelUpWnd() {}
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UINotifyQuestWnd : public UIFrameWnd {
@@ -2190,7 +2190,7 @@ public:
 	virtual ~UINotifyQuestWnd() {}
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 };
 
 class UIEmblemWnd : public UIFrameWnd {
@@ -2199,7 +2199,7 @@ public:
 	virtual ~UIEmblemWnd();
 	virtual void OnCreate(int cx, int cy) {}
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnProcess();
 	int m_posx;
 	int m_posy;
@@ -2213,7 +2213,7 @@ public:
 	virtual ~UIWordDisplayWnd();
 	virtual void OnCreate(int cx, int cy) {}
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	virtual void OnProcess();
 	int m_posx;
 	int m_posy;
@@ -2236,7 +2236,7 @@ public:
 	virtual void OnMouseMove(int x, int y);
 	virtual void OnLBtnDown(int x, int y) {}
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 	void DrawRoMap();
 protected:
 	void DrawMiniMap();

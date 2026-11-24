@@ -292,7 +292,7 @@ void UISelCharForUServerWnd::OnDraw()
 	}
 }
 
-int UISelCharForUServerWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISelCharForUServerWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 
 	switch (message) {
@@ -505,7 +505,7 @@ void UIChangeNameWnd::OnDraw()
 	DrawBitmap(0, 0, (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\login_interface\\change_name.bmp"), false), false);
 }
 
-int UIChangeNameWnd::SendMsg(UIWindow * sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChangeNameWnd::SendMsg(UIWindow * sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -625,7 +625,7 @@ void UIRebirthWnd::OnDraw()
 	DrawBitmap(0, 0, bmp, false);
 }
 
-int UIRebirthWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIRebirthWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	CGameMode* gameMode = g_modeMgr.GetGameMode();
 
@@ -1092,7 +1092,7 @@ void UINewChatWnd::WriteChatToFile()
 	}
 }
 
-int UINewChatWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_GET_EDIT_FOCUS:
@@ -1671,7 +1671,7 @@ void UISubChatHisWnd::SetMsgListBox()
 	SendMsg(0, UM_REFRESH, 0, 0, 0, 0);
 }
 
-int UISubChatHisWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISubChatHisWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -1823,7 +1823,7 @@ void UISubChatMiniWnd::OnLBtnDown(int x, int y)
 	Invalidate();
 }
 
-int UISubChatMiniWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISubChatMiniWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2036,7 +2036,7 @@ void UIBattleMsgOptionWnd::OnWheel(int wheel)
 	}
 }
 
-int UIBattleMsgOptionWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIBattleMsgOptionWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2466,7 +2466,7 @@ void UIShortCutWnd::StoreInfo()
 	}
 }
 
-int UIShortCutWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIShortCutWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_USE_SHORTEN_ITEM: {
@@ -2683,7 +2683,7 @@ void UIMemorialDunWnd::Move(int x, int y)
 
 void UIMemorialDunWnd::OnDraw() {}
 
-int UIMemorialDunWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMemorialDunWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DEFPUSH:
@@ -2803,7 +2803,7 @@ void UIRoMapWnd::OnMouseMove(int x, int y)
 	}
 }
 
-int UIRoMapWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIRoMapWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -3218,7 +3218,7 @@ void UIMiniBtnWnd::OnLBtnDown(int x, int y)
 	SendMsg(this, UM_COMMAND, 0xcd, 0, 0, 0);
 }
 
-int UIMiniBtnWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMiniBtnWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:

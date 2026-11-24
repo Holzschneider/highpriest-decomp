@@ -915,7 +915,7 @@ public:
 	virtual bool OnProcess();
 	virtual bool OnProcess2();
 	virtual bool OnProcess3();
-	virtual void SendMsg(CGameObject* sender, int msgid, int val1 = 0, int val2 = 0, int val3 = 0);
+	virtual void SendMsg(CGameObject* sender, int msgid, INT_PTR val1 = 0, INT_PTR val2 = 0, INT_PTR val3 = 0);
 	virtual void Render(matrix& wtm);
 	void Init(CRenderObject* master, int effectId, vector3d fDeltaPos);
 	CEffectPrim* LaunchEffectPrim(EFFECTPRIMID effectPrimId, vector3d fDeltaPos = vector3d(0.0f, 0.0f, 0.0f));

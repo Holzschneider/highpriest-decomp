@@ -157,7 +157,7 @@ void UIFrameWnd::MoveDelta(int deltaDragX, int deltaDragY)
 	m_y = m_orgY + deltaDragY;
 }
 
-int UIFrameWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIFrameWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DEFPUSH:
@@ -386,7 +386,7 @@ void UIMessageBoxAutoreturn::OnDraw()
 	DrawBitmap(0, 0, bmp, false);
 }
 
-int UIMessageBoxAutoreturn::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMessageBoxAutoreturn::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -537,7 +537,7 @@ void UIMessageBox::OnProcess()
 	}
 }
 
-int UIMessageBox::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMessageBox::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETCOUNTMSG:
@@ -692,7 +692,7 @@ void UISelectServerWnd::OnDraw()
 	}
 }
 
-int UISelectServerWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISelectServerWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETCURITEM:
@@ -972,7 +972,7 @@ void UILoginWnd::OpenRegistPage()
 	ShellExecuteA(g_hMainWnd, "open", g_regstrationWeb, NULL, NULL, SW_SHOWNORMAL);
 }
 
-int UILoginWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UILoginWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -1364,7 +1364,7 @@ void UINoticeWnd::OnDestroy() {}
 
 void UINoticeWnd::OnMouseHover(int x, int y) {}
 
-int UINoticeWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UINoticeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DEFPUSH:
@@ -2137,7 +2137,7 @@ void UISelectCharWnd::OnDraw()
 	}
 }
 
-int UISelectCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISelectCharWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2677,7 +2677,7 @@ void UIMakeCharWnd::InitTextControls()
 	m_text[5]->SetTextWithShorten(buf);
 }
 
-int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMakeCharWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -3182,7 +3182,7 @@ void UIChatWnd::WriteChatToFile()
 	}
 }
 
-int UIChatWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DELETE_WHISPER_NAME:
@@ -3612,7 +3612,7 @@ void UIChatRoomWnd::WriteChatToFile()
 
 
 
-int UIChatRoomWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO2:
@@ -3951,7 +3951,7 @@ UIAllyGuildAcceptWnd::~UIAllyGuildAcceptWnd()
 }
 
 
-int UIAllyGuildAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIAllyGuildAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_ALLY_GUILD_MSG:
@@ -4230,7 +4230,7 @@ void UIMonsterInfoWnd::DrawPropertyBox(int x, int y, char const *propertyString,
 	TextOutA(x + (70 - GetTextWidth(propertyText, 0, 0, 12, false)) / 2, y + 2, propertyText, 0, 0, 12, RGB(rr, bb, gg));
 }
 
-int UIMonsterInfoWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMonsterInfoWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -4523,7 +4523,7 @@ void UIPetInfoWnd::OnDraw()
 	}
 }
 
-int UIPetInfoWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIPetInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DEFPUSH:
@@ -4661,7 +4661,7 @@ void UITalkboxTrapInputWnd::OnCreate(int cx, int cy)
 	m_defPushId = 0x76;
 }
 
-int UITalkboxTrapInputWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UITalkboxTrapInputWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	int values[5];
 
@@ -4789,7 +4789,7 @@ void UICntWnd::OnCreate(int cx, int cy)
 	m_defPushId = 0x76;
 }
 
-int UICntWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UICntWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char temp[16];
 
@@ -5049,7 +5049,7 @@ void UIHomunInfoWnd::OnDraw()
 	}
 }
 
-int UIHomunInfoWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIHomunInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char msg[512];
 
@@ -5272,7 +5272,7 @@ void UIMerInfoWnd::OnDraw()
 	}
 }
 
-int UIMerInfoWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMerInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DEFPUSH:

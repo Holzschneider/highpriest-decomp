@@ -177,7 +177,7 @@ public:
 	virtual void OnExit();
 	virtual void OnUpdate();
 
-	virtual int SendMsg(int messageId, int val1 = 0, int p = 0, int st = 0);
+	virtual INT_PTR SendMsg(int messageId, INT_PTR val1 = 0, INT_PTR p = 0, INT_PTR st = 0);
 	CWorld* GetWorld() { return m_world; }
 	CView* GetView() { return m_view; }
 	void ChatDori();

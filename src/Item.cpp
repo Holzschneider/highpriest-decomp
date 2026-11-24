@@ -101,7 +101,7 @@ void	CItem :: SetRenderInfo(RENDER_INFO_RECT &info, const float tlvertX, const f
 	SetTlvert(tlvertX, tlvertY);
 }
 
-void CItem::SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3)
+void CItem::SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	CGameMode* gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);

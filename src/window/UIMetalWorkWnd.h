@@ -17,7 +17,7 @@ public:
 	virtual ~UIItemRepairWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIListBox* m_metalList;
 	std::vector<int> m_metalListId;
@@ -31,7 +31,7 @@ public:
 	virtual ~UIWeaponRefineWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIListBox* m_metalList;
 	std::vector<int> m_metalListId;
@@ -46,7 +46,7 @@ public:
 	virtual void OnLBtnDown(int cx, int cy);
 	virtual void OnDraw();
 	virtual void DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo);
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	ITEM_INFO GetItemInfo(int __$ReturnUdt, int x);
 	bool IsWeaponTargetItem();
@@ -61,7 +61,7 @@ public:
 	virtual ~UIMakeTargetListWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	UIListBox* m_metalList;
 	std::vector<int> m_metalListId;
@@ -73,7 +73,7 @@ public:
 	virtual ~UIMakeTargetResultWnd();
 	virtual void OnCreate(int cx, int cy);
 	virtual void OnDraw();
-	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
+	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_targetItem;
 	unsigned char m_succeed;

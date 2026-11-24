@@ -428,7 +428,7 @@ void UIWaitWnd::OnCreate(int cx, int cy)
 	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)waitMsg, 38, 0, 0);
 }
 
-int UIWaitWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIWaitWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_ENABLE_CANCEL:
@@ -494,7 +494,7 @@ void UILoadingWnd::OnDraw() {}
 
 void UILoadingWnd::SetMsg(const char* waitMsg, int fontHeight, int fontType) {}
 
-int UILoadingWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UILoadingWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	if (message == 0x11) {
 		char msg[100];
@@ -749,7 +749,7 @@ void UIBasicInfoWnd::OnMouseHover(int x, int y)
 	}
 }
 
-int UIBasicInfoWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIBasicInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message)
 	{
@@ -892,7 +892,7 @@ void UIToolTipWnd::OnCreate(int cx, int cy)
 }
 
 
-int UIToolTipWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIToolTipWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -1497,7 +1497,7 @@ void UIEquipWnd::OnDraw()
 	}
 }
 
-int UIEquipWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIEquipWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -1832,7 +1832,7 @@ void UIStatusWnd::OnDraw()
 		TextOutWithRightAlign(273, 101, g_guildInfo.m_guildName.c_str(), g_guildInfo.m_guildName.size(), 0, 12, 0);
 }
 
-int UIStatusWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIStatusWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	CMode* mode = g_modeMgr.GetCurMode();
 
@@ -2098,7 +2098,7 @@ void UIDetailLevelWnd::StoreInfo() {
 	}
 }
 
-int UIDetailLevelWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIDetailLevelWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2384,7 +2384,7 @@ void UIOptionWnd::StoreInfo() {
 	}
 }
 
-int UIOptionWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIOptionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -2661,7 +2661,7 @@ ITEM_INFO UIItemParamChangeDisplayWnd::GetSlotItem(int bitmaskSlot)
 }
 
 #include "rag_budget_sites.h"
-int UIItemParamChangeDisplayWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemParamChangeDisplayWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -2768,7 +2768,7 @@ void UINotifyItemObtainWnd::OnProcess()
 		g_windowMgr.DeleteWindow((WINDOWID)0x3a);
 }
 
-int UINotifyItemObtainWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UINotifyItemObtainWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -2857,7 +2857,7 @@ void UINpcEditDialogWnd::OnCreate(int cx, int cy)
 	m_defPushId = ID_OK;
 }
 
-int UINpcEditDialogWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UINpcEditDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == 0x76) {
@@ -2930,7 +2930,7 @@ void UINpcTextEditDialogWnd::OnCreate(int cx, int cy)
 
 void UINpcTextEditDialogWnd::OnDraw(){ DrawLatticeFrame(0, 0, 0, 0); }
 
-int UINpcTextEditDialogWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UINpcTextEditDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -2997,7 +2997,7 @@ void UISkillNameChangeWnd::OnDraw() {
 	TextOutA(15, 6, m_skillName.c_str(), 0, 0, 12, 0);
 }
 
-int UISkillNameChangeWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISkillNameChangeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_SKILL_INFO:
@@ -3065,7 +3065,7 @@ void UIEmailAddressWnd::OnDraw() {
 		TextOutA(15, 6, MsgStr(MSI_ENTER_EMAIL), 0, 0, 12, 0);
 }
 
-int UIEmailAddressWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIEmailAddressWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		g_windowMgr.SetModalResult(val1);
@@ -3132,7 +3132,7 @@ void UIPasswordWnd::SetShow(int visible) {
 	m_show = visible;
 }
 
-int UIPasswordWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIPasswordWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == 0x76) {
@@ -3181,7 +3181,7 @@ void UISayDialogWnd::StoreInfo() {
 	}
 }
 
-int UISayDialogWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISayDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_TARGET:
@@ -3476,7 +3476,7 @@ void UIItemCollectionWnd::StoreInfo() {
 	}
 }
 
-int UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -3662,7 +3662,7 @@ void UICombinedCardItemCollectionWnd::OnCreate(int cx, int cy)
 	m_windowId = (WINDOWID)0x52;
 }
 
-int UICombinedCardItemCollectionWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UICombinedCardItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -3739,7 +3739,7 @@ void UISkillDescribeWnd::OnDraw() {
 	TextOutA(50, 10, m_title.c_str(), 0, 0, 12, 0);
 }
 
-int UISkillDescribeWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISkillDescribeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -3893,7 +3893,7 @@ void UIQuestDetailWnd::OnDraw()
 	}
 }
 
-int UIQuestDetailWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIQuestDetailWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -4051,7 +4051,7 @@ void UICardItemIllustWnd::OnDraw()
 	DrawItemText(10, 3, dummyItemInfo, 0, 0, 12);
 }
 
-int UICardItemIllustWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UICardItemIllustWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -4143,7 +4143,7 @@ void UIChooseWarpWnd::OnCreate(int cx, int cy)
 	m_defPushId = ID_OK;
 }
 
-int UIChooseWarpWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChooseWarpWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DOWNPUSH:
@@ -4269,7 +4269,7 @@ void UIChooseWnd::StoreInfo() {
 	}
 }
 
-int UIChooseWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChooseWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_DOWNPUSH:
@@ -4520,7 +4520,7 @@ void UIItemIdentifyWnd::StoreInfo() {
 
 void UIItemIdentifyWnd::OnRBtnUp(int x, int y) {}
 
-int UIItemIdentifyWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemIdentifyWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -4703,7 +4703,7 @@ void UIItemCompositionWnd::StoreInfo() {
 	}
 }
 
-int UIItemCompositionWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIItemCompositionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 
@@ -4795,7 +4795,7 @@ void UIQuitWnd::OnDraw() {
 	DrawBitmap(0, 0, bmp, false);
 }
 
-int UIQuitWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIQuitWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	CGameMode* gm = g_modeMgr.GetGameMode();
 	switch (message) {
 	case UM_COMMAND:
@@ -4856,7 +4856,7 @@ void UIRestartWnd::OnDraw() {
 	DrawBitmap(0, 0, bmp, false);
 }
 
-int UIRestartWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIRestartWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	CGameMode* gameMode = g_modeMgr.GetGameMode();
 
@@ -4930,7 +4930,7 @@ void UINoticeConfirmWnd::OnCreate(int cx, int cy)
 	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg, 38, 0, 0);
 }
 
-int UINoticeConfirmWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UINoticeConfirmWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_SET_TARGET:
 		m_target = val1;
@@ -5007,7 +5007,7 @@ void UIChooseSellBuyWnd::OnDraw() {
 	DrawBitmap(0, 0, bmp, false);
 }
 
-int UIChooseSellBuyWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIChooseSellBuyWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		switch (val1) {
@@ -5080,7 +5080,7 @@ void UIExchangeAcceptWnd::OnCreate(int cx, int cy)
 	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)"deal", 38, 0, 0);
 }
 
-int UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -5377,7 +5377,7 @@ void UITipOfTheDayWnd::WriteToReg() {
 	}
 }
 
-int UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	int i;
 
@@ -5431,7 +5431,7 @@ int UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, int val1, int val2,
 UIJoinPartyAcceptWnd::UIJoinPartyAcceptWnd() { m_info = NULL; }
 UIJoinPartyAcceptWnd::~UIJoinPartyAcceptWnd() {}
 
-int UIJoinPartyAcceptWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIJoinPartyAcceptWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -5468,7 +5468,7 @@ int UIJoinPartyAcceptWnd::SendMsg(UIWindow* sender, int message, int val1, int v
 UICoupleAcceptWnd::UICoupleAcceptWnd() { m_info = NULL; }
 UICoupleAcceptWnd::~UICoupleAcceptWnd() {}
 
-int UICoupleAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UICoupleAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_COUPLE_MSG:
@@ -5507,7 +5507,7 @@ int UICoupleAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2
 UIStarPlaceAcceptWnd::UIStarPlaceAcceptWnd() { m_info = NULL; }
 UIStarPlaceAcceptWnd::~UIStarPlaceAcceptWnd() {}
 
-int UIStarPlaceAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIStarPlaceAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_BABY_MSG:
@@ -5546,7 +5546,7 @@ int UIStarPlaceAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int v
 UIYourItemWnd::UIYourItemWnd() { m_info = NULL; }
 UIYourItemWnd::~UIYourItemWnd() {}
 
-int UIYourItemWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIYourItemWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_BABY_MSG:
@@ -5587,7 +5587,7 @@ int UIYourItemWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 UIBabyAcceptWnd::UIBabyAcceptWnd() { m_info = NULL; }
 UIBabyAcceptWnd::~UIBabyAcceptWnd() {}
 
-int UIBabyAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIBabyAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_BABY_MSG:
@@ -5627,7 +5627,7 @@ int UIBabyAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, 
 UIBabyAcceptWnd2::UIBabyAcceptWnd2() { m_info = NULL; }
 UIBabyAcceptWnd2::~UIBabyAcceptWnd2() {}
 
-int UIBabyAcceptWnd2::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIBabyAcceptWnd2::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_BABY_MSG:
@@ -5662,7 +5662,7 @@ int UIBabyAcceptWnd2::SendMsg(UIWindow *sender, int message, int val1, int val2,
 UIJoinGuildAcceptWnd::UIJoinGuildAcceptWnd() { m_info = NULL; }
 UIJoinGuildAcceptWnd::~UIJoinGuildAcceptWnd() {}
 
-int UIJoinGuildAcceptWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIJoinGuildAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_JOIN_GUILD_MSG:
@@ -5864,7 +5864,7 @@ void UIChatRoomMakeWnd::OnDraw()
 	TextOutA(8, 3, m_title.c_str(), 0, 0, 12, 0);
 }
 
-int UIChatRoomMakeWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatRoomMakeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -5983,7 +5983,7 @@ UIChatRoomChangeWnd::UIChatRoomChangeWnd()
 }
 UIChatRoomChangeWnd::~UIChatRoomChangeWnd() {}
 
-int UIChatRoomChangeWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIChatRoomChangeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO: {
@@ -6369,7 +6369,7 @@ void UIExchangeWnd::OnMouseHover(int x, int y)
 	}
 }
 
-int UIExchangeWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIExchangeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SET_EXCHANGE_CHAR_NAME:
@@ -6677,7 +6677,7 @@ void UIPartySettingWnd::StoreInfo() {
 	}
 }
 
-int UIPartySettingWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIPartySettingWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	int i;
 
@@ -6950,7 +6950,7 @@ void UIWhisperWnd::WriteChatToReportFile()
 	}
 }
 
-int UIWhisperWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIWhisperWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -7103,7 +7103,7 @@ void UIMinimapZoomWnd::OnCreate(int cx, int cy)
 
 void UIMinimapZoomWnd::OnDraw() {}
 
-int UIMinimapZoomWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIMinimapZoomWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		switch (val1) {
@@ -7151,7 +7151,7 @@ void UINotifyLevelUpWnd::OnCreate(int cx, int cy)
 
 void UINotifyLevelUpWnd::OnDraw() {}
 
-int UINotifyLevelUpWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UINotifyLevelUpWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == 0x7e) {
@@ -7168,7 +7168,7 @@ int UINotifyLevelUpWnd::SendMsg(UIWindow* sender, int message, int val1, int val
 	return 0;
 }
 
-int UINotifyJobLevelUpWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UINotifyJobLevelUpWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == 0x7e) {
@@ -7202,7 +7202,7 @@ void UINotifyQuestWnd::OnCreate(int cx, int cy)
 
 void UINotifyQuestWnd::OnDraw() {}
 
-int UINotifyQuestWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UINotifyQuestWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == 0x7e) {
@@ -7378,7 +7378,7 @@ void UIMenuWnd::AddMenu(const char* menuString)
 	m_menuItems.push_back(menuString);
 }
 
-int UIMenuWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMenuWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_ADDBOUNDARY:
@@ -7430,7 +7430,7 @@ void UIComboBoxWnd::OnDraw() {
 	ClearDC(0xffff00ff);
 }
 
-int UIComboBoxWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIComboBoxWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	return m_comboBox->SendMsg(sender, message, val1, val2, val3, val4);
 }
 UIPetEggListWnd::UIPetEggListWnd() {}
@@ -7442,7 +7442,7 @@ void UIPetEggListWnd::OnDraw()
 	UIItemIdentifyWnd::OnDraw();
 }
 
-int UIPetEggListWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIPetEggListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_ADDITEM: {
@@ -7508,7 +7508,7 @@ void UIMakingArrowListWnd::OnDraw()
 	UIItemIdentifyWnd::OnDraw();
 }
 
-int UIMakingArrowListWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMakingArrowListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_ADDITEM: {
@@ -7651,7 +7651,7 @@ void UIPetTamingDeceiveWnd::OnProcess()
 	}
 }
 
-int UIPetTamingDeceiveWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIPetTamingDeceiveWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	if (message == 0x50) {
 		if (val1 == 0) {
 			m_monGID = val2;
@@ -7898,7 +7898,7 @@ void UISelectCartWnd::OnLBtnDown(int x, int y)
 		UIFrameWnd::OnLBtnDown(x, y);
 }
 
-int UISelectCartWnd::SendMsg(UIWindow * sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISelectCartWnd::SendMsg(UIWindow * sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	if (message == UM_COMMAND) {
 		switch (val1) {
@@ -8022,7 +8022,7 @@ void UISpellListWnd::OnDraw()
 	}
 }
 
-int UISpellListWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UISpellListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_ADDITEM: {
@@ -8169,7 +8169,7 @@ void UIGraffiStrboxWnd::OnDraw()
 	TextOutA(16, 22, MsgStr(MSI_TALKBOX_WINDOW_MSG), 0, 0, 12, 0);
 }
 
-int UIGraffiStrboxWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIGraffiStrboxWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	int values[5];
 
@@ -8315,7 +8315,7 @@ void UIProhibitListWnd::OnDraw()
 	}
 }
 
-int UIProhibitListWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIProhibitListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_SETINFO:
@@ -8507,7 +8507,7 @@ void UIBookWnd::OnProcess()
 	g_windowMgr.DeleteWindow(WID_BOOKWND);
 }
 
-int UIBookWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIBookWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_LEFTPUSH:
@@ -8780,7 +8780,7 @@ void UIBookWnd::OnLBtnDown(int x, int y)
 UIJoinFriendAcceptWnd::UIJoinFriendAcceptWnd() { m_info = NULL; }
 UIJoinFriendAcceptWnd::~UIJoinFriendAcceptWnd() {}
 
-int UIJoinFriendAcceptWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIJoinFriendAcceptWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	char msg[128];
 
@@ -9252,7 +9252,7 @@ void UICommandListWnd::OnWheel(int wheel) {
 }
 
 
-int UICommandListWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UICommandListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -9382,7 +9382,7 @@ void UIAutoMessageWnd::OnDraw() {
 	g_windowMgr.SetFocusEdit(m_editCtrl);
 }
 
-int UIAutoMessageWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIAutoMessageWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -9713,7 +9713,7 @@ void UIMailListWnd::DragAndDrop(int x, int y, DRAG_INFO const *const dragInfo)
 	gm->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 }
 
-int UIMailListWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMailListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	CGameMode* gameMode = g_modeMgr.GetGameMode();
 
@@ -10137,7 +10137,7 @@ void UIMailViewWnd::OnRBtnDown(int x, int y)
 	}
 }
 
-int UIMailViewWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIMailViewWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -10323,7 +10323,7 @@ void UIAuctionWnd::DragAndDrop(int x, int y, const DRAG_INFO* const dragInfo) {
 	gm->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 }
 
-int UIAuctionWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	CGameMode* gameMode = g_modeMgr.GetGameMode();
 
@@ -10829,7 +10829,7 @@ void UIAuctionMsgWnd::OnDraw()
 	TextOutA(10, 3, windowName, 0, 0, 12, 0);
 }
 
-int UIAuctionMsgWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4)
+INT_PTR UIAuctionMsgWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	switch (message) {
 	case UM_COMMAND:
@@ -10909,7 +10909,7 @@ void UIImgMenuWnd::Move(int x, int y)
 	UIFrameWnd::Move(x, y);
 }
 
-int UIImgMenuWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4) {
+INT_PTR UIImgMenuWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
 	return m_imgMenu->SendMsg(sender, message, val1, val2, val3, val4);
 }
 

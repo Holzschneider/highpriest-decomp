@@ -564,7 +564,7 @@ bool	CRagEffect :: OnProcess2()
 	return true;
 }
 
-void	CRagEffect :: SendMsg(CGameObject * sender, int msgid, int val1, int val2, int val3)
+void	CRagEffect :: SendMsg(CGameObject * sender, int msgid, INT_PTR val1, INT_PTR val2, INT_PTR val3)
 {
 	switch (msgid) {
 		case	AM_CHILD_DEAD:
