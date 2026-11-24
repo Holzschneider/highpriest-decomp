@@ -540,7 +540,167 @@ void TestRealGameFolder(const std::string &folder)
 		Skip("game folder: bgm listing", "no BGM folder");
 }
 
+// ---- Settings ------------------------------------------------------------------
+
+uint32_t SetMany(void *raw)
+{
+	bf_settings *s = (bf_settings *)raw;
+	char name[32];
+	snprintf(name, sizeof(name), "t%llu", (unsigned long long)bf_sys_thread_id());
+	for (int i = 0; i < 500; ++i)
+		bf_settings_set_int(s, "Client/Stress", name, i);
+	return bf_settings_int(s, "Client/Stress", name, -1) == 499 ? 0 : 1;
+}
+
+void TestSettings(const std::string &home, const std::string &fakeGame)
+{
+	std::string path = home + "/settings-test.plist";
+	unlink(path.c_str());
+	bf_settings *s = bf_settings_open_file(path.c_str());
+
+	int32_t width = 0;
+	char provider[64];
+	Check(bf_settings_get_int(s, "Client", "WIDTH", &width) == 1 && width == 1024
+	      && bf_settings_int(s, "Client", "NUMSAMPLETYPE", -1) == 1
+	      && bf_settings_get_string(s, "Client", "PROVIDERNAME", provider, sizeof(provider), NULL) == 1
+	      && bf_settings_type(s, "Client", "GUIDDEVICE") == BF_SETTING_DATA
+	      && bf_settings_int(s, "Client\\Option", "streamVolume", 0) == 100,
+	      "settings: Setup_HP defaults (WIDTH 1024, 32 voices, provider, GUIDs, Option volumes)");
+	Check(bf_settings_option(s, BF_OPT_SKIP_INTRO) == 1 && bf_settings_option(s, BF_OPT_FREE_CAMERA) == 1
+	      && bf_settings_option(s, BF_OPT_LAUNCH_ARGUMENTS) == 1 && bf_settings_option(s, BF_OPT_ATTACK_WITHOUT_CTRL) == 0,
+	      "settings: convenience options default on, on, on, off");
+	Check(bf_settings_has_group(s, "Client") && bf_settings_has_group(s, "client/option")
+	      && !bf_settings_has_group(s, "Client/UIRectInfo"),
+	      "settings: groups exist from the defaults (RegOpenKeyEx succeeds before Setup)");
+
+	unsigned char guid[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+	bool set = bf_settings_set_int(s, "Client", "width", 1280)
+	        && bf_settings_set_int(s, "Client/UIRectInfo", "ITEMWNDINFO.X", -5)
+	        && bf_settings_set_int(s, "Client/UIRectInfo", "M_MINIMAPARGB", (int32_t)0xFF102030u)
+	        && bf_settings_set_string(s, "Client/Option", "SKINNAME", "default")
+	        && bf_settings_set_data(s, "Client", "GUIDDEVICE", guid, sizeof(guid))
+	        && bf_settings_set_string(s, "Client/BookMark/Local \xc3\x96sterreich/Hero", "BOOKMARK0", "prt_fild08 \xc3\xa9t\xc3\xa9")
+	        && bf_settings_set_option(s, BF_OPT_ATTACK_WITHOUT_CTRL, 1)
+	        && bf_settings_set_account_name(s, "bftest");
+	Check(set, "settings: set int, string, data and option, creating groups");
+	Check(bf_settings_save(s) == 1 && bf_settings_save(s) == 0, "settings: save writes once, then has nothing to do");
+	bf_settings_close(s);
+
+	std::string text = ReadText(path);
+	Check(text.find("<key>FormatVersion</key>") != std::string::npos && text.find("<key>WIDTH</key>") != std::string::npos
+	      && text.find("HEIGHT") == std::string::npos && text.find("<key>UIRectInfo</key>") != std::string::npos,
+	      "settings: plist holds FormatVersion and set values only (WIDTH spelled as the default, no HEIGHT)");
+
+	s = bf_settings_open_file(path.c_str());
+	unsigned char back[16] = { 0 };
+	size_t length = 0;
+	char name[64];
+	char bookmark[64];
+	Check(bf_settings_int(s, "CLIENT", "Width", 0) == 1280 && bf_settings_int(s, "Client", "HEIGHT", 0) == 768
+	      && bf_settings_int(s, "Client/UIRectInfo", "ITEMWNDINFO.X", 0) == -5
+	      && (uint32_t)bf_settings_int(s, "Client/UIRectInfo", "M_MINIMAPARGB", 0) == 0xFF102030u
+	      && bf_settings_get_data(s, "Client", "GUIDDEVICE", back, sizeof(back), &length) == 1 && length == 16
+	      && memcmp(back, guid, 16) == 0
+	      && bf_settings_get_string(s, "Client/BookMark/Local \xc3\x96sterreich/Hero", "BOOKMARK0", bookmark, sizeof(bookmark), NULL) == 1
+	      && strcmp(bookmark, "prt_fild08 \xc3\xa9t\xc3\xa9") == 0
+	      && bf_settings_option(s, BF_OPT_ATTACK_WITHOUT_CTRL) == 1
+	      && bf_settings_account_name(s, name, sizeof(name)) == 1 && strcmp(name, "bftest") == 0,
+	      "settings: a fresh object reads every value back from the plist, names without regard to case");
+
+	char tiny[4];
+	Check(bf_settings_get_string(s, "Client/Option", "SKINNAME", tiny, sizeof(tiny), &length) == -1 && length == 7
+	      && bf_settings_get_data(s, "Client", "GUIDDEVICE", NULL, 0, &length) == 1 && length == 16,
+	      "settings: a short buffer reports the length needed");
+
+	Check(bf_settings_remove(s, "Client", "WIDTH") == 1 && bf_settings_int(s, "Client", "WIDTH", 0) == 1024,
+	      "settings: a removed value reads as its default again");
+	Check(bf_settings_remove(s, "Client/BookMark", NULL) == 1 && !bf_settings_has_group(s, "Client/BookMark/Local \xc3\x96sterreich"),
+	      "settings: a group is removed with everything in it (RegDeleteKey)");
+
+	Check(bf_settings_set_int(s, "Client", "Option", 1) == 0, "settings: a value cannot replace a group");
+	Check(bf_settings_set_string(s, "Client", "BAD", "\xc0\xaf") == 0, "settings: a string that is not UTF-8 is refused");
+	Check(bf_settings_create_group(s, "Client/NameBaloon/srv") == 1 && bf_settings_has_group(s, "Client/NameBaloon/srv"),
+	      "settings: create group (RegCreateKeyEx)");
+
+	int count = 0;
+	bool sawOwn = false, sawDefault = false;
+	for (int i = 0;; ++i) {
+		char n[64];
+		bf_setting_type type = bf_settings_value_at(s, "Client/Option", i, n, sizeof(n));
+		if (type == BF_SETTING_NONE)
+			break;
+		++count;
+		if (strcmp(n, "SKINNAME") == 0 && type == BF_SETTING_STRING) sawOwn = true;
+		if (strcmp(n, "isEffectOn") == 0 && type == BF_SETTING_INT) sawDefault = true;
+	}
+	Check(count == 6 && sawOwn && sawDefault, Format("settings: enumeration lists stored and default values (%d)", count).c_str());
+
+	std::vector<bf_sys_thread *> threads;
+	for (int i = 0; i < 4; ++i)
+		threads.push_back(bf_sys_thread_create(SetMany, s, "bf-settings"));
+	uint32_t failures = 0;
+	for (bf_sys_thread *t : threads)
+		failures += bf_sys_thread_join(t);
+	Check(failures == 0 && bf_settings_save(s) == 1, "settings: 4 threads set values at once, then save");
+
+	bf_settings_reset(s);
+	Check(bf_settings_int(s, "Client", "WIDTH", 0) == 1024 && !bf_settings_has_group(s, "Client/UIRectInfo"),
+	      "settings: reset leaves the defaults");
+	bf_settings_close(s);
+
+	// The shared object lives in Application Support under BF_HOME.
+	bf_settings *shared = bf_settings_shared();
+	std::string expected = std::string(bf_file_location(BF_LOCATION_SUPPORT)) + "/Settings.plist";
+	Check(shared == bf_settings_open(NULL) && expected == bf_settings_path(shared),
+	      Format("settings: the shared object is %s", bf_settings_path(shared)).c_str());
+	bf_settings *profile = bf_settings_open("second");
+	Check(profile != shared && profile == bf_settings_open("second")
+	      && std::string(bf_settings_path(profile)).find("Settings-second.plist") != std::string::npos,
+	      "settings: a profile gets its own object and file");
+
+	// The game folder can come from the settings when the environment names none.
+	const char *env = getenv("BF_CLIENT_DIR");
+	std::string saved = env ? env : "";
+	unsetenv("BF_CLIENT_DIR");
+	bf_settings_set_string(shared, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, fakeGame.c_str());
+	bf_file_set_game_folder(NULL);
+	std::string fromSettings = bf_file_location(BF_LOCATION_GAME);
+	setenv("BF_CLIENT_DIR", "/nonexistent/from-env", 1);
+	bf_file_set_game_folder(NULL);
+	std::string fromEnv = bf_file_location(BF_LOCATION_GAME);
+	if (env)
+		setenv("BF_CLIENT_DIR", saved.c_str(), 1);
+	else
+		unsetenv("BF_CLIENT_DIR");
+	bf_settings_remove(shared, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER);
+	bf_file_set_game_folder(NULL);
+	Check(fromSettings == fakeGame && fromEnv == "/nonexistent/from-env",
+	      "settings: game folder from Paths/GameFolder, BF_CLIENT_DIR wins over it");
+	bf_file_set_game_folder(fakeGame.c_str());
+}
+
 // ---- Keychain and shell ----------------------------------------------------------
+
+void TestKeychain()
+{
+	const char *account = "bifrost-sys-test";
+	if (!bf_sys_keychain_available()) {
+		Skip("keychain: store, read, replace, short buffer, delete",
+		     "the login keychain cannot be reached from this session (locked, or no window server)");
+		return;
+	}
+	bf_sys_keychain_delete(account);
+	char out[64];
+	bool ok = bf_sys_keychain_store(account, "first secret") == 1
+	       && bf_sys_keychain_read(account, out, sizeof(out)) == 1 && strcmp(out, "first secret") == 0
+	       && bf_sys_keychain_store(account, "second") == 1
+	       && bf_sys_keychain_read(account, out, sizeof(out)) == 1 && strcmp(out, "second") == 0
+	       && bf_sys_keychain_read(account, out, 3) == -1
+	       && bf_sys_keychain_delete(account) == 1
+	       && bf_sys_keychain_read(account, out, sizeof(out)) == 0
+	       && bf_sys_keychain_delete(account) == 0;
+	Check(ok, "keychain: store, read, replace, short buffer, delete (service " BF_APP_NAME ")");
+}
 
 void TestShell()
 {
@@ -585,6 +745,8 @@ int main()
 	TestRefusal(game);
 	TestWritePaths(game);
 	TestConcurrentLookups();
+	TestSettings(home, game);
+	TestKeychain();
 	TestShell();
 	TestRealGameFolder(realGame);
 

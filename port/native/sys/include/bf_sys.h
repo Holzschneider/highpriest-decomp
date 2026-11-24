@@ -1,11 +1,12 @@
 /*
  * bf_sys: the operating system for the client, designed for macOS.
  *
- * This header holds threads and the shell functions, and
+ * This header holds threads, the Keychain and the shell functions, and
  * includes the module's other parts:
  *
  *   bf_clock.h      the one clock (time, sleep, calendar)
  *   bf_file.h       the game folder, the write locations, file access
+ *   bf_settings.h   the settings object and its property list
  *
  * No Windows types. The adapters in port/compat give these functions the
  * Win32 names the client calls today (CreateThread, critical sections,
@@ -23,6 +24,7 @@
 
 #include "bf_clock.h"
 #include "bf_file.h"
+#include "bf_settings.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,6 +83,24 @@ void bf_sys_mutex_lock(bf_sys_mutex *mutex);
 int  bf_sys_mutex_try_lock(bf_sys_mutex *mutex);   /* 1 if locked */
 void bf_sys_mutex_unlock(bf_sys_mutex *mutex);
 void bf_sys_mutex_destroy(bf_sys_mutex *mutex);
+
+/* ---- Keychain ------------------------------------------------------------
+ * The saved account password: a generic password item, service = the
+ * application name, account = the account name (UTF-8). Thread: any.
+ */
+
+/*
+ * 1 if the Keychain can be used from this session without asking anyone:
+ * 0 when it is locked or unreachable (a background session without the
+ * window server, errSecInteractionNotAllowed). Thread: any.
+ */
+int bf_sys_keychain_available(void);
+/* Stores or replaces the password. 1 or 0 (trace line with the OSStatus). */
+int bf_sys_keychain_store(const char *account, const char *password);
+/* 1 and the password copied NUL-terminated; 0 if none is stored; -1 on error or if out_size is too small. */
+int bf_sys_keychain_read(const char *account, char *out, size_t out_size);
+/* 1 if an item was deleted, 0 if there was none, -1 on error. */
+int bf_sys_keychain_delete(const char *account);
 
 /* ---- Shell ----------------------------------------------------------------
  * Alerts are modal NSAlerts on the main thread. They are not shown, but

@@ -18,6 +18,8 @@ add_library(bf_sys STATIC
 	src/bf_clock.cpp
 	src/bf_thread.cpp
 	src/bf_file.cpp
+	src/bf_settings.mm
+	src/bf_keychain.cpp
 	src/bf_shell.mm
 )
 target_include_directories(bf_sys
@@ -32,7 +34,8 @@ target_link_libraries(bf_sys PUBLIC
 	"-framework CoreFoundation"
 	"-framework Foundation"
 	"-framework AppKit"
-	"-framework CoreGraphics")
+	"-framework CoreGraphics"
+	"-framework Security")
 
 add_executable(bifrost-sys-test
 	test/sys_test.cpp

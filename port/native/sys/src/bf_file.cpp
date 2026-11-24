@@ -1,6 +1,7 @@
 // The game folder, the write locations, path translation and file access.
 
 #include "bf_file.h"
+#include "bf_settings.h"
 #include "bf_trace.h"
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -316,10 +317,14 @@ const std::string &GameFolder()
 	if (!g_gameFolderReady) {
 		std::string folder;
 		const char *env = getenv("BF_CLIENT_DIR");
+		char fromSettings[1024];
 		if (g_hasExplicitGameFolder) {
 			folder = g_explicitGameFolder;
 		} else if (env && *env) {
 			folder = env;
+		} else if (bf_settings_get_string(bf_settings_shared(), BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER,
+		                                  fromSettings, sizeof(fromSettings), NULL) == 1 && fromSettings[0]) {
+			folder = fromSettings;
 		} else {
 			folder = RealHome() + "/Games/" BF_APP_NAME;
 		}

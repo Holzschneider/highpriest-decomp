@@ -30,7 +30,8 @@
  * line names the path.
  *
  * Locations, relative to the home folder:
- *   game folder       bf_file_set_game_folder, else $BF_CLIENT_DIR, else ~/Games/<name>
+ *   game folder       bf_file_set_game_folder, else $BF_CLIENT_DIR, else the
+ *                     setting Paths/GameFolder, else ~/Games/<name>
  *   support           ~/Library/Application Support/<name>
  *   pictures          ~/Pictures/<name>
  *   documents         ~/Documents/<name>
