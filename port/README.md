@@ -41,6 +41,10 @@ port/tools/layoutcheck.py [--tree DIR] [--ref-tree DIR]
 
 Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. On the shadow tree eight records still differ, all through `time_t` fields in `packet.h`, which are 32 bits on Win32.
 
+## Reference executable
+
+`port/tools/refexe.sh --string TEXT | --addr 0xA | --func NAME | --callers 0xA` prints the decompilation of the matching function in the stock 2008-09-03a Sakexe (Ghidra project in `$BF_REFEXE_DIR`, default `~/Games/Bifrost/refexe`). Provenance, rebuild steps and anchors: [reference-exe.md](../docs/port/reference-exe.md). The executable is never run.
+
 ## Auditing game data
 
 ```bash

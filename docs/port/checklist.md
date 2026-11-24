@@ -16,7 +16,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M1.3 Restore start-up: `MT_LOGIN` with `login.rsw`, `PollNetworkStatus`, `CGameMode::Initialize` tail, archive list from configuration | src | M1.2 |
 | [ ] | M1.4 Restore the remaining replaced sites; mark the unsettled ones | src | M1.3 |
 | [ ] | M1.5 General client: name constant, no process-name check, no `Setup_HP.exe` loop, settings independent of the HighPriest key | src | M1.3 |
-| [ ] | M1.6 Reference executable downloaded, checksummed, loaded in a disassembler | ref | |
+| [x] 174f7f0 | M1.6 Reference executable downloaded, checksummed, loaded in a disassembler | ref | |
 | [ ] | M1 exit (verifier) | | M1.0–M1.6 |
 
 ## M2. Compiles for arm64
