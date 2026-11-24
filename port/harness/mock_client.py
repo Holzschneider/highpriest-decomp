@@ -42,7 +42,8 @@ MODS = {"shift", "ctrl", "alt", "cmd"}
 WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECTCHARWND": 5,
        "WAITWND": 6, "LOADINGWND": 7, "SAYDIALOGWND": 16, "CHOOSEWND": 17, "RESTARTWND": 19,
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
-       "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37}
+       "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
+       "PARTYSETTINGWND": 53, "WHISPERWND": -1}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 EVENTS = ["mode", "map", "chat", "window", "sound", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
@@ -304,7 +305,9 @@ class Mock:
         elif mode == "game":
             self.open_window(Window("BASICINFOWND", [0, 0, 220, 120]))
             self.open_window(Window("CHATWND", [0, L[1] - 120, 400, 120],
-                                    [ctl("chat_edit", "edit", 4, L[1] - 20, 392, 16)]))
+                                    [ctl("chat_edit", "edit", 4, L[1] - 20, 392, 16),
+                                     ctl("whisper_edit", "edit", 4, L[1] - 40, 90, 16)]))
+            self.window("CHATWND").focus_control = "chat_edit"
 
     def open_window(self, w):
         self.windows.insert(0, w)
@@ -334,6 +337,12 @@ class Mock:
 
     def on_text(self, ch):
         w = self.windows[0] if self.windows else None
+        if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND")) and \
+                self.window("CHATWND").focus_control == "whisper_edit":
+            c = self.window("CHATWND").control("whisper_edit")   # the whisper name field (M8.1b)
+            if len(c["text"]) < 23:
+                c["text"] += ch
+            return
         if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND")):
             self.chat_line += ch
             self.window("CHATWND").control("chat_edit")["text"] = self.chat_line
@@ -356,6 +365,10 @@ class Mock:
             if edits:
                 i = edits.index(w.focus_control) if w.focus_control in edits else -1
                 w.focus_control = edits[(i + 1) % len(edits)]
+        elif key == "backspace" and self.mode == "game" and not self.talk and \
+                self.window("CHATWND").focus_control == "whisper_edit":
+            c = self.window("CHATWND").control("whisper_edit")
+            c["text"] = c["text"][:-1]
         elif key == "backspace":
             if self.mode == "game" and not self.talk:
                 self.chat_line = self.chat_line[:-1]
@@ -389,7 +402,10 @@ class Mock:
                 return
             line, self.chat_line = self.chat_line, ""
             self.window("CHATWND").control("chat_edit")["text"] = ""
-            if line:
+            whisper = self.window("CHATWND").control("whisper_edit")["text"]
+            if line and whisper and not line.startswith("/"):
+                self.whisper(whisper, line)
+            elif line:
                 self.say(line)
 
     def on_escape(self):
@@ -485,6 +501,10 @@ class Mock:
         elif w.name == "CHOOSEWND":
             self.close_window(w.name)
             self.choose(cid)
+        elif w.name == "PARTYSETTINGWND":
+            self.close_window(w.name)
+            if cid == "ok":
+                self.make_party(w.data["name"])
 
     # -- login, characters ---------------------------------------------------
 
@@ -544,7 +564,8 @@ class Mock:
             return
         self.db.update("char", s["char_id"], last_map=self.map, last_x=s["x"], last_y=s["y"],
                        base_level=s["base_level"], job_level=s["job_level"], zeny=s["zeny"],
-                       online=0, **{"class": s["class"]})
+                       online=0, party_id=s.get("party_id", 0), guild_id=s.get("guild_id", 0),
+                       **{"class": s["class"]})
         self.self_ = None
         self.map = None
 
@@ -774,9 +795,59 @@ class Mock:
                         char_name=s["name"], map=self.map, command=line)
             self.atcommand(line.split())
             return
-        self.db.put("chatlog", type="O", type_id=0, src_charid=s["char_id"], src_accountid=acc["account_id"],
+        # Party and guild (M8.1b), as the 2008 client sends them: /organize
+        # opens the sharing rules first, % and $ prefix a party and a guild line.
+        words = line.split()
+        if words and words[0] in ("/organize", "/guild") and len(words) == 2:
+            if words[0] == "/organize":
+                L = self.logical()
+                self.open_window(Window("PARTYSETTINGWND", [L[0] // 2 - 100, L[1] // 2 - 90, 200, 180], [
+                    ctl("ok", "button", L[0] // 2 + 8, L[1] // 2 + 66, 42, 20, "OK"),
+                    ctl("cancel", "button", L[0] // 2 + 54, L[1] // 2 + 66, 42, 20, "Cancel")],
+                    data={"name": words[1]}))
+            else:
+                self.make_guild(words[1])
+            return
+        if line.startswith("/"):
+            return   # emotes and the like: nothing the server logs
+        kind = "O"
+        if line.startswith("%") and s.get("party_id"):
+            kind, line = "P", line[1:]
+        elif line.startswith("$") and s.get("guild_id"):
+            kind, line = "G", line[1:]
+        self.db.put("chatlog", type=kind, type_id=s.get({"P": "party_id", "G": "guild_id"}.get(kind), 0),
+                    src_charid=s["char_id"], src_accountid=acc["account_id"],
                     src_map=self.map, src_map_x=s["x"], src_map_y=s["y"], dst_charname=None, message=line)
-        self.emit("chat", channel="normal", text=line, **{"from": s["name"]})
+        self.emit("chat", channel={"O": "normal", "P": "party", "G": "guild"}[kind], text=line,
+                  **{"from": s["name"]})
+
+    def whisper(self, name, line):
+        s = self.self_
+        self.db.put("chatlog", type="W", type_id=0, src_charid=s["char_id"],
+                    src_accountid=self.account["account_id"], src_map=self.map, src_map_x=s["x"],
+                    src_map_y=s["y"], dst_charname=name, message=line)
+        if not any(r["name"] == name and r.get("online") for r in self.db.rows("char")):
+            self.system("%s is not online." % name)
+
+    def make_party(self, name):
+        s = self.self_
+        pid = max([r["party_id"] for r in self.db.rows("party")] or [0]) + 1
+        self.db.put("party", party_id=pid, name=name, exp=0, item=0, leader_id=self.account["account_id"],
+                    leader_char=s["char_id"])
+        s["party_id"] = pid
+        self.system("Party has successfully been organized.")
+
+    def make_guild(self, name):
+        s = self.self_
+        if not any(r["nameid"] == 714 for r in self.inventory()):
+            self.system("You need the necessary item to create a Guild.")
+            return
+        self.add_item(714, -1, "C")
+        gid = max([r["guild_id"] for r in self.db.rows("guild")] or [0]) + 1
+        self.db.put("guild", guild_id=gid, name=name, char_id=s["char_id"], master=s["name"], guild_lv=1)
+        self.db.put("guild_member", guild_id=gid, char_id=s["char_id"], position=0)
+        s["guild_id"] = gid
+        self.system("[%s] Guild has been created." % name)
 
     def atcommand(self, argv):
         s = self.self_

@@ -1,0 +1,8 @@
+# frames under <game folder>/test/frames/chat/; regenerate with port/harness/run.py
+cc6a6af640d3028292e5cb27adf8e11efbcf2a75d60e09449d7ca0d6ec85a245  2048x1536  emote.png
+9df037a42e008ed70b19df3652e11b70dc6238fd6f6f92b7c61cb8e905ca125f  2048x1536  guild.png
+770606bf2bebde4873e7eda7d1378e83712f20fb0227b46f092a04e3ba75c4c2  2048x1536  login-typed.png
+efc568dbab83d09eef009b5e9f077fc868dcdef1b5ad4d621f1b1137746799f2  2048x1536  party.png
+c40bc2e347d4471aafd1bafb1ef08dcf12db8420d31ced29a62afe1efdee339a  2048x1536  party-setting.png
+7eb3fa90217fadd9d8474632b33f6acfece690ad9c856ce13c3bffe93e563768  2048x1536  public.png
+067a152efddc8de5acab52c705d13b9122ff1509e3e2fba60b024373d9154e48  2048x1536  whisper.png

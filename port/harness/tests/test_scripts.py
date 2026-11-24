@@ -39,6 +39,9 @@ class ScriptsAgainstMock(unittest.TestCase):
     def test_gate(self):
         self.run_script("gate")
 
+    def test_chat(self):
+        self.run_script("chat")
+
     def test_sound(self):
         rep = self.run_script("sound")
         names = [s["name"] for s in rep["steps"]]
