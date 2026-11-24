@@ -1196,6 +1196,7 @@ class Mock(SkillsOptionsMixin):
         cid = max([r["char_id"] for r in self.db.rows("char")] or [150000]) + 1
         self.db.put("char", char_id=cid, account_id=self.account["account_id"], char_num=self.selected_slot,
                     name=name, **{"class": 0, "base_level": 1, "job_level": 1, "zeny": 0,
+                                  "base_exp": 0, "job_exp": 0, "skill_point": 0,
                                   "last_map": "prontera", "last_x": 155, "last_y": 183, "online": 0,
                                   "max_hp": 40, "hp": 40, "max_sp": 11, "sp": 11})
         self.db.put("charlog", char_msg="make new char", account_id=self.account["account_id"],
@@ -1806,6 +1807,10 @@ class Mock(SkillsOptionsMixin):
         if (src, target.name) not in moves:
             return
         have = r["amount"] if src == "ITEMWND" else dict(self.item_list(src)).get(nameid, 0)
+        if have == 1:
+            # a single item moves without the count window (m_numDragItem == 1)
+            self.count_entered((src, target.name, nameid), 1)
+            return
         L = self.logical()
         w = self.open_window(Window("ITEMDROPCNTWND", [L[0] // 2 - 120, L[1] // 2 - 64, 182, 46], [
             ctl("edit", "edit", L[0] // 2 - 105, L[1] // 2 - 42, 80, 16, str(have or 1)),
@@ -1921,6 +1926,8 @@ class Mock(SkillsOptionsMixin):
                 self.add_item(int(args[0]), int(args[1]) if len(args) > 1 else 1, "A")
             elif cmd == "jlvl":
                 s["job_level"] = min(50, s["job_level"] + int(args[0]))
+            elif cmd == "skpoint":
+                s["skill_point"] = max(0, s.get("skill_point", 0) + int(args[0]))
             elif cmd == "blvl":
                 s["base_level"] = min(99, s["base_level"] + int(args[0]))
             elif cmd == "jobchange":

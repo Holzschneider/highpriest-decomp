@@ -29,9 +29,9 @@ CZ_ITEM_PICKUP and the server logs picklog type P for the character, and the
 """
 
 import re
-import time
 
 from bfharness.accounts import unique_name
+from bfharness.field import ground_items, kill_until_drop, ok, pick_up
 from bfharness.play import enter_game, fresh_character, login, own_home
 from bfharness.sql import wait_rows
 
@@ -43,80 +43,6 @@ NEEDS_SERVER = True
 
 PORING = 1002
 START = ("prt_fild08", 170, 375)
-
-
-def ok(s, cond, message):
-    s.check(cond, message, passed=bool(cond))
-
-
-def own_poring(t, ctl, s, me):
-    """Spawn a Poring by atcommand (set-up) and return the nearest one."""
-    before = set(a["id"] for a in ctl.state("actors")["actors"])
-    mark = t.logs.mark()
-    t.gm.run(t.gm.monster(PORING, 1))
-    s.rows("atcommandlog @monster", wait_rows(lambda: t.logs.atcommands(contains="@monster", after=mark), timeout=10))
-    deadline = time.monotonic() + 10
-    new = []
-    while time.monotonic() < deadline and not new:
-        ctl.wait({"frames": 5}, timeout=10)
-        new = [a for a in ctl.state("actors")["actors"]
-               if a["type"] == "monster" and a["job"] == PORING and a["id"] not in before]
-    mons = new or [a for a in ctl.state("actors")["actors"] if a["type"] == "monster" and a["job"] == PORING]
-    mons.sort(key=lambda a: abs(a["x"] - me["x"]) + abs(a["y"] - me["y"]))
-    return mons[0] if mons else None
-
-
-def find(ctl, aid):
-    a = [x for x in ctl.state("actors")["actors"] if x["id"] == aid]
-    return a[0] if a else None
-
-
-def kill(t, ctl, n, target):
-    """Ctrl-click the Poring once; click again only when no number has been
-    drawn on it for 6 s (it wandered off). Returns (died, last cell, drops)."""
-    with t.step("attack Poring %d until it dies" % n,
-                "M8.1c: one Ctrl-click attacks until the monster dies; damage numbers drawn; the server logs the death") as s:
-        mark = t.logs.mark()
-        after = ctl.last_seq
-        deadline = time.monotonic() + 90
-        clicks, gone, shot, seen = 0, False, False, 0
-        cell = (target["x"], target["y"])
-        last = 0
-        while time.monotonic() < deadline:
-            a = find(ctl, target["id"])
-            if not a:
-                gone = True
-                break
-            cell = (a["x"], a["y"])
-            hits = [e for e in ctl.events_named("damage", after) if e["target"] == target["id"]]
-            if hits and not shot:
-                s.frame("damage-number-%d" % n)
-                shot = True
-            if len(hits) != seen:
-                seen, last = len(hits), time.monotonic()
-            if a["screen"] and (clicks == 0 or time.monotonic() - last > 6):
-                ctl.move(a["screen"]["x"], a["screen"]["y"])
-                ctl.wait({"frames": 3}, timeout=10)
-                ctl.key("down", "ctrl")
-                ctl.click(a["screen"]["x"], a["screen"]["y"])
-                ctl.key("up", "ctrl")
-                clicks += 1
-                last = time.monotonic()
-            time.sleep(0.3 if not t.mock else 0.1)
-        dmg = ctl.events_named("damage", after)
-        on_poring = [e for e in dmg if e.get("target") == target["id"]]
-        s.state("damage events (target, number, kind)", [(e["target"], e["number"], e["kind"]) for e in dmg][:40])
-        s.note("%d Ctrl-click(s); %d numbers on the Poring; it %s at %r"
-               % (clicks, len(on_poring), "died" if gone else "was still there after 90 s", cell))
-        ok(s, gone, "the Poring is gone from the client's actors")
-        ok(s, on_poring, "damage numbers drawn on the Poring: %s" % [e.get("number") for e in on_poring])
-        ok(s, len(on_poring) > clicks, "attacking went on after the click: %d numbers for %d click(s)"
-           % (len(on_poring), clicks))
-        drops = wait_rows(lambda: t.logs.monster_drops(PORING, map=START[0], after=mark), timeout=5)
-        s.rows("picklog M: what mob %d dropped on %s (a Poring that drops nothing leaves no row)"
-               % (PORING, START[0]), drops, min_rows=0)
-        s.frame("killed-%d" % n)
-        return after, cell, drops
 
 
 def run(t):
@@ -135,18 +61,7 @@ def run(t):
     t.gm.ctl = ctl
     first = ctl.last_seq
 
-    # a Poring drops nothing about a fifth of the time: up to four of them
-    drops, cell = [], None
-    for n in range(1, 5):
-        with t.step("set-up: Poring %d" % n, "atcommand typed by the client: @monster %d 1" % PORING) as s:
-            me = ctl.state("self")["self"]
-            target = own_poring(t, ctl, s, me)
-            s.state("self", me)
-            s.state("the Poring", target)
-            ok(s, target is not None and target["screen"], "a Poring on screen")
-        after, cell, drops = kill(t, ctl, n, target)
-        if drops:
-            break
+    _, cell, drops = kill_until_drop(t, ctl, PORING, START[0])
 
     with t.step("attack sounds", "M8.1c/M7: the attack's voices: the own character's act sound, the hit, the Poring's") as s:
         vs = [e for e in ctl.events_named("sound", first) if e.get("started")]
@@ -166,28 +81,14 @@ def run(t):
     with t.step("the drop on the ground", "M8.1c: the monster's drop appears as an item actor") as s:
         ok(s, drops, "a Poring dropped something (picklog M)")
         dropped = set(r["nameid"] for r in drops)
-        deadline = time.monotonic() + 10
-        items = []
-        while time.monotonic() < deadline and not items:
-            items = [a for a in ctl.state("actors")["actors"] if a["type"] == "item" and a["job"] in dropped
-                     and abs(a["x"] - cell[0]) <= 3 and abs(a["y"] - cell[1]) <= 3 and a["screen"]]
-            time.sleep(0.5)
+        items = ground_items(ctl, dropped, cell)
         s.state("items near %r" % (cell,), items)
         ok(s, items, "an item of %s on the ground beside the Poring's last cell" % sorted(dropped))
         s.frame("drop")
 
     with t.step("pick it up", "M8.1c: a click on the item picks it up (picklog P)") as s:
         it = items[0]
-        mark = t.logs.mark()
-        ctl.move(it["screen"]["x"], it["screen"]["y"])
-        ctl.wait({"frames": 3}, timeout=10)
-        ctl.click(it["screen"]["x"], it["screen"]["y"])
-        s.rows("picklog P item %s by %d" % (it["job"], char_id),
-               wait_rows(lambda: t.logs.picked_up(char_id, it["job"], after=mark), timeout=20))
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and find(ctl, it["id"]):
-            time.sleep(0.5)
-        ok(s, not find(ctl, it["id"]), "the item is gone from the ground")
+        pick_up(t, ctl, s, it, char_id)
         picked = it["job"]
 
     t.stop_client()

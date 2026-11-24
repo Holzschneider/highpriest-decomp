@@ -307,6 +307,51 @@ def click_tab(ctl, wname, name):
     ctl.wait({"frames": 3}, timeout=10)
 
 
+DEAL_WINDOWS = {"buy": "ITEMPURCHASEWND", "sell": "ITEMSELLWND"}
+
+
+def deal(ctl, dealer, kind, nameid, amount, s=None, frames=None, what="Tool Dealer"):
+    """Buy or sell one item at a shop NPC through the client's deal windows:
+    click the dealer (the actor predicate `dealer`), `kind` ("buy"/"sell")
+    in CHOOSESELLBUYWND, drag the item from ITEMSHOPWND into the purchase or
+    sell window, type the amount into ITEMDROPCNTWND, check the window's
+    count and press its OK (CZ_PC_PURCHASE_ITEMLIST / CZ_PC_SELL_ITEMLIST).
+    A stack of one (the sell list's `<name> 1`) moves without the count
+    window, as every drag of a single item in the 2008 client.
+    frames: {"amount"/"list": frame name}, the count window and the filled
+    deal window. The server's records are the caller's to check."""
+    frames = frames or {}
+    target = DEAL_WINDOWS[kind]
+    click_npc(ctl, dealer, what)
+    ctl.wait_window("CHOOSESELLBUYWND", timeout=15)
+    ctl.wait({"frames": 5}, timeout=10)
+    ctl.click_control("CHOOSESELLBUYWND", kind)
+    ctl.wait_window("CHOOSESELLBUYWND", open=False, timeout=10)
+    ctl.wait_window(target, timeout=15)
+    wait_control(ctl, "ITEMSHOPWND", "item:%d" % nameid)
+    if s is not None:
+        s.state("%s list" % kind, [c["text"] for c in ctl.window("ITEMSHOPWND")["controls"]
+                                   if c["id"].startswith("item:")])
+    have = item_count(ctl, "ITEMSHOPWND", nameid)
+    drag_item(ctl, "ITEMSHOPWND", nameid, target)
+    if have != 1:
+        ctl.wait_window("ITEMDROPCNTWND", timeout=10)
+        if s is not None and "amount" in frames:
+            s.frame(frames["amount"])
+        type_into(ctl, "ITEMDROPCNTWND", amount, s, "the amount")
+    elif s is not None:
+        # a single item moves without the count window (m_numDragItem == 1)
+        s.note("one %d in the list: moved without the count window" % nameid)
+    wait_control(ctl, target, "item:%d" % nameid)
+    if s is not None:
+        s.equal(item_count(ctl, target, nameid), amount, "items in %s" % target)
+        s.state("%s controls" % target, ctl.window(target)["controls"])
+        if "list" in frames:
+            s.frame(frames["list"])
+    ctl.click_control(target, "ok")
+    ctl.wait_window(target, open=False, timeout=15)
+
+
 def sent(t, header):
     """Packets with that header ("0x00b8") the client sent (BF_PKT_LOG), as
     "<header> <name> <size>" lines; the mock sends none."""

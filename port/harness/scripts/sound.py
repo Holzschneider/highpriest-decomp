@@ -50,6 +50,7 @@ import re
 import time
 
 from bfharness.bot import Bot
+from bfharness.field import walk_into_portal
 from bfharness.play import enter_game, login, own_home
 
 NAME = "sound"
@@ -172,19 +173,7 @@ def through_portal(t, ctl, table, char_id):
         s.equal(st["sound"]["stream"]["status"], "playing", "stream status")
     with t.step("walk into %s" % name, "the map change by the south gate, %s to %s" % (mp, dm)) as s:
         # the server's warp is a 3x2 area around 156,22 (the mock's is a cell at 156,18)
-        portals = [a for a in ctl.state("actors")["actors"] if a["type"] == "portal" and a["screen"]
-                   and abs(a["x"] - wx) <= sx + 4 and abs(a["y"] - wy) <= sy + 4]
-        portals.sort(key=lambda a: abs(a["x"] - wx) + abs(a["y"] - wy))
-        s.state("portal", portals[:1])
-        ok(s, portals, "the portal %s on screen" % name)
-        p = portals[0]
-        after = ctl.last_seq
-        ctl.move(p["screen"]["x"], p["screen"]["y"])
-        ctl.wait({"frames": 3}, timeout=10)
-        ctl.click(p["screen"]["x"], p["screen"]["y"])
-        ev = ctl.wait_event("map", lambda e: e.get("map") == dm, after=after, timeout=90)
-        s.state("map event", ev)
-        ctl.wait({"map": dm, "moving": False}, timeout=30)
+        walk_into_portal(t, ctl, s, WARP)
     with t.step("map music in %s" % dm, "M7: map music changes on map change (%s.rsw)" % dm) as s:
         ok(s, base(table[dm]) != base(table[mp]), "the two maps have different music: %s, %s" % (table[mp], table[dm]))
         ctl.wait({"frames": 30}, timeout=20)

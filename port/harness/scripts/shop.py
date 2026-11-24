@@ -42,14 +42,6 @@ def dealer(a):
     return a["type"] == "npc" and (a["x"], a["y"]) == DEALER[1:]
 
 
-def deal_type(ctl, button):
-    npcplay.click_npc(ctl, dealer, "Tool Dealer")
-    ctl.wait_window("CHOOSESELLBUYWND", timeout=15)
-    ctl.wait({"frames": 5}, timeout=10)
-    ctl.click_control("CHOOSESELLBUYWND", button)
-    ctl.wait_window("CHOOSESELLBUYWND", open=False, timeout=10)
-
-
 def run(t):
     with t.step("set-up: account and character", "SQL, offline: 1000 zeny, 10 Jellopy at the dealer") as s:
         user, password, c = npcplay.new_player(t, "s", *START, zeny=ZENY, items=[(JELLOPY, JELLOPIES)])
@@ -68,21 +60,7 @@ def run(t):
     with t.step("buy 2 Red Potions", "M8.1e shop: buy; picklog S, zenylog S, amount typed") as s:
         mark = t.logs.mark()
         zeny0 = ctl.state("self")["self"]["zeny"]
-        deal_type(ctl, "buy")
-        ctl.wait_window("ITEMPURCHASEWND", timeout=15)
-        npcplay.wait_control(ctl, "ITEMSHOPWND", "item:%d" % RED_POTION)
-        s.state("shop list", [c["text"] for c in ctl.window("ITEMSHOPWND")["controls"]
-                              if c["id"].startswith("item:")])
-        npcplay.drag_item(ctl, "ITEMSHOPWND", RED_POTION, "ITEMPURCHASEWND")
-        ctl.wait_window("ITEMDROPCNTWND", timeout=10)
-        s.frame("buy-amount")
-        npcplay.type_into(ctl, "ITEMDROPCNTWND", BUY, s, "the amount")
-        npcplay.wait_control(ctl, "ITEMPURCHASEWND", "item:%d" % RED_POTION)
-        s.equal(npcplay.item_count(ctl, "ITEMPURCHASEWND", RED_POTION), BUY, "Red Potions in the purchase window")
-        s.state("purchase window", ctl.window("ITEMPURCHASEWND")["controls"])
-        s.frame("buy-list")
-        ctl.click_control("ITEMPURCHASEWND", "ok")
-        ctl.wait_window("ITEMPURCHASEWND", open=False, timeout=15)
+        npcplay.deal(ctl, dealer, "buy", RED_POTION, BUY, s, frames={"amount": "buy-amount", "list": "buy-list"})
         rows = s.rows("picklog S Red Potion", wait_rows(lambda: t.logs.bought(char_id, RED_POTION, after=mark)))
         s.equal(rows[-1]["amount"], BUY, "picklog amount")
         z = s.rows("zenylog S", wait_rows(lambda: t.logs.zeny(char_id, "S", after=mark)))
@@ -95,19 +73,7 @@ def run(t):
     with t.step("sell 5 Jellopy", "M8.1e shop: sell; picklog S, zenylog S, amount typed") as s:
         mark = t.logs.mark()
         zeny0 = ctl.state("self")["self"]["zeny"]
-        deal_type(ctl, "sell")
-        ctl.wait_window("ITEMSELLWND", timeout=15)
-        npcplay.wait_control(ctl, "ITEMSHOPWND", "item:%d" % JELLOPY)
-        s.state("items to sell", [c["text"] for c in ctl.window("ITEMSHOPWND")["controls"]
-                                  if c["id"].startswith("item:")])
-        npcplay.drag_item(ctl, "ITEMSHOPWND", JELLOPY, "ITEMSELLWND")
-        ctl.wait_window("ITEMDROPCNTWND", timeout=10)
-        npcplay.type_into(ctl, "ITEMDROPCNTWND", SELL, s, "the amount")
-        npcplay.wait_control(ctl, "ITEMSELLWND", "item:%d" % JELLOPY)
-        s.equal(npcplay.item_count(ctl, "ITEMSELLWND", JELLOPY), SELL, "Jellopy in the sell window")
-        s.frame("sell-list")
-        ctl.click_control("ITEMSELLWND", "ok")
-        ctl.wait_window("ITEMSELLWND", open=False, timeout=15)
+        npcplay.deal(ctl, dealer, "sell", JELLOPY, SELL, s, frames={"list": "sell-list"})
         rows = s.rows("picklog S Jellopy", wait_rows(lambda: t.logs.sold(char_id, JELLOPY, after=mark)))
         s.equal(rows[-1]["amount"], -SELL, "picklog amount")
         z = s.rows("zenylog S", wait_rows(lambda: t.logs.zeny(char_id, "S", after=mark)))
