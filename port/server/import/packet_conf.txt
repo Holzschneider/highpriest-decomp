@@ -1,0 +1,6 @@
+// Every test client reaches the server from the one Docker gateway address,
+// and scripted runs log in many times in a row. The stock flood protection
+// (5 connections in 3 s, then a 10-minute block) stops them; raise it for
+// this local test server only.
+ddos_count: 200
+ddos_autoreset: 10000

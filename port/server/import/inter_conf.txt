@@ -23,3 +23,6 @@ log_db_ip: db
 log_db_id: ragnarok
 log_db_pw: ragnarok
 log_db_db: ragnarok
+
+// The client speaks Windows-1252; store names and chat as latin1.
+default_codepage: latin1

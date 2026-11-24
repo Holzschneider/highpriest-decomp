@@ -1,6 +1,10 @@
 userid: s1
 passwd: p1
-server_name: HighPriest
+server_name: Bifrost
 login_ip: 127.0.0.1
 pincode_enabled: no
 start_point_pre: prontera,155,183
+
+// The English client sends names in Windows-1252 (e.g. é as 0xE9); allow
+// any letters, as the 2008 English servers did.
+char_name_option: 0
