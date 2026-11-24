@@ -1,0 +1,21 @@
+# Functions of the reference executable (2008-09-03aSakexe.exe) matched to
+# the source. address <tab> name <tab> evidence. Applied to the Ghidra
+# project by: port/tools/refexe.sh --apply-anchors
+# Evidence and method: docs/port/reference-exe.md.
+0x00697d70	WinMain	called by the CRT entry (0x6b96f5); references "1rag1" "1sak1" "1gld1" "2rag2" "sclientinfo.xml" "/account:" as src/WinMain.cpp; SetUnhandledExceptionFilter first; ends in CModeMgr::Run(0, "login.rsw")
+0x005d54a0	CLoginMode::OnUpdate	calls CheckSystemMessage, then CLoginMode::PollNetworkStatus, then the inlined CheckPingTime ("CharServer Ping", packet 0x187 every 12000 ms) as src/LoginMode.cpp:283
+0x005d7300	CLoginMode::PollNetworkStatus	only caller of the login Sc_Notify_Ban; Poll/Recv/RecvPacket loop with a packet switch; inlines Sc_Ack_Encryption ("No Packet Encryption !!!")
+0x005da610	CLoginMode::Sc_Notify_Ban	references "Sc_Notify_Ban - login" (src/LoginMode.cpp:1640)
+0x0057bc90	CGameMode::OnUpdate	only caller of CGameMode::PollNetworkStatus; static timeGetTime() start, m_loopCond at +0x14, 12000 ms CZ_REQUEST_TIME 0x89, 15000 ms cache unload as src/GameMode.cpp:656
+0x005c1c10	CGameMode::PollNetworkStatus	only caller of Zc_Restart_Ack; 0x5abc-byte frame (20480-byte packet buffer); Poll, g_mustPumpOutReceiveQueue Recv(4), RecvPacket loop with the zone packet switch
+0x005a7940	CGameMode::Zc_Restart_Ack	type==1: Disconnect, g_loginStartMode=5, Switch(0,"login.rsw") as src/GameModePacket.cpp:3939
+0x00592f20	CGameMode::SendMsg	31 KB message switch; references "login.rsw" in the MT_LOGIN switch as src/GameMode2.cpp:2769
+0x00513bd0	CModeMgr::Switch	called with (0,"login.rsw") by Zc_Restart_Ack and SendMsg
+0x006966f0	CMode::CheckSystemMessage	first call of both OnUpdate functions
+0x004194b0	CRagConnection::instanceR	returns the connection before every Poll/Recv/Send call
+0x00418af0	CRagConnection::Poll	false -> SendMsg(MM_SOCKETERROR) in both PollNetworkStatus functions
+0x00418bb0	CRagConnection::Recv	Recv(&aid, 4, true) under g_mustPumpOutReceiveQueue in both PollNetworkStatus functions
+0x00419200	CRagConnection::RecvPacket	loop condition of both PollNetworkStatus functions
+0x00419380	CRagConnection::GetPacketType	switch value inside the RecvPacket loop
+0x00418b20	CRagConnection::Disconnect	first call of Zc_Restart_Ack
+0x00513a70	CModeMgr::Run	called at the end of WinMain with (0, "login.rsw"), where src/WinMain.cpp:1016 has Run(MT_GAME, "World_HP.rsw")
