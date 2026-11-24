@@ -32,6 +32,7 @@ struct bf_bink {
 	std::vector<uint8_t> record;     // the current record, padded
 	int shown = -1;                  // frame in the planes
 	uint32_t next = 0;               // frame decode_next reads
+	bool video_enabled = true;       // bf_bink_set_video_enabled
 	bf_bink_stats stats{};
 };
 
@@ -174,6 +175,12 @@ int decode_frame(bf_bink *b, bool want_audio)
 		size -= 4 + len;
 	}
 
+	if (!b->video_enabled) {
+		// Sound only: the planes keep the last picture decoded.
+		b->shown = (int)i;
+		b->stats.frames_decoded++;
+		return result;
+	}
 	if (b->record.size() < size + kPad)
 		b->record.resize(size + kPad);
 	memcpy(b->record.data(), p, size);
@@ -370,6 +377,12 @@ void bf_bink_set_audio_enabled(bf_bink *bink, int track, int enabled)
 {
 	if (bink && track >= 0 && track < (int)bink->audio.size())
 		bink->audio[track]->enabled = enabled != 0 && bink->audio[track]->ready;
+}
+
+void bf_bink_set_video_enabled(bf_bink *bink, int enabled)
+{
+	if (bink)
+		bink->video_enabled = enabled != 0;
 }
 
 void bf_bink_get_stats(const bf_bink *bink, bf_bink_stats *stats)

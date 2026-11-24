@@ -472,6 +472,27 @@ void decode_movie(const std::string &label, const std::vector<uint8_t> &data, co
 	      fmt("%u packets, %u damaged", st.audio_packets, st.audio_errors));
 	printf("     output in %s\n", outdir.c_str());
 	bf_bink_close(b);
+
+	// Sound only (bf_bink_set_video_enabled 0): the same samples, read ahead.
+	if (in.audio_tracks > 0) {
+		bf_bink *a = bf_bink_open_memory(data.data(), data.size());
+		bf_bink_set_video_enabled(a, 0);
+		std::vector<std::vector<int16_t>> only(in.audio_tracks);
+		while (bf_bink_decode_next(a) != 0)
+			for (int t = 0; t < in.audio_tracks; ++t) {
+				size_t n = bf_bink_audio_available(a, t);
+				size_t at = only[t].size();
+				only[t].resize(at + n * tracks[t].channels);
+				bf_bink_audio_read(a, t, only[t].data() + at, n);
+			}
+		bool same = true;
+		for (int t = 0; t < in.audio_tracks; ++t)
+			same = same && only[t] == pcm[t];
+		check(same && bf_bink_frame(a) == (int)in.frames - 1,
+		      fmt("%s: sound-only pass gives the same samples", label.c_str()).c_str(),
+		      fmt("last frame %d", bf_bink_frame(a)));
+		bf_bink_close(a);
+	}
 }
 
 std::string stem(const std::string &path)

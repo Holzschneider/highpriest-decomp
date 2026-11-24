@@ -42,6 +42,10 @@ How the Bink SDK calls in `CBink.cpp` map:
 | sound (`BinkSoundUseDirectSound`) | feed `bf_bink_audio_read` into one audio voice per track |
 | `BinkClose` | `bf_bink_close` |
 
+The adapter (`port/compat/bink`) reads a movie's sound ahead with a second
+handle and `bf_bink_set_video_enabled(b, 0)`, which decodes only the sound
+(the test checks that it yields the same samples).
+
 The decoder yields slightly more sound than picture (up to one block, about
 30 ms; see FORMAT.md, "Length"); a player that follows the picture can drop
 the rest.

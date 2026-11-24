@@ -136,6 +136,13 @@ size_t bf_bink_audio_read(bf_bink *bink, int track, int16_t *dest, size_t max_fr
 /* Turns decoding of a track's sound on (default) or off. */
 void bf_bink_set_audio_enabled(bf_bink *bink, int track, int enabled);
 
+/*
+ * Turns decoding of the picture on (default) or off. Off, bf_bink_decode_next
+ * only decodes the frame's sound and the planes keep the last picture: a
+ * player can read a movie's whole sound ahead in a fraction of the time.
+ */
+void bf_bink_set_video_enabled(bf_bink *bink, int enabled);
+
 void bf_bink_get_stats(const bf_bink *bink, bf_bink_stats *stats);
 
 #ifdef __cplusplus
