@@ -438,6 +438,14 @@ bool CRagConnection::RecvPacket(char *buf)
 	if (m_recvQueue.PeekData(2, (char *)&packetHeader)) {
 		if (IsFixedPacket(packetHeader)) {
 			packetSize = GetPacketSize(packetHeader);
+#if defined(BF_PORT)
+			// rAthena sends ZC_AUCTION_ACK_MY_SELL_STOP (4 bytes) under the
+			// request's header 0x25d (clif_Auction_close), which the zone
+			// switch dispatches to Zc_Auction_My_Sell_Stop as the reference
+			// does; the table keeps the request's 6 bytes for sending.
+			if (packetHeader == HEADER_CZ_AUCTION_REQ_MY_SELL_STOP)
+				packetSize = sizeof(PACKET_ZC_AUCTION_ACK_MY_SELL_STOP);
+#endif
 		} else if (m_recvQueue.PeekData(4, (char *)&headerWithSize)) {
 			packetSize = HIWORD(headerWithSize);
 		} else {
