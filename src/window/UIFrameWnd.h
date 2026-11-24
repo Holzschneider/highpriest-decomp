@@ -1024,6 +1024,9 @@ public:
 protected:
 	UIEditCtrl* m_editCtrl;
 	unsigned int m_naid;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UINpcTextEditDialogWnd : public UINpcEditDialogWnd {
@@ -2140,6 +2143,9 @@ protected:
 	unsigned int m_naid;
 	SayDialogWndInfo* m_info;
 	int m_bClearTextViewer;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIChooseWnd : public UIFrameWnd {
@@ -2156,6 +2162,9 @@ protected:
 	UIListBox* m_choostList;
 	unsigned int m_naid;
 	ChooseWndInfo* m_info;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIChooseWarpWnd : public UIFrameWnd {

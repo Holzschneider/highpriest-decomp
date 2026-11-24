@@ -7,6 +7,7 @@
 #include "LoginMode.h"
 #include "window/UISys.h"
 #include "window/UIFrameWnd.h"
+#include "ItemInfo.h"
 #include "Session.h"
 
 #include <cxxabi.h>
@@ -595,6 +596,151 @@ struct BfUiProbe {
 				w.controls[i].id = to;
 	}
 
+
+	// Drops the control whose window is c.
+	static void Remove(Window &w, UIWindow *c)
+	{
+		for (size_t i = 0; i < w.controls.size(); ++i)
+			if (w.controls[i].wnd == c) {
+				w.controls.erase(w.controls.begin() + i);
+				return;
+			}
+	}
+
+	static void Add(Window &w, UIWindow *wnd, const char *id, const char *kind, int x, int y, int cw, int ch,
+	                const std::string &text)
+	{
+		Control k;
+		k.wnd = wnd;
+		k.id = id;
+		k.kind = kind;
+		wnd->GetGlobalCoor(x, y);
+		k.x = x;
+		k.y = y;
+		k.w = cw;
+		k.h = ch;
+		k.text = text;
+		k.focus = 0;
+		w.controls.push_back(k);
+	}
+
+	static std::string ListText(UIListBox *l)
+	{
+		std::string s;
+		for (int i = 0; i < l->GetNumItem(); ++i) {
+			if (i)
+				s += "\n";
+			s += l->GetItem(i);
+		}
+		return s;
+	}
+
+	// The entries a list box shows, as `<prefix><text>` at their rows (M8.1e:
+	// CHOOSEWND's menu entries, `choice:<label>`).
+	static void ListEntries(Window &w, UIListBox *l, const char *prefix)
+	{
+		int spacing = l->m_itemSpacing > 0 ? l->m_itemSpacing : 1;
+		int first = l->m_vertViewOffset;
+		int last = l->m_h / spacing - l->m_horzScrEnabled + first;
+		if (last > l->GetNumItem())
+			last = l->GetNumItem();
+		for (int i = first; i < last; ++i) {
+			std::string id = std::string(prefix) + l->GetItem(i);
+			Add(w, l, id.c_str(), "item", 0, (i - first) * spacing,
+			    l->m_w - (l->m_vertScrEnabled ? 13 : 0), spacing, l->GetItem(i));
+		}
+	}
+
+	// The items a deal or storage window shows (shop list, purchase, sell,
+	// storage), as `item:<item id>` at their cells (the shop's items have no
+	// inventory index and the storage's index is the storage's own), the walk of
+	// UIItemBaseWnd::GetItemInfo (UIItemWnd.cpp): cells of 32 from (40, 17),
+	// m_viewOffset rows scrolled away, damaged pet eggs left out. Text: the
+	// name as the client shows it and the count.
+	static void ItemCells(Window &w, UIItemBaseWnd *b)
+	{
+		int horz = b->m_itemHorzNum > 0 ? b->m_itemHorzNum : 1;
+		int drawCount = 0;
+		int itemCount = 0;
+		for (std::list<ITEM_INFO>::iterator it = b->m_itemList.begin(); it != b->m_itemList.end(); ++it, ++itemCount) {
+			if (itemCount < b->m_viewOffset * horz)
+				continue;
+			if (g_session.IsPetEgg(atoi(it->m_itemName.c_str())) && it->m_isDamaged)
+				continue;
+			if (drawCount >= b->m_itemVertNum * horz)
+				break;
+			char name[256];
+			name[0] = 0;
+			ITEM_INFO info = *it;
+			info.GetItemName(name);
+			char text[300];
+			snprintf(text, sizeof text, "%s %d", name, it->m_num);
+			char id[32];
+			snprintf(id, sizeof id, "item:%d", atoi(it->m_itemName.c_str()));
+			for (size_t i = 0; i < w.controls.size(); ++i)
+				if (w.controls[i].id == id) {   // the same item twice (unequal refines, cards)
+					snprintf(id, sizeof id, "item:%d:%d", atoi(it->m_itemName.c_str()), drawCount);
+					break;
+				}
+			Add(w, b, id, "item", (drawCount % horz) * 32 + 40, (drawCount / horz) * 32 + 17, 32, 32, text);
+			++drawCount;
+		}
+	}
+
+	// The NPC windows (M8.1e).
+	static void Npc(Window &w)
+	{
+		if (UISayDialogWnd *d = dynamic_cast<UISayDialogWnd *>(w.wnd)) {
+			// UM_DELETE_BUTTON moves a used button to (m_w, m_h) and keeps it
+			// as a child; only m_buttonList holds the live ones. Next and Close
+			// share ID_NEXT and differ in m_target.
+			std::vector<UIWindow *> stale;
+			for (size_t i = 0; i < w.controls.size(); ++i)
+				if (dynamic_cast<UIButton *>(w.controls[i].wnd))
+					stale.push_back(w.controls[i].wnd);
+			for (size_t i = 0; i < stale.size(); ++i)
+				Remove(w, stale[i]);
+			for (std::list<UIBitmapButton *>::iterator it = d->m_buttonList.begin(); it != d->m_buttonList.end(); ++it) {
+				Control k;
+				k.wnd = *it;
+				k.id = d->m_target == MM_CLOSE_DIALOG ? "close" : "next";
+				k.kind = "button";
+				k.focus = 0;
+				Rect(*it, k);
+				w.controls.push_back(k);
+			}
+			if (Control *k = Find(w, d->m_textViewer)) {
+				k->id = "text";
+				k->text = ListText(d->m_textViewer);
+			}
+		} else if (UIChooseWnd *c = dynamic_cast<UIChooseWnd *>(w.wnd)) {
+			Rename(w, c->m_choostList, "list");
+			ListEntries(w, c->m_choostList, "choice:");
+		} else if (UINpcEditDialogWnd *e = dynamic_cast<UINpcEditDialogWnd *>(w.wnd)) {
+			Rename(w, e->m_editCtrl, "edit");
+		} else if (UIItemBaseWnd *b = dynamic_cast<UIItemBaseWnd *>(w.wnd)) {
+			if (dynamic_cast<UIItemWnd *>(b))
+				return;   // the item window: Items() (M8.1d), item:<inventory index>
+			if (b->m_h == 17)
+				return;   // minimised to its title bar
+			ItemCells(w, b);
+			// The storage's vertical tabs, named as the item window's
+			// (`tab:item`, `tab:equip`, `tab:etc`, text "on" for the open
+			// one), in UITab::OnLBtnDown's rows.
+			for (std::list<UIWindow *>::iterator it = b->m_children.begin(); it != b->m_children.end(); ++it) {
+				UITab *tab = dynamic_cast<UITab *>(*it);
+				if (!tab || !tab->m_show || tab->m_numTab != 3)
+					continue;
+				static const char *const kTabs[3] = {"tab:item", "tab:equip", "tab:etc"};
+				int rowH = tab->m_h / tab->m_numTab;
+				for (int i = 0; i < 3; ++i)
+					Add(w, tab, kTabs[i], "button", 0, i * rowH, tab->m_w, rowH, tab->GetState() == i ? "on" : "");
+			}
+		} else if (dynamic_cast<UIItemDropCntWnd *>(w.wnd)) {
+			RenameId(w, "edit:0", "edit");
+		}
+	}
+
 	// The names port/harness/README.md lists for the windows of the login.
 	static void Specific(Window &w)
 	{
@@ -836,6 +982,7 @@ struct BfUiProbe {
 			Collect(wnd, w, 0);
 			Specific(w);
 			Items(w);
+			Npc(w);
 			g_windows.push_back(w);
 		}
 	}

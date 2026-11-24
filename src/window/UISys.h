@@ -1539,6 +1539,9 @@ protected:
 	int m_isTransParent;
 	int m_itemSpacing;
 	char m_noColor;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIComboBox : public UIListBox {
