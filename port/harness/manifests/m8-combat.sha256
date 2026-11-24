@@ -1,0 +1,5 @@
+# frames under <game folder>/test/frames/combat/; regenerate with port/harness/run.py
+a6ce8ae1957826120f8ea01d431e21266f3fa979d74491f26776f120095c66c6  2048x1536  damage-number-1.png
+7e7af2650c9681f000d76e1747e4bfc5cd343dfd87022af9dd426e7dad5b85c5  2048x1536  drop.png
+717d754025a8eb695d9a390354ce469afd5fa8dee0c6ae926f33438a10aeba81  2048x1536  killed-1.png
+2e9a09fa705ee3caa0c29579c77b55063d1e672c80743bac7133364631d24c90  2048x1536  login-typed.png

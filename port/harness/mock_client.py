@@ -46,7 +46,9 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "PARTYSETTINGWND": 53, "WHISPERWND": -1,
        "MAILLISTWND": 98, "MAILVIEWWND": 99}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
-EVENTS = ["mode", "map", "chat", "window", "sound", "bye", "error"]
+# char columns the mock saves on logout when the character row has them
+SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
+EVENTS = ["mode", "map", "chat", "window", "sound", "damage", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
 DETAIL = {"login": "LSM_IDENTRY", "connecting": "LSM_WAITRESP_FROM_ACSVR",
           "charselect": "LSM_SELECTCHAR", "makechar": "LSM_MAKECHAR",
@@ -586,6 +588,9 @@ class Mock:
                        base_level=s["base_level"], job_level=s["job_level"], zeny=s["zeny"],
                        online=0, party_id=s.get("party_id", 0), guild_id=s.get("guild_id", 0),
                        **{"class": s["class"]})
+        saved = {k: s[k] for k in SAVED_STATS if k in s}
+        if saved:
+            self.db.update("char", s["char_id"], **saved)
         self.self_ = None
         self.map = None
 
@@ -1020,7 +1025,9 @@ class Mock:
                 return
             if self.frame % 20 == 0:
                 a["hp"] -= 1
+                self.emit("damage", target=a["id"], number=7, kind="normal")
                 self.play_wave("attack_fist.wav", 0.0)
+                self.play_wave("_hit_fist.wav", self.distance_to(a))
                 self.play_wave("poring_damage.wav", self.distance_to(a))
             if a["hp"] <= 0:
                 self.play_wave("poring_die.wav", self.distance_to(a))
