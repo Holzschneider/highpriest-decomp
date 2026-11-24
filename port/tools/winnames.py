@@ -39,7 +39,9 @@ By hand: ADAPTER_STEP and HEADER_STEP (which file belongs to which step),
 the name patterns of NAME_RULES, which decide before both (for the
 kernel32 files that serve several steps, bf_win32_base.cpp and
 bf_win32_misc.cpp, and for the constants and types the port keeps: the
-`keep` group, which is what port/client/include/bf_types.h must declare),
+`keep` group), and the client headers of nowin.py's SDK_HEADERS. A name
+port/client/include/bf_types.h declares is always `keep`; names the keep
+rules match but the header does not declare are listed on their own line,
 and the client headers of nowin.py's SDK_HEADERS.
 
 Groups: M11.1 time and threads, M11.2 network, M11.3 files, M11.4 settings,
@@ -104,13 +106,13 @@ HEADER_STEP = {
     'wingdi.h': 'M11.8', 'winnls.h': 'M11.8', 'mbstring.h': 'M11.8', 'stringapiset.h': 'M11.8',
     'ddraw.h': 'M11.9', 'd3d.h': 'M11.9', 'd3dtypes.h': 'M11.9', 'd3dcaps.h': 'M11.9',
     'ijl.h': 'M11.9', 'objbase.h': 'M11.9', 'unknwn.h': 'M11.9', 'combaseapi.h': 'M11.9',
-    'cguid.h': 'M11.9', 'objidl.h': 'M11.9', 'objidlbase.h': 'M11.9',
+    'cguid.h': 'M11.9', 'objidl.h': 'M11.9', 'objidlbase.h': 'M11.9', 'guiddef.h': 'M11.9',
     'granny.h': 'M11.10', 'bink.h': 'M11.10', 'rad.h': 'M11.10', 'radbase.h': 'M11.10',
     'bf_bink_sdk.h': 'M11.10',
     'synchapi.h': 'M11.1', 'processthreadsapi.h': 'M11.1', 'process.h': 'M11.1',
     'sysinfoapi.h': 'M11.1', 'profileapi.h': 'M11.1', 'timezoneapi.h': 'M11.1',
     'windef.h': 'keep', 'minwindef.h': 'keep', 'winnt.h': 'keep', 'basetsd.h': 'keep',
-    'wtypes.h': 'keep', 'wtypesbase.h': 'keep', 'guiddef.h': 'keep', 'winerror.h': 'keep',
+    'wtypes.h': 'keep', 'wtypesbase.h': 'keep', 'winerror.h': 'keep',
     'minmax.h': 'keep', 'minwinbase.h': 'keep', 'windows.h': 'keep', 'sal.h': 'keep',
     'bf_prefix.h': 'crt', 'bf_win32_crt.h': 'crt', 'conio.h': 'crt',
     'bf_port.h': 'other', 'bf_replay.h': 'other',
@@ -122,7 +124,12 @@ NAME_RULES = [(re.compile(p), g) for p, g in [
     # "M11 planned"): virtual keys, the client's window messages, the D3D 7
     # render, blend, texture-stage, primitive and vertex-format numbering,
     # the vertex and matrix layouts, the colour macros.
-    (r'^D3DVERTEXBUFFER\w*$|^D3DVBCAPS_\w+$', 'M11.9'),
+    (r'^D3DVERTEXBUFFER\w*$|^D3DVBCAPS_\w+$|^D3D_OK$|^D3DPTFILTERCAPS_\w+$|^IsEqual(IID|GUID)$|'
+     r'^_?GUID$|^LPGUID$|^REF(IID|GUID|CLSID)$|^IID$|^CLSID$', 'M11.9'),
+    (r'^_?L?P?(U?LARGE_INTEGER)$', 'M11.1'),
+    (r'^_?RTL_CRITICAL_SECTION$', 'M11.1'),
+    (r'^_?EXCEPTION_POINTERS$|^_?EXCEPTION_RECORD$', 'M11.5'),
+    (r'^(tag)?TEXTMETRICA?$|^L?P?TEXTMETRICA?$', 'M11.8'),
     (r'^WSA\w+$', 'M11.2'),
     (r'^(P?TOKEN_\w+|SE_\w+|PROCESS_\w+|P?LUID\w*|OSVERSIONINFO\w*|VER_\w+|FARPROC|'
      r'HMODULE)$', 'M11.5'),
@@ -143,12 +150,10 @@ NAME_RULES = [(re.compile(p), g) for p, g in [
      r'MAKELRESULT|ZeroMemory|FillMemory|CopyMemory|MoveMemory|MAX_PATH|min|max|__max|__min|'
      r'WINAPI|APIENTRY|CALLBACK|FAR|NEAR|PASCAL|CONST|TRUE|FALSE|IN|OUT|OPTIONAL|VOID|'
      r'byte|SUCCEEDED|FAILED|S_OK|S_FALSE|E_FAIL|E_\w+)$', 'keep'),
-    (r'^(tag)?(RECT|POINT|POINTS|SIZE|SIZEL|PALETTEENTRY|RGBQUAD|RGBTRIPLE|BITMAPFILEHEADER|'
-     r'BITMAPINFOHEADER|BITMAPINFO|BITMAPCOREHEADER|BITMAP|FILETIME|SYSTEMTIME|LOGFONTA?|'
-     r'LOGFONTW|LOGPALETTE|TEXTMETRICA?|TEXTMETRICW|ABC|GUID|LARGE_INTEGER|ULARGE_INTEGER)$',
-     'keep'),
+    (r'^(tag|_)?(RECT|POINT|SIZE|PALETTEENTRY|RGBQUAD|BITMAPFILEHEADER|BITMAPINFOHEADER|'
+     r'BITMAPINFO|FILETIME|SYSTEMTIME|LOGFONTA?)$', 'keep'),
     (r'^(LP|P|NP)?(RECT|POINT|SIZE|PALETTEENTRY|RGBQUAD|BITMAPFILEHEADER|BITMAPINFOHEADER|'
-     r'BITMAPINFO|FILETIME|SYSTEMTIME|LOGFONTA?|LOGFONTW|TEXTMETRICA?|GUID)$', 'keep'),
+     r'BITMAPINFO|FILETIME|SYSTEMTIME|LOGFONTA?)$', 'keep'),
     (r'^BI_(RGB|RLE4|RLE8|BITFIELDS)$|^(FW|ANSI|DEFAULT|HANGEUL|HANGUL|SHIFTJIS|GB2312|'
      r'CHINESEBIG5|SYMBOL|OEM|THAI|VIETNAMESE|BALTIC|RUSSIAN|EASTEUROPE|GREEK|TURKISH|'
      r'ARABIC|HEBREW|JOHAB|MAC)_(CHARSET|THIN|EXTRALIGHT|LIGHT|NORMAL|REGULAR|MEDIUM|'
@@ -208,7 +213,38 @@ NAME_RULES = [(re.compile(p), g) for p, g in [
 ]]
 
 
+TYPES_H = os.path.join(ROOT, 'port', 'client', 'include', 'bf_types.h')
+
+
+def types_h_names():
+    """The names port/client/include/bf_types.h declares (empty if absent)."""
+    if not os.path.exists(TYPES_H):
+        return set()
+    text = re.sub(r'/\*.*?\*/', '', open(TYPES_H).read(), flags=re.S)
+    names = set(re.findall(r'^\s*#\s*define\s+(\w+)', text, re.M))
+    while True:  # inline member bodies out of the structures
+        t = re.sub(r'(\{[^{}]*)\{[^{}]*\}', r'\1', text)
+        if t == text:
+            break
+        text = t
+    names |= set(re.findall(r'\b(?:struct|enum)\s+(\w+)\s*\{', text))
+    for m in re.finditer(r'\btypedef\b([^;{]*(?:\{[^}]*\})?[^;]*);', text, re.S):
+        tail = re.sub(r'\{[^}]*\}', '', m.group(1))
+        for part in tail.split(','):
+            w = re.findall(r'(\w+)\s*(?:\[[^]]*\])?\s*$', part.strip())
+            if w:
+                names.add(w[0])
+    for m in re.finditer(r'\benum\b[^{;]*\{([^}]*)\}', text):
+        names |= {x.split('=')[0].strip() for x in m.group(1).split(',') if x.strip()}
+    return names
+
+
+TYPES = types_h_names()
+
+
 def group_of(name, header, adapter, rules_only=False):
+    if name in TYPES and not rules_only:
+        return 'keep'  # declared by the port's own types header
     base = os.path.basename(header).lower()
     if HEADER_STEP.get(base) == 'M11.10' or base in ('mss.h', 'ijl.h', 'npgamelib.h'):
         return HEADER_STEP.get(base, 'other')  # the libraries' own names
@@ -597,6 +633,10 @@ def main():
             json.dump([dict(zip(('name', 'group', 'kind', 'header', 'file', 'count'), t))
                        for t in sorted(table)], f, indent=0)
 
+    if TYPES:
+        missing = sorted({t[0] for t in table if t[1] == 'keep' and t[0] not in TYPES})
+        print('keep group, not declared by port/client/include/bf_types.h (%d): %s\n'
+              % (len(missing), ' '.join(missing) or '-'))
     order = [g for g, _ in GROUPS]
     title = dict(GROUPS)
     by_group = collections.defaultdict(list)
