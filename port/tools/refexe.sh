@@ -10,6 +10,9 @@
 #                                                 or CGameMode::OnUpdate once anchors
 #                                                 are applied)
 #   port/tools/refexe.sh --callers 0x599B00       who calls the function at an address
+#   port/tools/refexe.sh --refs 0x7BEF10          every reference to an address (a
+#                                                 global's reads and writes) and the
+#                                                 functions that hold them
 #   port/tools/refexe.sh --apply-anchors          name the functions of
 #                                                 port/tools/refexe/anchors.tsv
 #                                                 in the project (writes it)
@@ -43,6 +46,7 @@ while [ $# -gt 0 ]; do
     --addr) MODE=addr; ARG=$2; shift 2;;
     --func) MODE=func; ARG=$2; shift 2;;
     --callers) MODE=xrefs; ARG=$2; shift 2;;
+    --refs) MODE=refs; ARG=$2; shift 2;;
     --apply-anchors) MODE=anchors; ARG=$SCRIPTS/anchors.tsv; shift;;
     --setup) MODE=setup; shift;;
     --exact) MATCH=exact; shift;;

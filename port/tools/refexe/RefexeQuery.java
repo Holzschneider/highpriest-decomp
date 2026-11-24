@@ -8,6 +8,8 @@
 //   mode func    the function named <arg> (a Ghidra name such as FUN_00599b00
 //                or a name applied from anchors.tsv)
 //   mode xrefs   the functions that call the function containing address <arg>
+//   mode refs    every reference to address <arg> (a global's reads and
+//                writes), and the functions that hold them
 //   mode anchors apply names from the anchors file <arg> (needs a writable open)
 //
 // Output goes to <out-file> so that the shell wrapper can print it without
@@ -63,6 +65,7 @@ public class RefexeQuery extends GhidraScript {
 			case "addr": byAddress(arg); break;
 			case "func": byName(arg); break;
 			case "xrefs": callers(arg); break;
+			case "refs": references(arg); break;
 			case "anchors": applyAnchors(arg); break;
 			default: out.println("unknown mode " + mode);
 			}
@@ -144,6 +147,29 @@ public class RefexeQuery extends GhidraScript {
 			Function c = getFunctionContaining(r.getFromAddress());
 			out.printf("  %s %s in %s%n", r.getReferenceType(), r.getFromAddress(),
 				c == null ? "(no function)" : c.getName() + " @ " + c.getEntryPoint());
+		}
+	}
+
+	private void references(String hex) throws Exception {
+		Address addr = toAddr(hex.startsWith("0x") ? hex.substring(2) : hex);
+		Map<Function, List<String>> hits = new LinkedHashMap<>();
+		Reference[] refs = getReferencesTo(addr);
+		out.printf("references to %s: %d%n", addr, refs.length);
+		for (Reference r : refs) {
+			Function f = getFunctionContaining(r.getFromAddress());
+			out.printf("  %s %s in %s%n", r.getReferenceType(), r.getFromAddress(),
+				f == null ? "(no function)" : f.getName() + " @ " + f.getEntryPoint());
+			if (f != null)
+				hits.computeIfAbsent(f, k -> new ArrayList<>()).add(r.getReferenceType() + " " + r.getFromAddress());
+		}
+		out.println();
+		int n = 0;
+		for (Map.Entry<Function, List<String>> e : hits.entrySet()) {
+			if (n++ >= maxFunctions) {
+				out.printf("... %d more function(s); raise --max to see them%n", hits.size() - maxFunctions);
+				break;
+			}
+			show(e.getKey(), "references " + addr + " at " + String.join(", ", e.getValue()));
 		}
 	}
 

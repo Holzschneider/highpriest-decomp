@@ -19,3 +19,6 @@
 0x00419380	CRagConnection::GetPacketType	switch value inside the RecvPacket loop
 0x00418b20	CRagConnection::Disconnect	first call of Zc_Restart_Ack
 0x00513a70	CModeMgr::Run	called at the end of WinMain with (0, "login.rsw"), where src/WinMain.cpp:1016 has Run(MT_GAME, "World_HP.rsw")
+0x00517bd0	CView::InterpolateViewInfo	eases longitude, latitude and distance by a tenth (INTERPNUMAngle1 10) and the look-at point too unless g_isFixedCamera (0x7bef10, the registry value "g_isFixedCamera") is set; then g_zOffset, g_zHover as src/View.cpp
+0x004f58c0	UIWindowMgr::ProcessPushButton	called from the WndProc (0x6967d0) for WM_KEYDOWN, WM_SYSKEYDOWN and for WM_KEYUP with 0x2c (VK_SNAPSHOT); one switch over the virtual key, F1-F9 send 0x29 (UM_USE_SHORTEN_ITEM) to the shortcut window
+0x006967d0	WndProc	the window procedure InitApp (0x697180) registers as lpfnWndProc
