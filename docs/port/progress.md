@@ -173,3 +173,16 @@ Verifier's verdict on `7de3981` (fresh agent, given only the criteria and the co
 
 - **Carried as a defect, fixed before M8's soak:** the client stops sending moves after an NPC dialog in the session's sequence (not isolated by the verifier: left-click or right-drag talk then Cancel alone leave walking working). Also: a right-drag that starts over an NPC talks to it (`ProcessObjClick`, `GameMode.cpp:4016`; to check against the 2008 client); stray lit triangles above the walls in `prt_in`; guild flags are Porings until M12.3a; "Equipment information not open to the public." appears twice per map load.
 - M8.1 expanded into sub-steps M8.1a–M8.1i (the plan's play order grouped into packages; the gate test last). Decision: M8 packages run in parallel, each with its own accounts and characters on the shared server; fixes to `src/` minimal and committed apart from the scripts, so the lead's rebases stay small.
+
+## 2026-11-24: M7 exit — passed
+
+Verifier's verdict on `8a419ae` (fresh agent, given only the criterion and the commit; audio in DEVICE mode, its own accounts):
+
+| Part of the criterion | Verdict | Evidence |
+|---|---|---|
+| The login music loops | pass | `sound` PASS (18 of 18): `BGM/01.mp3` (74.66 s) loops 0 → 1 at 75.3 s, still playing, opened once; the verifier's own run waited for a second loop (2 at 153 s, position wrapping, no reopen) |
+| Map music changes on map change | pass | prontera `08.mp3` → prt_fild08 `12.mp3` through the south gate; the verifier walked back north: `12` → `08` |
+| Attack effects with distance-scaled volume | pass | `_hit_sword`, `attack_short_sword`, `poring_damage`, `poring_die` started while killing a Poring; the verifier's own run had monsters attack a bot 9–10 cells away: e.g. `farmiliar_attack.wav` 76 at 52.1 units, `_enemy_hit_normal4.wav` 88 at 45, each `trunc(100·40/d)` as `src/device/Sound.cpp` computes |
+| UI effects with distance-scaled volume | pass | UI sounds pass the listener's position (distance 0, full volume under the same rule): the button sound on the login, server-list and character-select OK, 100/127 |
+
+- Noted by the verifier, for the owner's play test or M8: pan is always 0 (the source never sets one); map ambient sounds start two voices at once (`EF_Portal.wav`, the Prontera birds) — doubled loudness to listen for; ambient volumes are below the rule, probably the map file's per-source volume (unchecked); the music fades in from 1/127; in-game UI sounds, the volume options and `/bgm`, `/sound` untested; Escape in game did not open the restart window within 10 frames in the verifier's script (M8.1h covers the return to character selection).

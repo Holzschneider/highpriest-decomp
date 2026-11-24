@@ -100,7 +100,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 63cf204 | M7.2 WAV and MP3 decoding through AudioToolbox | native | |
 | [x] 528ff44 | M7.2a Miles adapter | compat | M7.1, M7.2 |
 | [x] 2155fb4 | M7.3 Music fades with a lock around the shared volume | src | M7.2a |
-| [ ] | M7 exit (verifier) | | M6 exit, M7.1–M7.3 |
+| [x] 8a419ae | M7 exit (verifier): passed | | M6 exit, M7.1–M7.3 |
 
 ## M8. Playable
 
