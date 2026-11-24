@@ -1,0 +1,272 @@
+#!/usr/bin/env python3
+"""Checks that no unit of the build reads a Windows or DirectX header (M11).
+
+  nowin.py [--build DIR] [--units GLOB ...] [--summary] [-j N]
+
+  --build    the CMake build directory whose compile_commands.json lists the
+             units (default: build/cmake/debug). The presets export it
+             (CMAKE_EXPORT_COMPILE_COMMANDS=ON in CMakePresets.json); a build
+             configured by hand needs -DCMAKE_EXPORT_COMPILE_COMMANDS=ON.
+  --units    check only the units whose repository-relative path matches one
+             of these shell patterns (fnmatch: `*` also crosses `/`), e.g.
+             --units 'src/*' --units 'port/native/*'
+  --summary  print counts per header and per unit instead of the pairs
+  -j         parallel compiles (default: the number of cores)
+
+For every unit, the unit's own compile command is rerun with `-M` (clang's
+dependency output: every header the preprocessor reads, system headers
+included; `-MM` would hide the Wine tree, which the build passes with
+-isystem). A header is reported when it is
+
+  wine    under port/compat/winheaders (the vendored Wine tree);
+  compat  anywhere else under port/compat (the adapters, the CRT stand-ins
+          in port/compat/include, the prefix header bf_prefix.h);
+  name    elsewhere, but named like a Windows or DirectX header: its path
+          ends in the path of a header of the Wine tree (windows.h, ddraw.h,
+          ddk/ntddk.h, ...; the Wine tree's msvcrt/ directory, which holds
+          the C library's names, does not count) or of a CRT stand-in of
+          port/compat/include (io.h, direct.h, conio.h, process.h,
+          mbstring.h, minmax.h, winsock.h), compared without regard to
+          case, as the file system does (src/WinCrypt.h, a copy of the
+          Windows SDK's wincrypt.h, counts). Headers of the SDK and the
+          toolchain never count by name, nor do the client's own headers in
+          OWN_HEADERS below whose names a Wine header happens to share
+          (src/device/Control.h, not DirectShow's control.h).
+  sdk     one of the headers of the Windows libraries the 2008 client
+          linked, copied into src/ (SDK_HEADERS below: Miles' Mss.h,
+          Granny's granny.h, Bink's BINK.H, RAD.H and radbase.h, Intel's
+          ijl.h, nProtect's NPGameLib.h, Microsoft's DbgHelp.h). They declare
+          the Windows-shaped calls M11.6 and M11.10 replace and include
+          windows.h themselves; this list is by hand (found by their
+          copyright lines and export macros).
+
+Paths are reported in the case the directory holds them (the dependency
+output spells a header the way the #include line does: wincrypt.h and
+WinCrypt.h are one file here). A unit whose source does not exist yet (a
+generated file of a build that has not run) is skipped and named on stderr.
+
+The default output is one line per unit and header, `unit<TAB>kind<TAB>header`
+(paths relative to the repository). Exit status: 0 when no header is
+reported, 1 when one is, 2 when a unit could not be preprocessed (its error
+is printed; such a unit is not counted as clean).
+"""
+import argparse
+import collections
+import concurrent.futures
+import fnmatch
+import json
+import os
+import shlex
+import subprocess
+import sys
+
+ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+WINE = os.path.join(ROOT, 'port', 'compat', 'winheaders') + os.sep
+COMPAT = os.path.join(ROOT, 'port', 'compat') + os.sep
+STANDINS = os.path.join(ROOT, 'port', 'compat', 'include')
+# The client's own headers whose names collide with a Wine header (found by
+# comparing the file names of src/ and port/ with the Wine tree's).
+OWN_HEADERS = {'src/device/Control.h'}
+SDK_HEADERS = {'src/device/Mss.h', 'src/granny/granny.h', 'src/movie/BINK.H',
+               'src/movie/RAD.H', 'src/movie/radbase.h', 'src/ijl.h',
+               'src/NPGameLib.h', 'src/DbgHelp.h'}
+_case = {}
+
+
+def canonical(p):
+    """p with every component in the case its directory lists it."""
+    if p in _case:
+        return _case[p]
+    parent, name = os.path.split(p)
+    if not name:
+        return p
+    cparent = canonical(parent) if parent != p else parent
+    try:
+        entries = os.listdir(cparent)
+    except OSError:
+        entries = []
+    if name not in entries:
+        low = name.lower()
+        name = next((e for e in entries if e.lower() == low), name)
+    _case[p] = os.path.join(cparent, name)
+    return _case[p]
+
+
+def windows_names():
+    """Relative paths (lower case) of the Windows and DirectX headers."""
+    names = set()
+    for top, dirs, files in os.walk(WINE):
+        rel = os.path.relpath(top, WINE)
+        if rel == 'msvcrt' or rel.startswith('msvcrt' + os.sep):
+            continue
+        for f in files:
+            if f.endswith('.h') or f.endswith('.idl') or f.endswith('.inl'):
+                names.add(os.path.normpath(os.path.join(rel, f)).lower())
+    for f in os.listdir(STANDINS):
+        if f.endswith('.h') and not f.startswith('bf_'):
+            names.add(f.lower())
+    return names
+
+
+def system_dirs():
+    dirs = ['/Applications/Xcode', '/Library/Developer/', '/usr/include/', '/usr/lib/']
+    try:
+        sdk = subprocess.run(['xcrun', '--show-sdk-path'], capture_output=True,
+                             text=True).stdout.strip()
+        if sdk:
+            dirs.append(os.path.realpath(sdk) + os.sep)
+    except OSError:
+        pass
+    return tuple(dirs)
+
+
+def unit_args(entry):
+    if 'arguments' in entry:
+        args = list(entry['arguments'])
+    else:
+        args = shlex.split(entry['command'])
+    out, skip = [], False
+    for a in args:
+        if skip:
+            skip = False
+            continue
+        if a in ('-o', '-MF', '-MT', '-MQ'):
+            skip = True
+            continue
+        if a in ('-c', '-MD', '-MMD') or a.startswith('-o'):
+            continue
+        out.append(a)
+    return out + ['-M', '-MG']
+
+
+def parse_deps(text):
+    text = text.replace('\\\n', ' ')
+    _, _, deps = text.partition(': ')
+    paths, cur = [], ''
+    i = 0
+    while i < len(deps):
+        c = deps[i]
+        if c == '\\' and i + 1 < len(deps) and deps[i + 1] == ' ':
+            cur += ' '
+            i += 2
+            continue
+        if c.isspace():
+            if cur:
+                paths.append(cur)
+            cur = ''
+        else:
+            cur += c
+        i += 1
+    if cur:
+        paths.append(cur)
+    return paths[1:]  # the first is the unit itself
+
+
+def classify(path, names, sysdirs):
+    p = canonical(os.path.realpath(path if os.path.isabs(path) else os.path.join(ROOT, path)))
+    if p.startswith(WINE):
+        return 'wine'
+    if p.startswith(COMPAT):
+        return 'compat'
+    if rel(p) in SDK_HEADERS:
+        return 'sdk'
+    if p.startswith(sysdirs) or rel(p) in OWN_HEADERS:
+        return None
+    low = p.lower()
+    for n in names:
+        if low.endswith(os.sep + n):
+            return 'name'
+    return None
+
+
+def rel(p):
+    p = canonical(os.path.realpath(p))
+    return os.path.relpath(p, ROOT) if p.startswith(ROOT + os.sep) else p
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap.add_argument('--build', default=os.path.join(ROOT, 'build', 'cmake', 'debug'))
+    ap.add_argument('--units', action='append', default=[])
+    ap.add_argument('--summary', action='store_true')
+    ap.add_argument('-j', type=int, default=os.cpu_count() or 4)
+    o = ap.parse_args()
+
+    db = os.path.join(o.build, 'compile_commands.json')
+    if not os.path.exists(db):
+        sys.exit('no %s: configure with a preset (cmake --preset debug) or with '
+                 '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON' % db)
+    entries = json.load(open(db))
+    units, skipped = [], []
+    for e in entries:
+        f = os.path.realpath(os.path.join(e['directory'], e['file']))
+        r = rel(f)
+        if not os.path.exists(f):
+            skipped.append(r)
+            continue
+        if o.units and not any(fnmatch.fnmatch(r, g) for g in o.units):
+            continue
+        units.append((r, e))
+    units.sort(key=lambda u: u[0])
+    names, sysdirs = windows_names(), system_dirs()
+
+    def run(item):
+        r, e = item
+        p = subprocess.run(unit_args(e), cwd=e['directory'], capture_output=True, text=True)
+        if p.returncode != 0:
+            return r, None, p.stderr
+        hits = []
+        for d in parse_deps(p.stdout):
+            k = classify(os.path.join(e['directory'], d), names, sysdirs)
+            if k:
+                hits.append((k, rel(os.path.join(e['directory'], d))))
+        return r, sorted(set(hits)), ''
+
+    with concurrent.futures.ThreadPoolExecutor(o.j) as pool:
+        results = list(pool.map(run, units))
+
+    for r in sorted(set(skipped)):
+        if not o.units or any(fnmatch.fnmatch(r, g) for g in o.units):
+            sys.stderr.write('%s: skipped, the source does not exist yet (build first)\n' % r)
+    failed = [(r, err) for r, h, err in results if h is None]
+    for r, err in failed:
+        sys.stderr.write('%s: preprocessing failed\n%s' % (r, err))
+    reported = [(r, h) for r, h, _ in results if h]
+    if o.summary:
+        per_header = collections.Counter()
+        kinds = {}
+        for r, h in reported:
+            for k, path in h:
+                per_header[path] += 1
+                kinds[path] = k
+        print('units checked: %d   reading a Windows header: %d   clean: %d   failed: %d'
+              % (len(results), len(reported), len(results) - len(reported) - len(failed),
+                 len(failed)))
+        by_kind = collections.Counter(kinds.values())
+        print('distinct headers: %d (%s)' % (len(per_header), ', '.join(
+            '%s %d' % (k, by_kind[k]) for k in ('wine', 'compat', 'name', 'sdk') if by_kind[k])))
+        tree = collections.Counter()
+        for r, h in reported:
+            tree[r.split('/')[0] if not r.startswith('port/') else '/'.join(r.split('/')[:2])] += 1
+        print('units by tree: ' + ', '.join('%s %d' % kv for kv in sorted(tree.items())))
+        print('\nheaders (units reading it, kind):')
+        for path, n in sorted(per_header.items(), key=lambda kv: (-kv[1], kv[0])):
+            print('%5d  %-6s %s' % (n, kinds[path], path))
+        print('\nunits (headers read: wine/compat/name/sdk):')
+        for r, h in sorted(reported, key=lambda x: (-len(x[1]), x[0])):
+            c = collections.Counter(k for k, _ in h)
+            print('%5d  %3d/%3d/%d/%d  %s' % (len(h), c['wine'], c['compat'], c['name'],
+                                               c['sdk'], r))
+    else:
+        for r, h in reported:
+            for k, path in h:
+                print('%s\t%s\t%s' % (r, k, path))
+        sys.stderr.write('nowin: %d of %d units read a Windows or DirectX header\n'
+                         % (len(reported), len(results)))
+    if failed:
+        return 2
+    return 1 if reported else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
