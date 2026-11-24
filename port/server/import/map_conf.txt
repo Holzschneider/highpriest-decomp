@@ -2,3 +2,6 @@ userid: s1
 passwd: p1
 char_ip: 127.0.0.1
 import: conf/import/maps_enterable.conf
+// The gate test of M8 changes job at the Job Master, which stock rAthena
+// ships but does not load.
+npc: npc/custom/jobmaster.txt
