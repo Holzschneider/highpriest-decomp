@@ -2950,7 +2950,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			break;
 		case MM_SONG_TALK: {
 		CFile fp;
-		char *fName;
+		char *fName = "";
 		if (g_serviceType != ServiceGermany) {
 			if (val1 == 0)
 				fName = "DC_scream.txt";

@@ -975,8 +975,8 @@ void UINewChatWnd::OnDraw2()
 		return;
 
 	unsigned int colorRef = 0xffffff;
-	unsigned int colorTab1;
-	unsigned int colorTab2;
+	unsigned int colorTab1 = 0xffffff;
+	unsigned int colorTab2 = 0x8e8e8e;
 
 	if (m_tab == 0) {
 		colorTab1 = 0xffffff;

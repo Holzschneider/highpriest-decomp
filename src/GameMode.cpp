@@ -1067,7 +1067,7 @@ void	CGameMode :: DrawPKRanking()
 
 void	CGameMode :: DrawTime(DWORD timeTick, int showType)
 {
-	DWORD curTime;
+	DWORD curTime = 0;
 	if (showType == 0) {
 		curTime = timeTick;
 		if (!m_showTimeStartTick)

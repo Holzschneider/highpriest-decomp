@@ -773,8 +773,8 @@ void CRagEffect::HitLine(char F1)
 void CRagEffect::HitLine3(char F1)
 {
 	int ec;
-	int uNum;
-	int start;
+	int uNum = 0;
+	int start = 0;
 	m_pos = m_master->m_pos;
 
 	if (F1 == 1)
@@ -16897,7 +16897,7 @@ void CRagEffect :: PeongMiddle(char *tName)
 void	CRagEffect :: PeongUp(char *tName,char F1)
 {
 	float cs1,sn1;
-	short start;
+	short start = -1;
 
 	if (F1 == 0)
 		start = 35;

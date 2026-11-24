@@ -4201,8 +4201,8 @@ void	CGameMode :: ZC_TAEKWON_RANK(const char *buf)
 
 void CGameMode::ZC_GANGSI_RANK(char const *buf)
 {
-	int i, r, g, b, plus;
-	char msg[256];
+	int i, r = 0, g = 0, b = 0, plus = 0;
+	char msg[256] = "";
 	PACKET_ZC_GANGSI_RANK *p = (PACKET_ZC_GANGSI_RANK *)buf;
 
 	if (p->PacketSwitch == JT_GANGSI)

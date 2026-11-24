@@ -118,8 +118,8 @@ UIBarGraphPlayerHp::~UIBarGraphPlayerHp() {}
 
 void UIBarGraphPlayerHp::OnDraw()
 {
-	int hp;
-	int maxhp;
+	int hp = 0;
+	int maxhp = 0;
 	if (m_isPlayerType == 0) {
 		hp = g_session.GetHp();
 		maxhp = g_session.GetMaxhp();
@@ -170,8 +170,8 @@ UIBarGraphPlayerSp::~UIBarGraphPlayerSp() {}
 
 void UIBarGraphPlayerSp::OnDraw()
 {
-	int sp;
-	int maxsp;
+	int sp = 0;
+	int maxsp = 0;
 	if (m_isPlayerType == 0) {
 		sp = g_session.GetSp();
 		maxsp = g_session.GetMaxsp();
@@ -419,10 +419,10 @@ UIPlayerGage::~UIPlayerGage() {}
 
 void UIPlayerGage::OnDraw()
 {
-	int sp;
-	int maxsp;
-	int hp;
-	int maxhp;
+	int sp = 0;
+	int maxsp = 0;
+	int hp = 0;
+	int maxhp = 0;
 
 	if (m_isPlayerType == 0) {
 		sp = g_session.GetSp();

@@ -5829,7 +5829,7 @@ void UISkillListWnd::OnDraw()
 					sprintf(text, "Lv :");
 					TextOutA(itemX + 52, itemY + 17, text, 0, 0, 12, 0);
 
-					int skillUseLevel;
+					int skillUseLevel = 0;
 					if (m_typeWnd == 0)
 						skillUseLevel = g_session.GetSkillUseLevel(it->SKID);
 					else if (m_typeWnd == 1)
@@ -5858,7 +5858,7 @@ void UISkillListWnd::OnDraw()
 				} else {
 					if (SKILL_INFO::IsLevelUseSkill(it->SKID)) {
 						const std::vector<int>& spList = it->LevelUseSpAmountList();
-						int skillUseLevel;
+						int skillUseLevel = 0;
 						if (m_typeWnd == 0)
 							skillUseLevel = g_session.GetSkillUseLevel(it->SKID);
 						else if (m_typeWnd == 1)
@@ -6126,7 +6126,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 			break;
 
 		CMode* mode = g_modeMgr.GetCurMode();
-		int skillUseLevel;
+		int skillUseLevel = 0;
 		if (m_typeWnd == 0)
 			skillUseLevel = g_session.GetSkillUseLevel(skillInfo->SKID);
 		else if (m_typeWnd == 1)
@@ -6213,7 +6213,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 			SKILL_INFO skillInfo = GetSkillInfo(skillIndex);
 			int skillId = skillInfo.SKID;
 			if (skillInfo.m_isValid) {
-				int skillUseLevel;
+				int skillUseLevel = 0;
 				if (m_typeWnd == 0)
 					skillUseLevel = g_session.GetSkillUseLevel(skillId);
 				else if (m_typeWnd == 1)
@@ -6251,7 +6251,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 			SKILL_INFO skillInfo = GetSkillInfo(skillIndex);
 			int skillId = skillInfo.SKID;
 			if (skillInfo.m_isValid) {
-				int skillUseLevel;
+				int skillUseLevel = 0;
 				if (m_typeWnd == 0)
 					skillUseLevel = g_session.GetSkillUseLevel(skillId);
 				else if (m_typeWnd == 1)
@@ -6304,7 +6304,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 	case UM_REFRESHITEM: {
 		m_itemList.erase(m_itemList.begin(), m_itemList.end());
 
-		int numItem;
+		int numItem = 0;
 		if (m_typeWnd == 0)
 			numItem = g_session.GetSkillItemCount();
 		else if (m_typeWnd == 1)
@@ -6329,7 +6329,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 				}
 
 				if (SKILL_INFO::IsLevelUseSkill(skillInfo.SKID) && skillInfo.level) {
-					int skillUseLevel;
+					int skillUseLevel = 0;
 					if (m_typeWnd == 0)
 						skillUseLevel = g_session.GetSkillUseLevel(skillInfo.SKID);
 					else if (m_typeWnd == 1)
