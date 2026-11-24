@@ -1,4 +1,5 @@
 # frames under <game folder>/test/frames/screenshot/; regenerate with port/harness/run.py
-a88e319feb41cbbd78432406a1915920e1455c24117fa1ccce92427774a805f4  2048x1536  login-typed.png
-0ee12322fb32616bf829669eb44b7327edbe4a3acbf7dca5a84080df5fe8d460  2048x1536  screenshot-bmp.png
-f0e78c73bbe1f9839105d4d23126d51c66d46994c899b312c4d25aef31e40ab0  2048x1536  screenshot-jpeg.png
+d74e6d1107bf2574aaeb9900d087f7c1bba1527df9e376d3af76ce7ba37e65ec  2048x1536  login-typed.png
+88e3f3fa6fad61e87184bd370e10d80d17899561e386e1314d17a0e600a760b8  2048x1536  screenshot-bmp.png
+2d92d03030cc4f2a7ebd0828f1636350c676ec970cad4d3b2025a6b2534931a2  2048x1536  screenshot-cmd-shift-s.png
+623562ca0622e1ce09424fb05e2fa0165becd7986d74d4dee3bd8478f290859e  2048x1536  screenshot-jpeg.png
