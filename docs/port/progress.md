@@ -16,4 +16,4 @@ Entries are added at every milestone exit, for every parked item, for every devi
 
 - Stopped during round 1, a few minutes after its 16 packages started. Nothing from round 1 was integrated; the checklist is accurate (only M1.0 is done).
 - Left behind, outside git: empty worktrees `build/wt/<package>` with branches `pkg/<package>` (no commits), a draft `port/data/fetch.sh` in `build/wt/data`, and a partial copy of `data.grf` (801 MB) in the game folder. The test server is stopped with its database kept.
-- Before restarting: remove the round-1 worktrees and `pkg/*` branches, or the workers cannot create theirs.
+- The round-1 worktrees and `pkg/*` branches were removed afterwards at the owner's request, the draft `fetch.sh` with them. The partial `data.grf` stays.
