@@ -6574,7 +6574,7 @@ void UIPartySettingWnd::OnCreate(int cx, int cy)
 				m_radioItemCollect[i]->Create(160, 12);
 			m_radioItemCollect[i]->SetText(texts[i]);
 			m_radioItemCollect[i]->Move(20, m_nYOffset + 37 + i * 20);
-			m_radioItemDiv[i]->m_isEnabled = m_radioItemDiv[i]->m_isEnabled;
+			// No read of m_radioItemDiv here, not made yet (reference FUN_0048c0f0).
 			m_radioItemCollect[i]->SendMsg(this, UM_SETSTATE, m_curItemCollectBtn == i, 0, 0, 0);
 			m_radioItemCollect[i]->m_isEnabled = !g_session.GetNumParty();
 			AddChild(m_radioItemCollect[i]);
