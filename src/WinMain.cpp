@@ -950,6 +950,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	else
 		g_loginStartMode = g_serviceType ? 2 : 0;
 
+	g_Bink.OpenningMain(1);
 	g_modeMgr.Run(MT_LOGIN, "login.rsw");
 
 	UnInitMSS();

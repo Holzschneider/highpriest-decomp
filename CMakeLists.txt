@@ -200,6 +200,7 @@ endfunction()
 #   input  user32 windows, messages, keyboard, clipboard; DirectInput; imm32
 #          (on port/native/app)
 #   granny granny2 (on port/native/formats/granny)
+#   bink   the Bink SDK of src/movie/CBink.cpp (on port/native/formats/bink, audio)
 # BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
 # C library's file names (fopen, access, remove, ...) keep their own meaning
 # there instead of going through the game-folder translation of the win32 area.
@@ -211,7 +212,7 @@ function(bf_compat_flags target)
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32 d3d gdi miles input granny)
+set(BF_COMPAT_AREAS win32 d3d gdi miles input granny bink)
 set(BF_COMPAT_LIBS)
 add_custom_target(compat)
 foreach(area IN LISTS BF_COMPAT_AREAS)
@@ -279,10 +280,11 @@ endif()
 # they are not game units: sources.mk builds them into npgamelibpro.lib, which
 # the port never compiles. Its four entry points (SetHwnd, SendID,
 # ExitFindHack, Auth2 in base/FindHack.cpp) are empty under BF_PORT.
-# Replaced behind their interfaces under BF_PORT, and so still built:
-# movie/CBink (reports no movie; the Bink SDK headers are not included). The
+# Replaced behind their interfaces under BF_PORT, and so still built: the
 # Granny resource classes in resource/Model.cpp are built as they were; the
-# granny2 names they call come from port/compat/granny (M12.3a).
+# granny2 names they call come from port/compat/granny (M12.3a). movie/CBink
+# plays through the bink adapter (port/compat/include/bf_bink_sdk.h instead
+# of the SDK headers, M12.4a).
 set(BF_CLIENT_EXCLUDE
 	# Keyboard encryption (npkcrypt) and the self-patching code that installs
 	# it: protection, removed (3.3, "Protection").
@@ -340,10 +342,11 @@ add_library(bf_port_main STATIC
 	port/compat/stubs/bf_main.cpp
 	port/compat/stubs/bf_control_game.cpp
 	port/compat/stubs/bf_control_sound.cpp
+	port/compat/stubs/bf_control_movie.cpp
 	port/compat/stubs/bf_zlib.cpp
 	port/compat/stubs/bf_crt.cpp)
 bf_compat_flags(bf_port_main)
-target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_instrument ${BF_NATIVE_LIBS})
+target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_compat_bink bf_instrument ${BF_NATIVE_LIBS})
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
 bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # Apple frameworks and zlib only (technical plan 3.1, 9): the native modules

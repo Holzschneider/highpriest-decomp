@@ -5,41 +5,13 @@
 
 
 #include <windows.h>
-#ifndef BF_PORT
 #include <ddraw.h>
-#endif
 #include "CBink.h"
-
-#ifdef BF_PORT
-
-// The port has no Bink runtime (technical plan 3.3, "Bink"; M2.5): CBink
-// keeps its interface and reports that no movie plays, so the intro button
-// of the login screen does nothing. The decoder in port/native/formats/bink
-// is not wired in yet.
-
-CBink::CBink()
-{
-    m_Bink = 0;
-    m_BinkBuffer = 0;
-    m_IsBinkPlaying = 0;
-    m_BinkMode = 1;
-}
-
-int CBink::Break(unsigned short param)
-{
-    return 1;
-}
-
-void CBink::Pause(int flag)
-{
-}
-
-void CBink::OpenningMain(int flag)
-{
-    BF_TRACE(BFT_UI, "bink: no movie (openning.bik not played)");
-}
-
-#else
+#if defined(BF_PORT)
+// The SDK's names on the port's Bink reader (port/compat/bink, M12.4a).
+#include "bf_bink_sdk.h"
+#include "../base/File.h"
+#endif
 
 #include "../3dlib/Device.h"
 #include "../3dlib/D3dutil.h"
@@ -81,7 +53,13 @@ int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
     RECT                 dest;
 
     surface_type = BinkDDSurfaceType(lpSurfaceSrc);
+#if defined(BF_PORT)
+    // Bink only writes: without WRITEONLY the adapter would read the whole
+    // target back first (port/compat/d3d, "Lazy render-target lock").
+    if (FAILED(lpSurfaceSrc->Lock(NULL, &ddsd, DDLOCK_WAIT | DDLOCK_WRITEONLY, NULL))) {
+#else
     if (FAILED(lpSurfaceSrc->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL))) {
+#endif
         return 0;
     }
     BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, ddsd.dwHeight, 0, 0, surface_type);
@@ -134,6 +112,19 @@ void CBink::BinkGoodSleepUs(int microseconds)
 int CBink::InitOpenning()
 {
     BinkSoundUseDirectSound(0);
+#if defined(BF_PORT)
+    // BF_INTRO_MOVIE names another movie in place of openning.bik, which
+    // none of the port's data has: an absolute path, or a name the file
+    // manager finds in the archives or the game folder (data\video\ad\01.bik).
+    const char* other = getenv("BF_INTRO_MOVIE");
+    if (other && *other) {
+        unsigned int size = 0;
+        void* data = other[0] == '/' ? NULL : g_fileMgr.GetData(other, &size);
+        m_Bink = data ? BfBinkOpenMemory(data, size, other) : BinkOpen(other, 0);
+        if (data) g_fileMgr.ReleaseData(data);
+        return m_Bink != 0;
+    }
+#endif
     m_Bink = BinkOpen("openning.bik", 0);
     return m_Bink != 0;
 }
@@ -162,7 +153,12 @@ int CBink::Break(unsigned short param)
 
 void CBink::Pause(int flag)
 {
+#if defined(BF_PORT)
+    // Spec section 3: in the background the client keeps running at full
+    // rate; the movie too.
+#else
     BinkPause(m_Bink, flag);
+#endif
 }
 
 int CBink::ReadBinkModeRegistry()
@@ -203,11 +199,35 @@ void CBink::OpenningMain(int flag)
     MSG msg;
 
     ReadBinkModeRegistry();
+#if defined(BF_PORT)
+    // At the start (flag 1) the option SkipIntroScreens (spec section 2, on
+    // by default) skips the movie; the button of the login window plays it.
+    if (flag == 1 && bf_port_option(BF_OPT_SKIP_INTRO)) {
+        BF_TRACE(BFT_UI, "intro: skipped (option %s)", BF_OPT_SKIP_INTRO);
+        return;
+    }
+    if (m_BinkMode == 1 && flag == 1) {
+        BF_TRACE(BFT_UI, "intro: skipped (BINKMODE 1: a key stopped it before)");
+        return;
+    }
+    if (!InitOpenning()) {
+        BF_TRACE(BFT_UI, "intro: no movie (%s)", BinkGetError());
+        return;
+    }
+    BF_TRACE(BFT_UI, "intro: start, %u frames", m_Bink->Frames);
+#else
     if (m_BinkMode == 1 && flag == 1) return;
     if (!InitOpenning()) return;
+#endif
     m_IsBinkPlaying = true;
 
     for (;;) {
+#if defined(BF_PORT)
+        // The control socket, the window's size and captures (WinMain's
+        // CheckSystemMessage does this once per frame of the modes).
+        bf_port_frame();
+        if (g_sysQuit) break;
+#endif
         if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) break;
             TranslateMessage(&msg);
@@ -221,8 +241,11 @@ void CBink::OpenningMain(int flag)
         }
     }
     m_IsBinkPlaying = false;
+#if defined(BF_PORT)
+    BF_TRACE(BFT_UI, "intro: end at frame %u of %u (%s)", m_Bink->LastFrameNum, m_Bink->Frames,
+             m_Bink->LastFrameNum >= m_Bink->Frames ? "ended" : "stopped");
+#endif
     CloseOpenning();
     WriteBinkModeRegistry();
 }
 
-#endif // BF_PORT
