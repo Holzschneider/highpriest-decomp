@@ -158,12 +158,12 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 
 		m_pFileBuf.resize(m_dwOpenSize);
 
-		m_pFile = m_pFileBuf.begin();
+		m_pFile = m_pFileBuf.data();
 	}
 
 	DWORD dwRead;
 	SetFilePointer(m_hFile, offset, NULL, FILE_BEGIN);
-	ReadFile(m_hFile, m_pFileBuf.begin() , size, &dwRead, NULL);
+	ReadFile(m_hFile, m_pFileBuf.data() , size, &dwRead, NULL);
 	sAssert(dwRead == size);
 
 	return m_pFile;
@@ -261,15 +261,15 @@ bool	CGPak :: GetData(const PakPack& pakPack, void* buffer)
 
 			sAssert(m_pDecBuf.size() >= pakPack.m_dataSize);
 
-			dec.DataDecrypt((char*)pFile, pakPack.m_dataSize, (char*)m_pDecBuf.begin() , (int*)&DecodedSize, mod);
-			pCompressedData  = m_pDecBuf.begin() ;
+			dec.DataDecrypt((char*)pFile, pakPack.m_dataSize, (char*)m_pDecBuf.data() , (int*)&DecodedSize, mod);
+			pCompressedData  = m_pDecBuf.data() ;
 
 		}
 		else if(pakPack.m_type & DATA_HEADER_ENCRYPTED)
 		{
 
-			dec.DataDecryptHeader((char*)pFile, pakPack.m_dataSize, (char*)m_pDecBuf.begin() , (int*)&DecodedSize);
-			pCompressedData  = m_pDecBuf.begin();
+			dec.DataDecryptHeader((char*)pFile, pakPack.m_dataSize, (char*)m_pDecBuf.data() , (int*)&DecodedSize);
+			pCompressedData  = m_pDecBuf.data();
 
 		}
 		else
@@ -285,7 +285,7 @@ bool	CGPak :: GetData(const PakPack& pakPack, void* buffer)
 		}
 		else
 		{
-			memcpy(buffer, m_pDecBuf.begin(), pakPack.m_size);
+			memcpy(buffer, m_pDecBuf.data(), pakPack.m_size);
 		}
 
 		return true;

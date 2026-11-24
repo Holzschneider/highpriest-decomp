@@ -8920,7 +8920,7 @@ void UICommandListWnd::OnDraw()
 	int itemCount = 0;
 
 	if (m_tab->GetState() == 2) {
-		WinPair* it = g_session.m_cmdWinTable.begin();
+		std::vector<WinPair>::iterator it = g_session.m_cmdWinTable.begin();
 		while (it != g_session.m_cmdWinTable.end()) {
 			if (itemCount < m_viewOffset * m_itemHorzNum) {
 				++it;
@@ -8958,7 +8958,7 @@ void UICommandListWnd::OnDraw()
 		else
 			m_cmdTempTable = g_session.m_cmdOnOffTable;
 
-		TTPair* it = m_cmdTempTable.begin();
+		std::vector<TTPair>::iterator it = m_cmdTempTable.begin();
 		while (it != m_cmdTempTable.end()) {
 			if (itemCount < m_viewOffset * m_itemHorzNum) {
 				++it;
@@ -9039,7 +9039,7 @@ void UICommandListWnd::OnLBtnDown(int x, int y)
 		else
 			m_cmdTempTable = g_session.m_cmdOnOffTable;
 
-		TTPair* it = m_cmdTempTable.begin() + m_curItem;
+		std::vector<TTPair>::iterator it = m_cmdTempTable.begin() + m_curItem;
 		if (it->second == TT_HI) {
 			std::string param[3];
 			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, it->second, (INT_PTR)param, 0);
@@ -9064,7 +9064,7 @@ void UICommandListWnd::OnMouseHover(int x, int y)
 	strcpy(cmdHelp, "");
 
 	if (m_tab->GetState() == 2) {
-		const char** keyIt = g_session.m_keyWinTable.begin();
+		std::vector<const char*>::iterator keyIt = g_session.m_keyWinTable.begin();
 		if (m_curItem == -1)
 			return;
 
@@ -9081,7 +9081,7 @@ void UICommandListWnd::OnMouseHover(int x, int y)
 		else
 			m_cmdTempTable = g_session.m_cmdOnOffTable;
 
-		TTPair* it = m_cmdTempTable.begin();
+		std::vector<TTPair>::iterator it = m_cmdTempTable.begin();
 		if (m_curItem == -1 || m_cmdTempTable.size() <= m_curItem)
 			return;
 

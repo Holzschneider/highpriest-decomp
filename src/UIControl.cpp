@@ -912,7 +912,7 @@ void UINameBalloonText::OnDraw()
 		}
 	}
 
-	for (std::string *it = m_strings.begin(); it != m_strings.end(); ++it) {
+	for (std::vector<std::string>::iterator it = m_strings.begin(); it != m_strings.end(); ++it) {
 		TextOutWithOutline(offX, y, it->c_str(), it->size(), m_fontColor, m_bgColor, 0, NameBalloonfontSize, NameBalloonfontBold);
 		y += NameBalloonfontSize + 2;
 	}
@@ -995,7 +995,7 @@ void UIVerticalNameBalloonText::OnDraw()
 	}
 
 	int x = 4;
-	for (std::string *it = m_strings.begin(); it != m_strings.end(); ++it) {
+	for (std::vector<std::string>::iterator it = m_strings.begin(); it != m_strings.end(); ++it) {
 		TextOutWithOutlineVertical(x, offY, it->c_str(), it->size(), m_fontColor, m_bgColor, 0, NameBalloonfontSize, NameBalloonfontBold);
 		x += NameBalloonfontSize + 2;
 	}
