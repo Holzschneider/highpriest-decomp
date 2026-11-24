@@ -654,6 +654,12 @@ extern "C" void bf_file_set_user_codepage(unsigned codepage)
 	g_userCodepage = codepage;
 }
 
+extern "C" unsigned bf_file_user_codepage(void)
+{
+	std::lock_guard<std::recursive_mutex> guard(g_lock);
+	return g_userCodepage;
+}
+
 extern "C" bf_location bf_file_write_location(const char *client_path)
 {
 	std::lock_guard<std::recursive_mutex> guard(g_lock);
@@ -1044,6 +1050,18 @@ extern "C" int bf_file_remove(const char *client_path)
 	if (!Resolve(client_path, kWriteNoCreate, &r))
 		return -1;
 	return unlink(r.path.c_str()) == 0 ? 0 : -1;
+}
+
+extern "C" int bf_file_remove_folder(const char *client_path)
+{
+	std::lock_guard<std::recursive_mutex> guard(g_lock);
+	Resolved r;
+	if (!Resolve(client_path, kWriteNoCreate, &r))
+		return -1;
+	if (rmdir(r.path.c_str()) != 0)
+		return -1;
+	g_listings.erase(r.path);
+	return 0;
 }
 
 extern "C" int bf_file_rename(const char *from_client_path, const char *to_client_path)

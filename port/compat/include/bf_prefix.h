@@ -61,6 +61,10 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 }
 #endif
 
+/* The C library's file names on client paths: game folder, write locations
+   (port/compat/win32). */
+#include "bf_win32_crt.h"
+
 /* Names the DirectX 7 SDK gives its enumerations and the Wine headers do not. */
 #define _D3DPRIMITIVETYPE D3DPRIMITIVETYPE
 

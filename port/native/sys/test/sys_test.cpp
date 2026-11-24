@@ -448,6 +448,12 @@ void TestWritePaths(const std::string &game)
 	      "write paths: a CP1252 name is stored as UTF-8 and listed back as CP1252");
 	bf_file_find_close(find);
 	bf_file_set_user_codepage(949);
+	Check(bf_file_user_codepage() == 949, "write paths: the user code page reads back");
+
+	bf_file_make_folder("_tmpskin_\\empty");
+	Check(bf_file_remove_folder("_tmpskin_\\EMPTY") == 0 && !Exists(support + "/_tmpskin_/empty")
+	      && bf_file_remove_folder("data") == -1 && errno == EACCES,
+	      "write paths: an empty folder is removed in a write location, refused in the game folder");
 
 	// Paths native code built (UTF-8) under a write location stay UTF-8.
 	std::string nativeKorean = documents + "/Chat/" + kKoreanUtf8 + ".txt";

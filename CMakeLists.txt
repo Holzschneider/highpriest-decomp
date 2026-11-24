@@ -199,8 +199,11 @@ endfunction()
 #   miles  mss32 (on port/native/audio)
 #   input  user32 windows, messages, keyboard, clipboard; DirectInput; imm32
 #          (on port/native/app)
+# BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
+# C library's file names (fopen, access, remove, ...) keep their own meaning
+# there instead of going through the game-folder translation of the win32 area.
 function(bf_compat_flags target)
-	target_compile_definitions(${target} PRIVATE ${BF_CLIENT_DEFINES})
+	target_compile_definitions(${target} PRIVATE ${BF_CLIENT_DEFINES} BF_COMPAT_ADAPTER)
 	target_compile_options(${target} PRIVATE ${BF_CLIENT_OPTIONS}
 		"SHELL:-include ${BF_CLIENT_PREFIX}")
 	target_include_directories(${target} BEFORE PRIVATE ${BF_CLIENT_INCLUDES})

@@ -84,6 +84,8 @@ void bf_file_set_game_folder(const char *path);
  * 1252, or 65001 for UTF-8. Names in the game folder are always CP949.
  */
 void bf_file_set_user_codepage(unsigned codepage);
+/* The user code page last set (949 until set). The Win32 adapter's CP_ACP. */
+unsigned bf_file_user_codepage(void);
 
 /*
  * Which location a client path's writes go to: BF_LOCATION_GAME when the
@@ -192,6 +194,8 @@ void bf_file_find_close(bf_file_find *find);
 int bf_file_make_folder(const char *client_path);
 /* Removes a file in a write location. 0 or -1. */
 int bf_file_remove(const char *client_path);
+/* Removes an empty folder in a write location (rmdir). 0 or -1. */
+int bf_file_remove_folder(const char *client_path);
 /* Renames within the write locations. 0 or -1. */
 int bf_file_rename(const char *from_client_path, const char *to_client_path);
 
