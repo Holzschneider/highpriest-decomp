@@ -332,10 +332,10 @@ target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_instrument> ${bf_link} z)
 # ---------------------------------------------------------------- probes
 # bifrost-packetlen and bifrost-netprobe compile the game's packet.cpp,
 # PacketQueue.cpp and Connection.cpp. BF_PROBE_SRC names the tree they come
-# from. Until M2.2 rewrites `long` in src/, they build from the shadow copy that
-# port/tools/shadow.sh makes (made at configure time if absent); after it, set
-# -DBF_PROBE_SRC=src (relative paths are taken from the repository root).
-set(BF_PROBE_SRC "build/port/shadow/src" CACHE PATH
+# from: src/ since M2.2 rewrote `long` and `time_t` there (relative paths are
+# taken from the repository root; -DBF_PROBE_SRC=build/port/shadow/src builds
+# from the copy that port/tools/shadow.sh makes, made at configure time if absent).
+set(BF_PROBE_SRC "src" CACHE PATH
 	"Tree the probes compile packet.cpp, PacketQueue.cpp and Connection.cpp from")
 get_filename_component(bf_probe_tree "${BF_PROBE_SRC}" ABSOLUTE BASE_DIR ${BF_ROOT})
 if(NOT EXISTS ${bf_probe_tree}/packet.cpp AND bf_probe_tree STREQUAL "${BF_ROOT}/build/port/shadow/src")

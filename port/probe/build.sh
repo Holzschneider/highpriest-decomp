@@ -4,13 +4,13 @@
 #   build/port/bin/bifrost-packetlen   the client's packet length table
 #   build/port/bin/bifrost-netprobe    a login through to the zone server
 #
-# They compile the game's own sources. Until the rewrites of
-# port/tools/codemod.py are applied to src/, the build takes them from the
-# rewritten copy that port/tools/shadow.sh makes (and makes it if absent).
+# They compile the game's own sources from src/ (the rewrites of
+# port/tools/codemod.py are applied there). BF_SRC names another tree, for
+# instance the shadow copy that port/tools/shadow.sh makes.
 set -eu
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-SRC=${BF_SRC:-$ROOT/build/port/shadow/src}
-[ -d "$SRC" ] || "$ROOT/port/tools/shadow.sh" > /dev/null
+SRC=${BF_SRC:-$ROOT/src}
+if [ ! -d "$SRC" ]; then echo "no source tree at $SRC" >&2; exit 1; fi
 . "$ROOT/port/tools/flags.sh"
 OUT=$ROOT/build/port; mkdir -p "$OUT/bin" "$OUT/obj"
 
