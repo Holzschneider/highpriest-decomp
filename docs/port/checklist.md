@@ -84,7 +84,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M6.1 World loading: ground, attributes, models, lightmaps, water, actors | src | M5.5 |
+| [ ] | M6.1 World loading: ground, attributes, models, lightmaps, water, actors | src | M6.5 |
 | [ ] | M6.2 Camera, picking, click-to-move; free-camera option | src | M6.1 |
 | [ ] | M6.3 Open recovery sites of game mode settled | src | M6.1 |
 | [ ] | M6.4 Control interface, third part: position, HP and SP, visible actors | native | M5.6 |
