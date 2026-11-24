@@ -1,0 +1,6 @@
+# frames under <game folder>/test/frames/m4/; regenerate with port/harness/run.py
+0d77bc69d1e70a6ef188106a5b443cfc646da6d02fe0a804ec24e2b2ffb61d0b  1024x768  login-4x3.png
+eb215049a50be941ab16d4a809da2684370a56f8fc5ee045ef5f3b724c2bbc56  2048x1536  login-scale1.png
+40d5882bca8d1e2180af85af415246510d2047a19bae6577fa1715d1e6ab706f  2048x1536  login-scale2.png
+b860d1b2ca60e7abb7a28b02e553fcd83eef2428a435bc4dda496767f334239e  2046x1536  login-scale3.png
+fba3dc7c842b4964e870b421165b146fc6044660cc0395511634a2b678617f3c  3200x1400  login-wide.png
