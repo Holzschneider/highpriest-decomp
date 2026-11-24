@@ -92,7 +92,7 @@ bf_control_close("quit");                                      /* or "signal", "
 
 - Not yet run inside the client:
   - the hooks and providers are fakes;
-  - the client's call sites (M5.6 client half: the providers for `windows`/`controls`, `self`, `actors`; the hooks backed by gfx and app) are still to be written.
+  - the client registers `windows` and the `window` event (M5.6, `port/compat/stubs/bf_main.cpp`); `self` and `actors` are M6.4.
 - Pointer injection posts no `POINTER_ENTER` or `POINTER_LEAVE`, so `bf_app_pointer.inside` does not follow injected moves.
 - A command that ends in the client's shutdown (Cmd+Q typed through `key`) gets no reply; `bye` follows instead. PROTOCOL.md section 2 now says so.
 - The harness's mock accepts control characters in `key` `text`. PROTOCOL.md and this module refuse them (`bad_text`), because `bf_app` text events carry printable characters only.
