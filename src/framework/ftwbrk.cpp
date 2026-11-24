@@ -857,7 +857,7 @@ LStartLoop:
 				++pchWordWalk;
 				++cch;
 				if ((0xE6 == *pchWordWalk) &&
-					(((unsigned int)pchWordWalk > (unsigned int)(szText + 1)) &&
+					(((INT_PTR)pchWordWalk > (INT_PTR)(szText + 1)) &&
 					 (XCharType(*(pchWordWalk - 2)) & XT_THAI)))
 				{
 					++pchWordWalk;
@@ -1058,7 +1058,7 @@ LParseThaiChar:
 			}
 		}
 LStoreWordLen:
-		if (((unsigned int)pchFst > (unsigned int)szText) &&
+		if (((INT_PTR)pchFst > (INT_PTR)szText) &&
 			fCanCat(*(pchFst - 1), *pchFst, uFlags))
 		{
 			if (iBrk && rgbBrk[iBrk] == 0)
@@ -1067,7 +1067,7 @@ LStoreWordLen:
 				rgbBrk[iBrk] += cch;
 		}
 		else
-		if (((unsigned int)pchFst > (unsigned int)szText) &&
+		if (((INT_PTR)pchFst > (INT_PTR)szText) &&
 			(XCharType(*(pchFst - 1)) & XCharType(*pchFst)) &&
 			(
 			  (

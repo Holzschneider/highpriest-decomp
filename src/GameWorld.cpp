@@ -1069,7 +1069,7 @@ void	CWorld :: MakeFixedActor()
 	while (i4 != world->m_particles.end()) {
 		C3dWorldRes::effectSrcInfo *	ai = *i4;
 		CEffectMaker * nEffect = new CEffectMaker;
-		nEffect->SendMsg(NULL, AM_SETPOS, int(ai), 0, 0);
+		nEffect->SendMsg(NULL, AM_SETPOS, INT_PTR(ai), 0, 0);
 		m_gameObjectList.push_back(nEffect);
 		i4++;
 	}
@@ -1080,7 +1080,7 @@ void	CWorld :: MakeFixedActor()
 	while (i5 != world->m_sounds.end()) {
 		C3dWorldRes::soundSrcInfo *	ai = *i5;
 		CSoundMaker * nSound = new CSoundMaker;
-		nSound->SendMsg(NULL, AM_SETPOS, int(ai), 0, 0);
+		nSound->SendMsg(NULL, AM_SETPOS, INT_PTR(ai), 0, 0);
 		m_gameObjectList.push_back(nSound);
 		i5++;
 	}

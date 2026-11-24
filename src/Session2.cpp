@@ -2495,7 +2495,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM2);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					effect->SendMsg(NULL, AM_SETCOUNT, level);
 				}
 				sActor->SetState(ST_SKILL);
@@ -2536,7 +2536,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = mActor->LaunchEffect(EF_INTIMIDATE);
 				if (effect && tActor) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -2581,7 +2581,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			if (effect) {
 				effect->SendMsg(NULL, AM_SETCOUNT, level);
 				vector3d	pos = sActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								}
@@ -2589,7 +2589,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_YUFITEL);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								 }
@@ -2598,7 +2598,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_YUFITEL);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 									  }
@@ -2607,7 +2607,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = tActor->LaunchEffect(EF_EARTHSPIKE);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 									}
@@ -2615,7 +2615,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_WATERBALL2);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								   }
@@ -2623,13 +2623,13 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_SPEARBMR);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 
 			CRagEffect *	effect2 = sActor->LaunchEffect(EF_SPEARBMRSELF);
 			if (effect2) {
 				vector3d	pos = sActor->m_pos;
-				effect2->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect2->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 										}
@@ -2660,7 +2660,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_BOWLINGSELF);
 			if (effect) {
 				vector3d	pos = sActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 									 }
@@ -2668,7 +2668,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = tActor->LaunchEffect(EF_BRANDISHSPEAR);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 									   }
@@ -2676,7 +2676,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_SPEARSTABSELF);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								   }
@@ -2684,7 +2684,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_GRIMTOOTH);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								   }
@@ -2692,13 +2692,13 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 			CRagEffect *	effect = sActor->LaunchEffect(EF_SONICBLOW);
 			if (effect) {
 				vector3d	pos = tActor->m_pos;
-				effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 
 			CRagEffect *	effect2 = sActor->LaunchEffect(EF_SONICBLOW2);
 			if (effect2) {
 				vector3d	pos = sActor->m_pos;
-				effect2->SendMsg(NULL, AM_SETPOS, int(&pos));
+				effect2->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 								   }
@@ -2707,7 +2707,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 											CRagEffect *	effect = sActor->LaunchEffect(EF_TURNUNDEAD);
 											if (effect) {
 												vector3d	pos = tActor->m_pos;
-												effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+												effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 											}
 										}
 										break;
@@ -2717,7 +2717,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 										  CRagEffect *	effect = sActor->LaunchEffect(EF_FIREBALL);
 										  if (effect) {
 											  vector3d	pos = tActor->m_pos;
-											  effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+											  effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 										  }
 									  }
 									  break;
@@ -2727,7 +2727,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 											CRagEffect *	effect = sActor->LaunchEffect(EF_FROSTDIVER);
 											if (effect) {
 												vector3d	pos = tActor->m_pos;
-												effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+												effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 											}
 										}
 										break;
@@ -2789,7 +2789,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_SPEARBMR);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -2826,7 +2826,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_SHIELDBOOMERANG);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -2842,7 +2842,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_SHIELDBOOMERANG2);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -2853,7 +2853,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_BACKSTAP);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -2864,7 +2864,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -2888,7 +2888,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM3);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -2897,7 +2897,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM6);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -2906,7 +2906,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM7);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					PlayWave("effect\\\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2.wav");
 
@@ -2918,7 +2918,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM8);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					PlayWave("effect\\\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2.wav");
 
@@ -2931,7 +2931,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				if (effect)
 				{
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					PlayWave("effect\\\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2.wav");
 
@@ -2943,7 +2943,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_THROWITEM10);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					PlayWave("effect\\\xb4\xd1\xc0\xda_\xb4\xf8\xc1\xf6\xb1\xe2.wav");
 
@@ -2960,7 +2960,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = tActor->LaunchEffect(EF_HYOUSENSOU);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -2972,7 +2972,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				{
 					vector3d	pos;
 					pos.y = tActor->GetGID();
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					effect->SendMsg(NULL, AM_SETCOUNT, level);
 				}
@@ -2984,7 +2984,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *effect = sActor->LaunchEffect(EF_STIN5);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -3014,7 +3014,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_CHEMICAL4);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -3028,7 +3028,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_M02);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -3062,7 +3062,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_SPREADATTACK);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -3073,7 +3073,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = mActor->LaunchEffect(EF_INTIMIDATE);
 				if (effect && sActor) {
 					vector3d	pos = sActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -3091,7 +3091,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 				CRagEffect *	effect = sActor->LaunchEffect(EF_TRIPLEATTACK);
 				if (effect) {
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 			break;
@@ -3101,7 +3101,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_TANJI);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 						effect->SendMsg(NULL, AM_SETCOUNT, level);
 					}
 				}
@@ -3113,13 +3113,13 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_TEIHIT2);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 
 					CRagEffect *	effect2 = sActor->LaunchEffect(EF_CHIMTO);
 					if (effect2) {
 						vector3d	pos = tActor->m_pos;
-						effect2->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect2->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -3156,7 +3156,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_SOULBREAKER);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 					gameMode->SendMsg(MM_QUAKE);
 					PlayWave("effect\\mon_\xbe\xc6\xbc\xf6\xb6\xf3 \xc6\xd0\xc8\xb2\xb1\xc7.wav");
@@ -3190,7 +3190,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_TRIPLEATTACK2);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -3201,7 +3201,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_TRIPLEATTACK3);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -3247,7 +3247,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = tActor->LaunchEffect(EF_HITLINE5);
 					if (effect) {
 						vector3d	pos = sActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -3260,7 +3260,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_CHEMICAL3);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 					tActor->LaunchEffect(EF_QUAKEBODY2);
 				}
@@ -3272,7 +3272,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_STIN);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 					tActor->LaunchEffect(EF_QUAKEBODY3);
 				}
@@ -3284,7 +3284,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					CRagEffect *	effect = sActor->LaunchEffect(EF_STIN3);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 					tActor->LaunchEffect(EF_HITLINE4);
 				}
@@ -3300,7 +3300,7 @@ void	CSession :: LaunchSkillSpecialEffect(int skillId, int level, CGameActor * s
 					if (effect) {
 						vector3d	pos;
 						pos.y = tActor->GetGID();
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 
 					tActor->LaunchEffect(EF_HITLINE6);
@@ -4672,7 +4672,7 @@ void	CSession :: GetPetTalkString(char *srcStr, char *bufStr, int petGID, BOOL i
 				len = strlen(sexTable[a + nameCount]);
 				pos2 += len;
 				strcpy(bufStr, sexTable[a + nameCount]);
-				pos = (int)bufStr - (int)bufAddress;
+				pos = (INT_PTR)bufStr - (INT_PTR)bufAddress;
 				srcStr = srcStr + len + pos;
 				strcat(bufStr, srcStr);
 				srcStr = srcStr - len - pos;
@@ -5158,9 +5158,9 @@ void	CSession :: InitChattingProhibitLog()
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (int)strstr(curPath, "\\data");
+	int Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
-		Pos = Pos - (int)curPath;
+		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
 	}
 	strcat(curPath, "\\ProhibitionLog.gd");
@@ -5284,9 +5284,9 @@ void	CSession :: AppendProhibit(DWORD AID, DWORD prohibitTime)
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (int)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+	int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
 	if (Pos) {
-		Pos = Pos - (int)curPath;
+		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
 	}
 	strcat(curPath, "\\ProhibitionLog.gd");
@@ -5351,9 +5351,9 @@ void	CSession :: RerecordProhibitLog()
 	char curPath[256];
 	GetCurrentDirectory(256, curPath);
 
-	int Pos = (int)strstr(curPath, "\\data");
+	int Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
-		Pos = Pos - (int)curPath;
+		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
 	}
 	strcat(curPath, "\\ProhibitionLog.gd");
@@ -5382,9 +5382,9 @@ void	CSession :: RerecordProhibitLog()
 
 	GetCurrentDirectory(256, curPath);
 
-	Pos = (int)strstr(curPath, "\\data");
+	Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
-		Pos = Pos - (int)curPath;
+		Pos = Pos - (INT_PTR)curPath;
 		memcpy(curPath, curPath, Pos);
 	}
 	strcat(curPath, "\\ProhibitionLog.txt");

@@ -165,7 +165,7 @@ bool	CPlayer :: OnProcess()
 			ms.dx = m_destCellX;
 			ms.dy = m_destCellZ;
 			Trace("PreMove");
-			SendMsg(NULL, AM_MOVE, (int)&ms, 0, 0);
+			SendMsg(NULL, AM_MOVE, (INT_PTR)&ms, 0, 0);
 		}
 	}
 
@@ -571,18 +571,18 @@ void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR 
 
 			if(m_skillId == SKID_HT_TALKIEBOX) {
 				UIWindow* wnd = g_windowMgr.MakeWindow(WID_TALKBOXTRAPINPUTWND);
-				wnd->SendMsg(NULL, UM_SET_SKILL_INFO, int(values), 0, 0, 0);
+				wnd->SendMsg(NULL, UM_SET_SKILL_INFO, INT_PTR(values), 0, 0, 0);
 			}
 			else
 #ifdef		SECONDJOB_SKILL2
 				if(m_skillId == SKID_RG_GRAFFITI) {
 					UIWindow* wnd = g_windowMgr.MakeWindow(WID_GRAFFISTRBOXWND);
-					wnd->SendMsg(NULL, UM_SET_SKILL_INFO, int(values), 0, 0, 0);
+					wnd->SendMsg(NULL, UM_SET_SKILL_INFO, INT_PTR(values), 0, 0, 0);
 				}
 				else
 #endif
 			{
-				gameMode->SendMsg(MM_USE_SKILL_TOGROUND, int(values));
+				gameMode->SendMsg(MM_USE_SKILL_TOGROUND, INT_PTR(values));
 			}
 			break;
 			}

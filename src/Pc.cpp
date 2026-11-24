@@ -2046,7 +2046,7 @@ void	CPc :: RenderBodyLayer(matrix &vtm, BOOL isBlur)
 		}
 
 		int		renderFlag = RF_SPRITE, ret = EF_MAKEBLUR;
-		SendMsg(NULL, AM_IS_HAVE_EFFECT, int(&ret), 0, 0);
+		SendMsg(NULL, AM_IS_HAVE_EFFECT, INT_PTR(&ret), 0, 0);
 
 		switch (layer)
 		{
@@ -2614,7 +2614,7 @@ void	CPc :: RenderBody2(matrix &vtm, BOOL isBlur)
 		}
 
 		int		ret;
-		SendMsg(NULL, AM_IS_HAVE_EFFECT, int(&ret), 0, 0);
+		SendMsg(NULL, AM_IS_HAVE_EFFECT, INT_PTR(&ret), 0, 0);
 
 		RenderSprite(spr, palette, RF_SPRITE);
 

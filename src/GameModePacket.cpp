@@ -103,12 +103,12 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 #ifdef WEDDING_PATCH
 			if (p->SKID == SKID_WE_MALE || p->SKID == SKID_WE_FEMALE )
 			{
-				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->targetAID);
+				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->targetAID);
 
 			}
 			else
 #endif
-				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->level);
+				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->level);
 		}
 		else
 		{
@@ -450,7 +450,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (theSkill) {
 						theSkill->LaunchEffect(EF_SPRINGTRAP);
 						if (sActor->GetBird())
-							sActor->GetBird()->SendMsg(NULL, AM_REQ_ATTACK, int(&theSkill->m_pos));
+							sActor->GetBird()->SendMsg(NULL, AM_REQ_ATTACK, INT_PTR(&theSkill->m_pos));
 					}
 				}
 			}
@@ -696,7 +696,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 				CRagEffect *suicideEffect = m_world->m_player->LaunchEffect(EF_SUICIDE);
 				if (suicideEffect)
 				{
-					suicideEffect->SendMsg(NULL, AM_SETPOS, int(&sActor->m_pos));
+					suicideEffect->SendMsg(NULL, AM_SETPOS, INT_PTR(&sActor->m_pos));
 				}
 			}
 			break;
@@ -931,7 +931,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 					tActor->LaunchEffect(EF_STEALCOIN);
 				}
@@ -945,7 +945,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -1041,7 +1041,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect2)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect2->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect2->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -1068,7 +1068,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 						if (effect2)
 						{
 							vector3d	pos = tActor->m_pos;
-							effect2->SendMsg(NULL, AM_SETPOS, int(&pos));
+							effect2->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 						}
 					}
 				}
@@ -1212,7 +1212,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 						effect->SendMsg(NULL, AM_SETCOUNT, level);
 					}
 				}
@@ -1226,7 +1226,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 						effect->SendMsg(NULL, AM_SETCOUNT, 4);
 					}
 
@@ -1266,7 +1266,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					if (effect)
 					{
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 
 					tActor->LaunchEffect(EF_TRANSBLUEBODY);
@@ -1301,7 +1301,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					pos.y = tActor->GetGID();
 					CRagEffect *	effect = sActor->LaunchEffect(EF_LINELINK2);
 					if (effect)
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					sActor->LaunchEffect(EF_LINKLIGHT);
 					tActor->LaunchEffect(EF_LINKLIGHT);
@@ -1444,7 +1444,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					pos.y = tActor->GetGID();
 					CRagEffect *	effect = sActor->LaunchEffect(EF_LINELINK3);
 					if (effect)
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					sActor->LaunchEffect(EF_PINKBODY);
 					tActor->LaunchEffect(EF_PINKBODY);
@@ -1656,7 +1656,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					pos.y = tActor->GetGID();
 					CRagEffect *	effect = tActor->LaunchEffect(EF_SOULLINK);
 					if (effect)
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 
 					tActor->SendMsg(NULL, AM_DELETE_EFFECT, EF_ASURABODY);
 					tActor->LaunchEffect(EF_ASURABODY);
@@ -1779,7 +1779,7 @@ void	CGameMode :: Zc_Use_Skill(const char *buf)
 					CRagEffect *	effect = tActor->LaunchEffect(EF_RG_COIN3);
 					if (effect) {
 						vector3d	pos = tActor->m_pos;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -1879,7 +1879,7 @@ void CGameMode::Zc_Notify_Standentry(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY, (int)(&s), 0, 0);
+		theActor->SendMsg(NULL, AM_STANDENTRY, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -1921,7 +1921,7 @@ void CGameMode::Zc_Notify_Standentry(char const *buf)
 		GetWorld()->m_actorList.push_back(newGameActor);
 
 		if (newGameActor) {
-			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 0, 0);
+			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 0, 0);
 
 			if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 				if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -1985,7 +1985,7 @@ void CGameMode::Zc_Notify_Standentry_Npc(char const *buf)
 
 	CGameActor *newGameActor = m_world->GetGameActorByAID(GID);
 	if (newGameActor) {
-		newGameActor->SendMsg(NULL, AM_STANDENTRY, int(&s), 0, 0);
+		newGameActor->SendMsg(NULL, AM_STANDENTRY, INT_PTR(&s), 0, 0);
 		if (newGameActor->GetJob() > JT_WARPNPC && newGameActor->GetJob() < JT_2004_JOB_BEGIN) {
 			DWORD gdid = (p->accessory2 << 16) | p->accessory3;
 			int emblemVer = p->shield;
@@ -2002,7 +2002,7 @@ void CGameMode::Zc_Notify_Standentry_Npc(char const *buf)
 
 	m_world->m_gameObjectList.push_back(newGameActor);
 	m_world->m_actorList.push_back(newGameActor);
-	newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, int(&s), 1, 0);
+	newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, INT_PTR(&s), 1, 0);
 	if (newGameActor->GetJob() > JT_WARPNPC && newGameActor->GetJob() < JT_2004_JOB_BEGIN) {
 		DWORD gdid = (p->accessory2 << 16) | p->accessory3;
 		int emblemVer = p->shield;
@@ -2025,7 +2025,7 @@ void	CGameMode :: Zc_Notify_Move (const char *buf)
 	g_session.UpdateServerTime(ms.startTime);
 
 	if (theActor)
-		theActor->SendMsg(NULL, AM_MOVE, (int)(&ms), 0, 0);
+		theActor->SendMsg(NULL, AM_MOVE, (INT_PTR)(&ms), 0, 0);
 }
 
 
@@ -2038,7 +2038,7 @@ void CGameMode::Zc_Notify_Playermove(char const *buf)
 	DecodeSrcDst(p->MoveData, ms.sx, ms.sy, ms.dx, ms.dy, ms.cellX, ms.cellY);
 
 	g_session.UpdateServerTime(ms.startTime);
-	m_world->m_player->SendMsg(NULL, AM_MOVE, int(&ms), 0, 0);
+	m_world->m_player->SendMsg(NULL, AM_MOVE, INT_PTR(&ms), 0, 0);
 
 	char PASS = 0;
 	for (int a = 0; a < stateId.size(); ++a) {
@@ -2092,7 +2092,7 @@ void CGameMode::Zc_Notify_Act(unsigned int GID, unsigned int targetGID, unsigned
 		{
 			if (as.action == ACTION_ITEMPICKUP || as.action == ACTION_SIT || as.action == ACTION_STAND)
 			{
-				player->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+				player->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 				return;
 			}
 
@@ -2111,7 +2111,7 @@ void CGameMode::Zc_Notify_Act(unsigned int GID, unsigned int targetGID, unsigned
 			}
 		}
 
-		player->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+		player->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 	}
 	else
 	{
@@ -2122,13 +2122,13 @@ void CGameMode::Zc_Notify_Act(unsigned int GID, unsigned int targetGID, unsigned
 			{
 				if (as.action == ACTION_ITEMPICKUP || as.action == ACTION_SIT || as.action == ACTION_STAND)
 				{
-					theActor->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+					theActor->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 					return;
 				}
 
 				MonsterTalk(theActor, theActor->GetJob(), MAT_ATTACK, 0, GID);
 			}
-			theActor->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+			theActor->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 		}
 	}
 }
@@ -2154,13 +2154,13 @@ void	CGameMode :: Zc_Notify_Act_Position(const char *buf)
 
 	if (p->srcGID == g_session.GetAid())
 	{
-		m_world->m_player->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+		m_world->m_player->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 		return;
 	}
 
 	CGameActor *actor = m_world->GetGameActorByAID(p->srcGID);
 	if (actor)
-		actor->SendMsg(NULL, AM_ACTION, int(&as), 0, 0);
+		actor->SendMsg(NULL, AM_ACTION, INT_PTR(&as), 0, 0);
 }
 
 void	CGameMode :: Zc_Notify_Chat (const char *buf)
@@ -2178,22 +2178,22 @@ void	CGameMode :: Zc_Notify_Chat (const char *buf)
 	{
 		if (g_windowMgr.GetChatRoomWnd())
 		{
-			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, int(chatMsg), 0x222222, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, INT_PTR(chatMsg), 0x222222, 0, 0);
 		}
 		else
 		{
 			if (IsNameYellow(p->GID))
 			{
 				if (g_serviceType == (ServiceType)5)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xffff00, 1, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xffff00, 1, 0);
 				else if (g_serviceType == (ServiceType)10)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0x1d8dff, 1, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0x1d8dff, 1, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xffff, 1, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xffff, 1, 0);
 			}
 			else if (IsNameSpecific(p->GID))
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), IsNameSpecific(p->GID), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), IsNameSpecific(p->GID), 0, 0);
 			}
 			else
 			{
@@ -2205,14 +2205,14 @@ void	CGameMode :: Zc_Notify_Chat (const char *buf)
 				}
 				else
 				{
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xffffff, 1, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xffffff, 1, 0);
 				}
 			}
 
 			CGameActor *	theActor = GetWorld()->GetGameActorByAID(p->GID);
 			if (theActor)
 			{
-				theActor->SendMsg(NULL, AM_CHAT, int(chatMsg));
+				theActor->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg));
 			}
 		}
 		if (g_session.m_isSaveChat)
@@ -2231,12 +2231,12 @@ void	CGameMode :: Zc_Notify_Playerchat (const char *buf)
 
 	if (g_windowMgr.GetChatRoomWnd())
 	{
-		g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, int(chatMsg), 0x7800, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, INT_PTR(chatMsg), 0x7800, 0, 0);
 	}
 	else
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xff00, 1, 0);
-		m_world->m_player->SendMsg(NULL, AM_CHAT, int(chatMsg), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xff00, 1, 0);
+		m_world->m_player->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg), 0, 0);
 	}
 
 	if (g_session.m_isSaveChat)
@@ -2562,12 +2562,12 @@ void CGameMode::Zc_Broadcast(char const *buf)
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 	if (isSiegeMsg)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(wMsg.c_str()), int(chatColor), 13, int(talkerName));
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(wMsg.c_str()), int(chatColor), 13, INT_PTR(talkerName));
 	}
 	else
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(wMsg.c_str()), int(chatColor), 0, int(talkerName));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(wMsg.c_str()), int(chatColor), 0, int(talkerName));
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(wMsg.c_str()), int(chatColor), 0, INT_PTR(talkerName));
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(wMsg.c_str()), int(chatColor), 0, INT_PTR(talkerName));
 	}
 
 	m_broadCastTick = timeGetTime();
@@ -2618,7 +2618,7 @@ void CGameMode::Zc_Whisper(char const *buf)
 					std::string tmpMsg = MsgStr(MSI_AUTO_MSG2);
 					tmpMsg.append(g_session.m_strAutoMSG.c_str());
 					g_windowMgr.SetChatMsg(tmpMsg.c_str());
-					g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, int(cName), 0, 0);
+					g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, INT_PTR(cName), 0, 0);
 				}
 			}
 			return;
@@ -2641,13 +2641,13 @@ void CGameMode::Zc_Whisper(char const *buf)
 		{
 			if (g_session.IsCheatName(cName))
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ID_WARNING)), 0xffff, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_ID_WARNING)), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ID_WARNING)), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_ID_WARNING)), 0xffff, 0, 0);
 			}
 			else if (g_session.IsCheatGuildName(cName))
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ID_WARNING_GUILD)), 0xffff, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_ID_WARNING_GUILD)), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ID_WARNING_GUILD)), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_ID_WARNING_GUILD)), 0xffff, 0, 0);
 			}
 
 			wMsg = "( From ";
@@ -2658,7 +2658,7 @@ void CGameMode::Zc_Whisper(char const *buf)
 		if (strcmp(cName, g_session.GetCharName()))
 		{
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(wMsg.c_str()), 0xffff, 2, int(cName));
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(wMsg.c_str()), 0xffff, 2, INT_PTR(cName));
 			g_windowMgr.AddWhisperCharName(cName);
 
 			if (g_session.m_isSaveChat)
@@ -2679,7 +2679,7 @@ void CGameMode::Zc_Whisper(char const *buf)
 			std::string tmpMsg = MsgStr(MSI_AUTO_MSG2);
 			tmpMsg.append(g_session.m_strAutoMSG.c_str());
 			g_windowMgr.SetChatMsg(tmpMsg.c_str());
-			g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, int(cName), 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, INT_PTR(cName), 0, 0);
 		}
 	}
 }
@@ -2720,7 +2720,7 @@ void CGameMode::Zc_Ack_Whisper(char const *buf)
 			else
 			{
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg.c_str()), 0xffff, 2, int(m_lastWhisperName.c_str()));
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg.c_str()), 0xffff, 2, INT_PTR(m_lastWhisperName.c_str()));
 			}
 
 			if (g_session.m_isSaveChat)
@@ -2738,7 +2738,7 @@ void CGameMode::Zc_Ack_Whisper(char const *buf)
 		else
 		{
 			if (g_windowMgr.AddWhisperChatToWhisperWnd(m_lastWhisperName.c_str(), msg.c_str(), 0x7800) == 0)
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg.c_str()), 0xffff, 2, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg.c_str()), 0xffff, 2, 0);
 		}
 		break;
 	}
@@ -2746,21 +2746,21 @@ void CGameMode::Zc_Ack_Whisper(char const *buf)
 	{
 		std::string msg = std::string("(" + m_lastWhisperName + ")" + MsgStr(MSI_NO_RECEIVE_MODE)).c_str();
 		if (g_windowMgr.AddWhisperChatToWhisperWnd(m_lastWhisperName.c_str(), msg.c_str(), 0x7800) == 0)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg.c_str()), 0xffff, 2, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg.c_str()), 0xffff, 2, 0);
 		break;
 	}
 	case WHISPER_SEND_FAILED_PC_REFUSAL_ALL:
 	{
 		std::string msg = std::string("(" + m_lastWhisperName + ")" + MsgStr(MSI_NO_RECEIVE_MODE_FOR_ALL)).c_str();
 		if (g_windowMgr.AddWhisperChatToWhisperWnd(m_lastWhisperName.c_str(), msg.c_str(), 0x7800) == 0)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg.c_str()), 0xffff, 2, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg.c_str()), 0xffff, 2, 0);
 		break;
 	}
 	default:
 	{
 		std::string msg = std::string("(" + m_lastWhisperName + ")" + MsgStr(MSI_NOT_EXIST_CHARACTER)).c_str();
 		if (g_windowMgr.AddWhisperChatToWhisperWnd(m_lastWhisperName.c_str(), msg.c_str(), 0x7800) == 0)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg.c_str()), 0xffff, 2, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg.c_str()), 0xffff, 2, 0);
 
 		if (g_session.m_isSaveChat)
 			WriteChat((char *)msg.c_str());
@@ -2800,7 +2800,7 @@ void	CGameMode :: Zc_Ack_Disconnect_Character(const char *buf)
 	else
 		sprintf(msg, MsgStr(MSI_FAIL_DISCONNECT_CHARACTER));
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255, 50, 0)), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255, 50, 0)), 0, 0);
 }
 
 
@@ -2836,7 +2836,7 @@ void CGameMode::Zc_Notify_Moveentry(char const *buf)
 
 	CGameActor *newGameActor = GetWorld()->GetGameActorByAID(p->GID);
 	if (newGameActor) {
-		newGameActor->SendMsg(NULL, AM_MOVEENTRY, (int)(&ms));
+		newGameActor->SendMsg(NULL, AM_MOVEENTRY, (INT_PTR)(&ms));
 
 		if (newGameActor->GetJob() > JT_WARPNPC && newGameActor->GetJob() < JT_2004_JOB_BEGIN) {
 			DWORD gdid = (DWORD)(p->accessory2 << 16);
@@ -2888,7 +2888,7 @@ void CGameMode::Zc_Notify_Moveentry(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY, (int)(&ms));
+		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY, (INT_PTR)(&ms));
 
 		if (newGameActor->GetJob() > JT_WARPNPC && newGameActor->GetJob() < JT_2004_JOB_BEGIN) {
 			DWORD gdid = (DWORD)(p->accessory2 << 16);
@@ -3142,7 +3142,7 @@ void CGameMode::Zc_Item_Entry(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newItem);
 		GetWorld()->m_itemList.push_back(newItem);
 	}
-	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 0, 0);
+	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 0, 0);
 }
 
 
@@ -3169,7 +3169,7 @@ void CGameMode::Zc_Item_Fall_Entry(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newItem);
 		GetWorld()->m_itemList.push_back(newItem);
 	}
-	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 0, 0);
+	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 0, 0);
 }
 
 void CGameMode::Zc_Item_Pickup_Ack(char const *buf)
@@ -3208,13 +3208,13 @@ void CGameMode::Zc_Item_Pickup_Ack(char const *buf)
 		itemInfo.GetItemName(itemName);
 		char pickMsg[128];
 		sprintf(pickMsg, MsgStr(MSI_GET_ITEM), itemName, p->count);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		int pickupCount = p->count;
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 		break;
 	}
 	case RECEIVE_ITEM:
@@ -3274,12 +3274,12 @@ void CGameMode::Zc_Item_Pickup_Ack(char const *buf)
 			gainCount = p->count;
 		}
 
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 
 		if (m_isWaitingCancelExchangeItem)
 		{
@@ -3292,20 +3292,20 @@ void CGameMode::Zc_Item_Pickup_Ack(char const *buf)
 	}
 	case PICKUP_OVERCOUNT_ONEITEM:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERCOUNT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERWEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
 		break;
 	case PICKUP_FAILED:
 	case PICKUP_REFUSED_TIME:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -3494,12 +3494,12 @@ void CGameMode::Zc_Par_Change(char const *buf)
 		if (p->count < 0) {
 			char msg[256];
 			sprintf(msg, MsgStr(MSI_BAD_MANNER_REMAIN), -p->count);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
 			m_world->m_player->SendMsg(NULL, AM_EMOTION, ET_CHAT_PROHIBIT, 0, 0);
 		} else {
 			char msg[256];
 			sprintf(msg, MsgStr(MSI_BAD_MANNER_END));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
 			m_world->m_player->SendMsg(NULL, AM_DELETE_PROHIBITEFFECT, 0, 0, 0);
 		}
 		g_session.SetHonor(p->count);
@@ -3509,7 +3509,7 @@ void CGameMode::Zc_Par_Change(char const *buf)
 		if (p->count < -60) {
 			char msg[256];
 			sprintf(msg, MsgStr(MSI_PK_HONOR));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
 		}
 		break;
 
@@ -3639,20 +3639,20 @@ void CGameMode::Zc_Par_Change(char const *buf)
 			if (prevPercent < percent) {
 				if (percent >= 50 && prevPercent < 50) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_RECOVER_OVERWEIGHT)), 0xff, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_RECOVER_OVERWEIGHT)), 0xff, 7, 0);
 				}
 				if (percent >= 90 && prevPercent < 90) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_ATTACK_OVERWEIGHT)), 0xff, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_ATTACK_OVERWEIGHT)), 0xff, 7, 0);
 				}
 			} else if (percent < prevPercent) {
 				if (percent < 50 && prevPercent >= 50) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_RECOVER_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_RECOVER_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
 				}
 				if (percent < 90 && prevPercent >= 90) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_ATTACK_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_ATTACK_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
 				}
 			}
 		}
@@ -3670,11 +3670,11 @@ void CGameMode::Zc_Par_Change(char const *buf)
 				int percent = (g_session.GetWeight() * 100) / (g_session.GetMaxWeight() > 1 ? g_session.GetMaxWeight() : 1);
 				if (percent < 50 && prevPercent >= 50) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_RECOVER_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_RECOVER_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
 				}
 				if (percent < 90 && prevPercent >= 90) {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_ATTACK_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_ATTACK_OVERWEIGHT_RELEASED)), 0xffff00, 7, 0);
 				}
 			}
 		}
@@ -3753,7 +3753,7 @@ void CGameMode::Zc_Longpar_Change(char const *buf)
 			if (p->amount && exp) {
 				int cnt = (g_session.GetNextExp() - g_session.GetExp()) / exp;
 				sprintf(msg, "%d : %d/%d More : %d", exp, p->amount, g_session.GetNextExp(), cnt);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, RGB(245, 30, 245), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, RGB(245, 30, 245), 0, 0);
 			}
 		}
 		g_session.SetExp(p->amount);
@@ -3803,7 +3803,7 @@ void	CGameMode :: Zc_Req_Wear_Equip_Ack(const char *buf)
 	m_waitingWearEquipAck = timeGetTime() - 2000;
 	switch (p->result) {
 	case 0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CAN_NOT_EQUIP_ITEM)), 0xff, 6, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CAN_NOT_EQUIP_ITEM)), 0xff, 6, 0);
 		break;
 	case 1:
 		{
@@ -3815,7 +3815,7 @@ void	CGameMode :: Zc_Req_Wear_Equip_Ack(const char *buf)
 		}
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CAN_NOT_EQUIP_ITEM)), 0xff, 6, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CAN_NOT_EQUIP_ITEM)), 0xff, 6, 0);
 		break;
 	}
 }
@@ -3873,7 +3873,7 @@ void	CGameMode :: Zc_Say_Dialog(const char *buf)
 	}
 
 	UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_SAYDIALOGWND);
-	wnd->SendMsg(NULL, UM_SETSAYDIALOG, int(dialogSay), p->NAID, 0, 0);
+	wnd->SendMsg(NULL, UM_SETSAYDIALOG, INT_PTR(dialogSay), p->NAID, 0, 0);
 }
 
 
@@ -3917,7 +3917,7 @@ void	CGameMode :: Zc_Menu_List(const char *buf)
 	UIFrameWnd *	wnd = g_windowMgr.MakeWindow(WID_CHOOSEWND);
 	char *	token = strtok(dialogSay, ":");
 	while (token) {
-		wnd->SendMsg(NULL, UM_SETCHOOSE, int(token), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETCHOOSE, INT_PTR(token), 0, 0, 0);
 		token = strtok(NULL, ":");
 	}
 	wnd->SendMsg(NULL, UM_SETNAID, p->NAID, 0, 0, 0);
@@ -4132,7 +4132,7 @@ void	CGameMode :: Zc_User_Count(const char *buf)
 		sprintf(msg, MsgStr(MSI_NUMPEOPLE), p->count);
 	}
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
 }
 
 void	CGameMode :: ZC_BLACKSMITH_RANK(const char *buf)
@@ -4142,18 +4142,18 @@ void	CGameMode :: ZC_BLACKSMITH_RANK(const char *buf)
 
 	char msg[256];
 	sprintf(msg,"========== BLACKSMITH RANK ============");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9b9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9b9b9b, 0, 0);
 	for (i=0;i<10;i++)
 	{
 		if (i==9)
 			sprintf(msg,"[ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
 		else
 			sprintf(msg," [ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xcdcdcd, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xcdcdcd, 0, 0);
 	}
 
 	sprintf(msg,"===========================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9b9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9b9b9b, 0, 0);
 }
 
 void	CGameMode :: ZC_ALCHEMIST_RANK(const char *buf)
@@ -4163,18 +4163,18 @@ void	CGameMode :: ZC_ALCHEMIST_RANK(const char *buf)
 
 	char msg[256];
 	sprintf(msg,"=========== ALCHEMIST RANK =============");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9bcd9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9bcd9b, 0, 0);
 	for (i=0;i<10;i++)
 	{
 		if (i==9)
 			sprintf(msg,"[ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
 		else
 			sprintf(msg," [ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xcdffcd, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xcdffcd, 0, 0);
 	}
 
 	sprintf(msg,"===========================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9bcd9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9bcd9b, 0, 0);
 }
 
 void	CGameMode :: ZC_TAEKWON_RANK(const char *buf)
@@ -4184,18 +4184,18 @@ void	CGameMode :: ZC_TAEKWON_RANK(const char *buf)
 
 	char msg[256];
 	sprintf(msg,"============ TAEKWON RANK =============");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xcd9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xcd9b9b, 0, 0);
 	for (i=0;i<10;i++)
 	{
 		if (i==9)
 			sprintf(msg,"[ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
 		else
 			sprintf(msg," [ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffcdcd, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffcdcd, 0, 0);
 	}
 
 	sprintf(msg,"===========================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xcd9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xcd9b9b, 0, 0);
 }
 
 
@@ -4230,7 +4230,7 @@ void CGameMode::ZC_GANGSI_RANK(char const *buf)
 		plus = 50;
 	}
 
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), RGB(r, g, b), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), RGB(r, g, b), 0, 0);
 
 	for (i = 0; i < 10; i++)
 	{
@@ -4238,11 +4238,11 @@ void CGameMode::ZC_GANGSI_RANK(char const *buf)
 			sprintf(msg, "[ %d ] %16s  :  %4d POINT", i + 1, p->Name[i], p->Point[i]);
 		else
 			sprintf(msg, " [ %d ] %16s  :  %4d POINT", i + 1, p->Name[i], p->Point[i]);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), RGB(r + plus, g + plus, b + plus), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), RGB(r + plus, g + plus, b + plus), 0, 0);
 	}
 
 	sprintf(msg, "===========================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), RGB(r, g, b), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), RGB(r, g, b), 0, 0);
 }
 
 void	CGameMode :: ZC_BLACKSMITH_POINT(const char *buf)
@@ -4251,7 +4251,7 @@ void	CGameMode :: ZC_BLACKSMITH_POINT(const char *buf)
 
 	char msg[256];
 	sprintf(msg, MsgStr(MSI_BLACKSMITH_POINT),p->Point,p->TotalPoint);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(205, 205, 205), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(205, 205, 205), 0, 0);
 }
 
 void	CGameMode :: ZC_ALCHEMIST_POINT(const char *buf)
@@ -4260,7 +4260,7 @@ void	CGameMode :: ZC_ALCHEMIST_POINT(const char *buf)
 
 	char msg[256];
 	sprintf(msg, MsgStr(MSI_ALCHEMIST_POINT),p->Point,p->TotalPoint);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(205, 255, 205), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(205, 255, 205), 0, 0);
 }
 
 void	CGameMode :: ZC_TAEKWON_POINT(const char *buf)
@@ -4269,7 +4269,7 @@ void	CGameMode :: ZC_TAEKWON_POINT(const char *buf)
 
 	char msg[256];
 	sprintf(msg, MsgStr(MSI_TAEKWON_POINT),p->Point,p->TotalPoint);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(205, 205, 255), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(205, 205, 255), 0, 0);
 }
 
 void	CGameMode :: ZC_GANGSI_POINT(const char *buf)
@@ -4283,7 +4283,7 @@ void	CGameMode :: ZC_GANGSI_POINT(const char *buf)
 		sprintf(msg, MsgStr(MSI_DEATH_POINT),p->Point,p->TotalPoint);
 	else if ( p->PacketSwitch == JT_COLLECTOR )
 		sprintf(msg, MsgStr(MSI_COLLECTOR_POINT),p->Point,p->TotalPoint);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffcdcd, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffcdcd, 0, 0);
 }
 
 
@@ -4565,19 +4565,19 @@ void	CGameMode :: Zc_Pc_Purchase_Result(const char *buf)
 	{
 	case	PURCHASE_SUCCEED:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_SECCESS)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_SECCESS)), 0xffff00, 0, 0);
 		break;
 	case	PURCHASE_FAIL_MONEY:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INSUFFICIENT_MONEY)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INSUFFICIENT_MONEY)), 0xff, 0, 0);
 		break;
 	case	PURCHASE_FAIL_COUNT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INSUFFICIENT_OVER_COUNT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INSUFFICIENT_OVER_COUNT)), 0xff, 0, 0);
 		break;
 	case	PURCHASE_FAIL_WEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OVER_WEIGHT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OVER_WEIGHT)), 0xff, 0, 0);
 		break;
 	}
 
@@ -4592,11 +4592,11 @@ void	CGameMode :: Zc_Pc_Sell_Result(const char *buf)
 	{
 	case	SELL_SUCCEED:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_SECCESS)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_SECCESS)), int(RGB(0, 255, 255)), 0, 0);
 		break;
 	case	SELL_FAIL:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_FAIL)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_FAIL)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 	g_session.ClearDealItems();
@@ -4617,13 +4617,13 @@ void CGameMode::Zc_Setting_Whisper_Pc(char const *buf)
 		switch (p->result)
 		{
 		case WHISPER_SETTING_SUCCEED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNORESUCCESS)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNORESUCCESS)).c_str()), 0xffff, 0, 0);
 			break;
 		case WHIPSER_SETTING_FAILED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNOREFAILED1)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNOREFAILED1)).c_str()), 0xffff, 0, 0);
 			break;
 		case WHISPER_SETTING_FAILED_OVERCOUNT:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNOREFAILED2)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERIGNOREFAILED2)).c_str()), 0xffff, 0, 0);
 			break;
 		}
 		break;
@@ -4631,13 +4631,13 @@ void CGameMode::Zc_Setting_Whisper_Pc(char const *buf)
 		switch (p->result)
 		{
 		case WHISPER_SETTING_SUCCEED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNORESUCCESS)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNORESUCCESS)).c_str()), 0xffff, 0, 0);
 			break;
 		case WHIPSER_SETTING_FAILED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNOREFAILED1)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNOREFAILED1)).c_str()), 0xffff, 0, 0);
 			break;
 		case WHISPER_SETTING_FAILED_OVERCOUNT:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNOREFAILED2)).c_str()), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(std::string(m_refuseWhisperName + MsgStr(MSI_WHISPERNOIGNOREFAILED2)).c_str()), 0xffff, 0, 0);
 			break;
 		}
 		break;
@@ -4655,10 +4655,10 @@ void	CGameMode :: Zc_Setting_Whisper_State(const char *buf)
 		switch (p->result)
 		{
 		case	WHISPER_SETTING_SUCCEED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REFUSE_HEAR_ALL)), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REFUSE_HEAR_ALL)), 0xffff, 0, 0);
 			break;
 		case	WHIPSER_SETTING_FAILED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQ_REFUSE_HEAR_ALL_FAIL)), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQ_REFUSE_HEAR_ALL_FAIL)), 0xffff, 0, 0);
 			break;
 		}
 		break;
@@ -4666,10 +4666,10 @@ void	CGameMode :: Zc_Setting_Whisper_State(const char *buf)
 		switch (p->result)
 		{
 		case	WHISPER_SETTING_SUCCEED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_HEAR_ALL)), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_HEAR_ALL)), 0xffff, 0, 0);
 			break;
 		case	WHIPSER_SETTING_FAILED:
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQ_HEAR_ALL_FAIL)), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQ_HEAR_ALL_FAIL)), 0xffff, 0, 0);
 			break;
 		}
 		break;
@@ -4683,15 +4683,15 @@ void	CGameMode :: Zc_Whisper_List(const char *buf)
 	name[NAME_LENGTH] = 0;
 	int numName = (*(short *)(buf + 2) - 4) / NAME_LENGTH;
 	if (numName == 0)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NO_REFUSE_HEAR_LIST)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NO_REFUSE_HEAR_LIST)), 0xffff00, 0, 0);
 	else
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REFUSE_HEAR_LIST)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REFUSE_HEAR_LIST)), 0xffff00, 0, 0);
 	for (int i = 0; i < numName; ++i)
 	{
 		if (4 + i * NAME_LENGTH > *(short *)(buf + 2))
 			break;
 		memcpy(name, buf + 4 + i * NAME_LENGTH, NAME_LENGTH);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(name), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(name), 0xffff00, 0, 0);
 	}
 }
 
@@ -4707,21 +4707,21 @@ void CGameMode::Zc_Ack_Create_Chatroom(char const *buf)
 	case 0:
 	{
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ROOM_IS_MADE)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ROOM_IS_MADE)), 0xffff00, 0, 0);
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_CHATROOMWND);
 		m_lastChatroomInfo.numPeople = 1;
-		wnd->SendMsg(NULL, UM_SETINFO, int(&m_lastChatroomInfo), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETINFO, INT_PTR(&m_lastChatroomInfo), 0, 0, 0);
 		wnd->SendMsg(NULL, UM_CLEARMEMBER, 0, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_ADDMEMBER, int(g_session.GetCharName()), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_ADDMEMBER, INT_PTR(g_session.GetCharName()), 0, 0, 0);
 		break;
 	}
 	case 1:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_MANY_ROOM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_MANY_ROOM)), 0xff, 0, 0);
 		break;
 	case 2:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SAME_ROOM_TITLE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SAME_ROOM_TITLE)), 0xff, 0, 0);
 		break;
 	default:
 		Trace("PACKET_ZC_ACK_CREATE_CHATROOM \xc0\xdf\xb8\xf8\xb5\xc8 \xb0\xe1\xb0\xfa p->result==%d", p->result);
@@ -4745,7 +4745,7 @@ void CGameMode::Zc_Room_Newentry(char const *buf)
 		info.maxNumPeople = p->maxcount;
 		info.roomId = p->roomID;
 		if (info.title.size() > 60) info.title.resize(60);
-		theActor->SendMsg(NULL, AM_MAKE_CHAT_TITLE, int(&info), 0, 0);
+		theActor->SendMsg(NULL, AM_MAKE_CHAT_TITLE, INT_PTR(&info), 0, 0);
 	}
 }
 
@@ -4806,12 +4806,12 @@ void CGameMode::Zc_Enter_Room(char const *buf)
 	UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_CHATROOMWND);
 	wnd->SendMsg(NULL, UM_CLEARMEMBER, 0, 0, 0, 0);
 	roomInfo.numPeople = memberDataList.size();
-	wnd->SendMsg(NULL, UM_SETINFO, int(&roomInfo), 0, 0, 0);
+	wnd->SendMsg(NULL, UM_SETINFO, INT_PTR(&roomInfo), 0, 0, 0);
 
 	for (std::list<RoomMemberData>::iterator it = memberDataList.begin(); it != memberDataList.end(); ++it)
 	{
 		RoomMemberData &data = *it;
-		wnd->SendMsg(NULL, UM_ADDMEMBER, int(data.name.c_str()), data.role, 0, 0);
+		wnd->SendMsg(NULL, UM_ADDMEMBER, INT_PTR(data.name.c_str()), data.role, 0, 0);
 	}
 
 	m_lastChatroomInfo = roomInfo;
@@ -4836,12 +4836,12 @@ void CGameMode::Zc_Member_Newentry(char const *buf)
 	UIChatRoomWnd *wnd = (UIChatRoomWnd *)g_windowMgr.MakeWindow(WID_CHATROOMWND);
 	ChatRoomInfo roomInfo = wnd->m_roomInfo;
 	roomInfo.numPeople = p->curcount;
-	wnd->SendMsg(NULL, UM_SETINFO, int(&roomInfo), 0, 0, 0);
-	wnd->SendMsg(NULL, UM_ADDMEMBER, int(memberName), TRUE, 0, 0);
+	wnd->SendMsg(NULL, UM_SETINFO, INT_PTR(&roomInfo), 0, 0, 0);
+	wnd->SendMsg(NULL, UM_ADDMEMBER, INT_PTR(memberName), TRUE, 0, 0);
 
 	char msg[128];
 	sprintf(msg, MsgStr(MSI_USERGETINTHEROOM), memberName);
-	g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, int(msg), 0x808000, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, INT_PTR(msg), 0x808000, 0, 0);
 }
 
 
@@ -4863,19 +4863,19 @@ void CGameMode::Zc_Member_Exit(char const *buf)
 		UIChatRoomWnd *wnd = (UIChatRoomWnd *)g_windowMgr.MakeWindow(WID_CHATROOMWND);
 		ChatRoomInfo roomInfo = wnd->m_roomInfo;
 		roomInfo.numPeople = p->curcount;
-		wnd->SendMsg(NULL, UM_SETINFO, int(&roomInfo), 0, 0, 0);
-		wnd->SendMsg(NULL, UM_MEMBER_EXIT, int(memberName), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETINFO, INT_PTR(&roomInfo), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_MEMBER_EXIT, INT_PTR(memberName), 0, 0, 0);
 
 		char msg[128];
 		switch (p->type)
 		{
 		case ROOMEXITTYPE_EXIT:
 			sprintf(msg, MsgStr(MSI_USERGETOUTOFTHEROOM), memberName);
-			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, int(msg), 0x80, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, INT_PTR(msg), 0x80, 0, 0);
 			break;
 		case ROOMEXITTYPE_EXPEL:
 			sprintf(msg, MsgStr(MSI_USERGETOUTOFTHEROOMBYFORCE), memberName);
-			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, int(msg), 0x80, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSH_INTO_CHATROOM, INT_PTR(msg), 0x80, 0, 0);
 			break;
 		}
 	}
@@ -4888,7 +4888,7 @@ void	CGameMode :: Zc_Role_Change(const char *buf)
 	char memberName[NAME_LENGTH + 1];
 	memcpy(memberName, p->name, NAME_LENGTH);
 	memberName[NAME_LENGTH] = 0;
-	wnd->SendMsg(NULL, UM_ROLE_CHANGE, int(memberName), p->role, 0, 0);
+	wnd->SendMsg(NULL, UM_ROLE_CHANGE, INT_PTR(memberName), p->role, 0, 0);
 }
 
 void	CGameMode :: Zc_Refuse_Enter_Room(const char *buf)
@@ -4899,31 +4899,31 @@ void	CGameMode :: Zc_Refuse_Enter_Room(const char *buf)
 	{
 	case	REFUSETYPE_OVERFLOW:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_MANY_PEOPLE_IN_ROOM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_MANY_PEOPLE_IN_ROOM)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_WRONGPASSWD:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INCORRECT_PASSWORD)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INCORRECT_PASSWORD)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_EXPEL:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_YOU_HAVE_BANNED_FROM_THE_ROOM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_YOU_HAVE_BANNED_FROM_THE_ROOM)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_ZENY:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INSUFFICIENT_MONEY)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INSUFFICIENT_MONEY)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_LOWLEVEL:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_LEVEL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_LEVEL)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_HIGHLEVEL:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_HIGH_LEVEL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_HIGH_LEVEL)), 0xff, 0, 0);
 		break;
 	case	REFUSETYPE_JOB:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ACCEPTABLE_JOB)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ACCEPTABLE_JOB)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -4942,7 +4942,7 @@ void CGameMode::Zc_Change_Chatroom(char const *buf)
 	info.roomId = p->roomID;
 	if (info.title.size() > 60) info.title.resize(60);
 	UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_CHATROOMWND);
-	wnd->SendMsg(NULL, UM_SETINFO, int(&info), 0, 0, 0);
+	wnd->SendMsg(NULL, UM_SETINFO, INT_PTR(&info), 0, 0, 0);
 }
 
 void CGameMode::Zc_Req_Exchange_Item(char const *buf)
@@ -4955,7 +4955,7 @@ void CGameMode::Zc_Req_Exchange_Item(char const *buf)
 		name[NAME_LENGTH] = 0;
 
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_EXCHANGEACCEPTWND);
-		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, int(name), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, INT_PTR(name), 0, 0, 0);
 		m_lastExchangeCharacterName = name;
 	}
 	else
@@ -4976,7 +4976,7 @@ void CGameMode::Zc_Req_Exchange_Item2(char const *buf)
 		name[NAME_LENGTH] = 0;
 
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_EXCHANGEACCEPTWND);
-		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, int(name), p->GID, p->level, 0);
+		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, INT_PTR(name), p->GID, p->level, 0);
 		m_lastExchangeCharacterName = name;
 	}
 	else
@@ -5001,24 +5001,24 @@ void CGameMode::Zc_Ack_Exchange_Item(char const *buf)
 		g_session.ClearOtherExchangeItemList();
 		g_windowMgr.DeleteWindow(WID_EXCHANGEWND);
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_EXCHANGEWND);
-		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, int(m_lastExchangeCharacterName.c_str()), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, INT_PTR(m_lastExchangeCharacterName.c_str()), 0, 0, 0);
 		break;
 	}
 	case EXI_REQ_REFUSE:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REJECT_DEAL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REJECT_DEAL)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_DISTANCE:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_FAR_TO_DEAL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_FAR_TO_DEAL)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_NOTEXIST:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_BE_EXCHANGING:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_DEALING)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_DEALING)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -5038,24 +5038,24 @@ void CGameMode::Zc_Ack_Exchange_Item2(char const *buf)
 		g_session.ClearOtherExchangeItemList();
 		g_windowMgr.DeleteWindow(WID_EXCHANGEWND);
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_EXCHANGEWND);
-		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, int(m_lastExchangeCharacterName.c_str()), p->GID, p->level, 0);
+		wnd->SendMsg(NULL, UM_SET_EXCHANGE_CHAR_NAME, INT_PTR(m_lastExchangeCharacterName.c_str()), p->GID, p->level, 0);
 		break;
 	}
 	case EXI_REQ_REFUSE:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REJECT_DEAL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REJECT_DEAL)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_DISTANCE:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_FAR_TO_DEAL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_FAR_TO_DEAL)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_NOTEXIST:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)), 0xff, 0, 0);
 		break;
 	case EXI_REQ_FAILED_BE_EXCHANGING:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_DEALING)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_DEALING)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -5112,7 +5112,7 @@ void CGameMode::Zc_Ack_Add_Exchange_Item(char const *buf)
 		break;
 	case EXITEM_ADD_FAILED_OVERWEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_OVER_WEIGHT)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_OVER_WEIGHT)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 }
@@ -5141,7 +5141,7 @@ void	CGameMode :: Zc_Cancel_Exchange_Item(const char *buf)
 	m_isWaitingCancelExchangeItem = FALSE;
 	g_session.CancelExchange();
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_IS_CANCELED)), 0xff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_IS_CANCELED)), 0xff, 0, 0);
 }
 
 void	CGameMode :: Zc_Exec_Exchange_Item(const char *buf)
@@ -5154,12 +5154,12 @@ void	CGameMode :: Zc_Exec_Exchange_Item(const char *buf)
 	switch (p->result)
 	{
 	case EXITEM_EXCHANGE_SUCCEED:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_SUCCESS)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_SUCCESS)), int(RGB(0, 255, 255)), 0, 0);
 		break;
 	case EXITEM_EXCHANGE_FAILED:
 		m_isWaitingCancelExchangeItem = FALSE;
 		g_session.CancelExchange();
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_FAILED)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_FAILED)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 }
@@ -5339,14 +5339,14 @@ void	CGameMode :: Zc_Ack_Make_Group(const char *buf)
 	switch (p->result)
 	{
 	case	GROUP_MAKE_SUCCEED:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_PARTY_MAKE_SUCCEED)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_PARTY_MAKE_SUCCEED)), 0xffff00, 0, 0);
 		g_windowMgr.MakeWindow(WID_MESSENGERGROUPWND);
 		break;
 	case	GROUP_MAKE_FAILED_SAMENAME:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SAME_PARTY_NAME)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SAME_PARTY_NAME)), 0xff, 0, 0);
 		break;
 	case	GROUP_MAKE_FAILED_ALEADY_GROUP_MEMBER:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_YOU_ARE_ALREADY_IN_PARTY)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_YOU_ARE_ALREADY_IN_PARTY)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -5405,29 +5405,29 @@ void	CGameMode :: Zc_Ack_Req_Join_Group(const char *buf)
 	switch (p->answer)
 	{
 	case 0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_ALREADY_IN_PARTY)),  0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_ALREADY_IN_PARTY)),  0x0000ff, 0, 0);
 		break;
 	case 1:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_REJECT_JOIN)),  0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_REJECT_JOIN)),  0x0000ff, 0, 0);
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_ACCEPT_JOIN)),  0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_ACCEPT_JOIN)),  0xffff00, 0, 0);
 		break;
 	case 3:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_MANY_PEOPLE_IN_PARTY)),  0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_MANY_PEOPLE_IN_PARTY)),  0x0000ff, 0, 0);
 		break;
 	case 4:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ALREADY_SAME_AID_JOINED)), 0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ALREADY_SAME_AID_JOINED)), 0x0000ff, 0, 0);
 		break;
 	}
 
 	switch (*(int *)(buf + 0x1a))
 	{
 	case 5:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_JOINMSG_REFUSE)), 0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_JOINMSG_REFUSE)), 0x0000ff, 0, 0);
 		break;
 	case 7:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)),  0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_NOT_EXIST)),  0x0000ff, 0, 0);
 		break;
 	}
 }
@@ -5445,7 +5445,7 @@ void CGameMode::Zc_Req_Join_Group(char const *buf)
 	g_session.m_partyName.assign(groupName, nameLength);
 
 	UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_JOINPARTYACCEPTWND);
-	wnd->SendMsg(NULL, UM_SET_JOIN_PARTY_MSG, p->GRID, (int)groupName, 0, 0);
+	wnd->SendMsg(NULL, UM_SET_JOIN_PARTY_MSG, p->GRID, (INT_PTR)groupName, 0, 0);
 }
 
 void	CGameMode :: Zc_Req_Couple(const char *buf)
@@ -5457,7 +5457,7 @@ void	CGameMode :: Zc_Req_Couple(const char *buf)
 	TheName[NAME_LENGTH] = 0;
 	m_lastCouplePacketGid = p->GID;
 	UIFrameWnd *	wnd = g_windowMgr.MakeWindow(WID_COUPLEACCEPTWND);
-	wnd->SendMsg(NULL, UM_SET_COUPLE_MSG, p->GID, (int)TheName, 0, 0);
+	wnd->SendMsg(NULL, UM_SET_COUPLE_MSG, p->GID, (INT_PTR)TheName, 0, 0);
 }
 
 void	CGameMode :: Zc_Req_Baby(const char *buf)
@@ -5469,7 +5469,7 @@ void	CGameMode :: Zc_Req_Baby(const char *buf)
 	m_lastCouplePacketAid = p->AID;
 	m_lastCouplePacketGid = p->GID;
 	UIFrameWnd *	wnd = g_windowMgr.MakeWindow(WID_BABYACCEPTWND);
-	wnd->SendMsg(NULL, UM_SET_BABY_MSG, p->GID, (int)TheName, 0, 0);
+	wnd->SendMsg(NULL, UM_SET_BABY_MSG, p->GID, (INT_PTR)TheName, 0, 0);
 }
 
 void	CGameMode :: Zc_StarPlace(const char *buf)
@@ -5489,7 +5489,7 @@ void	CGameMode :: Zc_NotifyBindOnEquip(const char *buf)
 		indexItem.GetItemName(nItemName);
 		char	msg[256];
 		sprintf(msg, MsgStr(MSI_YOURITEM_EQUIPED), nItemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x6effff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x6effff, 0, 0);
 	}
 }
 
@@ -5569,7 +5569,7 @@ void CGameMode::Zc_Battlefield_Chat(char const *buf)
 
 	if (IsNameSpecific(p->accountID))
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), IsNameSpecific(p->accountID), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), IsNameSpecific(p->accountID), 0, 0);
 	}
 	else
 	{
@@ -5581,14 +5581,14 @@ void CGameMode::Zc_Battlefield_Chat(char const *buf)
 		}
 		else
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), int(RGB(255, 0, 155)), NMSG_CHAT, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), int(RGB(255, 0, 155)), NMSG_CHAT, 0);
 		}
 	}
 
 	CGameActor* theActor = GetWorld()->GetGameActorByAID(p->accountID);
 	if (theActor)
 	{
-		theActor->SendMsg(NULL, AM_CHAT, int(chatMsg), 0, 0);
+		theActor->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg), 0, 0);
 	}
 
 	if (g_session.m_isSaveChat)
@@ -5606,7 +5606,7 @@ void	CGameMode :: Zc_Battlefield_Notify_Point(const char *buf)
 
 	char	msgZ[100];
 	sprintf(msgZ, "[ Camp A = %d , Camp B = %d ]", p->pointCampA, p->pointCampB);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msgZ), 0xc8c8c8, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msgZ), 0xc8c8c8, 0, 0);
 }
 
 void	CGameMode :: Zc_Battlefield_Notify_Position(const char *buf)
@@ -5749,26 +5749,26 @@ void CGameMode::Zc_Ack_Status_GM(char const *buf)
 	sprintf(msg2, "             STR=%3d      AGI=%3d      VIT=%3d      INT=%3d      DEX=%3d      LUK=%d",
 		p->str, p->agi, p->vit,
 		p->Int, p->dex, p->luk);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xffff, 0, 0);
 
 	sprintf(msg2, "standard STR=%3d      AGI=%3d      VIT=%3d      INT=%3d      DEX=%3d      LUK=%2d",
 		p->standardStr, p->standardAgi, p->standardVit,
 		p->standardInt, p->standardDex, p->standardLuk);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xff37, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xff37, 0, 0);
 
 	sprintf(msg2, "    attPower=%3d    refiningPow=%3d    MAXmatPow=%3d    MINmatPower=%3d       ASPD=%3d",
 		p->attPower, p->refiningPower, p->max_mattPower,
 		p->min_mattPower, p->ASPD);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xffff, 0, 0);
 
 	sprintf(msg2, "itemdefPow=%3d     plusdefPow=%3d    mdefPower=%3d    plusmdefPow=%3d    plusASPD=%3d",
 		p->itemdefPower, p->plusdefPower, p->mdefPower,
 		p->plusmdefPower, p->plusASPD);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xff37, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xff37, 0, 0);
 
 	sprintf(msg2, "hitSuccessVal=%3d    avoidSuccessVal=%3d    plusAvoidSuccessValue=%3d",
 		p->hitSuccessValue, p->avoidSuccessValue, p->plusAvoidSuccessValue);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xffff, 0, 0);
 }
 
 void CGameMode::Zc_Add_Member_To_Group(char const *buf)
@@ -5918,7 +5918,7 @@ void CGameMode::Zc_Delete_Member_From_Group(char const *buf)
 		g_session.ClearParty();
 		g_session.m_partyName = "";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_YOU_LEAVE_FROM_PARTY)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_YOU_LEAVE_FROM_PARTY)), int(RGB(0, 255, 255)), 0, 0);
 		g_windowMgr.DeleteWindow(WID_PARTYSETTINGWND);
 		SendMsg(MM_DELETEPARTYPOSALL);
 		if (g_windowMgr.GetMemorialDunWnd())
@@ -5986,15 +5986,15 @@ void	CGameMode :: Zc_Notify_Chat_Party(const char *buf)
 	int		msgLen = p->PacketLength - sizeof(PACKET_ZC_NOTIFY_CHAT_PARTY);
 	memcpy(chatMsg, buf + sizeof(PACKET_ZC_NOTIFY_CHAT_PARTY), msgLen);
 	if (p->AID == g_session.GetAid()) {
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xc8ff, 3, 0);
-		m_world->m_player->SendMsg(NULL, AM_CHAT, int(chatMsg), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xc8ff, 3, 0);
+		m_world->m_player->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg), 0, 0);
 	}
 	else {
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xc8c8ff, 3, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xc8c8ff, 3, 0);
 		CGameActor *	theActor = GetWorld()->GetGameActorByAID(p->AID);
 		if (theActor)
-			theActor->SendMsg(NULL, AM_CHAT, int(chatMsg), 0, 0);
+			theActor->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg), 0, 0);
 	}
 	if (g_session.m_isSaveChat)
 		WriteChat(chatMsg);
@@ -6018,7 +6018,7 @@ void CGameMode::Zc_Mvp_Getting_Item(char const *buf)
 	dummyItemInfo.GetItemName(removedItemName);
 	sprintf(msg, "%s%s", MsgStr(MSI_YOU_RECEIVE_MVP_ITEM), removedItemName, MsgStr(MSI_YOU_RECEIVE_MVP_ITEM2));
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(0, 255, 255)), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(0, 255, 255)), 0, 0);
 }
 
 void	CGameMode :: Zc_Mvp_Getting_Special_Exp(const char *buf)
@@ -6027,7 +6027,7 @@ void	CGameMode :: Zc_Mvp_Getting_Special_Exp(const char *buf)
 	char	msg[256];
 	sprintf(msg, "%s%d%s", MsgStr(MSI_YOU_RECEIVE_MVP_EXP), p->exp, MsgStr(MSI_YOU_RECEIVE_MVP_EXP2));
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 0, 0);
 }
 
 void	CGameMode :: Zc_Mvp(const char *buf)
@@ -6048,7 +6048,7 @@ void	CGameMode :: Zc_Mvp(const char *buf)
 void	CGameMode :: Zc_Throw_Mvpitem(const char *buf)
 {
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_YOU_THROW_MVPITEM)), 0xff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_YOU_THROW_MVPITEM)), 0xff, 0, 0);
 }
 
 
@@ -6351,32 +6351,32 @@ void CGameMode::Zc_Ack_Touseskill(char const *buf)
 	{
 	case USESKILL_FAIL:
 		if (g_session.m_isSkillFail == TRUE)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_USESKILL_FAIL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_USESKILL_FAIL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_REDJAMSTONE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NEED_REDJAMSTONE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NEED_REDJAMSTONE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_BLUEJAMSTONE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NEED_BLUEJAMSTONE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NEED_BLUEJAMSTONE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_THIS_WEAPON:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_USESKILL_FAIL_NOT_SUITABLE_WEAPON)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_USESKILL_FAIL_NOT_SUITABLE_WEAPON)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_SP_INSUFFICIENT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_USESKILL_FAIL_SP_INSUFFICIENT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_USESKILL_FAIL_SP_INSUFFICIENT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_HP_INSUFFICIENT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_USESKILL_FAIL_HP_INSUFFICIENT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_USESKILL_FAIL_HP_INSUFFICIENT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_MONEY:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILL_FAIL_MONEY)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILL_FAIL_MONEY)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_SKILLINTERVAL:
 		if (g_session.m_isSkillFail == TRUE)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILLINTERVAL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILLINTERVAL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_STUFF_INSUFFICIENT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SOURCE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SOURCE)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	case USESKILL_FAIL_LEVEL:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
@@ -6385,31 +6385,31 @@ void CGameMode::Zc_Ack_Touseskill(char const *buf)
 			switch (p->NUM)
 			{
 			case ZCSK_ITEMEXCHANGE:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE1)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE1)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_EMOTION:
 				m_isReqEmotion = false;
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE2)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE2)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_SIT:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE3)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE3)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_CHAT:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE4)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE4)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_PARTY:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE5)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE5)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_SHOUT:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE6)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE6)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_PK:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE7)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE7)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case ZCSK_MANNERPOINT:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_FOR_MANNER_POINT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_FOR_MANNER_POINT)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 			case ZCSK_JOINPARTY:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE5_2)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE5_2)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			}
 		}
@@ -6418,23 +6418,23 @@ void CGameMode::Zc_Ack_Touseskill(char const *buf)
 			switch (p->SKID)
 			{
 			case SKID_AL_WARP:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case SKID_TF_STEAL:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FAIL_STEAL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FAIL_STEAL)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			case SKID_TF_POISON:
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FAIL_POISON)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FAIL_POISON)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			default:
 				if (g_session.m_isSkillFail == TRUE)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE8)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOT_ENOUGH_SKILLLEVE8)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 				break;
 			}
 		}
 		break;
 	case USESKILL_FAIL_WEIGHTOVER:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_USESKILL_FAIL_WEIGHTOVER)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_USESKILL_FAIL_WEIGHTOVER)), int(RGB(255, 0, 0)), NMSG_FAIL_SKILL, 0);
 		break;
 	}
 }
@@ -6446,37 +6446,37 @@ void CGameMode::Zc_SKILLMSG(char const *buf)
 	switch (p->MsgNo)
 	{
 	case 21:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL1)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL1)), 0x9b9bff, 7, 0);
 		break;
 	case 22:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL2)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL2)), 0x9b9bff, 7, 0);
 		break;
 	case 23:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL3)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL3)), 0x9b9bff, 7, 0);
 		break;
 	case 24:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL4)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL4)), 0x9b9bff, 7, 0);
 		break;
 	case 25:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL5)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL5)), 0x9b9bff, 7, 0);
 		break;
 	case 28:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL6)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL6)), 0x9b9bff, 7, 0);
 		break;
 	case 29:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL7)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL7)), 0x9b9bff, 7, 0);
 		break;
 	case 30:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL8)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL8)), 0x9b9bff, 7, 0);
 		break;
 	case 31:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL9)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL9)), 0x9b9bff, 7, 0);
 		break;
 	case 32:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GOSPEL10)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GOSPEL10)), 0x9b9bff, 7, 0);
 		break;
 	case 40:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FULLSTRIP)), 0x9b9bff, 7, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FULLSTRIP)), 0x9b9bff, 7, 0);
 		break;
 	}
 }
@@ -6489,13 +6489,13 @@ void	CGameMode :: Zc_BABYMSG(const char *buf)
 	switch (p->MsgNo)
 	{
 	case 0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BABY1)), 0x9b9bff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BABY1)), 0x9b9bff, 0, 0);
 		break;
 	case 1:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BABY2)), 0x9b9bff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BABY2)), 0x9b9bff, 0, 0);
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BABY3)), 0x9b9bff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BABY3)), 0x9b9bff, 0, 0);
 		break;
 	}
 }
@@ -6540,7 +6540,7 @@ void CGameMode::Zc_Notify_Skill(char const *buf)
 
 	if (p->AID == g_session.GetAid())
 	{
-		m_world->m_player->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+		m_world->m_player->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		sActor = m_world->m_player;
 		job = sActor->GetJob();
 	}
@@ -6549,7 +6549,7 @@ void CGameMode::Zc_Notify_Skill(char const *buf)
 		theActor = m_world->GetGameActorByAID(p->AID);
 		if (theActor)
 		{
-			theActor->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+			theActor->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 			sActor = theActor;
 			job = theActor->GetJob();
 		}
@@ -6557,13 +6557,13 @@ void CGameMode::Zc_Notify_Skill(char const *buf)
 		{
 			CSkill *theSkill = m_world->GetSkillByAID(p->AID);
 			if (theSkill)
-				theSkill->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+				theSkill->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		}
 	}
 
 	if (!g_session.IsMonster(sActor))
 	{
-		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->level);
+		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->level);
 	}
 	else
 	{
@@ -6609,7 +6609,7 @@ void CGameMode::Zc_Notify_Skill_Position(char const *buf)
 
 	if (p->AID == g_session.GetAid())
 	{
-		m_world->m_player->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+		m_world->m_player->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		sActor = m_world->m_player;
 		job = sActor->GetJob();
 	}
@@ -6618,7 +6618,7 @@ void CGameMode::Zc_Notify_Skill_Position(char const *buf)
 		theActor = m_world->GetGameActorByAID(p->AID);
 		if (theActor)
 		{
-			theActor->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+			theActor->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 			sActor = theActor;
 			job = theActor->GetJob();
 		}
@@ -6626,13 +6626,13 @@ void CGameMode::Zc_Notify_Skill_Position(char const *buf)
 		{
 			CSkill *theSkill = m_world->GetSkillByAID(p->AID);
 			if (theSkill)
-				theSkill->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+				theSkill->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		}
 	}
 
 	if (!g_session.IsMonster(sActor))
 	{
-		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->level);
+		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->level);
 	}
 	else
 	{
@@ -6658,12 +6658,12 @@ void CGameMode::Zc_Notify_Groundskill(char const *buf)
 	CGameActor *sActor = NULL;
 	int job = -1;
 	if (p->AID == g_session.GetAid()) {
-		GetWorld()->m_player->SendMsg(NULL, AM_GROUNDSKILL, int(&gss), 0, 0);
+		GetWorld()->m_player->SendMsg(NULL, AM_GROUNDSKILL, INT_PTR(&gss), 0, 0);
 		sActor = GetWorld()->m_player;
 	} else {
 		CGameActor *theActor = m_world->GetGameActorByAID(p->AID);
 		if (theActor) {
-			theActor->SendMsg(NULL, AM_GROUNDSKILL, int(&gss), 0, 0);
+			theActor->SendMsg(NULL, AM_GROUNDSKILL, INT_PTR(&gss), 0, 0);
 			sActor = theActor;
 		}
 	}
@@ -6672,7 +6672,7 @@ void CGameMode::Zc_Notify_Groundskill(char const *buf)
 		job = sActor->GetJob();
 
 	if (!g_session.IsMonster(sActor)) {
-		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->level);
+		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->level);
 
 		switch (p->SKID) {
 		case SKID_PA_GOSPEL:
@@ -6744,7 +6744,7 @@ void	CGameMode :: Zc_State_Change(const char *buf)
 	else tActor = m_world->GetGameActorByAID(p->AID);
 
 	if (tActor)
-		tActor->SendMsg(NULL, AM_ATTR_STATE_CHANGE, int(&s), 0, 0);
+		tActor->SendMsg(NULL, AM_ATTR_STATE_CHANGE, INT_PTR(&s), 0, 0);
 }
 
 
@@ -6777,7 +6777,7 @@ void	CGameMode :: Zc_State_Change3(const char *buf)
 	else tActor = m_world->GetGameActorByAID(p->AID);
 
 	if (tActor)
-		tActor->SendMsg(NULL, AM_ATTR_STATE_CHANGE, int(&s), 0, 0);
+		tActor->SendMsg(NULL, AM_ATTR_STATE_CHANGE, INT_PTR(&s), 0, 0);
 }
 
 
@@ -6817,7 +6817,7 @@ void CGameMode::Zc_Skill_Entry(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(skill);
 		GetWorld()->m_skillList.push_back(skill);
 	}
-	skill->SendMsg(NULL, AM_SKILLSTANDENTRY, (int)(&ss));
+	skill->SendMsg(NULL, AM_SKILLSTANDENTRY, (INT_PTR)(&ss));
 }
 
 void	CGameMode :: Zc_Skill_Disappear(const char *buf)
@@ -6835,9 +6835,9 @@ void	CGameMode :: Zc_Warplist(const char *buf)
 	for (int i = 0; i < 4; ++i)
 	{
 		if (strlen(p->mapName[i]))
-			wnd->SendMsg(NULL, UM_SETCHOOSE, int(p->mapName[i]), 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETCHOOSE, INT_PTR(p->mapName[i]), 0, 0, 0);
 	}
-	wnd->SendMsg(NULL, UM_SETCHOOSE, int("cancel"), 0, 0, 0);
+	wnd->SendMsg(NULL, UM_SETCHOOSE, INT_PTR("cancel"), 0, 0, 0);
 }
 
 void	CGameMode :: Zc_Ack_Remember_Warppoint(const char *buf)
@@ -6846,16 +6846,16 @@ void	CGameMode :: Zc_Ack_Remember_Warppoint(const char *buf)
 	switch (p->errorCode)
 	{
 	case 0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_WARPPOINTSTORED)),     0xffff00, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_WARPPOINTSTORED)),     0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_WARPPOINTSTORED)),     0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_WARPPOINTSTORED)),     0xffff00, 0, 0);
 		break;
 	case 1:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), 0x0000ff, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), 0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), 0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_NOTENOUGHSKILLLEVEL)), 0x0000ff, 0, 0);
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_NOWARPSKILL)),         0x0000ff, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_NOWARPSKILL)),         0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_NOWARPSKILL)),         0x0000ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_NOWARPSKILL)),         0x0000ff, 0, 0);
 		break;
 	}
 }
@@ -6998,11 +6998,11 @@ void	CGameMode :: Zc_Ack_Additem_To_Cart(const char *buf)
 	{
 	case ADDITEM_TO_CART_FAIL_WEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OVER_WEIGHT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OVER_WEIGHT)), 0xff, 0, 0);
 		break;
 	case ADDITEM_TO_CART_FAIL_COUNT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INSUFFICIENT_OVER_COUNT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INSUFFICIENT_OVER_COUNT)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -7069,7 +7069,7 @@ void	CGameMode :: Zc_store_entry(const char *buf)
 	CGameActor *	theActor = m_world->GetGameActorByAID(p->makerAID);
 	if (theActor)
 	{
-		theActor->SendMsg(NULL, AM_MAKE_SHOP_TITLE, (int)storeName, 0, 0);
+		theActor->SendMsg(NULL, AM_MAKE_SHOP_TITLE, (INT_PTR)storeName, 0, 0);
 	}
 }
 
@@ -7184,19 +7184,19 @@ void CGameMode::Zc_pc_purchase_result_frommc(char const *buf)
 		break;
 	case PURCHASE_FAIL_MONEY:
 		sprintf(msg, MsgStr(MSI_FAIL_BUY_ITEM_FROM_MERCHANT), itemName, MsgStr(MSI_INSUFFICIENT_MONEY));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255, 100, 100)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255, 100, 100)), 0, 0);
 		break;
 	case PURCHASE_FAIL_WEIGHT:
 		sprintf(msg, MsgStr(MSI_FAIL_BUY_ITEM_FROM_MERCHANT), itemName, MsgStr(MSI_OVER_WEIGHT));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255, 100, 100)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255, 100, 100)), 0, 0);
 		break;
 	case PURCHASE_FAIL_STOCK:
 		sprintf(msg, MsgStr(MSI_FAIL_BUY_ITEM_FROM_MERCHANT_NO_STOCK), itemName, p->curcount);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255, 100, 100)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255, 100, 100)), 0, 0);
 		break;
 	case PURCHASE_FAIL_ITEM_EXCHANGING:
 		sprintf(msg, MsgStr(MSI_FAIL_BUY_ITEM_ITEM_EXCHANGING), itemName, p->curcount);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255, 100, 100)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255, 100, 100)), 0, 0);
 		break;
 	default:
 		Trace("p->result == %d", p->result);
@@ -7221,7 +7221,7 @@ void CGameMode::Zc_deleteitem_from_mcstore(char const *buf)
 
 	char msg[512];
 	sprintf(msg, MsgStr(MSI_ITEM_IS_SOLD), itemName, itemInfo.m_num);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(100, 255, 255)), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(100, 255, 255)), 0, 0);
 
 	UIFrameWnd *merchantItemWnd = g_windowMgr.GetMerchantItemWnd();
 	UIFrameWnd *merchantItemMyShopWnd = g_windowMgr.GetMerchantItemMyShopWnd();
@@ -7230,7 +7230,7 @@ void CGameMode::Zc_deleteitem_from_mcstore(char const *buf)
 
 	if (g_session.GetNumMerchantMyShopItem() == 0) {
 		sprintf(msg, MsgStr(MSI_ITEM_IS_SOLD_OUT));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(0, 255, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(0, 255, 0)), 0, 0);
 		if (merchantItemMyShopWnd)
 		{
 			merchantItemMyShopWnd->SendMsg(NULL, UM_REFRESHITEM, 0, 0, 0, 0);
@@ -7272,31 +7272,31 @@ void CGameMode::Zc_action_failure(char const *buf)
 	{
 	case AF_ATTACK_ARROW:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ERR_ATTACK_ARROW)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ERR_ATTACK_ARROW)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case AF_ATTACK_WEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ERR_ATTACK_WEIGHT)), int(RGB(100, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ERR_ATTACK_WEIGHT)), int(RGB(100, 255, 255)), 0, 0);
 		break;
 	case AF_SKILL_WEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ERR_SKILL_WEIGHT)), int(RGB(100, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ERR_SKILL_WEIGHT)), int(RGB(100, 255, 255)), 0, 0);
 		break;
 	case AF_ARROW_EQUIPMENT_SUCCESS:
 		if (g_session.GetJob() == JT_ASSASSIN || g_session.GetJob() == JT_ASSASSIN_B || g_session.GetJob() == JT_ASSASSIN_H)
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MSG_KNIFE_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MSG_KNIFE_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
 		}
 		else if (g_session.GetJob() == JT_GUNSLINGER)
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MSG_BULLET_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MSG_BULLET_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
 		}
 		else if (g_session.GetJob() == JT_NINJA)
 		{
 		}
 		else
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MSG_ARROW_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MSG_ARROW_EQUIPMENT_SUCCESS)), int(RGB(100, 255, 255)), 0, 0);
 		}
 		break;
 	default:
@@ -7379,11 +7379,11 @@ void	CGameMode :: Zc_useskill_ack(const char *buf)
 #ifdef WEDDING_PATCH
 			if (p->SKID == SKID_WE_MALE || p->SKID == SKID_WE_FEMALE )
 			{
-				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->targetID);
+				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->targetID);
 			}
 			else
 #endif
-				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor));
+				SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor));
 		}
 		else
 		{
@@ -7443,7 +7443,7 @@ void	CGameMode :: Zc_useskill_ack(const char *buf)
 				if (effect)
 				{
 					vector3d	pos = tActor->m_pos;
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 		}
@@ -7512,15 +7512,15 @@ void	CGameMode :: Zc_groupinfo_change(const char *buf)
 	switch (g_session.m_expDivType) {
 	case 0:
 		sprintf(text, "%s - %s : %s", MsgStr(MSI_PARTYSETTING), MsgStr(MSI_HOWEXPDIV), MsgStr(MSI_EXPDIV1));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)text, 0xffff, 0xb, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)text, 0xffff, 0xb, 0);
 		break;
 	case 1:
 		sprintf(text, "%s - %s : %s", MsgStr(MSI_PARTYSETTING), MsgStr(MSI_HOWEXPDIV), MsgStr(MSI_EXPDIV2));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)text, 0xffff, 0xb, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)text, 0xffff, 0xb, 0);
 		break;
 	case 2:
 		sprintf(text, "%s", MsgStr(MSI_PARTYSETTING_CHANGE_IMPOSSIBLE), MsgStr(MSI_HOWEXPDIV), MsgStr(MSI_EXPDIV2));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)text, 0xffff, 0xb, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)text, 0xffff, 0xb, 0);
 		break;
 	}
 }
@@ -7605,7 +7605,7 @@ void	CGameMode :: Zc_show_image(const char *buf)
 	int		type = p->type;
 	if (type == 255)
 		type = -1;
-	SendMsg(MM_SHOW_IMAGE, int(imageName), type);
+	SendMsg(MM_SHOW_IMAGE, INT_PTR(imageName), type);
 }
 
 void	CGameMode :: Zc_show_image2(const char *buf)
@@ -7618,7 +7618,7 @@ void	CGameMode :: Zc_show_image2(const char *buf)
 	int		type = p->type;
 	if (type == 255)
 		type = -1;
-	SendMsg(MM_SHOW_IMAGE, int(imageName), type);
+	SendMsg(MM_SHOW_IMAGE, INT_PTR(imageName), type);
 }
 
 void	CGameMode :: Zc_autorun_skill(const char *buf)
@@ -7636,7 +7636,7 @@ void	CGameMode :: Zc_autorun_skill(const char *buf)
 
 	g_session.AddTempSkillItem(skillInfo);
 
-	SendMsg(MM_USING_SKILL, int(&skillInfo), skillInfo.level);
+	SendMsg(MM_USING_SKILL, INT_PTR(&skillInfo), skillInfo.level);
 }
 
 void	CGameMode :: Zc_resurrection(const char *buf)
@@ -7835,7 +7835,7 @@ void CGameMode::Zc_ack_leave_guild(char const *buf)
 	if (std::string(charName) == g_session.GetCharName()) {
 		g_guildInfo.Init();
 		g_windowMgr.DeleteWindow(WID_GUILDWND);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_LEFT_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_LEFT_GUILD)), 0xff, 4, 0);
 		m_world->m_player->SetGuildInfo(0, 0);
 		SendMsg(MM_DELETEGUILDPOSALL);
 		return;
@@ -7847,10 +7847,10 @@ void CGameMode::Zc_ack_leave_guild(char const *buf)
 
 	char message[1024];
 	sprintf(message, MsgStr(MSI_USER_LEFT_GUILD), charName);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(message), 0xffff, 4, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(message), 0xffff, 4, 0);
 
 	sprintf(message, MsgStr(MSI_REASON_LEAVE_GUILD), reasonDesc);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(message), 0xffff, 4, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(message), 0xffff, 4, 0);
 }
 
 
@@ -7873,7 +7873,7 @@ void CGameMode::Zc_ack_ban_guild(char const *buf)
 	if (std::string(charName) == g_session.GetCharName()) {
 		g_guildInfo.m_gdid = 0;
 		g_windowMgr.DeleteWindow(WID_GUILDWND);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BAN_FROM_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BAN_FROM_GUILD)), 0xff, 4, 0);
 		SendMsg(MM_DELETEGUILDPOSALL);
 		return;
 	}
@@ -7884,10 +7884,10 @@ void CGameMode::Zc_ack_ban_guild(char const *buf)
 
 	char message[1024];
 	sprintf(message, MsgStr(MSI_BAN_GUILD), charName);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(message), 0xffff, 4, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(message), 0xffff, 4, 0);
 
 	sprintf(message, MsgStr(MSI_REASON_BAN_GUILD), reasonDesc);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(message), 0xffff, 4, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(message), 0xffff, 4, 0);
 
 	SGUILD_BANISH_INFO banInfo;
 	banInfo.MemberName = charName;
@@ -7902,15 +7902,15 @@ void	CGameMode :: Zc_ack_disorganize_guild_result(const char *buf)
 	switch (p->reason)
 	{
 	case DISRESULT_MEMBEREXIST:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DISORGANIZE_GUILD_MEMBEREXIST)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DISORGANIZE_GUILD_MEMBEREXIST)), 0xffff, 4, 0);
 		break;
 	case DISRESULT_INVALIDKEY:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DISORGANIZE_GUILD_INVALIDKEY)), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DISORGANIZE_GUILD_INVALIDKEY)), 0xffff, 0, 0);
 		break;
 	case DISRESULT_SUCCESS:
 		g_guildInfo.Init();
 		g_windowMgr.DeleteWindow(WID_GUILDWND);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DISORGANIZE_GUILD_SUCCESS)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DISORGANIZE_GUILD_SUCCESS)), 0xffff, 4, 0);
 		break;
 	}
 }
@@ -7926,7 +7926,7 @@ void	CGameMode :: Zc_ack_disorganize_guild(const char *buf)
 
 	char	message[1024];
 	sprintf(message, MsgStr(MSI_DISORGANIZATION_REASON), reasonDesc);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(message), 0xffff, 4, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(message), 0xffff, 4, 0);
 }
 
 
@@ -7995,16 +7995,16 @@ void	CGameMode :: Zc_result_make_guild(const char *buf)
 	switch (p->result)
 	{
 	case 0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILD_MAKE_SUCCESS)), 0xffff00, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILD_MAKE_SUCCESS)), 0xffff00, 4, 0);
 		break;
 	case 1:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILD_MAKE_ALREADY_MEMBER)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILD_MAKE_ALREADY_MEMBER)), 0xffff, 4, 0);
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILD_MAKE_GUILD_EXIST)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILD_MAKE_GUILD_EXIST)), 0xffff, 4, 0);
 		break;
 	case 3:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILD_MAKE_GUILD_NONE_ITEM)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILD_MAKE_GUILD_NONE_ITEM)), 0xffff, 4, 0);
 		break;
 	}
 }
@@ -8018,16 +8018,16 @@ void	CGameMode :: Zc_ack_req_join_guild(const char *buf)
 	switch (p->answer)
 	{
 	case	REQJOINGUILD_ALREADY_OTHERGUILDM:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_IS_ALREADY_IN_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_IS_ALREADY_IN_GUILD)), 0xff, 4, 0);
 		break;
 	case	REQJOINGUILD_REJECT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_REJECT_JOIN_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_REJECT_JOIN_GUILD)), 0xff, 4, 0);
 		break;
 	case	REQJOINGUILD_ACCEPT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CHARACTER_ACCEPT_JOIN_GUILD)), 0xffff00, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CHARACTER_ACCEPT_JOIN_GUILD)), 0xffff00, 4, 0);
 		break;
 	case	REQJOINGUILD_OVERSIZE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_MANY_PEOPLE_IN_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_MANY_PEOPLE_IN_GUILD)), 0xff, 4, 0);
 		break;
 	}
 }
@@ -8039,7 +8039,7 @@ void	CGameMode :: Zc_req_join_guild(const char *buf)
 	memcpy(guildName, p->guildName, NAME_LENGTH);
 	guildName[NAME_LENGTH] = 0;
 	UIFrameWnd* w = g_windowMgr.MakeWindow((WINDOWID)WID_JOINGUILDACCEPTWND);
-	w->SendMsg(0, UM_SET_JOIN_GUILD_MSG, p->GDID, (int)guildName, 0, 0);
+	w->SendMsg(0, UM_SET_JOIN_GUILD_MSG, p->GDID, (INT_PTR)guildName, 0, 0);
 }
 
 void	CGameMode :: Zc_update_gdid(const char *buf)
@@ -8060,7 +8060,7 @@ void	CGameMode :: Zc_update_charstat(const char *buf)
 	const NamePair& actor = GetActorNameByGID(p->GID);
 	if (!actor.cName.empty())
 	{
-		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (int)actor.cName.c_str(), p->status, 0);
+		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (INT_PTR)actor.cName.c_str(), p->status, 0);
 	}
 	if (p->status == 0)
 	{
@@ -8076,7 +8076,7 @@ void CGameMode::Zc_update_charstat2(const char *buf)
 	const NamePair& actorName = GetActorNameByGID(p->GID);
 	if (!actorName.IsEmpty())
 	{
-		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (int)actorName.cName.c_str(), p->status, 0);
+		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (INT_PTR)actorName.cName.c_str(), p->status, 0);
 	}
 	if (p->status == 0)
 	{
@@ -8091,18 +8091,18 @@ void	CGameMode :: Zc_ack_give_manner_point(const char *buf)
 	switch ( p->result )
 	{
 	case MP_SUCCESS:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SEND_MANNER_POINT)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SEND_MANNER_POINT)), int(RGB(0, 255, 255)), 0, 0);
 		break;
 
 	case MP_RELEASE_BY_ADMIN:
 		break;
 
 	case MP_SUCCESS_BY_ADMIN :
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GM_BAD_MANNER_START)), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GM_BAD_MANNER_START)), 0xffff, 0, 0);
 		break ;
 
 	case MP_BYSELF :
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUTO_BAD_MANNER_START)), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUTO_BAD_MANNER_START)), 0xffff, 0, 0);
 		break ;
 	}
 }
@@ -8119,7 +8119,7 @@ void	CGameMode :: Zc_notify_manner_point_given (const char *buf)
 	if (p->type == MP_PLUS)
 	{
 		sprintf(msg, MsgStr(MSI_RECEIVE_PLUS_MANNER_POINT), charName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 0, 0);
 	}
 }
 
@@ -8139,14 +8139,14 @@ void CGameMode::Zc_guild_notice(char const *buf)
 		subject += p->subject;
 		subject += " ]";
 		if (strlen(p->subject) > 0) {
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(subject.c_str()), 0x80ffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(subject.c_str()), 0x80ffff, 0, 0);
 		}
 
 		std::string notice = "[ ";
 		notice += p->notice;
 		notice += " ]";
 		if (strlen(p->notice) > 0) {
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(notice.c_str()), 0x80ffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(notice.c_str()), 0x80ffff, 0, 0);
 		}
 	}
 }
@@ -8163,7 +8163,7 @@ void	CGameMode :: Zc_guild_chat(const char *buf)
 	guildChat[2048-1] = 0;
 	if (g_session.m_isNoTalkMsg2 == FALSE)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(guildChat), 0xb4ffb4, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(guildChat), 0xb4ffb4, 4, 0);
 		if (g_session.m_isSaveChat)
 		{
 			WriteChat(guildChat);
@@ -8178,7 +8178,7 @@ void	CGameMode :: Zc_req_ally_guild(const char *buf)
 	memcpy(guildName, p->guildName, GUILD_NAME_LENGTH);
 	guildName[GUILD_NAME_LENGTH] = 0;
 	UIFrameWnd* w = g_windowMgr.MakeWindow((WINDOWID)WID_ALLYGUILDACCEPTWND);
-	w->SendMsg(0, UM_SET_ALLY_GUILD_MSG, p->otherAID, (int)guildName, 0, 0);
+	w->SendMsg(0, UM_SET_ALLY_GUILD_MSG, p->otherAID, (INT_PTR)guildName, 0, 0);
 }
 
 
@@ -8189,19 +8189,19 @@ void	CGameMode :: Zc_ack_req_ally_guild(const char *buf)
 	switch (p->answer)
 	{
 	case	REQALLYGUILD_ALREADY_ALLIED:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQALLYGUILD_ALREADY_ALLIED)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQALLYGUILD_ALREADY_ALLIED)), 0xffff, 4, 0);
 		break;
 	case	REQALLYGUILD_REJECT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQALLYGUILD_REJECT)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQALLYGUILD_REJECT)), 0xffff, 4, 0);
 		break;
 	case	REQALLYGUILD_ACCEPT:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQALLYGUILD_ACCEPT)), 0xffff00, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQALLYGUILD_ACCEPT)), 0xffff00, 4, 0);
 		break;
 	case	REQALLYGUILD_OVERSIZE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQALLYGUILD_OVERSIZE)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQALLYGUILD_OVERSIZE)), 0xffff, 4, 0);
 		break;
 	case	REQMYGUILD_OVERSIZE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_REQALLYMYGUILD_OVERSIZE)), 0xffff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_REQALLYMYGUILD_OVERSIZE)), 0xffff, 4, 0);
 		break;
 	}
 }
@@ -8252,7 +8252,7 @@ void CGameMode::Zc_itemidentify_list(char const *buf)
 		int index = *((short *)(buf + packetStrLen + i * sizeof(short)));
 		ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(index);
 		if (itemInfo.IsValid())
-			wnd->SendMsg(NULL, UM_ADDITEM, (int)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
+			wnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
 	}
 
 	wnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -8265,7 +8265,7 @@ void CGameMode::Zc_ack_itemidentify(char const *buf)
 	switch (p->result) {
 	case ITEMIDENTIFY_SUCCESS:
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_IDENTIFY_SUCCEESS)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_IDENTIFY_SUCCEESS)), int(RGB(0, 255, 255)), 0, 0);
 		ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(p->index);
 		itemInfo.m_isIdentified = TRUE;
 		g_session.SetItem(&itemInfo);
@@ -8273,7 +8273,7 @@ void CGameMode::Zc_ack_itemidentify(char const *buf)
 		break;
 	}
 	case ITEMIDENTIFY_FAIL:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_IDENTIFY_FAIL)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_IDENTIFY_FAIL)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 }
@@ -8294,7 +8294,7 @@ void CGameMode::Zc_itemcomposition_list(char const *buf)
 		int index = *(short *)(buf + packetStrLen + i * sizeof(short));
 		ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(index);
 		if (itemInfo.IsValid())
-			wnd->SendMsg(NULL, UM_ADDITEM, (int)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
+			wnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
 	}
 
 	wnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -8307,7 +8307,7 @@ void CGameMode::Zc_ack_itemcomposition(char const *buf)
 
 	switch (p->result) {
 	case ITEMCOMPOSITON_SUCCESS: {
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_COMPOUNDING_SUCCEESS)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_COMPOUNDING_SUCCEESS)), int(RGB(0, 255, 255)), 0, 0);
 
 		ITEM_INFO cardItemInfo = g_session.GetItemInfoByIndex(p->cardIndex);
 		ITEM_INFO equtItemInfo = g_session.GetItemInfoByIndex(p->equipIndex);
@@ -8328,7 +8328,7 @@ void CGameMode::Zc_ack_itemcomposition(char const *buf)
 	}
 
 	case ITEMCOMPOSITION_FAILURE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_COMPOUNDING_FAIL)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_COMPOUNDING_FAIL)), int(RGB(255, 0, 0)), 0, 0);
 		return;
 	}
 }
@@ -8339,13 +8339,13 @@ void	CGameMode :: Zc_ack_req_hostile_guild(const char *buf)
 	switch (p->result)
 	{
 	case	RESULT_HOSTILE_SUCCESS:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_HOSTILE_GUILD_SUCCEESS)), int(RGB(0, 255, 255)), 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_HOSTILE_GUILD_SUCCEESS)), int(RGB(0, 255, 255)), 4, 0);
 		break;
 	case	RESULT_HOSTILE_OVERSIZE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TOO_MANY_HOSTILE_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TOO_MANY_HOSTILE_GUILD)), 0xff, 4, 0);
 		break;
 	case	RESULT_HOSTILE_ALREADY_HOSTILE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ALREADY_REGISTERED_HOSTILE_GUILD)), 0xff, 4, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ALREADY_REGISTERED_HOSTILE_GUILD)), 0xff, 4, 0);
 		break;
 	}
 }
@@ -8423,11 +8423,11 @@ void	CGameMode :: Zc_ack_itemrefining(const char *buf)
 	{
 	case	ITEMREFINING_SUCCESS:
 		g_modeMgr.GetGameMode()->GetWorld()->m_player->LaunchEffect(EF_REFINEOK);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_REFINING_SUCCEESS)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_REFINING_SUCCEESS)), 0xffff00, 0, 0);
 		break;
 	case	ITEMREFINING_FAIL:
 		g_modeMgr.GetGameMode()->GetWorld()->m_player->LaunchEffect(EF_REFINEFAIL);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_REFINING_FAIL)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_REFINING_FAIL)), 0xffff00, 0, 0);
 		break;
 	}
 
@@ -8442,21 +8442,21 @@ void	CGameMode :: Zc_notify_mapinfo (const char *buf)
 	switch (p->type)
 	{
 	case TELEPORT_IMPOSSIBLE_AREA:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_IMPOSSIBLE_TELEPORT_AREA)), 0xff,     0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_IMPOSSIBLE_TELEPORT_AREA)), 0xff,     0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_IMPOSSIBLE_TELEPORT_AREA)), 0xff,     0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_IMPOSSIBLE_TELEPORT_AREA)), 0xff,     0, 0);
 		break;
 	case REGISTER_IMPOSSIBLE_AREA:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_POSSIBLE_TELEPORT_AREA)),   0xffff00, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_POSSIBLE_TELEPORT_AREA)),   0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_POSSIBLE_TELEPORT_AREA)),   0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_POSSIBLE_TELEPORT_AREA)),   0xffff00, 0, 0);
 		break;
 	case IMPOSSIBLE_AREA_SKILL:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_IMPOSSIBLE_SKILL_AREA)),    0xffff00, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_IMPOSSIBLE_SKILL_AREA)),    0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_IMPOSSIBLE_SKILL_AREA)),    0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_IMPOSSIBLE_SKILL_AREA)),    0xffff00, 0, 0);
 		break;
 	case IMPOSSIBLE_AREA_USEITEM:
 		m_waitingUseItemAck = 0;
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  int(MsgStr(MSI_IMPOSSIBLE_USEITEM_AREA)),  0xffff00, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_IMPOSSIBLE_USEITEM_AREA)),  0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,  INT_PTR(MsgStr(MSI_IMPOSSIBLE_USEITEM_AREA)),  0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_IMPOSSIBLE_USEITEM_AREA)),  0xffff00, 0, 0);
 		break;
 	}
 }
@@ -8473,7 +8473,7 @@ void	CGameMode :: Zc_ack_req_disconnect(const char *buf)
 		}
 		break;
 	case	NOTDISCONNECTABLE_STATE:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_EXIT_NOW)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_EXIT_NOW)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 }
@@ -8486,7 +8486,7 @@ void	CGameMode :: Zc_monster_info(const char *buf)
 		return;
 
 	UIFrameWnd * wnd = g_windowMgr.MakeWindow(WID_MONSTERINFOWND);
-	wnd->SendMsg(NULL, UM_SET_MONSTER_INFO, (int)buf, 0, 0, 0);
+	wnd->SendMsg(NULL, UM_SET_MONSTER_INFO, (INT_PTR)buf, 0, 0, 0);
 }
 
 void	CGameMode :: Zc_makable_item_list(const char *buf)
@@ -8520,7 +8520,7 @@ void	CGameMode :: Zc_repair_item_list(const char *buf)
 	UIFrameWnd *	wnd = g_windowMgr.MakeWindow(WID_ITEMREPAIRWND);
 	items = (REPAIRITEM_INFO *)(buf + sizeof(PACKET_ZC_REPAIRITEMLIST));
 	for (int i = 0; i < count; ++i) {
-		wnd->SendMsg(NULL, UM_ADDITEM, (int)&items[i], 0, 0, 0);
+		wnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)&items[i], 0, 0, 0);
 	}
 }
 
@@ -8554,19 +8554,19 @@ void	CGameMode :: Zc_ack_weaponrefine(const char *buf)
 	{
 	case	0:
 		sprintf(msg2, MsgStr(MSI_ITEM_REFINE_SUCCEESS), itemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xffff00, 0, 0);
 		break;
 	case	1:
 		sprintf(msg2, MsgStr(MSI_ITEM_REFINE_FAIL), itemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xcdcd00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xcdcd00, 0, 0);
 		break;
 	case	2:
 		sprintf(msg2, MsgStr(MSI_ITEM_REFINE_FAIL_LEVEL), itemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xc8c8ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xc8c8ff, 0, 0);
 		break;
 	case	3:
 		sprintf(msg2, MsgStr(MSI_ITEM_REFINE_FAIL_MATERIAL), itemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg2), 0xc8c8ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg2), 0xc8c8ff, 0, 0);
 		break;
 	}
 }
@@ -8578,10 +8578,10 @@ void	CGameMode :: Zc_ack_itemrepair(const char *buf)
 	switch (p->result)
 	{
 	case	0:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_REPAIR_SUCCEESS)), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_REPAIR_SUCCEESS)), 0xffff00, 0, 0);
 		break;
 	case	1:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_REPAIR_FAIL)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_REPAIR_FAIL)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -8629,7 +8629,7 @@ void	CGameMode :: Zc_talkbox_chat_contents(const char *buf)
 
 	CSkill *	theSkill = GetWorld()->GetSkillByAID(p->AID);
 	if (theSkill)
-		theSkill->SendMsg(NULL, AM_CHAT, (int)p->contents, 0, 0);
+		theSkill->SendMsg(NULL, AM_CHAT, (INT_PTR)p->contents, 0, 0);
 }
 
 void	CGameMode :: Zc_update_mapinfo(const char *buf)
@@ -9321,9 +9321,9 @@ void CGameMode::Zc_Msg_State_Change(char const *buf)
 			sprintf(efstMsg, "%s%s", preMsg, msg);
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 			if (strlen(preMsg) > 1)
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(efstMsg), int(textColor), 9, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(efstMsg), int(textColor), 9, 0);
 			else
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(efstMsg), int(textColor), 7, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(efstMsg), int(textColor), 7, 0);
 		}
 		if (p->AID == g_session.GetAid())
 			m_world->m_player->SendMsg(NULL, AM_STATUS_CHANGE, p->index, p->state, 0);
@@ -9339,7 +9339,7 @@ void	CGameMode :: Zc_Notify_Mapproperty(const char *buf)
 	else if (p->type == MAPPROPERTY_EVENTPVPZONE)
 		GetWorld()->SetEventPVPMode(TRUE);
 	else if (p->type == MAPPROPERTY_PKSERVERZONE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_PKZONE)), 0x9b9bff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_PKZONE)), 0x9b9bff, 0, 0);
 	else if (p->type == MAPPROPERTY_PVPSERVERZONE)
 		GetWorld()->SetPKZone(TRUE);
 	else if (p->type == MAPPROPERTY_AGITZONE)
@@ -9398,11 +9398,11 @@ void CGameMode::Zc_Notify_Ranking(char const *buf)
 			if (m_world->m_player->GetPKRank() > 10 && p->ranking <= 10) {
 				char msgBuf[256];
 				sprintf(msgBuf, MsgStr(MSI_RANK_IN_TEN), g_session.GetCharName(), p->ranking);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msgBuf), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msgBuf), 0xffff, 0, 0);
 			} else if (m_world->m_player->GetPKRank() <= 10 && p->ranking > 10) {
 				char msgBuf[256];
 				sprintf(msgBuf, MsgStr(MSI_RANK_OUT_TEN), g_session.GetCharName(), p->ranking);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msgBuf), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msgBuf), 0xffff, 0, 0);
 			}
 
 			vector3d& pPos = m_world->m_player->m_pos;
@@ -9656,7 +9656,7 @@ void CGameMode::Zc_Change_Pet_Status(char const *buf)
 		if (g_session.GetJob() >= JT_GANGSI && g_session.GetJob() <= JT_COLLECTOR) {
 			if (p->data < 100) {
 				if (g_session.m_petHungry < 30) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_PET_STARVING)), RGB(255, 50, 50), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_PET_STARVING)), RGB(255, 50, 50), 0, 0);
 				}
 			}
 		}
@@ -9715,7 +9715,7 @@ void CGameMode::Zc_PetEgg_List(char const *buf)
 		PETEGGITEM_INFO *petEgg = (PETEGGITEM_INFO *)(buf + packetStrLen + (i * sizeof(PETEGGITEM_INFO)));
 		ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(petEgg->index);
 		if (itemInfo.IsValid())
-			wnd->SendMsg(NULL, UM_ADDITEM, (int)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
+			wnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_itemIndex, 0, 0);
 	}
 
 	wnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -9781,8 +9781,8 @@ void CGameMode::Zc_Feed_Pet(char const *buf)
 			ITEM_INFO item;
 			item.SetItemId(p->ITID);
 			sprintf(msg, MsgStr(MSI_NOT_EXIST_PET_FOOD), item.GetItemName((char *)item.m_itemName.c_str()));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), RGB(245, 30, 30), 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), RGB(245, 30, 30), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), RGB(245, 30, 30), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), RGB(245, 30, 30), 0, 0);
 		}
 	}
 	else if (p->PacketType == HEADER_ZC_FEED_MER)
@@ -9797,8 +9797,8 @@ void CGameMode::Zc_Feed_Pet(char const *buf)
 			ITEM_INFO item;
 			item.SetItemId(p->ITID);
 			sprintf(msg, MsgStr(MSI_NOT_EXIST_PET_FOOD), item.GetItemName((char *)item.m_itemName.c_str()));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), RGB(245, 30, 30), 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), RGB(245, 30, 30), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), RGB(245, 30, 30), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), RGB(245, 30, 30), 0, 0);
 
 			CGameActor *actor = m_world->GetGameActorByAID(g_session.m_homunGID);
 			if (actor)
@@ -9841,7 +9841,7 @@ void CGameMode::Zc_Pet_Act(char const *buf)
 				g_session.GetPetTalkString(srcStr, bufStr, p->GID, FALSE);
 				if (strcmp(bufStr, "") != 0)
 				{
-					pet->SendMsg(NULL, AM_CHAT, int(bufStr), 0, 0);
+					pet->SendMsg(NULL, AM_CHAT, INT_PTR(bufStr), 0, 0);
 					if (g_session.m_isNoTalkMsg == TRUE)
 					{
 					}
@@ -9850,7 +9850,7 @@ void CGameMode::Zc_Pet_Act(char const *buf)
 					}
 					else
 					{
-						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(bufStr), RGB(250, 250, 250), 0, 0);
+						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(bufStr), RGB(250, 250, 250), 0, 0);
 					}
 				}
 			}
@@ -9878,7 +9878,7 @@ void CGameMode::Zc_Pet_Act(char const *buf)
 				g_session.GetPetTalkString(srcStr, bufStr, p->GID, TRUE);
 				if (strcmp(bufStr, "") != 0)
 				{
-					pet->SendMsg(NULL, AM_CHAT, int(bufStr), 0, 0);
+					pet->SendMsg(NULL, AM_CHAT, INT_PTR(bufStr), 0, 0);
 					if (g_session.m_isNoTalkMsg == TRUE)
 					{
 					}
@@ -9887,7 +9887,7 @@ void CGameMode::Zc_Pet_Act(char const *buf)
 					}
 					else
 					{
-						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(bufStr), RGB(250, 250, 250), 0, 0);
+						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(bufStr), RGB(250, 250, 250), 0, 0);
 					}
 				}
 			}
@@ -9951,7 +9951,7 @@ void	CGameMode :: Zc_MakingArrowList(const char *buf)
 	for (int i = 0; i < size; ++i)
 	{
 		WORD *	itemId = (WORD *)(buf + packetStrLen + i * sizeof(WORD));
-		wnd->SendMsg(NULL, UM_ADDITEM, int(itemId), 0, 0, 0);
+		wnd->SendMsg(NULL, UM_ADDITEM, INT_PTR(itemId), 0, 0, 0);
 	}
 	wnd->SendMsg(NULL, UM_SETINFO, 2, 0, 0, 0);
 }
@@ -9967,7 +9967,7 @@ void	CGameMode :: Zc_MakingItemList(const char *buf)
 		if (i == 0)
 			wnd->SendMsg(NULL, UM_SETINFO, *itemId, 0, 0, 0);
 		else
-			wnd->SendMsg(NULL, UM_ADDITEM, int(itemId), 0, 0, 0);
+			wnd->SendMsg(NULL, UM_ADDITEM, INT_PTR(itemId), 0, 0, 0);
 	}
 }
 
@@ -10076,13 +10076,13 @@ void	CGameMode :: Zc_GuildZenyAck(const char *buf)
 		}
 		break;
 	case	ZENY_UPDATE_FAIL_MINIMUM:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILDZENY_NOT_ENOUGH)), int(RGB(250,35,35)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILDZENY_NOT_ENOUGH)), int(RGB(250,35,35)), 0, 0);
 		break;
 	case	ZENY_UPDATE_FAIL_MAXIMUM:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_GUILDZENY_OVER)), int(RGB(250,35,35)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_GUILDZENY_OVER)), int(RGB(250,35,35)), 0, 0);
 		break;
 	case	ZENY_UPDATE_FAIL_PLAYER:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OVER_OR_LOW_MONEY)), int(RGB(250,35,35)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OVER_OR_LOW_MONEY)), int(RGB(250,35,35)), 0, 0);
 		break;
 	}
 }
@@ -10167,7 +10167,7 @@ void CGameMode::Zc_Reply_RemainTime(char const *buf)
 		}
 	}
 
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(buffer), 0xffffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(buffer), 0xffffff, 0, 0);
 }
 
 
@@ -10196,7 +10196,7 @@ void CGameMode::Zc_Info_RemainTime(char const *buf)
 		}
 	}
 
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(buffer), 0xffffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(buffer), 0xffffff, 0, 0);
 }
 
 
@@ -10245,8 +10245,8 @@ void CGameMode::Zc_Broadcast2(char const *buf)
 	m_broadcastBalloon->SetFntColor(RGB(r, g, b), 0);
 
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(wMsg.c_str()), int(RGB(r, g, b)), 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(wMsg.c_str()), int(RGB(r, g, b)), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(wMsg.c_str()), int(RGB(r, g, b)), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(wMsg.c_str()), int(RGB(r, g, b)), 0, 0);
 }
 
 
@@ -10366,7 +10366,7 @@ void CGameMode::Zc_Skill_Entry2(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(skill);
 		GetWorld()->m_skillList.push_back((CSkill *)skill);
 		skill->SendMsg(NULL, AM_SETMASTERGID, p->AID, 0, 0);
-		skill->SendMsg(NULL, AM_SET_SKILL, (int)p->msg, p->xPos, p->yPos);
+		skill->SendMsg(NULL, AM_SET_SKILL, (INT_PTR)p->msg, p->xPos, p->yPos);
 		return;
 	}
 
@@ -10403,7 +10403,7 @@ void CGameMode::Zc_Skill_Entry2(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(skill);
 		GetWorld()->m_skillList.push_back(skill);
 	}
-	skill->SendMsg(NULL, AM_SKILLSTANDENTRY, (int)(&ss), 0, 0);
+	skill->SendMsg(NULL, AM_SKILLSTANDENTRY, (INT_PTR)(&ss), 0, 0);
 }
 
 void	CGameMode :: MonsterTalk(CGameActor *theActor, int job, int stateId, int skillId, DWORD gid)
@@ -10413,7 +10413,7 @@ void	CGameMode :: MonsterTalk(CGameActor *theActor, int job, int stateId, int sk
 	g_session.GetMonsterTalkInfo(job, stateId, skillId, bufStr, gid);
 	if (strcmp(bufStr, ""))
 	{
-		theActor->SendMsg(NULL, AM_CHAT, int(bufStr), 0, 0);
+		theActor->SendMsg(NULL, AM_CHAT, INT_PTR(bufStr), 0, 0);
 		if (g_session.m_isNoTalkMsg == TRUE)
 		{
 		}
@@ -10422,7 +10422,7 @@ void	CGameMode :: MonsterTalk(CGameActor *theActor, int job, int stateId, int sk
 		}
 		else
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(bufStr), 0xfafafa, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(bufStr), 0xfafafa, 0, 0);
 		}
 	}
 }
@@ -10479,7 +10479,7 @@ void CGameMode::Zc_DevotionList(char const *buf)
 				if (sActor) {
 					CRagEffect *effect = sActor->LaunchEffect(EF_LINELINK);
 					if (effect) {
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -10535,7 +10535,7 @@ void CGameMode::Zc_Spirits(char const *buf)
 					pos.x = p->num;
 
 					if (effect)
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 				}
 			}
 		}
@@ -10577,7 +10577,7 @@ void CGameMode::Zc_Spirits2(char const *buf)
 						vector3d pos;
 						pos.x = p->num;
 						if (effect)
-							effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+							effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -10591,7 +10591,7 @@ void CGameMode::Zc_Spirits2(char const *buf)
 						vector3d pos;
 						pos.x = p->num;
 						if (effect)
-							effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+							effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -10605,7 +10605,7 @@ void CGameMode::Zc_Spirits2(char const *buf)
 						vector3d pos;
 						pos.x = p->num;
 						if (effect)
-							effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+							effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}
@@ -10949,7 +10949,7 @@ void CGameMode::Zc_Notify_Newentry(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY, (int)(&s));
+		theActor->SendMsg(NULL, AM_STANDENTRY, (INT_PTR)(&s));
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -10987,7 +10987,7 @@ void CGameMode::Zc_Notify_Newentry(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 2);
+		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 2);
 
 		if (newGameActor->GetJob() > JT_WARPNPC && newGameActor->GetJob() < JT_2004_JOB_BEGIN) {
 			DWORD gdid = (DWORD)(p->accessory2 << 16);
@@ -11059,7 +11059,7 @@ void CGameMode::Zc_Notify_Newentry2(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s));
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s));
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -11097,7 +11097,7 @@ void CGameMode::Zc_Notify_Newentry2(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 2);
+		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 2);
 
 		if (isPc) {
 			if (!IsGravityAid(p->GID) && !IsEffectStateSpecialHiding(p->effectState))
@@ -11169,7 +11169,7 @@ void CGameMode::Zc_Notify_Newentry3(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s));
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s));
 		theActor->m_clevel = p->clevel;
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
@@ -11208,7 +11208,7 @@ void CGameMode::Zc_Notify_Newentry3(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 2);
+		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 2);
 		newGameActor->m_clevel = p->clevel;
 
 		if (isPc) {
@@ -11283,7 +11283,7 @@ void CGameMode::Zc_Notify_Newentry4(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s), 0, 0);
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -11321,7 +11321,7 @@ void CGameMode::Zc_Notify_Newentry4(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 2, 0);
+		newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 2, 0);
 		newGameActor->m_clevel = p->clevel;
 
 		if (isPc) {
@@ -11393,7 +11393,7 @@ void CGameMode::Zc_Notify_Standentry2(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s), 0, 0);
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -11430,7 +11430,7 @@ void CGameMode::Zc_Notify_Standentry2(char const *buf)
 		GetWorld()->m_actorList.push_back(newGameActor);
 
 		if (newGameActor) {
-			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 0, 0);
+			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 			if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 				if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -11497,7 +11497,7 @@ void CGameMode::Zc_Notify_Standentry3(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s), 0, 0);
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -11534,7 +11534,7 @@ void CGameMode::Zc_Notify_Standentry3(char const *buf)
 		GetWorld()->m_actorList.push_back(newGameActor);
 
 		if (newGameActor) {
-			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 0, 0);
+			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 			if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 				if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -11602,7 +11602,7 @@ void CGameMode::Zc_Notify_Standentry4(char const *buf)
 				theActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		theActor->SendMsg(NULL, AM_STANDENTRY2, (int)(&s), 0, 0);
+		theActor->SendMsg(NULL, AM_STANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !theActor->m_emblemWnd) {
 			if (!g_session.IsPc(theActor->GetJob())) {
@@ -11631,7 +11631,7 @@ void CGameMode::Zc_Notify_Standentry4(char const *buf)
 		GetWorld()->m_actorList.push_back(newGameActor);
 
 		if (newGameActor) {
-			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (int)(&s), 0, 0);
+			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY2, (INT_PTR)(&s), 0, 0);
 
 			if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 				if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -11688,7 +11688,7 @@ void CGameMode::Zc_Notify_Moveentry2(char const *buf)
 
 	CGameActor *theActor = GetWorld()->GetGameActorByAID(p->GID);
 	if (theActor) {
-		theActor->SendMsg(NULL, AM_MOVEENTRY2, (int)(&ms), 0, 0);
+		theActor->SendMsg(NULL, AM_MOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		if (ms.head == HEADTYPE_LAST) {
 			if (g_session.m_petGID == p->GID)
@@ -11744,7 +11744,7 @@ void CGameMode::Zc_Notify_Moveentry2(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (int)(&ms), 0, 0);
+		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		if (g_session.IsSiegeMode() && ms.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 			if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -11799,7 +11799,7 @@ void CGameMode::Zc_Notify_Moveentry3(char const *buf)
 	CGameActor *theActor = GetWorld()->GetGameActorByAID(p->GID);
 	if (theActor) {
 		theActor->m_clevel = p->clevel;
-		theActor->SendMsg(NULL, AM_MOVEENTRY2, (int)(&ms), 0, 0);
+		theActor->SendMsg(NULL, AM_MOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		if (ms.head == HEADTYPE_LAST) {
 			if (g_session.m_petGID == p->GID)
@@ -11862,7 +11862,7 @@ void CGameMode::Zc_Notify_Moveentry3(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (int)(&ms), 0, 0);
+		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		if (g_session.IsSiegeMode() && ms.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 			if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -11916,7 +11916,7 @@ void CGameMode::Zc_Notify_Moveentry4(char const *buf)
 	if (theActor) {
 		theActor->m_clevel = p->clevel;
 		theActor->m_charfont = p->charfont;
-		theActor->SendMsg(NULL, AM_MOVEENTRY2, (int)(&ms), 0, 0);
+		theActor->SendMsg(NULL, AM_MOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		if (ms.head == HEADTYPE_LAST) {
 			if (g_session.m_petGID == p->GID)
@@ -11977,7 +11977,7 @@ void CGameMode::Zc_Notify_Moveentry4(char const *buf)
 		GetWorld()->m_gameObjectList.push_back(newGameActor);
 		GetWorld()->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (int)(&ms), 0, 0);
+		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 
 		newGameActor->m_charfont = p->charfont;
 		newGameActor->m_clevel = p->clevel;
@@ -12209,20 +12209,20 @@ void CGameMode::Zc_Notify_Skill2(char const *buf)
 		tActor = m_world->GetGameActorByAID(p->targetID);
 
 	if (p->AID == g_session.GetAid()) {
-		m_world->m_player->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+		m_world->m_player->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		sActor = m_world->m_player;
 		job = sActor->GetJob();
 	} else {
 		theActor = m_world->GetGameActorByAID(p->AID);
 
 		if (theActor) {
-			theActor->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+			theActor->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 			sActor = theActor;
 			job = theActor->GetJob();
 		} else {
 			CSkill *theSkill = m_world->GetSkillByAID(p->AID);
 			if (theSkill)
-				theSkill->SendMsg(NULL, AM_SKILL, int(&ss), 0, 0);
+				theSkill->SendMsg(NULL, AM_SKILL, INT_PTR(&ss), 0, 0);
 		}
 	}
 
@@ -12240,7 +12240,7 @@ void CGameMode::Zc_Notify_Skill2(char const *buf)
 	}
 
 	if (!g_session.IsMonster(sActor)) {
-		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, int(sActor), p->level);
+		SendMsg(MM_MAKE_SKILL_USED_MSG, p->SKID, INT_PTR(sActor), p->level);
 	} else {
 		int act;
 		int loopType;
@@ -12323,11 +12323,11 @@ void CGameMode::Zc_Add_Friends_List(char const *buf)
 	switch (p->Result) {
 	case 1:
 		sprintf(msg, MsgStr(MSI_FRIEND_ADD_FALSE), characterName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xff, 0, 0);
 		break;
 	case 0:
 		sprintf(msg, MsgStr(MSI_FRIEND_ADD_SUCCEED), characterName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 0, 0);
 		{
 			FRIEND_INFO fInfo;
 			fInfo.characterName = characterName;
@@ -12339,11 +12339,11 @@ void CGameMode::Zc_Add_Friends_List(char const *buf)
 		}
 		break;
 	case 2:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FRIEND_ADD_ME_OVERSIZE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FRIEND_ADD_ME_OVERSIZE)), 0xff, 0, 0);
 		break;
 	case 3:
 		sprintf(msg, MsgStr(MSI_FRIEND_ADD_OTHER_OVERSIZE), characterName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xff, 0, 0);
 		break;
 	}
 }
@@ -12364,7 +12364,7 @@ void	CGameMode :: Zc_Req_Join_Friend(const char *buf)
 	else
 	{
 		UIFrameWnd *	wnd = g_windowMgr.MakeWindow(WID_JOINFRIENDACCEPTWND);
-		wnd->SendMsg(NULL, UM_SET_JOIN_FRIEND_MSG, p->ReqAID, p->ReqGID, (int)friendName, 0);
+		wnd->SendMsg(NULL, UM_SET_JOIN_FRIEND_MSG, p->ReqAID, p->ReqGID, (INT_PTR)friendName, 0);
 	}
 }
 
@@ -12391,7 +12391,7 @@ void	CGameMode :: Zc_Divorce (const char *buf)
 	char result[NAME_LENGTH*2+20];
 	sprintf(result, MsgStr(MSI_DIVORCE), g_session.GetCharName(), p->name);
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(result), 0xffff00, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(result), 0xffff00, 0, 0);
 }
 
 void	CGameMode :: Zc_Ack_PvpPoint (const char *buf)
@@ -12404,7 +12404,7 @@ void	CGameMode :: Zc_Ack_PvpPoint (const char *buf)
 	sprintf(msg, MsgStr(MSI_PVP_INFO), info.WinPoint, info.LosePoint, info.Point);
 
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 0, 0);
 }
 
 
@@ -12479,7 +12479,7 @@ void CGameMode::Zc_Change_Mer_Status(char const *buf)
 		if (g_session.IsMasterAid(3)) {
 			char msg[256];
 			sprintf(msg, "%d", p->data);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(245, 245, 245)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(245, 245, 245)), 0, 0);
 			return;
 		}
 		break;
@@ -12495,7 +12495,7 @@ void CGameMode::Zc_Change_Mer_Status(char const *buf)
 		if (g_session.IsMasterAid(3)) {
 			char msg[256];
 			sprintf(msg, "Full : %d", p->data);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(245, 245, 30)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(245, 245, 30)), 0, 0);
 			return;
 		}
 		break;
@@ -12564,7 +12564,7 @@ void CGameMode::Zc_Property_Homun(char const *buf)
 	{
 		if (g_session.m_oldHomunHungry != p->nFullness)
 		{
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_HOMUN_HUNGRY)), int(RGB(255, 0, 0)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_HOMUN_HUNGRY)), int(RGB(255, 0, 0)), 0, 0);
 			g_session.m_oldHomunHungry = p->nFullness;
 		}
 	}
@@ -12662,7 +12662,7 @@ void	CGameMode :: ZC_KILLER_POINT(const char *buf)
 
 	char msg[256];
 	sprintf(msg, MsgStr(MSI_KILLER_POINT),p->Point,p->TotalPoint);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(205, 205, 205), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(205, 205, 205), 0, 0);
 }
 
 void	CGameMode :: ZC_KILLER_RANK(const char *buf)
@@ -12672,18 +12672,18 @@ void	CGameMode :: ZC_KILLER_RANK(const char *buf)
 
 	char msg[256];
 	sprintf(msg,"=========== \xC7\xD0\xBB\xEC\xC0\xDA RANK ==============");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9b9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9b9b9b, 0, 0);
 	for (i=0;i<10;i++)
 	{
 		if (i==9)
 			sprintf(msg,"[ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
 		else
 			sprintf(msg," [ %d ] %16s  :  %4d POINT",i+1,p->Name[i],p->Point[i]);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xcdcdcd, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xcdcdcd, 0, 0);
 	}
 
 	sprintf(msg,"======================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9b9b9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9b9b9b, 0, 0);
 }
 
 
@@ -12746,7 +12746,7 @@ void CGameMode::Zc_Mail_Req_Open(char const *buf)
 	memcpy(&content, buf + sizeof(PACKET_ZC_MAIL_REQ_OPEN), len);
 	content[len] = 0;
 	g_windowMgr.MakeWindow(WID_MAILVIEWWND);
-	g_windowMgr.GetMailViewWnd()->SendMsg(NULL, UM_REFRESH, strlen(content), int(content), 0, 0);
+	g_windowMgr.GetMailViewWnd()->SendMsg(NULL, UM_REFRESH, strlen(content), INT_PTR(content), 0, 0);
 
 	std::vector<MAIL_LIST>::iterator it = g_session.m_mailList.begin();
 	while (it != g_session.m_mailList.end())
@@ -12774,17 +12774,17 @@ void	CGameMode :: Zc_Mail_Req_Get_Item(const char *buf)
 
 	if (result == 0)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_ADD_ITEM_SUCCESS)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_ADD_ITEM_SUCCESS)), 0xffffff, 0, 0);
 		if (g_windowMgr.GetMailViewWnd())
 			g_windowMgr.GetMailViewWnd()->SendMsg(NULL, UM_REFRESHITEM, 0, 0, 0, 0);
 	}
 	else if (result == 1)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_ADD_ITEM_FAILURE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_ADD_ITEM_FAILURE)), 0xff, 0, 0);
 	}
 	else if (result == 2)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_ADD_ITEM_OVER_FAILURE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_ADD_ITEM_OVER_FAILURE)), 0xff, 0, 0);
 		if (g_windowMgr.GetMailViewWnd())
 			g_windowMgr.GetMailViewWnd()->SendMsg(NULL, UM_COMMAND, 0x77, 0, 0, 0);
 	}
@@ -12798,14 +12798,14 @@ void	CGameMode :: Zc_Mail_Req_Send(const char *buf)
 	char result = buf[2];
 	if (result == 0)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_SEND_SUCCESS)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_SEND_SUCCESS)), 0xffffff, 0, 0);
 		if (g_windowMgr.GetMailListWnd())
 			g_windowMgr.GetMailListWnd()->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
 		g_windowMgr.DeleteWindow(WID_MAILVIEWWND);
 	}
 	else if (result == 1)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_USER_NOT_FOUND)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_USER_NOT_FOUND)), 0xff, 0, 0);
 		if (g_windowMgr.GetMailListWnd())
 			g_windowMgr.GetMailListWnd()->ResetMailWrite(0);
 	}
@@ -12820,7 +12820,7 @@ void	CGameMode :: Zc_Mail_Receive(const char *buf)
 		g_session.m_mailNew.MailID = p->MailID;
 		strcpy(g_session.m_mailNew.FromName, p->FromName);
 		strcpy(g_session.m_mailNew.HEADER, p->Header);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NEW_MAIL)), 0x4fc6fe, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NEW_MAIL)), 0x4fc6fe, 0, 0);
 		CGameMode *lpMode = g_modeMgr.GetGameMode();
 		lpMode->SendMsg(MM_GET_MAIL_LIST, 0, 0, 0);
 	}
@@ -12853,7 +12853,7 @@ void CGameMode::Zc_Ack_Mail_Add_Item(char const *buf)
 
 	case ADD_FAILED:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_ITEM_ADD_FAILED)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_ITEM_ADD_FAILED)), 0xff, 0, 0);
 		if (g_windowMgr.GetMailListWnd())
 			g_windowMgr.GetMailListWnd()->SendMsg(NULL, UM_DECITEM, 0, 0, 0, 0);
 		break;
@@ -12872,7 +12872,7 @@ void CGameMode::Zc_Ack_Mail_Delete(char const *buf)
 
 	if (p->Result == RESULT_TRUE)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_DELETE_SUCCESS)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_DELETE_SUCCESS)), 0xffffff, 0, 0);
 		g_windowMgr.DeleteWindow(WID_MAILVIEWWND);
 
 		std::vector<MAIL_LIST>::iterator it = g_session.m_mailList.begin();
@@ -12897,7 +12897,7 @@ void CGameMode::Zc_Ack_Mail_Delete(char const *buf)
 	}
 	else
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_DELETE_FAILURE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_DELETE_FAILURE)), 0xff, 0, 0);
 	}
 }
 
@@ -12928,14 +12928,14 @@ void	CGameMode :: Zc_Ack_Mail_Return(const char *buf)
 
 	if (p->Result == 0)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_RETURN_SUCCESS)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_RETURN_SUCCESS)), 0xffffff, 0, 0);
 		g_windowMgr.DeleteWindow(WID_MAILVIEWWND);
 		CGameMode *lpMode = g_modeMgr.GetGameMode();
 		lpMode->SendMsg(MM_GET_MAIL_LIST, 0, 0, 0);
 	}
 	else
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MAIL_RETURN_FAILURE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MAIL_RETURN_FAILURE)), 0xff, 0, 0);
 	}
 }
 
@@ -12981,29 +12981,29 @@ void CGameMode::Zc_Auction_Result(char const *buf)
 
 	g_session.m_waitForAddAuction = false;
 	if (p->Result == RESULT_ADD_FALSE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUCTION_ADD_FALSE)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUCTION_ADD_FALSE)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_ADD_TRUE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUCTION_ADD_TRUE)), int(RGB(255, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUCTION_ADD_TRUE)), int(RGB(255, 255, 255)), 0, 0);
 	else if (p->Result == RESULT_ADD_CANCEL)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUCTION_ADD_CANCEL)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUCTION_ADD_CANCEL)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_ADD_CANCEL_FALSE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUCTION_ADD_CANCEL_FALSE)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUCTION_ADD_CANCEL_FALSE)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_ADD_OVER)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUCTION_ADD_OVER)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUCTION_ADD_OVER)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_ADD_MONEY_FALSE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ADD_MONEY_FALSE)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ADD_MONEY_FALSE)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_BUY_TRUE)
 	{
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_BUY_TRUE)), int(RGB(255, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_BUY_TRUE)), int(RGB(255, 255, 255)), 0, 0);
 		CGameMode *lpMode = g_modeMgr.GetGameMode();
 		lpMode->SendMsg(MM_SEARCH_AUCTION_ITEM, g_session.m_auctionSeachOption, g_session.m_auctionSeachOption2, 1);
 	}
 	else if (p->Result == RESULT_BUY_FALSE)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_BUY_FALSE)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_BUY_FALSE)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_BUY_FALSE_MONEY)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_BUY_FALSE_MONEY)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_BUY_FALSE_MONEY)), int(RGB(255, 0, 0)), 0, 0);
 	else if (p->Result == RESULT_BUY_OVER)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_BUY_OVER)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_BUY_OVER)), int(RGB(255, 0, 0)), 0, 0);
 
 	UIAuctionWnd *auctionWnd = g_windowMgr.GetAuctionWnd();
 	if (auctionWnd)
@@ -13042,11 +13042,11 @@ void	CGameMode :: Zc_Auction_My_Sell_Stop(const char *buf)
 	PACKET_ZC_AUCTION_ACK_MY_SELL_STOP *p = (PACKET_ZC_AUCTION_ACK_MY_SELL_STOP *)buf;
 
 	if (p->Result == 0)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_MY_SELL_STOP_TRUE)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_MY_SELL_STOP_TRUE)), 0xffffff, 0, 0);
 	else if (p->Result == 1)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_MY_SELL_STOP_FALSE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_MY_SELL_STOP_FALSE)), 0xff, 0, 0);
 	else if (p->Result == 2)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_RESULT_AUCTION_ID_FALSE)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_RESULT_AUCTION_ID_FALSE)), 0xff, 0, 0);
 }
 
 void	CGameMode :: Zc_Auction_Windows(const char *buf)
@@ -13114,10 +13114,10 @@ void	CGameMode :: Zc_HuntingList(const char *buf)
 
 	char msg[256];
 	sprintf(msg, "=========== HUNTING LIST =============");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9bcd9b, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(body), 0xcdffcd, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9bcd9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(body), 0xcdffcd, 0, 0);
 	sprintf(msg, "========================================");
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x9bcd9b, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x9bcd9b, 0, 0);
 }
 
 void	CGameMode :: Zc_Aid(const char * buf)
@@ -13176,30 +13176,30 @@ void CGameMode::Zc_Pc_Cash_Point_Update(char const *buf)
 		if (g_windowMgr.GetItemShopWnd())
 			g_windowMgr.GetItemShopWnd()->Invalidate();
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_DEAL_SECCESS)), int(RGB(0, 255, 255)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_DEAL_SECCESS)), int(RGB(0, 255, 255)), 0, 0);
 		break;
 	case 1:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BUY_CASH_FAIL_NPC)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BUY_CASH_FAIL_NPC)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case 2:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BUY_CASH_FAIL_SYSTEM)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BUY_CASH_FAIL_SYSTEM)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case 3:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OVER_WEIGHT)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OVER_WEIGHT)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case 4:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BUY_CASH_FAIL_EXCHANGE)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BUY_CASH_FAIL_EXCHANGE)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case 5:
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BUY_CASH_FAIL_ITEM_ID)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BUY_CASH_FAIL_ITEM_ID)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	case 6:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BUY_CASH_FAIL_MONEY)), int(RGB(255, 0, 0)), 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BUY_CASH_FAIL_MONEY)), int(RGB(255, 0, 0)), 0, 0);
 		break;
 	}
 }
@@ -13227,8 +13227,8 @@ void CGameMode::Zc_Boss_Info(char const *buf)
 	switch (p->infoType) {
 	case BOSS_INFO_NOT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTFIND_BOSSMON)), 0xffffff, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSI_NOTFIND_BOSSMON)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTFIND_BOSSMON)), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSI_NOTFIND_BOSSMON)), 0xffffff, 0, 0);
 		return;
 	case BOSS_INFO_ALIVE:
 	case BOSS_INFO_ALIVE_WITHMSG:
@@ -13238,8 +13238,8 @@ void CGameMode::Zc_Boss_Info(char const *buf)
 			char msg[256];
 			sprintf(msg, MsgStr(MSI_SHOW_POSITION_OF_BOSSMON), bossMonName);
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffffff, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), 0xffffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), 0xffffff, 0, 0);
 			return;
 		}
 		break;
@@ -13251,8 +13251,8 @@ void CGameMode::Zc_Boss_Info(char const *buf)
 			sprintf(msg, MsgStr(MSI_APPEARANCE_TIME_OF_BOSSMON), bossMonName, p->minHour, p->minMinute);
 		}
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffffff, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), 0xffffff, 0, 0);
 		break;
 	}
 	}
@@ -13272,8 +13272,8 @@ void	CGameMode :: Zc_Msg(const char *buf)
 	}
 
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSGSTRINGID(p->msg))), int(msgColor), 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(MsgStr(MSGSTRINGID(p->msg))), int(msgColor), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSGSTRINGID(p->msg))), int(msgColor), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(MsgStr(MSGSTRINGID(p->msg))), int(msgColor), 0, 0);
 }
 
 void	CGameMode :: Zc_Read_Book(const char *buf)
@@ -13396,14 +13396,14 @@ void	CGameMode :: Zc_Cash_Time_Counter(const char *buf)
 		sprintf ( msg, MsgStr(MSI_NOTICE_TO_REMAIN_ITEMUSINGTIME2), itemName, p->RemainSecond ) ;
 
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), 0xffff, 0, 0);
 
 	if ( remainTime == 1 )
 	{
 		sprintf ( msg, MsgStr(MSI_LAST_NOTICE_TO_REMAIN_ITEMUSINGTIME), itemName ) ;
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), 0xffff, 0, 0);
 	}
 }
 
@@ -13418,8 +13418,8 @@ void	CGameMode :: Zc_Cash_Item_Delete(const char *buf)
 	const char *itemName = ITEM_INFO::GetItemDesc(atoi(itemID)).identifiedDisplayName;
 	sprintf(msg, MsgStr(MSI_NOTICE_TO_DELETE_ITEM), itemName);
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff, 0, 0);
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), 0xffff, 0, 0);
 }
 
 
@@ -13460,13 +13460,13 @@ void CGameMode::Zc_Item_Pickup_Ack2(char const *buf)
 		itemInfo.GetItemName(itemName);
 		char pickMsg[128];
 		sprintf(pickMsg, MsgStr(MSI_GET_ITEM), itemName, p->count);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		int pickupCount = p->count;
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 		break;
 	}
 	case RECEIVE_ITEM:
@@ -13527,12 +13527,12 @@ void CGameMode::Zc_Item_Pickup_Ack2(char const *buf)
 			gainCount = p->count;
 		}
 
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 
 		if (m_isWaitingCancelExchangeItem)
 		{
@@ -13545,20 +13545,20 @@ void CGameMode::Zc_Item_Pickup_Ack2(char const *buf)
 	}
 	case PICKUP_OVERCOUNT_ONEITEM:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERCOUNT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERWEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
 		break;
 	case PICKUP_FAILED:
 	case PICKUP_REFUSED_TIME:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -13601,13 +13601,13 @@ void CGameMode::Zc_Item_Pickup_Ack3(char const *buf)
 		itemInfo.GetItemName(itemName);
 		char pickMsg[128];
 		sprintf(pickMsg, MsgStr(MSI_GET_ITEM), itemName, p->count);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		int pickupCount = p->count;
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, pickupCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 		break;
 	}
 	case RECEIVE_ITEM:
@@ -13669,12 +13669,12 @@ void CGameMode::Zc_Item_Pickup_Ack3(char const *buf)
 			gainCount = p->count;
 		}
 
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 5, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 5, 0);
 
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_NOTIFYITEMOBTAINWND);
 		wnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, itemInfo.m_isIdentified, 0, 0, 0);
-		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (int)itemInfo.m_itemName.c_str(), 0);
-		wnd->SendMsg(NULL, UM_SETINFO, (int)&itemInfo, 0, 0, 0);
+		wnd->SendMsg(NULL, UM_SETTITLE, 0, gainCount, (INT_PTR)itemInfo.m_itemName.c_str(), 0);
+		wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemInfo, 0, 0, 0);
 
 		if (m_isWaitingCancelExchangeItem)
 		{
@@ -13687,20 +13687,20 @@ void CGameMode::Zc_Item_Pickup_Ack3(char const *buf)
 	}
 	case PICKUP_OVERCOUNT_ONEITEM:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_OVERCOUNT_ONEITEM)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERCOUNT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_COUNT)), 0xff, 0, 0);
 		break;
 	case PICKUP_OVERWEIGHT:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM_BECAUSE_WEIGHT)), 0xff, 0, 0);
 		break;
 	case PICKUP_FAILED:
 	case PICKUP_REFUSED_TIME:
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CANT_GET_ITEM)), 0xff, 0, 0);
 		break;
 	}
 }
@@ -13837,7 +13837,7 @@ void CGameMode::Zc_Item_Pickup_Party(char const *buf)
 		itemInfo.GetItemName(itemName);
 		char pickMsg[500];
 		sprintf(pickMsg, MsgStr(MSI_ITEM_PICKUP_PARTY), friendInfo.characterName.c_str(), itemName);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(pickMsg), 0xffff00, 8, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(pickMsg), 0xffff00, 8, 0);
 	}
 }
 
@@ -13876,7 +13876,7 @@ void CGameMode::Zc_EquipItem_Damaged(char const *buf)
 
 	if (strlen(msg)) {
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xff, 12, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xff, 12, 0);
 	}
 }
 
@@ -13899,11 +13899,11 @@ void	CGameMode :: Zc_Npc_Chat(const char *buf)
 	int  msgLen = p->packetLength - sizeof(*p);
 	memcpy(chatMsg, buf + sizeof(*p), msgLen);
 
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), int(p->color), 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), int(p->color), 0, 0);
 
 	CGameActor *theActor = m_world->GetGameActorByAID(p->accountID);
 	if (theActor)
-		theActor->SendMsg(NULL, AM_CHAT, int(chatMsg), int(p->color), 0);
+		theActor->SendMsg(NULL, AM_CHAT, INT_PTR(chatMsg), int(p->color), 0);
 
 	if (g_session.m_isSaveChat)
 		WriteChat(chatMsg);
@@ -13967,18 +13967,18 @@ void CGameMode::Zc_Formatstring_Msg(char const *buf)
 		return;
 	}
 
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffffff, 0, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffffff, 0, 0);
 }
 
 void	CGameMode :: Zc_Party_Config(const char *buf)
 {
 	if (g_session.m_bRefuseInviteParty = buf[2])
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,
-			int(MsgStr(MSI_INVITE_PARTY_REFUSE)),
+			INT_PTR(MsgStr(MSI_INVITE_PARTY_REFUSE)),
 			0x64ffff, 0, 0);
 	else
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY,
-			int(MsgStr(MSI_INVITE_PARTY_ACCEPT)),
+			INT_PTR(MsgStr(MSI_INVITE_PARTY_ACCEPT)),
 			0x64ffff, 0, 0);
 }
 
@@ -14012,7 +14012,7 @@ void	CGameMode :: Zc_MemorialDungeon_Subscription_Notify(const char *buf)
 		else
 		{
 			g_windowMgr.DeleteWindow(WID_MEMORIAL_DUN_WND);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MEMORIAL_DUN_CANCEL)), 0x64ffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MEMORIAL_DUN_CANCEL)), 0x64ffff, 0, 0);
 		}
 	}
 }
@@ -14057,11 +14057,11 @@ void	CGameMode :: Zc_MemorialDungeon_Notify(const char *buf)
 	g_windowMgr.DeleteWindow(WID_MEMORIAL_DUN_WND);
 	int	type = *(int *)(buf + 2);
 	if (type == 1)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MEMORIAL_DUN_LIVE_TIME_OUT)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MEMORIAL_DUN_LIVE_TIME_OUT)), 0x64ffff, 0, 0);
 	else if (type == 2)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MEMORIAL_DUN_ENTER_TIME_OUT)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MEMORIAL_DUN_ENTER_TIME_OUT)), 0x64ffff, 0, 0);
 	else if (type == 3)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MEMORIAL_DUN_DESTROY_REQUEST)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MEMORIAL_DUN_DESTROY_REQUEST)), 0x64ffff, 0, 0);
 }
 
 
@@ -14202,9 +14202,9 @@ void	CGameMode :: Zc_Config(const char *buf)
 	int		val = *(int *)(buf + 6);
 	g_session.m_bOpenEquipedItem = val;
 	if (val)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OPEN_EQUIPEDITEM_ACCEPT)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OPEN_EQUIPEDITEM_ACCEPT)), 0x64ffff, 0, 0);
 	else
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OPEN_EQUIPEDITEM_REFUSE)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OPEN_EQUIPEDITEM_REFUSE)), 0x64ffff, 0, 0);
 	UIEquipWnd *equipWnd = g_windowMgr.GetEquipWnd();
 	if (equipWnd)
 		equipWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -14215,9 +14215,9 @@ void	CGameMode :: Zc_Config_Notify(const char *buf)
 	int		val = (unsigned char)buf[2];
 	g_session.m_bOpenEquipedItem = val;
 	if (val)
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OPEN_EQUIPEDITEM_ACCEPT)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OPEN_EQUIPEDITEM_ACCEPT)), 0x64ffff, 0, 0);
 	else
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_OPEN_EQUIPEDITEM_REFUSE)), 0x64ffff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_OPEN_EQUIPEDITEM_REFUSE)), 0x64ffff, 0, 0);
 	UIEquipWnd *equipWnd = g_windowMgr.GetEquipWnd();
 	if (equipWnd)
 		equipWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -15602,7 +15602,7 @@ void CGameMode::Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype
 				newGameActor->SetActName(g_session.GetPetAccActName(s.accessory));
 		}
 
-		newGameActor->SendMsg(NULL, AM_STANDENTRY, (int)(&s), 0, 0);
+		newGameActor->SendMsg(NULL, AM_STANDENTRY, (INT_PTR)(&s), 0, 0);
 
 		if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 			if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -15640,7 +15640,7 @@ void CGameMode::Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype
 		m_world->m_actorList.push_back(newGameActor);
 
 		if (newGameActor) {
-			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 0, 0);
+			newGameActor->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 0, 0);
 
 			if (g_session.IsSiegeMode() && s.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {
 				if (!g_session.IsPc(newGameActor->GetJob())) {
@@ -15695,7 +15695,7 @@ void CGameMode::Inner_Zc_Item_Fall_Entry2(const unsigned int in_ITAID, const uns
 		GetWorld()->m_gameObjectList.push_back(newItem);
 		GetWorld()->m_itemList.push_back(newItem);
 	}
-	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (int)(&s), 0, 0);
+	newItem->SendMsg(NULL, AM_INITSTANDENTRY, (INT_PTR)(&s), 0, 0);
 }
 
 
@@ -15764,7 +15764,7 @@ void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, co
 
 	CGameActor *theActor = GetWorld()->GetGameActorByAID(in_GID);
 	if (theActor) {
-		theActor->SendMsg(NULL, AM_MOVEENTRY2, (int)(&ms), 0, 0);
+		theActor->SendMsg(NULL, AM_MOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 		theActor->m_clevel = in_clevel;
 
 		if (ms.head == HEADTYPE_LAST) {
@@ -15824,7 +15824,7 @@ void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, co
 		m_world->m_gameObjectList.push_back(newGameActor);
 		m_world->m_actorList.push_back(newGameActor);
 
-		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (int)(&ms), 0, 0);
+		newGameActor->SendMsg(NULL, AM_INITMOVEENTRY2, (INT_PTR)(&ms), 0, 0);
 		newGameActor->m_clevel = in_clevel;
 
 		if (g_session.IsSiegeMode() && ms.head != HEADTYPE_LAST && !newGameActor->m_emblemWnd) {

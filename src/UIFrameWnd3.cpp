@@ -271,7 +271,7 @@ void UISelCharForUServerWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			} else {
@@ -1070,7 +1070,7 @@ void UINewChatWnd::WriteChatToFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 
 	captureCnt = 0;
@@ -1088,7 +1088,7 @@ void UINewChatWnd::WriteChatToFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -1198,13 +1198,13 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			if (message == UM_ADDCHAT && allShow) {
 				m_listBox->AddItem(strings[i].c_str(), val2, talkerName);
 				if (subChatWndST)
-					subChatWndST->SendMsg(this, UM_ADDCHAT, val1, val2, (int)talkerName, 0);
+					subChatWndST->SendMsg(this, UM_ADDCHAT, val1, val2, (INT_PTR)talkerName, 0);
 			}
 
 			if (message == UM_ADDCHAT2 || (val3 && g_session.m_battleMsgOnOffSet[val3 - 1])) {
 				m_cmdListBox->AddItem(strings[i].c_str(), val2, talkerName);
 				if (subChatWndBT)
-					subChatWndBT->SendMsg(this, UM_ADDCHAT, val1, val2, (int)talkerName, 0);
+					subChatWndBT->SendMsg(this, UM_ADDCHAT, val1, val2, (INT_PTR)talkerName, 0);
 			}
 		}
 		break;
@@ -1258,9 +1258,9 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 				g_windowMgr.DeleteWindow(WID_COMBOBOXWND);
 
 			UIFrameWnd* comboBoxWnd = g_windowMgr.MakeWindow(WID_COMBOBOXWND);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_ALL), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_PARTY), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_GUILD), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_ALL), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_PARTY), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_GUILD), 0, 0, 0);
 			comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, g_session.m_talkType, 0, 0, 0);
 			comboBoxWnd->Resize(112, 48);
 			comboBoxWnd->SendMsg(NULL, UM_SET_CALLER_WID, 1, 0, 0, 0);
@@ -1281,8 +1281,8 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			if (whisperSize) {
 				UIFrameWnd* comboBoxWnd = g_windowMgr.MakeWindow(WID_COMBOBOXWND);
 				for (int i = 0; i < whisperSize; ++i)
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_whisperChat->m_hisChat[i].c_str(), 0, 0, 0);
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)"", 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_whisperChat->m_hisChat[i].c_str(), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)"", 0, 0, 0);
 
 				int comboHeight = (whisperSize + 1) * 16 < 80 ? (whisperSize + 1) * 16 : 80;
 
@@ -1296,7 +1296,7 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 				comboBoxWnd->Move(gx + 1, gy - comboHeight + 1);
 			} else {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NOWHISPERLIST), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NOWHISPERLIST), 0xff, 0, 0);
 			}
 			break;
 		}
@@ -1312,13 +1312,13 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 				break;
 
 			if (g_serviceType == ServiceAmerica && !g_session.IsOnlyEnglish(chatBuf)) {
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
 				break;
 			}
 
 			if (m_whisperChat->GetTextSize() != 0 && chatBuf[0] != '/') {
 				g_windowMgr.SetChatMsg(chatBuf);
-				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (int)m_whisperChat->GetText(), 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (INT_PTR)m_whisperChat->GetText(), 0, 0);
 				break;
 			}
 
@@ -1328,7 +1328,7 @@ INT_PTR UINewChatWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			if (chatStartOffset != -1)
 				g_windowMgr.SetChatMsg(&chatBuf[chatStartOffset]);
 
-			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (int)param, 0);
+			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (INT_PTR)param, 0);
 			break;
 		}
 
@@ -2409,11 +2409,11 @@ void UIShortCutWnd::OnLBtnDown(int x, int y)
 				if (skillInfo.m_isValid && skillInfo.level && skillInfo.spcost) {
 					CMode* mode = g_modeMgr.GetCurMode();
 					if (skillInfo.SKID >= 0x1f40 && skillInfo.SKID < 0x1f51) {
-						mode->SendMsg(MM_BEGIN_DRAG_FROM_HOSKILLLISTWND, skillInfo.SKID, (int)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
+						mode->SendMsg(MM_BEGIN_DRAG_FROM_HOSKILLLISTWND, skillInfo.SKID, (INT_PTR)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
 					} else if (skillInfo.SKID >= 0x2008 && skillInfo.SKID < 0x202e) {
-						mode->SendMsg(MM_BEGIN_DRAG_FROM_MERSKILLLISTWND, skillInfo.SKID, (int)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
+						mode->SendMsg(MM_BEGIN_DRAG_FROM_MERSKILLLISTWND, skillInfo.SKID, (INT_PTR)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
 					} else {
-						mode->SendMsg(MM_BEGIN_DRAG_FROM_SKILLLISTWND, skillInfo.SKID, (int)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
+						mode->SendMsg(MM_BEGIN_DRAG_FROM_SKILLLISTWND, skillInfo.SKID, (INT_PTR)skillInfo.skillName, m_shortCutList[slot + page * 9].count);
 					}
 				}
 			}
@@ -2443,7 +2443,7 @@ void UIShortCutWnd::OnRBtnDown(int x, int y)
 		ITEM_INFO itemInfo = g_session.GetItemInfoById(id);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* wnd = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			wnd->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 		}
 	}
 }
@@ -2525,7 +2525,7 @@ INT_PTR UIShortCutWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 				break;
 			if (!skillInfo.m_isValid)
 				break;
-			g_modeMgr.GetCurMode()->SendMsg(MM_USING_SKILL, (int)&skillInfo, m_shortCutList[slot].count, 0);
+			g_modeMgr.GetCurMode()->SendMsg(MM_USING_SKILL, (INT_PTR)&skillInfo, m_shortCutList[slot].count, 0);
 		}
 		break;
 	}

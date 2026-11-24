@@ -596,7 +596,7 @@ INT_PTR UIGuildInfoManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 
 		UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 		for (int i = 0; i < m_menuItems.size(); ++i)
-			menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 
 		menu->SendMsg(NULL, UM_SET_CALLER_WID, WID_GUILDINFOMANAGEWND, 0, 0, 0);
 		menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
@@ -634,7 +634,7 @@ INT_PTR UIGuildInfoManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 			UIComboBoxWnd* combo = (UIComboBoxWnd*)g_windowMgr.MakeWindow(WID_COMBOBOXWND);
 			std::list<std::string>::iterator it = m_emblemList.begin();
 			while (it != m_emblemList.end()) {
-				combo->SendMsg(NULL, UM_ADDITEM, (int)it->c_str(), 0, 0, 0);
+				combo->SendMsg(NULL, UM_ADDITEM, (INT_PTR)it->c_str(), 0, 0, 0);
 				++it;
 			}
 
@@ -674,7 +674,7 @@ INT_PTR UIGuildInfoManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 				if (bitmap && bitmap->m_width == 24 && bitmap->m_height == 24) {
 					RefreshCompressedEmblemFileImage(bmpName.c_str());
 					g_modeMgr.GetCurMode()->SendMsg(MM_SEND_GUILD_EMBLEM,
-						(int)m_compressedEmblemBitmapFileImage,
+						(INT_PTR)m_compressedEmblemBitmapFileImage,
 						m_compressedEmblemBitmapFileImageSize,
 						m_gdid);
 					g_modeMgr.GetCurMode()->SendMsg(MM_REQ_GUILD_EMBLEM_IMG, m_gdid, 0, 0);
@@ -915,7 +915,7 @@ void UIGuildMemberManageWnd::OnDraw()
 
 				CTexture* tex;
 				if (clip->clipType == 0) {
-					tex = g_renderer->GetSpriteIndex(*sprImg, (DWORD)palette, &info);
+					tex = g_renderer->GetSpriteIndex(*sprImg, (INT_PTR)palette, &info);
 					if (!tex)
 						tex = g_renderer->AddSpriteIndex(*sprImg, palette, &info);
 				} else {
@@ -1261,7 +1261,7 @@ INT_PTR UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR v
 				int numPosition = g_guildInfo.m_positionIdNameMap.size();
 				for (i = 0; i < numPosition; ++i) {
 					sprintf(text, "%s", g_guildInfo.m_positionIdNameMap[i].c_str());
-					combo->SendMsg(NULL, UM_ADDITEM, (int)text, 0, 0, 0);
+					combo->SendMsg(NULL, UM_ADDITEM, (INT_PTR)text, 0, 0, 0);
 				}
 
 				int h = i * 16 < 80 ? i * 16 : 80;
@@ -1337,7 +1337,7 @@ INT_PTR UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR v
 
 		UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 		for (int i = 0; i < m_menuItems.size(); ++i)
-			menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 
 		menu->SendMsg(NULL, UM_SET_CALLER_WID, WID_GUILDMEMBERMANAGEWND, 0, 0, 0);
 		menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
@@ -1366,7 +1366,7 @@ INT_PTR UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR v
 				vars[1] = info.AID;
 				vars[2] = info.GID;
 				UIWindow* wnd = g_windowMgr.MakeWindow(WID_GUILDBANREASONDESCWND);
-				wnd->SendMsg(NULL, UM_SETINFO, (int)vars, 0, 0, 0);
+				wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)vars, 0, 0, 0);
 			}
 			break;
 		}
@@ -1390,7 +1390,7 @@ INT_PTR UIGuildMemberManageWnd::SendMsg(UIWindow *sender, int message, INT_PTR v
 		case MENUID_INVITE_IN_PARTY: {
 			GUILD_MEMBER_INFORMATION info;
 			if (GetMemberInfo(m_curItem, &info))
-				g_modeMgr.GetCurMode()->SendMsg(MM_REQ_JOIN_GROUP, (int)info.CharName.c_str(), 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_REQ_JOIN_GROUP, (INT_PTR)info.CharName.c_str(), 0, 0);
 			break;
 		}
 		}
@@ -2200,7 +2200,7 @@ INT_PTR UIGuildSkillWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, IN
 			{
 				SKILL_INFO skillInfo = GetSkillInfo(m_curItem);
 				if (skillInfo.level)
-					SendMsg(NULL, UM_USESKILL, (int)&skillInfo, 0, 0, 0);
+					SendMsg(NULL, UM_USESKILL, (INT_PTR)&skillInfo, 0, 0, 0);
 				break;
 			}
 
@@ -2332,7 +2332,7 @@ INT_PTR UIGuildSkillWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, IN
 
 		UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 		for (int i = 0; i < m_menuItems.size(); ++i)
-			menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 
 		menu->SendMsg(NULL, UM_SET_CALLER_WID, WID_GUILDSKILLWND, 0, 0, 0);
 		menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
@@ -2821,7 +2821,7 @@ INT_PTR UIGuildNoticeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 			}
 			if (g_guildInfo.m_amIMaster) {
 				g_modeMgr.GetCurMode()->SendMsg(MM_GUILD_NOTICE, g_guildInfo.m_gdid,
-					(int)m_noticeTitleEdit->GetText(), (int)notice.c_str());
+					(INT_PTR)m_noticeTitleEdit->GetText(), (INT_PTR)notice.c_str());
 			}
 			m_sendButton->Move(-200, -200);
 			m_noticeTitleEdited = 0;
@@ -3153,7 +3153,7 @@ INT_PTR UIGuildLeaveReasonDescWnd::SendMsg(UIWindow* sender, int message, INT_PT
 	switch (val1) {
 	case ID_OK: {
 		CMode* mode = g_modeMgr.GetCurMode();
-		mode->SendMsg(MM_REQ_LEAVE_GUILD, (int)m_editCtrl->GetText(), 0, 0);
+		mode->SendMsg(MM_REQ_LEAVE_GUILD, (INT_PTR)m_editCtrl->GetText(), 0, 0);
 		g_windowMgr.DeleteWindow(WID_GUILDLEAVEREASONDESCWND);
 		break;
 	}
@@ -3191,7 +3191,7 @@ INT_PTR UIGuildBanReasonDescWnd::SendMsg(UIWindow* sender, int message, INT_PTR 
 		switch (val1) {
 		case ID_OK:
 			g_windowMgr.DeleteWindow(WID_GUILDBANREASONDESCWND);
-			g_modeMgr.GetCurMode()->SendMsg(MM_REQ_BAN_GUILD, (int)m_vars, (int)m_editCtrl->GetText(), 0);
+			g_modeMgr.GetCurMode()->SendMsg(MM_REQ_BAN_GUILD, (INT_PTR)m_vars, (INT_PTR)m_editCtrl->GetText(), 0);
 			break;
 		case ID_CANCEL:
 			g_windowMgr.DeleteWindow(WID_GUILDBANREASONDESCWND);

@@ -10458,7 +10458,7 @@ void	CEffectPrim :: RenderSoulLink(matrix &wtm)
 						if (effect)
 						{
 							vector3d	pos = vecA;
-							effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+							effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 						}
 					}
 					else
@@ -10470,7 +10470,7 @@ void	CEffectPrim :: RenderSoulLink(matrix &wtm)
 							if (effect)
 							{
 								vector3d	pos = vecA;
-								effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+								effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 							}
 						}
 					}
@@ -11464,7 +11464,7 @@ void	CEffectPrim :: RenderSMA(matrix &wtm)
 							pos2.y = 0;
 						else
 							pos2.y = 1;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos), int(&pos2));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos), INT_PTR(&pos2));
 					}
 				}
 			}
@@ -11474,7 +11474,7 @@ void	CEffectPrim :: RenderSMA(matrix &wtm)
 					if (effect)
 					{
 						vector3d	pos = m_GI[ec].vecB_now;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 			}
 		}
@@ -14688,7 +14688,7 @@ void	CEffectPrim :: PrimTanji2()
 					if (effect)
 					{
 						vector3d	pos = m_GI[ec].vecB_now;
-						effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+						effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 					}
 				}
 			}

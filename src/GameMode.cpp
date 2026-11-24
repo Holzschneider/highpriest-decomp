@@ -315,7 +315,7 @@ void	CGameMode :: OnInit(const char *modeName)
 		std::list<string>::iterator it = exNameList.begin();
 		while (it != exNameList.end())
 		{
-			ProcessTalkType(TT_REQ_WHISPER_PC_EX, (int)&(*it));
+			ProcessTalkType(TT_REQ_WHISPER_PC_EX, (INT_PTR)&(*it));
 			++it;
 		}
 	}
@@ -334,7 +334,7 @@ void	CGameMode :: OnInit(const char *modeName)
 	{
 		char buf[256];
 		sprintf(buf, "Now Auto chat Save System is ENABLED.");
-		g_windowMgr.SendMsg(WID_CHATWND, int(buf), 0xffff, 0, 0);
+		g_windowMgr.SendMsg(WID_CHATWND, INT_PTR(buf), 0xffff, 0, 0);
 	}
 
 	g_windowMgr.MakeWindow(WID_GUILDWND);
@@ -462,7 +462,7 @@ void CGameMode::Initialize()
 		g_isStopByLogin = 0;
 		g_guildInfo.Init();
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(WID_CHATWND, (int)MsgStr(MSI_LIST_COMMAND), int(RGB(230,230,255)), 0, 0);
+		g_windowMgr.SendMsg(WID_CHATWND, (INT_PTR)MsgStr(MSI_LIST_COMMAND), int(RGB(230,230,255)), 0, 0);
 
 		char ip[16];
 		in_addr addr;
@@ -961,29 +961,29 @@ void	CGameMode :: DrawIllustImage()
 
 	switch (m_showImageInfo.type) {
 	case 0:
-		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (int)m_showImageInfo.imageName.c_str(), 0, 0, 0);
+		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (INT_PTR)m_showImageInfo.imageName.c_str(), 0, 0, 0);
 		x = 200;
 		y = g_renderer->m_height - illustWnd->GetHeight();
 		break;
 	case 1:
-		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (int)m_showImageInfo.imageName.c_str(), 0, 0, 0);
+		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (INT_PTR)m_showImageInfo.imageName.c_str(), 0, 0, 0);
 		x = g_renderer->m_halfWidth;
 		y = g_renderer->m_height - illustWnd->GetHeight();
 		break;
 	case 2:
-		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (int)m_showImageInfo.imageName.c_str(), 0, 0, 0);
+		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (INT_PTR)m_showImageInfo.imageName.c_str(), 0, 0, 0);
 		x = g_renderer->m_width - 200;
 		y = g_renderer->m_height - illustWnd->GetHeight();
 		break;
 	case 3:
 		illustWnd->SendMsg(NULL, UM_SETINFO, -2, 0, 0, 0);
-		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (int)m_showImageInfo.imageName.c_str(), 0, 0, 0);
+		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (INT_PTR)m_showImageInfo.imageName.c_str(), 0, 0, 0);
 		illustWnd->SendMsg(NULL, UM_SETINFO, 3, 0, 0, 0);
 		x = g_renderer->m_halfWidth;
 		y = g_renderer->m_halfHeight - illustWnd->GetHeight() / 2;
 		break;
 	case 4:
-		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (int)m_showImageInfo.imageName.c_str(), 0, 0, 0);
+		illustWnd->SendMsg(NULL, UM_SET_BITMAP, (INT_PTR)m_showImageInfo.imageName.c_str(), 0, 0, 0);
 		illustWnd->SendMsg(NULL, UM_SETINFO, 4, 0, 0, 0);
 		x = g_renderer->m_halfWidth;
 		y = g_renderer->m_halfHeight - illustWnd->GetHeight() / 2;
@@ -1678,7 +1678,7 @@ void	CGameMode :: MakeGroundMousePointer()
 void CGameMode::ShowMousePointer(float cx, float cy, int color)
 {
 	vector2d cPos(cx, cy);
-	m_mousePointer->SendMsg(NULL, AM_SETPOSMOUSE, (int)&cPos, color, 0);
+	m_mousePointer->SendMsg(NULL, AM_SETPOSMOUSE, (INT_PTR)&cPos, color, 0);
 }
 
 void	CGameMode :: PlaceEffect(vector3d * pos, int effectId, int lastTime, int F1)
@@ -1686,7 +1686,7 @@ void	CGameMode :: PlaceEffect(vector3d * pos, int effectId, int lastTime, int F1
 	CDummyEffectLauncher * dummyEffectLauncher = new CDummyEffectLauncher;
 	if (dummyEffectLauncher)
 	{
-		dummyEffectLauncher->SendMsg(NULL, 14, int(pos), effectId, lastTime , F1);
+		dummyEffectLauncher->SendMsg(NULL, 14, INT_PTR(pos), effectId, lastTime , F1);
 		m_world->m_gameObjectList.push_back(dummyEffectLauncher);
 	}
 }
@@ -1947,7 +1947,7 @@ CMsgEffect * CGameMode :: MakeMsgEffect(MAKE_MSG_EFFECT_TYPE EffectMakeType, vec
 	{
 		m_world->m_gameObjectList.push_back(msgEffect);
 		msgEffect->SendMsg(NULL, AM_SETMASTERGID, masterGid, msgEffectType);
-		msgEffect->SendMsg(NULL, AM_SETPOS, (int)(&sPos), int(&sprActName), actionNum);
+		msgEffect->SendMsg(NULL, AM_SETPOS, (INT_PTR)(&sPos), INT_PTR(&sprActName), actionNum);
 	}
 	return msgEffect;
 }
@@ -1966,7 +1966,7 @@ CMsgEffect* CGameMode::MakeMissEffect(vector3d &sPos, DWORD sprArgb, DWORD maste
 	if (missEffect) {
 		m_world->m_gameObjectList.push_back(missEffect);
 		missEffect->SendMsg(NULL, AM_SETMASTERGID, masterGid, msgEffectType);
-		missEffect->SendMsg(NULL, AM_SETPOS, (int)(&sPos), (int)(&sprActName), actionNum);
+		missEffect->SendMsg(NULL, AM_SETPOS, (INT_PTR)(&sPos), (INT_PTR)(&sprActName), actionNum);
 		missEffect->m_sprArgb = sprArgb;
 	}
 	return missEffect;
@@ -1978,7 +1978,7 @@ void	CGameMode :: MakeArrowEffectPos(vector3d &sPos, vector3d &tPos, float hideT
 	if (arrowEffect)
 	{
 		m_world->m_gameObjectList.push_back(arrowEffect);
-		arrowEffect->SendMsg(NULL, 64, (int)(&sPos), (int)(&tPos), (int)(&hideTime), 0);
+		arrowEffect->SendMsg(NULL, 64, (INT_PTR)(&sPos), (INT_PTR)(&tPos), (INT_PTR)(&hideTime), 0);
 	}
 }
 
@@ -1990,7 +1990,7 @@ void	CGameMode :: MakeArrowEffect(vector3d &sPos, DWORD targetGid, float hideTim
 	if (arrowEffect)
 	{
 		m_world->m_gameObjectList.push_back(arrowEffect);
-		arrowEffect->SendMsg(NULL, 14, (int)(&sPos), targetGid, (int)(&hideTime), job);
+		arrowEffect->SendMsg(NULL, 14, (INT_PTR)(&sPos), targetGid, (INT_PTR)(&hideTime), job);
 	}
 }
 
@@ -2000,7 +2000,7 @@ void	CGameMode :: MakeMandraAttackEffect(DWORD targetGid, int job, float hideTim
 	if (mandraAttackEffect)
 	{
 		m_world->m_gameObjectList.push_back(mandraAttackEffect);
-		mandraAttackEffect->SendMsg(NULL, 14, targetGid, (int)(&hideTime), job);
+		mandraAttackEffect->SendMsg(NULL, 14, targetGid, (INT_PTR)(&hideTime), job);
 	}
 }
 
@@ -2125,7 +2125,7 @@ CMsgEffect* CGameMode::MakeEmotion(vector3d &sPos, int emotionType, DWORD master
 				CMsgEffect * emotion = new CMsgEffect;
 				m_world->m_gameObjectList.push_back(emotion);
 				emotion->SendMsg(NULL, AM_SETMASTERGID, masterGid, MET_EMOTION);
-				emotion->SendMsg(NULL, AM_SETPOS, (int)(&sPos), (int)(&sprActName), actionNum);
+				emotion->SendMsg(NULL, AM_SETPOS, (INT_PTR)(&sPos), (INT_PTR)(&sprActName), actionNum);
 				return emotion;
 			}
 			break;
@@ -2278,7 +2278,7 @@ CMsgEffect* CGameMode::MakeEmotion(vector3d &sPos, int emotionType, DWORD master
 	CMsgEffect* emotion = new CMsgEffect;
 	m_world->m_gameObjectList.push_back(emotion);
 	emotion->SendMsg(NULL, AM_SETMASTERGID, masterGid, MET_EMOTION);
-	emotion->SendMsg(NULL, AM_SETPOS, (int)(&sPos), (int)(&sprActName), actionNum);
+	emotion->SendMsg(NULL, AM_SETPOS, (INT_PTR)(&sPos), (INT_PTR)(&sprActName), actionNum);
 	return emotion;
 }
 
@@ -2310,7 +2310,7 @@ void CGameMode::MakeNumEffect(vector3d &sPos, int number, unsigned int sprArgb, 
 		CNumEffect *numEffect = new CNumEffect;
 		if (numEffect) {
 			m_world->m_gameObjectList.push_back(numEffect);
-			numEffect->SendMsg(NULL, AM_SETPOS, int(&sPos), eachNum[i], -i * 8 + (4 * (numberCnt - 1)));
+			numEffect->SendMsg(NULL, AM_SETPOS, INT_PTR(&sPos), eachNum[i], -i * 8 + (4 * (numberCnt - 1)));
 			numEffect->m_sprArgb = sprArgb;
 			numEffect->SendMsg(NULL, AM_SETMASTERGID, masterGid, 0, 0);
 		}
@@ -2325,7 +2325,7 @@ void	CGameMode :: MakeBlowEffect(float cx, float cy, float cz)
 	{
 		m_world->m_gameObjectList.push_back(blowEffect);
 		vector3d cPos(cx, cy, cz);
-		blowEffect->SendMsg(NULL, 14, (int)(&cPos), 0, 0);
+		blowEffect->SendMsg(NULL, 14, (INT_PTR)(&cPos), 0, 0);
 	}
 }
 
@@ -2711,7 +2711,7 @@ void	CGameMode :: CheckGuildMemberStatusCache(DWORD gid, const NamePair& actorNa
 {
 	std::map<DWORD, int>::iterator iter = m_guildMemberStatusCache.find(gid);
 	if (iter != m_guildMemberStatusCache.end()) {
-		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (int)actorName.cName.c_str(), iter->second, 0);
+		SendMsg(MM_GUILD_MEMBER_STATUS_CHANGE, (INT_PTR)actorName.cName.c_str(), iter->second, 0);
 		m_guildMemberStatusCache.erase(iter);
 	}
 }
@@ -2955,7 +2955,7 @@ bool	CGameMode :: AttackSkillOverWeightMessage()
 	int weightPercent = g_session.GetWeight() * 100 / max(g_session.GetMaxWeight(), 1);
 	if (weightPercent >= 90) {
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_ATTACK_OVERWEIGHT), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_ATTACK_OVERWEIGHT), 0xff, 0, 0);
 		return true;
 	}
 	return false;
@@ -4250,12 +4250,12 @@ int		CGameMode :: ProcessObjClick(CActorPickInfo * actorInfo, int processType)
 						break;
 #endif
 
-					m_world->m_player->SendMsg(NULL, AM_PROCEEDTOUCHSKILL, actorInfo->m_gid, int(&m_skillUseInfo), 0);
+					m_world->m_player->SendMsg(NULL, AM_PROCEEDTOUCHSKILL, actorInfo->m_gid, INT_PTR(&m_skillUseInfo), 0);
 				}
 				break;
 			default:
 				if (m_skillUseInfo.m_skillUseType == SUT_TO_SKILL)
-					m_world->m_player->SendMsg(NULL, AM_PROCEEDTOUCHSKILL, actorInfo->m_gid, int(&m_skillUseInfo), 0);
+					m_world->m_player->SendMsg(NULL, AM_PROCEEDTOUCHSKILL, actorInfo->m_gid, INT_PTR(&m_skillUseInfo), 0);
 				break;
 			}
 
@@ -4525,17 +4525,17 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 			m_menuIdList.push_back(MENUID_HOMUN_SHOWINFO);
 
 			sprintf(msg, MsgStr(MSI_HOMUN_SHOWINFO));
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 			m_menuIdList.push_back(MENUID_HOMUN_FEEDING);
 			sprintf(msg,MsgStr(MSI_HOMUN_FEEDING));
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 			m_menuIdList.push_back(MENUID_HOMUN_FOLLOW);
 			sprintf(msg, MsgStr(MSI_HOMUN_WAITING));
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 			menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
 			menu->Move(g_mouse.GetXPos()+1, g_mouse.GetYPos()+1);
@@ -4556,12 +4556,12 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 
 			m_menuIdList.push_back(MENUID_MER_SHOWINFO);
 			sprintf(msg, MsgStr(MSI_HOMUN_SHOWINFO));
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 			m_menuIdList.push_back(MENUID_MER_FOLLOW);
 			sprintf(msg, MsgStr(MSI_HOMUN_WAITING));
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 			menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
 			menu->Move(g_mouse.GetXPos()+1, g_mouse.GetYPos()+1);
 			return;
@@ -4582,27 +4582,27 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 
 				m_menuIdList.push_back(MENUID_PET_SHOWINFO);
 				sprintf(msg, MsgStr(MSI_PET_SHOWINFO));
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 				m_menuIdList.push_back(MENUID_PET_FEEDING);
 				sprintf(msg, MsgStr(MSI_PET_FEEDING));
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 				m_menuIdList.push_back(MENUID_PET_PERFORMANCE);
 				sprintf(msg, MsgStr(MSI_PET_PERFORMANCE));
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 				m_menuIdList.push_back(MENUID_PET_ACC_OFF);
 				sprintf(msg, MsgStr(MSI_PET_ACC_OFF));
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 				m_menuIdList.push_back(MENUID_PET_RETURN_EGG);
 				sprintf(msg, MsgStr(MSI_PET_RETURN_EGG));
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 				menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
 				menu->Move(g_mouse.GetXPos()+1, g_mouse.GetYPos()+1);
 				return;
@@ -4630,7 +4630,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 	{
 		m_menuIdList.push_back(MENUID_DISCONNECT_CHARACTER);
 		sprintf(msg, MsgStr(MSI_BAN_USER), cName.c_str());
-		menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 	}
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 	CGameActor *	Actor = NULL;
@@ -4642,7 +4642,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 	{
 		m_menuIdList.push_back(MENUID_VIEW_OTHERUSER_EQUIPWND);
 		sprintf(msg, MsgStr(MSI_REQ_VIEW_OTHERUSER), cName.c_str());
-		menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 	}
 #endif
 
@@ -4655,7 +4655,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 		m_menuIdList.push_back(MENUID_DEAL);
 		sprintf(msg, MsgStr(MSI_REQ_DEAL_WITH2), cName.c_str());
 
-		menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 	}
 
@@ -4671,7 +4671,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 	{
 		m_menuIdList.push_back(MENUID_INVITE_IN_PARTY);
 		sprintf(msg, MsgStr(MSI_REQ_JOIN_PARTY2), cName.c_str());
-		menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 	}
@@ -4688,7 +4688,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 			{
 				m_menuIdList.push_back(MENUID_INVITE_IN_BABY);
 				sprintf(msg, MsgStr(MSI_REQ_JOIN_BABY), cName.c_str());
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 			}
 		}
 	}
@@ -4709,7 +4709,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 		{
 			m_menuIdList.push_back(MENUID_INVITE_IN_GUILD);
 			sprintf(msg, MsgStr(MSI_REQ_JOIN_GUILD), cName.c_str());
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 
 		}
@@ -4721,9 +4721,9 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 			menu->SendMsg(NULL, UM_ADDBOUNDARY, 0, 0, 0, 0);
 
 			m_menuIdList.push_back(MENUID_ALLY_GUILD);
-			menu->SendMsg(NULL, UM_ADDITEM, int(MsgStr(MSI_REQ_ALLY_GUILD)), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(MsgStr(MSI_REQ_ALLY_GUILD)), 0, 0, 0);
 			m_menuIdList.push_back(MENUID_HOSTILE_GUILD);
-			menu->SendMsg(NULL, UM_ADDITEM, int(MsgStr(MSI_REQ_HOSTILE_GUILD)), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(MsgStr(MSI_REQ_HOSTILE_GUILD)), 0, 0, 0);
 
 
 
@@ -4740,7 +4740,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 
 
 	m_menuIdList.push_back(MENUID_MAKE_WHISPER_WINDOW);
-	menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_OPEN_1ON1_WINDOW), 0, 0, 0);
+	menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_OPEN_1ON1_WINDOW), 0, 0, 0);
 
 	if (!IsGravityAid(actorInfo->GetGID()))
 	{
@@ -4749,7 +4749,7 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 			if (g_serverType != ServerInstantEvent)
 			{
 				m_menuIdList.push_back(MENUID_ADD_TO_FRIEND_CHAR_LIST);
-				menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_ADD_TO_FRIEND_CHAR_LIST), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_ADD_TO_FRIEND_CHAR_LIST), 0, 0, 0);
 			}
 		}
 	}
@@ -4761,11 +4761,11 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 	if (g_session.IsExName(cName.c_str()))
 	{
 		m_menuIdList.push_back(MENUID_REQ_IN);
-		menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_REQ_IN), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_REQ_IN), 0, 0, 0);
 
 	} else {
 		m_menuIdList.push_back(MENUID_REQ_EX_LIST);
-		menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_REQ_EX_LIST), 0, 0, 0);
+		menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_REQ_EX_LIST), 0, 0, 0);
 	}
 
 #if (_PACKET_VER < 7)
@@ -4782,22 +4782,22 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 			{
 
 				m_menuIdList.push_back(MENUID_REQ_MANNER_POINT_PLUS);
-				menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
 
 
 				m_menuIdList.push_back(MENUID_REQ_MANNER_POINT_MINUS);
-				menu->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
 
 
 				sprintf(msg, MsgStr(MSI_PROHIBIT_LOG), g_session.GetChatProhibittedCnt(m_menuTargetAID));
 				m_menuIdList.push_back(MENUID_SHOW_CHAT_PROHIBIT_LOG);
-				menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 
 			}
 #endif
 			sprintf(msg, "%s : %d (GID) : %s", g_session.m_lastServerName.c_str(), m_menuTargetAID, cName.c_str());
 			m_menuIdList.push_back(MENUID_COPY_GID); RAG_BUDGET_SITES(1)
-			menu->SendMsg(NULL, UM_ADDITEM, int(msg), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, INT_PTR(msg), 0, 0, 0);
 		}
 	}
 	menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
@@ -5645,7 +5645,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			{
 				if (!g_session.IsMasterAid(7))
 				{
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INVALID_COMMAND)), 0xffff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INVALID_COMMAND)), 0xffff, 0, 0);
 					break;
 				}
 				g_session.m_isSaveChat = 2 - g_session.m_isSaveChat - 1;
@@ -5653,11 +5653,11 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				if (g_session.m_isSaveChat) {
 					g_modeMgr.GetGameMode()->MakeChatFile();
 					sprintf(chatMsg, "Chatting Auto Save Start..");
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xffff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xffff, 0, 0);
 				} else {
 					sprintf(chatMsg, "Chatting Auto Save END");
 					g_modeMgr.GetGameMode()->CloseChatFile();
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(chatMsg), 0xffff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(chatMsg), 0xffff, 0, 0);
 				}
 			}
 			break;
@@ -5793,13 +5793,13 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					string temp;
 					const char * sentence = g_windowMgr.m_chatMsg.c_str();
 					temp = sentence;
-					g_session.HiFriends((int)sentence);
+					g_session.HiFriends((INT_PTR)sentence);
 					if (g_serviceType == ServiceKorea)
 						sprintf(msg, "[ To Friends ] : (Hi) %s", temp.c_str());
 					else
 						sprintf(msg, "[ To Friends ] : (Hi) %s%s", g_language->GetLanguageCharset(false), temp.c_str());
 				}
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x1effff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x1effff, 0, 0);
 			}
 			break;
 		case TT_REQ_MUNAK:
@@ -5814,7 +5814,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 		case TT_LEVEL:
 			{
 				for (int i=0;i<32;i++)
-					SendMsg(MM_ITEM_CREATE, (int)"LEVEL");
+					SendMsg(MM_ITEM_CREATE, (INT_PTR)"LEVEL");
 			}
 			break;
 
@@ -5822,8 +5822,8 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			{
 				for (int i=0;i<5;i++)
 				{
-					SendMsg(MM_ITEM_CREATE, (int)"SPPOINT");
-					SendMsg(MM_ITEM_CREATE, (int)"JOBLEVEL");
+					SendMsg(MM_ITEM_CREATE, (INT_PTR)"SPPOINT");
+					SendMsg(MM_ITEM_CREATE, (INT_PTR)"JOBLEVEL");
 				}
 			}
 			break;
@@ -5838,9 +5838,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					mapName.resize(mapName.size()-4);
 				sprintf(msg, "%s(%s) : %d, %d", g_session.GetMapName(m_rswName), mapName.c_str(), dx, dy);
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), int(RGB(255,255,100)), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(255,255,100)), 0, 0);
 				if (g_serviceType != ServiceGermany)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, int(msg), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(msg), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_EFFECT_ON_OFF:
@@ -5856,7 +5856,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isEffectOn)
 				{
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_EFFECT_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_EFFECT_ON)), int(RGB(255,255,100)), 0, 0);
 #if defined (_UPDATE2004B)
 #if (_PACKET_VER >= 6)
 					PACKET_CZ_LESSEFFECT p;
@@ -5868,7 +5868,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				}
 				else
 				{
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_EFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_EFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
 #if defined (_UPDATE2004B)
 #if (_PACKET_VER >= 6)
 					PACKET_CZ_LESSEFFECT p;
@@ -5914,9 +5914,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_bMakeMissEffect = 1 - g_session.m_bMakeMissEffect;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_bMakeMissEffect)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MISS_EFFECT_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MISS_EFFECT_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MISS_EFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MISS_EFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_NOSHIFT_ON_OFF:
@@ -5924,9 +5924,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isNoShift = 1 - g_session.m_isNoShift;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isNoShift)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOSHIFT_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOSHIFT_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOSHIFT_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOSHIFT_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_NOCTRL_ON_OFF:
@@ -5934,9 +5934,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isNoCtrl = 1 - g_session.m_isNoCtrl;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isNoCtrl)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOCTRL_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOCTRL_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOCTRL_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOCTRL_OFF)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -5947,9 +5947,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isWindow = 1 - g_session.m_isWindow;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isWindow)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_WINDOW_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_WINDOW_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_WINDOW_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_WINDOW_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_AURA_ON_OFF:
@@ -5957,9 +5957,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isAura = 1 - g_session.m_isAura;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isAura)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AURA_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AURA_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AURA_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AURA_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 
@@ -5968,12 +5968,12 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			if(g_session.RandomScreenFlag)
 			{
 				g_session.RandomScreenFlag=false;
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"RANDOM LOADING SCREEN ON", 0x6e96ff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"RANDOM LOADING SCREEN ON", 0x6e96ff, 0, 0);
 			}
 			else
 			{
 				g_session.RandomScreenFlag=true;
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"RANDOM LOADING SCREEN OFF", 0x6e96ff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"RANDOM LOADING SCREEN OFF", 0x6e96ff, 0, 0);
 			}
 			break;
 		case TT_SET1_ON_OFF:
@@ -6022,9 +6022,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isSkillFail = 1 - g_session.m_isSkillFail;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isSkillFail)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILLFAIL_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILLFAIL_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILLFAIL_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILLFAIL_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_LOGINOUT_ON_OFF:
@@ -6032,9 +6032,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isLogInOut = 1 - g_session.m_isLogInOut;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isLogInOut)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_LOGINOUT_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_LOGINOUT_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_LOGINOUT_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_LOGINOUT_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_SHOPPING_ON_OFF:
@@ -6043,9 +6043,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isShopping = 1 - g_session.m_isShopping;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isShopping)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SHOPPING_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SHOPPING_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SHOPPING_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SHOPPING_OFF)), int(RGB(255,255,100)), 0, 0);
 #endif
 			}
 			break;
@@ -6054,9 +6054,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isQuickSpell = 1 - g_session.m_isQuickSpell;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isQuickSpell)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_QUICKSPELL_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_QUICKSPELL_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_QUICKSPELL_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_QUICKSPELL_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_QUICKSPELL2_ON_OFF:
@@ -6064,9 +6064,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isQuickSpell2 = 1 - g_session.m_isQuickSpell2;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isQuickSpell2)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_QUICKSPELL2_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_QUICKSPELL2_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_QUICKSPELL2_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_QUICKSPELL2_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_MINIGAME_ON_OFF:
@@ -6078,9 +6078,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isBattle = 1 - g_session.m_isBattle;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isBattle)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BATTLE_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BATTLE_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BATTLE_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BATTLE_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_BATTLECHAT_ON_OFF:
@@ -6088,9 +6088,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isBattleChat = 1 - g_session.m_isBattleChat;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isBattleChat)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BATTLECHAT_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BATTLECHAT_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BATTLECHAT_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BATTLECHAT_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_NOTALKMSG_ON_OFF:
@@ -6098,9 +6098,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isNoTalkMsg = 1 - g_session.m_isNoTalkMsg;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isNoTalkMsg)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTALKMSG_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTALKMSG_OFF)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTALKMSG_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTALKMSG_ON)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_NOTALKMSG2_ON_OFF:
@@ -6108,9 +6108,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isNoTalkMsg2 = 1 - g_session.m_isNoTalkMsg2;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isNoTalkMsg2)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTALKMSG2_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTALKMSG2_OFF)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTALKMSG2_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTALKMSG2_ON)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_NOTRADE_ON_OFF:
@@ -6118,9 +6118,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isNoTrade = 1 - g_session.m_isNoTrade;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isNoTrade)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTRADE_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTRADE_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_NOTRADE_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_NOTRADE_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_SHOW_PVP_INFO:
@@ -6142,7 +6142,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				if (g_session.m_onAutoMSG)
 					g_windowMgr.MakeWindow(WID_AUTOMESSAGEWND);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_AUTO_MSG_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_AUTO_MSG_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 #if defined(EPISODE_VER) || defined(_DEBUG)
@@ -6167,11 +6167,11 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					char curPath[256];
 					GetCurrentDirectory(256, curPath);
 
-					int Pos = (int)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+					int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
 
 					if (Pos)
 					{
-						Pos = Pos - (int)curPath;
+						Pos = Pos - (INT_PTR)curPath;
 						memcpy(curPath, curPath, Pos);
 					}
 					strcat(curPath, "\\TraceAI.txt");
@@ -6180,11 +6180,11 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					fp.Open(curPath, CFile::modeWrite|CFile::modeCreate);
 					fp.Write("", strlen ( "" ));
 					fp.Close();
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TRACE_AI_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TRACE_AI_ON)), int(RGB(255,255,100)), 0, 0);
 				}
 				else
 				{
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_TRACE_AI_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_TRACE_AI_OFF)), int(RGB(255,255,100)), 0, 0);
 				}
 			}
 			break;
@@ -6195,9 +6195,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 
 				if (g_session.m_onHoUserAI)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_HOMUN_USERAI_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_HOMUN_USERAI_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_HOMUN_USERAI_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_HOMUN_USERAI_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 #endif
@@ -6208,9 +6208,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 
 				if (g_session.m_onMerUserAI)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MER_USERAI_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MER_USERAI_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MER_USERAI_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MER_USERAI_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 #endif
@@ -6246,9 +6246,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_isFixedCamera = 1 - g_isFixedCamera;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_isFixedCamera)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FIXED_CAMERA_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FIXED_CAMERA_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FIXED_CAMERA_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FIXED_CAMERA_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_VOLUME:
@@ -6263,7 +6263,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				Set3DVolume(volume);
 				char msg[120];
 				sprintf(msg, "%s %d", MsgStr(MSI_VOLUME_OF_SOUND), volume);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, int(RGB(255,255,100)), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6281,7 +6281,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				SetStreamVolume(volume);
 				char msg[120];
 				sprintf(msg, "%s %d", MsgStr(MSI_VOLUME_OF_BGM), volume);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, int(RGB(255,255,100)), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6290,9 +6290,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 		case TT_EFFECT_SOUND_ON_OFF:
 			{
 				g_isSoundOn = 1 - g_isSoundOn;
-				if (g_isSoundOn) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SOUND_ON)), int(RGB(255,255,100)), 0, 0);
+				if (g_isSoundOn) g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SOUND_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SOUND_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SOUND_OFF)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6303,9 +6303,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_frameskip = 1 - g_frameskip;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_frameskip)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FRAME_SKIP_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FRAME_SKIP_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_FRAME_SKIP_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_FRAME_SKIP_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 		case TT_MUSIC_ON_OFF:
@@ -6319,9 +6319,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 					CloseStream();
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_bgmIsPaused)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BGM_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BGM_OFF)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_BGM_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_BGM_ON)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6333,9 +6333,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_monsterSnapOn_NoSkill = 1 - g_session.m_monsterSnapOn_NoSkill;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_monsterSnapOn_NoSkill)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ATTACK_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ATTACK_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ATTACK_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ATTACK_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6347,9 +6347,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_isItemSnap = 1-g_session.m_isItemSnap;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.IsItemSnap())
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_ITEM_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_ITEM_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6361,9 +6361,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_monsterSnapOn_Skill = 1-g_session.m_monsterSnapOn_Skill;
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_monsterSnapOn_Skill)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILL_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILL_SNAP_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SKILL_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SKILL_SNAP_OFF)), int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -6504,46 +6504,46 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			break;
 		case TT_REQ_BREAK_GUILD:
 			{
-				SendMsg(MM_REQ_DISORGANIZE_GUILD, (int)talkContent->c_str());
+				SendMsg(MM_REQ_DISORGANIZE_GUILD, (INT_PTR)talkContent->c_str());
 			}
 			break;
 		case TT_REQ_MAKE_GUILD:
 			{
-				SendMsg(MM_REQ_MAKE_GUILD, (int)talkContent->c_str());
+				SendMsg(MM_REQ_MAKE_GUILD, (INT_PTR)talkContent->c_str());
 			}
 			break;
 		case TT_REQ_MAKE_GROUP:
 			{
-				SendMsg(MM_MAKE_GROUP, (int)talkContent->c_str());
+				SendMsg(MM_MAKE_GROUP, (INT_PTR)talkContent->c_str());
 			}
 			break;
 
 		case TT_REQ_ITEM_CREATE:
-			SendMsg(MM_ITEM_CREATE, (int)talkContent[0].c_str());
+			SendMsg(MM_ITEM_CREATE, (INT_PTR)talkContent[0].c_str());
 			break;
 		case TT_REQ_MOVETO_MAP:
-			SendMsg(MM_MOVETO_MAP, (int)talkContent[0].c_str(), atoi(talkContent[1].c_str()), atoi(talkContent[2].c_str()));
+			SendMsg(MM_MOVETO_MAP, (INT_PTR)talkContent[0].c_str(), atoi(talkContent[1].c_str()), atoi(talkContent[2].c_str()));
 			break;
 		case	TT_REMOVE:
-			SendMsg(MM_REMOVE_TO_AID, (int)talkContent[0].c_str());
+			SendMsg(MM_REMOVE_TO_AID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_SHIFT:
-			SendMsg(MM_SHIFT_TO_GID, (int)talkContent[0].c_str());
+			SendMsg(MM_SHIFT_TO_GID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_RECALL_AID:
-			SendMsg(MM_RECALL_AID, (int)talkContent[0].c_str());
+			SendMsg(MM_RECALL_AID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_RECALL_GID:
-			SendMsg(MM_RECALL_GID, (int)talkContent[0].c_str());
+			SendMsg(MM_RECALL_GID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_CHECK_ID:
-			SendMsg(MM_CHECK_ID, (int)talkContent[0].c_str());
+			SendMsg(MM_CHECK_ID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_RC_ID:
-			SendMsg(MM_RC_ID, (int)talkContent[0].c_str());
+			SendMsg(MM_RC_ID, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_BILLING_INFO:
-			SendMsg(MM_BILLING_INFO, (int)talkContent[0].c_str());
+			SendMsg(MM_BILLING_INFO, (INT_PTR)talkContent[0].c_str());
 			break;
 		case	TT_SAVEMONEY:
 			SendMsg(MM_GUILD_MONEY, atoi(talkContent[0].c_str()));
@@ -6577,7 +6577,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			break;
 		case	TT_REQ_EXPEL_GROUP_MEMBER:
 			{
-				SendMsg(MM_REQ_EXPEL_GROUP_MEMBER, (int)talkContent->c_str());
+				SendMsg(MM_REQ_EXPEL_GROUP_MEMBER, (INT_PTR)talkContent->c_str());
 			}
 			break;
 		case TT_REQ_EXCHANGE_ITEM:
@@ -7014,9 +7014,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_fogOn = 1 - g_session.m_fogOn;
 				MakeFog(g_session.m_fogOn);
 				if (g_session.m_fogOn)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Fog On", int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Fog On", int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Fog Off", int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Fog Off", int(RGB(255,255,100)), 0, 0);
 				UIOptionWnd * optionWnd = g_windowMgr.GetOptionWnd();
 				if (optionWnd)
 					optionWnd->SendMsg(NULL, UM_REFRESH, 0, 0, 0, 0);
@@ -7034,12 +7034,12 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 		case TT_TOGGLE_EMBLEM:
 			if(g_session.m_emblemState)
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Guild Emblem Off", 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Guild Emblem Off", 0xffff, 0, 0);
 				g_session.m_emblemState = false;
 			}
 			else
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Guild Emblem On", 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Guild Emblem On", 0xffff, 0, 0);
 				g_session.m_emblemState = true;
 			}
 			break;
@@ -7065,9 +7065,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.SetTextType(g_session.m_isShowNameTypeOld, g_session.m_isShowNameTypeOld);
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (g_session.m_isShowNameTypeOld)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SHOWNAME_ON)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SHOWNAME_ON)), int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_SHOWNAME_OFF)), int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_SHOWNAME_OFF)), int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 
@@ -7092,9 +7092,9 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 			{
 				m_onCopyName = !m_onCopyName;
 				if (m_onCopyName)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Copy_Name_On!!", int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Copy_Name_On!!", int(RGB(255,255,100)), 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"Copy_Name_Off!!", int(RGB(255,255,100)), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"Copy_Name_Off!!", int(RGB(255,255,100)), 0, 0);
 			}
 			break;
 
@@ -7111,7 +7111,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 
 		case TT_REQ_INVITE_PARTY:
 			{
-				SendMsg(MM_REQ_JOIN_GROUP, (int)talkContent->c_str());
+				SendMsg(MM_REQ_JOIN_GROUP, (INT_PTR)talkContent->c_str());
 			}
 			break;
 #endif
@@ -7126,7 +7126,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 
 		case TT_UNKNOWN:
 			{
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_INVALID_COMMAND)), 0xffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_INVALID_COMMAND)), 0xffff, 0, 0);
 			}
 			break;
 	}
@@ -7241,19 +7241,19 @@ void CGameMode::MakePotionEffect(int itemId, DWORD aid)
 		switch (itemId) {
 		case 12208:
 			sprintf(msg, MsgStr(MSI_PLUSEXP));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 7, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 7, 0);
 			break;
 		case 12312:
 			sprintf(msg, MsgStr(MSI_PLUSEXP12312));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 7, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 7, 0);
 			break;
 		case 14532:
 			sprintf(msg, MsgStr(MSI_PLUSEXP14532));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 7, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 7, 0);
 			break;
 		case 14533:
 			sprintf(msg, MsgStr(MSI_PLUSEXP14533));
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 7, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 7, 0);
 			break;
 		}
 	} else {

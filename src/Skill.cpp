@@ -899,13 +899,13 @@ void	CSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR a
 				WBA		wba(AM_ATTACKED, damage, timeGetTime(), m_aid, tCellX, tCellY, atkedEfId, -1, level, attackedSpeedFactor);
 
 				int totalDamage = damage;
-				tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+				tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 
 				for (int i=0; i<count-1; ++i)
 				{
 					wba.time += doubleAttackTerm;
 					totalDamage += damage;
-					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 				}
 			}
 
@@ -927,7 +927,7 @@ void	CSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR a
 						if (m_effectId != -1) {
 							CRagEffect *	effect = LaunchEffect(m_effectId);
 							if (effect)
-								effect->SendMsg(NULL, AM_SETPOS, int(&m_pos));
+								effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&m_pos));
 						}
 						break;
 					}
@@ -2388,7 +2388,7 @@ bool	CEffectMaker :: OnProcess()
 			m_processCnt = 0;
 			CRagEffect *	effect = LaunchEffect(m_type);
 			if (effect)
-				effect->SendMsg(NULL, AM_SETPARAM, int(m_param));
+				effect->SendMsg(NULL, AM_SETPARAM, INT_PTR(m_param));
 		}
 	}
 	++m_processCnt;
@@ -2760,7 +2760,7 @@ void	CDummyEffectLauncher :: SendMsg(CGameObject *sender, int message, INT_PTR a
 				vector3d	pos;
 				pos.x = arg4;
 				if (effect)
-					effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 			}
 			break;
 		}

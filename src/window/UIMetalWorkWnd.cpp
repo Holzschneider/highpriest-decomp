@@ -121,7 +121,7 @@ INT_PTR		UIItemRepairWnd :: SendMsg(UIWindow *sender, int message, INT_PTR val1,
 							{
 								if ( (*it).index == m_metalListIndex[m_metalList->GetSelected()] )
 								{
-									g_modeMgr.GetCurMode()->SendMsg(MM_REPAIRITEM_SELECT_FROM_LIST, int(&(*it)), 0, 0);
+									g_modeMgr.GetCurMode()->SendMsg(MM_REPAIRITEM_SELECT_FROM_LIST, INT_PTR(&(*it)), 0, 0);
 									break;
 								}
 								++it;
@@ -438,7 +438,7 @@ INT_PTR		UIMakeTargetListWnd :: SendMsg(UIWindow *sender, int message, INT_PTR v
 				case	ID_CANCEL:
 					{
 						CGameMode * gameMode = g_modeMgr.GetGameMode();
-						gameMode->SendMsg(MM_REQ_MAKING_ITEM, 0, (int)&dummyItemInfo, 0);
+						gameMode->SendMsg(MM_REQ_MAKING_ITEM, 0, (INT_PTR)&dummyItemInfo, 0);
 						g_windowMgr.DeleteWindow(WID_MAKETARGETLISTWND);
 					}
 					break;
@@ -575,7 +575,7 @@ void	UIMakeTargetProcessWnd :: OnLBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		CMode * curMode = g_modeMgr.GetCurMode();
-		curMode->SendMsg(MM_BEGIN_DRAG_FROM_METALPROCESSWND, (int)itemInfo.m_itemName.c_str(), 0, 0);
+		curMode->SendMsg(MM_BEGIN_DRAG_FROM_METALPROCESSWND, (INT_PTR)itemInfo.m_itemName.c_str(), 0, 0);
 	} else {
 		UIFrameWnd::OnLBtnDown(x, y);
 	}
@@ -612,14 +612,14 @@ INT_PTR		UIMakeTargetProcessWnd :: SendMsg(UIWindow *sender, int message, INT_PT
 				case	ID_OK:
 					{
 						CGameMode * gameMode = g_modeMgr.GetGameMode();
-						gameMode->SendMsg(MM_REQ_MAKING_ITEM, m_targetItem, (int)m_propertyiteminfo, 0);
+						gameMode->SendMsg(MM_REQ_MAKING_ITEM, m_targetItem, (INT_PTR)m_propertyiteminfo, 0);
 						g_windowMgr.DeleteWindow(WID_MAKETARGETPROCESSWND);
 					}
 					break;
 				case	ID_CANCEL:
 					{
 						CGameMode * gameMode = g_modeMgr.GetGameMode();
-						gameMode->SendMsg(MM_REQ_MAKING_ITEM, 0, (int)m_propertyiteminfo, 0);
+						gameMode->SendMsg(MM_REQ_MAKING_ITEM, 0, (INT_PTR)m_propertyiteminfo, 0);
 						for(int i=0; i<3; ++i)
 							if(m_propertyiteminfo[i].IsValid()) g_session.AddItem(m_propertyiteminfo + i);
 						if(g_windowMgr.GetItemWnd()) g_windowMgr.GetItemWnd()->SendMsg(NULL, UM_REFRESHITEM, 0, 0, 0, 0);

@@ -1996,7 +1996,7 @@ int UIWindowMgr::ErrorMsg(char const *msg, int type, int isDefYes, int changeMsg
 	Trace("windowMgr.ErrorMsg==%s", msg);
 	if (m_modalWindow) {
 		if (changeMsg)
-			m_modalWindow->SendMsg(NULL, UM_CHANGEMSG, (int)msg, 0, 0, 0);
+			m_modalWindow->SendMsg(NULL, UM_CHANGEMSG, (INT_PTR)msg, 0, 0, 0);
 		return ID_CANCEL;
 	}
 
@@ -2755,7 +2755,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 34);
 			wnd->Move(0, 0);
 			AddWindow(wnd);
-			m_basicInfoWnd->SendMsg(NULL, UM_SETINFO, (int)&basicInfoWndInfo, 0, 0, 0);
+			m_basicInfoWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&basicInfoWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapMasterObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -2831,7 +2831,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(0, 120);
 			AddWindow(wnd);
-			m_itemWnd->SendMsg(NULL, UM_SETINFO, (int)&itemWndInfo, 0, 0, 0);
+			m_itemWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -2843,7 +2843,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 220);
 			wnd->Move(0, 120);
 			AddWindow(wnd);
-			m_questWnd->SendMsg(NULL, UM_SETINFO, (int)&questWndInfo, 0, 0, 0);
+			m_questWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&questWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -2879,7 +2879,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 		wnd->Create(280, 34);
 		wnd->Move(UIX(200), UICY(200));
 		AddWindow(wnd);
-		m_shortCutWnd->SendMsg(NULL, UM_SETINFO, (int)&shortCutWndInfo, 0, 0, 0);
+		m_shortCutWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&shortCutWndInfo, 0, 0, 0);
 		g_snapMgr.AddSnapObject(wnd);
 		break;
 	case WID_EQUIPWND:
@@ -2889,7 +2889,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 147);
 			wnd->Move(UIX(185), UICY(300));
 			AddWindow(wnd);
-			m_equipWnd->SendMsg(NULL, UM_SETINFO, (int)&equipWndInfo, 0, 0, 0);
+			m_equipWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&equipWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -2901,7 +2901,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(185), UICY(300));
 			AddWindow(wnd);
-			m_statusWnd->SendMsg(NULL, UM_SETINFO, (int)&statusWndInfo, 0, 0, 0);
+			m_statusWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&statusWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -2915,7 +2915,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_skillListWnd->SendMsg(NULL, UM_SETINFO, (int)&skillListWndInfo, 0, 0, 0);
+			m_skillListWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&skillListWndInfo, 0, 0, 0);
 		}
 		m_skillListWnd->m_typeWnd = 0;
 		wnd->SetShow(1);
@@ -2928,7 +2928,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_itemStoreWnd->SendMsg(NULL, UM_SETINFO, (int)&itemStoreWndInfo, 0, 0, 0);
+			m_itemStoreWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemStoreWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -2945,7 +2945,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(140, 155);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_messengerGroupWnd->SendMsg(NULL, UM_SETINFO, (int)&messengerGroupWndInfo, 0, 0, 0);
+			m_messengerGroupWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&messengerGroupWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		messengerGroupWndInfo.show = 1;
@@ -2956,7 +2956,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 220);
 			wnd->Move(UIX(185), UICY(200));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantShopMakeWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantShopMakeWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		MakeWindow(WID_MERCHANTMIRRORITEMWND);
@@ -2967,21 +2967,21 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(0), UICY(120));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantMirrorItemWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantMirrorItemWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
 	case WID_MERCHANTITEMWND:
 		if (m_mailListWnd || m_mailViewWnd) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CLOSE_MAILWND), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CLOSE_MAILWND), 0xff, 0, 0);
 		} else {
 			if (!(wnd = (UIFrameWnd *)m_merchantItemWnd)) {
 				wnd = m_merchantItemWnd = new UIMerchantItemWnd;
 				wnd->Create(280, 120);
 				wnd->Move(UIX(200), UICY(120));
 				AddWindow(wnd);
-				wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantItemWndInfo, 0, 0, 0);
+				wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantItemWndInfo, 0, 0, 0);
 			}
 			wnd->SetShow(1);
 			merchantItemWndInfo.show = 1;
@@ -2993,7 +2993,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&detailLevelWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&detailLevelWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3055,7 +3055,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3067,7 +3067,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3079,7 +3079,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3091,7 +3091,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3103,7 +3103,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3115,7 +3115,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3127,7 +3127,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(width, height);
 			wnd->Move(0, 147);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&guildWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&guildWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3166,7 +3166,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(120));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&friendOptionWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&friendOptionWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3176,7 +3176,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, g_session.GetNumParty() ? 245 : 180);
 			wnd->Move(UIX(200), UICY(120));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&partySettingWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&partySettingWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3292,7 +3292,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_exchangeAcceptWnd->SendMsg(NULL, UM_SETINFO, (int)&exchangeAcceptWndInfo, 0, 0, 0);
+			m_exchangeAcceptWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&exchangeAcceptWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3328,7 +3328,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 180);
 			wnd->Move(UIX(200), UICY(100));
 			AddWindow(wnd);
-			m_sayDialogWnd->SendMsg(NULL, UM_SETINFO, (int)&sayDialogWndInfo, 0, 0, 0);
+			m_sayDialogWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&sayDialogWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3338,7 +3338,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(300));
 			AddWindow(wnd);
-			m_chatRoomWnd->SendMsg(NULL, UM_SETINFO2, (int)&chatRoomWndInfo, 0, 0, 0);
+			m_chatRoomWnd->SendMsg(NULL, UM_SETINFO2, (INT_PTR)&chatRoomWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3361,7 +3361,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(300));
 			AddWindow(wnd);
-			m_chooseWnd->SendMsg(NULL, UM_SETINFO, (int)&chooseWndInfo, 0, 0, 0);
+			m_chooseWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&chooseWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3371,7 +3371,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(200, 200);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_itemCompositionWnd->SendMsg(NULL, UM_SETINFO, (int)&itemCompositionWndInfo, 0, 0, 0);
+			m_itemCompositionWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemCompositionWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3381,7 +3381,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(200, 200);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_itemIdentifyWnd->SendMsg(NULL, UM_SETINFO, (int)&itemIdentifyWndInfo, 0, 0, 0);
+			m_itemIdentifyWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemIdentifyWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3417,7 +3417,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(185), UICY(300));
 			AddWindow(wnd);
-			m_optionWnd->SendMsg(NULL, UM_SETINFO, (int)&optionWndInfo, 0, 0, 0);
+			m_optionWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&optionWndInfo, 0, 0, 0);
 			g_snapMgr.AddSnapObject(wnd);
 		}
 		wnd->SetShow(1);
@@ -3478,7 +3478,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(300, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&itemSellWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemSellWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3488,7 +3488,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(300, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantItemPurchaseWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantItemPurchaseWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3498,7 +3498,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(300, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&itemPurchaseWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemPurchaseWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		MakeWindow(WID_ITEMPARAMCHANGEDISPLAYWND);
@@ -3509,7 +3509,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(0, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantItemMyShopWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantItemMyShopWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3519,7 +3519,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(0, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merchantItemShopWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merchantItemShopWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3529,7 +3529,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(0, 200);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&itemShopWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemShopWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3644,7 +3644,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 34);
 			wnd->Move(UIX(185), UICY(300) - 34);
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&itemParamChangeDisplayWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemParamChangeDisplayWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3654,7 +3654,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(185), UICY(300));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&combinedCardItemCollectionWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&combinedCardItemCollectionWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3664,7 +3664,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(185), UICY(300));
 			AddWindow(wnd);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&itemCollectionWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&itemCollectionWndInfo, 0, 0, 0);
 		}
 		wnd->SetShow(1);
 		break;
@@ -3769,7 +3769,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd = m_emotionWnd = new UIEmotionWnd;
 			wnd->Create(375, 280);
 			wnd->Move(UIX(185), UICY(300) - 60);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&emotionWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&emotionWndInfo, 0, 0, 0);
 			AddWindow(wnd);
 		}
 		wnd->SetShow(1);
@@ -3779,7 +3779,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd = m_emotionListWnd = new UIEmotionListWnd;
 			wnd->Create(445, 310);
 			wnd->Move(UIX(185), UICY(400) - 60);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&emotionListWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&emotionListWndInfo, 0, 0, 0);
 			AddWindow(wnd);
 		}
 		wnd->SetShow(1);
@@ -3790,7 +3790,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd = m_petInfoWnd = new UIPetInfoWnd;
 			wnd->Create(280, 160);
 			wnd->Move(UIX(185), UICY(400) - 60);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&petInfoWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&petInfoWndInfo, 0, 0, 0);
 			AddWindow(wnd);
 		}
 		wnd->SetShow(1);
@@ -3923,7 +3923,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd = m_homunInfoWnd = new UIHomunInfoWnd;
 			wnd->Create(280, 180);
 			wnd->Move(UIX(185), UICY(400) - 60);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&homunInfoWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&homunInfoWndInfo, 0, 0, 0);
 			AddWindow(wnd);
 		}
 		wnd->SetShow(1);
@@ -3935,7 +3935,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_homunSkillListWnd->SendMsg(NULL, UM_SETINFO, (int)&homunSkillListWndInfo, 0, 0, 0);
+			m_homunSkillListWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&homunSkillListWndInfo, 0, 0, 0);
 		}
 		m_homunSkillListWnd->m_typeWnd = 1;
 		wnd->SetShow(1);
@@ -3947,7 +3947,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd = m_merInfoWnd = new UIMerInfoWnd;
 			wnd->Create(280, 180);
 			wnd->Move(UIX(185), UICY(400) - 60);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)&merInfoWndInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merInfoWndInfo, 0, 0, 0);
 			AddWindow(wnd);
 		}
 		wnd->SetShow(1);
@@ -3959,7 +3959,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(280, 120);
 			wnd->Move(UIX(200), UICY(200));
 			AddWindow(wnd);
-			m_merSkillListWnd->SendMsg(NULL, UM_SETINFO, (int)&merSkillListWndInfo, 0, 0, 0);
+			m_merSkillListWnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)&merSkillListWndInfo, 0, 0, 0);
 		}
 		m_merSkillListWnd->m_typeWnd = 2;
 		wnd->SetShow(1);
@@ -3981,7 +3981,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 	case WID_MAILLISTWND:
 		if (m_merchantItemWnd) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CLOSE_MERCHANTITEMWND), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CLOSE_MERCHANTITEMWND), 0xff, 0, 0);
 			break;
 		}
 		{
@@ -3999,7 +3999,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 	case WID_MAILVIEWWND:
 		if (m_merchantItemWnd) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CLOSE_MERCHANTITEMWND), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CLOSE_MERCHANTITEMWND), 0xff, 0, 0);
 			break;
 		}
 		{
@@ -4092,7 +4092,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(300, 95);
 			wnd->SetId(0);
 			AddWindow(wnd);
-			((UIWindow *)m_subChatWndST)->SendMsg(NULL, UM_SETINFO, (int)&subChatWndStInfo, 0, 0, 0);
+			((UIWindow *)m_subChatWndST)->SendMsg(NULL, UM_SETINFO, (INT_PTR)&subChatWndStInfo, 0, 0, 0);
 		}
 		wnd->SetShow(0);
 		break;
@@ -4102,7 +4102,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			wnd->Create(300, 95);
 			wnd->SetId(1);
 			AddWindow(wnd);
-			((UIWindow *)m_subChatWndBT)->SendMsg(NULL, UM_SETINFO, (int)&subChatWndBtInfo, 0, 0, 0);
+			((UIWindow *)m_subChatWndBT)->SendMsg(NULL, UM_SETINFO, (INT_PTR)&subChatWndBtInfo, 0, 0, 0);
 		}
 		wnd->SetShow(0);
 		break;
@@ -5213,7 +5213,7 @@ INT_PTR UIWindowMgr::SendMsg(int message, INT_PTR val1, INT_PTR val2, INT_PTR va
 			UIWhisperWnd *whisperWindow = new UIWhisperWnd;
 			whisperWindow->Create(280, 120);
 			AddWindow(whisperWindow);
-			whisperWindow->SendMsg(NULL, UM_SETINFO, (int)&whisperWndInfo, 0, 0, 0);
+			whisperWindow->SendMsg(NULL, UM_SETINFO, (INT_PTR)&whisperWndInfo, 0, 0, 0);
 			whisperWindow->SetShow(1);
 			whisperWindow->m_whisperName = wName;
 			if (val2 == 0)
@@ -5370,17 +5370,17 @@ int UIWindowMgr::AddWhisperChatToWhisperWnd(char const *cName, char const *chatM
 	bool friendOnly = !g_session.m_isShowWhisperWnd || isFriendName;
 	if (friendOnly) {
 		if (g_session.m_isShowWhisperWnd_Friend && isFriendName)
-			madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)cName, (int)MsgStr(MSI_FRIEND), 0, 0);
+			madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)cName, (INT_PTR)MsgStr(MSI_FRIEND), 0, 0);
 	}
 	else if (g_session.IsGuildMember(cName)) {
-		madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)cName, (int)"GuildMember", 0, 0);
+		madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)cName, (INT_PTR)"GuildMember", 0, 0);
 	}
 	else {
 		if (g_session.IsCheatName(cName))
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ID_WARNING), 0xffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ID_WARNING), 0xffff, 0, 0);
 		else if (g_session.IsCheatGuildName(cName))
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ID_WARNING_GUILD), 0xffff, 0, 0);
-		madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)cName, 0, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ID_WARNING_GUILD), 0xffff, 0, 0);
+		madeWindow = SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)cName, 0, 0, 0);
 	}
 
 	if (madeWindow) {
@@ -5400,7 +5400,7 @@ int UIWindowMgr::AddWhisperChatToWhisperWnd(char const *cName, char const *chatM
 		std::map<std::string, UIWindow *>::iterator it = m_whisperNameWindow.find(cName);
 		if (it != m_whisperNameWindow.end()) {
 			UIWindow *whisperWnd = it->second;
-			whisperWnd->SendMsg(NULL, UM_ADDCHAT, (int)chatMsg, color, 2, 0);
+			whisperWnd->SendMsg(NULL, UM_ADDCHAT, (INT_PTR)chatMsg, color, 2, 0);
 			MakeTopLayer(whisperWnd);
 			return 1;
 		}
@@ -5456,7 +5456,7 @@ void UIWindowMgr::ProcessShortcutMessage(int Index)
 		if (pos != -1)
 			g_windowMgr.SetChatMsg(chatBuf + pos);
 
-		g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (int)param, 0);
+		g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (INT_PTR)param, 0);
 	}
 }
 

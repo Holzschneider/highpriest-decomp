@@ -188,7 +188,7 @@ int FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				strCandidate[i] = g_language->GetCandidateString(candidateStart + i);
 
 			UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_CANDIDATEWND);
-			wnd->SendMsg(NULL, UM_IME_SET_CANDIDATE, (int)strCandidate, (int)intArray, 0, 0);
+			wnd->SendMsg(NULL, UM_IME_SET_CANDIDATE, (INT_PTR)strCandidate, (INT_PTR)intArray, 0, 0);
 		} else {
 			g_windowMgr.DeleteWindow(WID_CANDIDATEWND);
 		}

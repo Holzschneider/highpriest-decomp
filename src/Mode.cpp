@@ -122,7 +122,7 @@ void CMode::DrawSprite(int x, int y, CActRes *act, CSprRes *spr, int actId, int 
 		x2 = (clip->x + img->width * (img->isHalfW + 1) - 1) * zoom * clip->zoomx;
 		y2 = (clip->y + img->height * (img->isHalfH + 1) - 1) * zoom * clip->zoomy;
 		if (clip->clipType == 0) {
-			tex = g_renderer->GetSpriteIndex(*img, (DWORD)spr->m_pal, &info);
+			tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)spr->m_pal, &info);
 			if (tex == NULL)
 				tex = g_renderer->AddSpriteIndex(*img, spr->m_pal, &info);
 		} else {
@@ -294,7 +294,7 @@ unsigned int __stdcall FadeBgm(void *res)
 		return -1;
 	while (FadeCnt != 1)
 		Sleep(5);
-	int a, vol = (int)res;
+	int a, vol = (INT_PTR)res;
 	if (vol == 0) {
 		vol = GetStreamVolume();
 		for (a = vol; a > 0; a--) {
@@ -542,7 +542,7 @@ void CMode::ScreenShot()
 
 		std::string screenShotMsg = tmp;
 		screenShotMsg += " is Saved.";
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)screenShotMsg.c_str(), 0x0000ff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)screenShotMsg.c_str(), 0x0000ff00, 0, 0);
 	}
 }
 

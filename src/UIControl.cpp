@@ -616,7 +616,7 @@ void UISpriteButton::OnDraw()
 			SprImg *img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			CTexture *tex;
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			} else {

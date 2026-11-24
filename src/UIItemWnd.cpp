@@ -1124,7 +1124,7 @@ void UIItemShopWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -1139,14 +1139,14 @@ void UIItemShopWnd::OnLBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		CMode* mode = g_modeMgr.GetCurMode();
-		mode->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSHOPWND, (int)&itemInfo, 0, 0);
+		mode->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSHOPWND, (INT_PTR)&itemInfo, 0, 0);
 	} else {
 		ITEM_INFO itemInfo = GetItemInfo(m_curItem);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 1, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 1, 0, 0);
 			CMode* mode = g_modeMgr.GetCurMode();
-			mode->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSHOPWND, (int)&itemInfo, 0, 0);
+			mode->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSHOPWND, (INT_PTR)&itemInfo, 0, 0);
 		}
 	}
 }
@@ -1401,7 +1401,7 @@ void UIMerchantItemMyShopWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -1729,7 +1729,7 @@ void UIMerchantItemShopWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -1744,14 +1744,14 @@ void UIMerchantItemShopWnd::OnLBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		CMode* mode = g_modeMgr.GetCurMode();
-		mode->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMSHOPWND, (int)&itemInfo, 0, 0);
+		mode->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMSHOPWND, (INT_PTR)&itemInfo, 0, 0);
 	} else {
 		ITEM_INFO itemInfo = GetItemInfo(m_curItem);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 1, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 1, 0, 0);
 			CMode* mode = g_modeMgr.GetCurMode();
-			mode->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMSHOPWND, (int)&itemInfo, 0, 0);
+			mode->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMSHOPWND, (INT_PTR)&itemInfo, 0, 0);
 		}
 	}
 }
@@ -1978,7 +1978,7 @@ void UIItemPurchaseWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -1994,15 +1994,15 @@ void UIItemPurchaseWnd::OnLBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		CMode* m = g_modeMgr.GetCurMode();
 		m->SendMsg(MM_BEGIN_DRAG_FROM_ITEMPURCHASEWND,
-			(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+			(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 	} else {
 		ITEM_INFO itemInfo = GetItemInfo(m_curItem);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 1, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 1, 0, 0);
 			CMode* m = g_modeMgr.GetCurMode();
 			m->SendMsg(MM_BEGIN_DRAG_FROM_ITEMPURCHASEWND,
-				(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+				(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 		}
 	}
 }
@@ -2308,7 +2308,7 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 			if (g_session.GetPurchaseItemNum(dragInfo->m_dragItemName.c_str())) {
 				gameMode->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_EQUIPITEM_OLNY_ONE), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_EQUIPITEM_OLNY_ONE), 0xff, 0, 0);
 				return 0;
 			}
 			break;
@@ -2323,7 +2323,7 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 		if (m_isPointShop) {
 			if (totalPrice) {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CAN_BUY_ONLY_ONEITEM), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CAN_BUY_ONLY_ONEITEM), 0xff, 0, 0);
 			}
 			g_session.ClearPurchaseItem();
 			enoughMoney = g_session.m_cashPoint + g_session.m_freePoint >= dragInfo->m_dragItemRealPrice * dragInfo->m_numDragItem;
@@ -2345,7 +2345,7 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 		int count = itemInfo.m_num + totalCount;
 		if (count > 30000) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_LIMIT_BUY_ITEM), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_LIMIT_BUY_ITEM), 0xff, 0, 0);
 		} else {
 			if (enoughMoney) {
 				g_session.AddPurchaseItem(itemInfo);
@@ -2353,9 +2353,9 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 			} else {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 				if (m_isPointShop)
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_BUY_CASH_FAIL_MONEY), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_BUY_CASH_FAIL_MONEY), 0xff, 0, 0);
 				else
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_INSUFFICIENT_MONEY), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_INSUFFICIENT_MONEY), 0xff, 0, 0);
 			}
 		}
 
@@ -2755,7 +2755,7 @@ void UIMerchantItemPurchaseWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -2792,15 +2792,15 @@ void UIMerchantItemPurchaseWnd::OnLBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		CMode* m = g_modeMgr.GetCurMode();
 		m->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMPURCHASEWND,
-			(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+			(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 	} else {
 		ITEM_INFO itemInfo = GetItemInfo(m_curItem);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 1, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 1, 0, 0);
 			CMode* m = g_modeMgr.GetCurMode();
 			m->SendMsg(MM_BEGIN_DRAG_FROM_MERCHANTITEMPURCHASEWND,
-				(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+				(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 		}
 	}
 }
@@ -2827,7 +2827,7 @@ void UIMerchantItemPurchaseWnd::DragAndDrop(int x, int y, DRAG_INFO const *const
 			if (g_session.GetMerchantPurchaseItemNumByIndex(dragInfo->m_dragItemIndex)) {
 				gameMode->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_EQUIPITEM_OLNY_ONE), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_EQUIPITEM_OLNY_ONE), 0xff, 0, 0);
 				return;
 			}
 			SendMsg(0, UM_DROP, 0, 0, 0, 0);
@@ -2898,7 +2898,7 @@ INT_PTR UIMerchantItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PT
 			SendMsg(NULL, UM_REFRESHITEM, 0, 0, 0, 0);
 		} else {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_INSUFFICIENT_MONEY), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_INSUFFICIENT_MONEY), 0xff, 0, 0);
 		}
 
 		gameMode->SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
@@ -3076,15 +3076,15 @@ void UIItemSellWnd::OnLBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		CMode* m = g_modeMgr.GetCurMode();
 		m->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSELLWND,
-			(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+			(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 	} else {
 		ITEM_INFO itemInfo = GetItemInfo(m_curItem);
 		if (itemInfo.m_itemIndex) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 1, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 1, 0, 0);
 			CMode* m = g_modeMgr.GetCurMode();
 			m->SendMsg(MM_BEGIN_DRAG_FROM_ITEMSELLWND,
-				(int)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
+				(INT_PTR)itemInfo.m_itemName.c_str(), itemInfo.m_price, itemInfo.m_itemIndex);
 		}
 	}
 }
@@ -3107,7 +3107,7 @@ void UIItemSellWnd::OnRBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 void UIItemSellWnd::OnMouseHover(int x, int y)
@@ -3499,7 +3499,7 @@ void UIMerchantItemWnd::OnRBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 void UIMerchantItemWnd::OnMouseHover(int x, int y)
@@ -3722,7 +3722,7 @@ void UIMerchantMirrorItemWnd::OnRBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 void UIMerchantMirrorItemWnd::OnMouseHover(int x, int y)
@@ -4078,7 +4078,7 @@ void UIItemWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		g_modeMgr.GetGameMode();
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -4414,7 +4414,7 @@ void UIItemWnd::DragAndDrop(int x, int y, DRAG_INFO const *const dragInfo)
 		UIWindow* wnd = (UIWindow*)g_windowMgr.m_metalProcessWnd;
 		if (wnd) {
 			wnd->SendMsg(
-				0, 0x4b, (int)dragInfo->m_dragItemName.c_str(), 0, 0, 0);
+				0, 0x4b, (INT_PTR)dragInfo->m_dragItemName.c_str(), 0, 0, 0);
 		}
 		break;
 	}
@@ -5237,7 +5237,7 @@ void UIItemStoreWnd::OnRBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 ITEM_INFO UIItemStoreWnd::GetItemInfo(int x, int y)
@@ -5981,7 +5981,7 @@ void UISkillListWnd::OnLBtnDblClk(int x, int y)
 
 	SKILL_INFO skillInfo = GetSkillInfo(m_curItem);
 	if (skillInfo.m_isValid && skillInfo.level && skillInfo.spcost)
-		SendMsg(NULL, UM_USESKILL, (int)&skillInfo, 0, 0, 0);
+		SendMsg(NULL, UM_USESKILL, (INT_PTR)&skillInfo, 0, 0, 0);
 }
 
 void UISkillListWnd::OnLBtnDown(int x, int y)
@@ -6002,17 +6002,17 @@ void UISkillListWnd::OnLBtnDown(int x, int y)
 		if (m_typeWnd == 0) {
 			mode->SendMsg(MM_BEGIN_DRAG_FROM_SKILLLISTWND,
 				skillInfo.SKID,
-				(int)skillInfo.skillName,
+				(INT_PTR)skillInfo.skillName,
 				g_session.GetSkillUseLevel(skillInfo.SKID));
 		} else if (m_typeWnd == 1) {
 			mode->SendMsg(MM_BEGIN_DRAG_FROM_HOSKILLLISTWND,
 				skillInfo.SKID,
-				(int)skillInfo.skillName,
+				(INT_PTR)skillInfo.skillName,
 				g_session.GetHomunSkillUseLevel(skillInfo.SKID));
 		} else if (m_typeWnd == 2) {
 			mode->SendMsg(MM_BEGIN_DRAG_FROM_MERSKILLLISTWND,
 				skillInfo.SKID,
-				(int)skillInfo.skillName,
+				(INT_PTR)skillInfo.skillName,
 				g_session.GetMerSkillUseLevel(skillInfo.SKID));
 		}
 	}
@@ -6152,7 +6152,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 				SKILL_INFO skillInfo = GetSkillInfo(m_curItem);
 				RAG_BUDGET_FILL(16)
 				if (skillInfo.m_isValid && skillInfo.level && skillInfo.spcost)
-					SendMsg(NULL, UM_USESKILL, (int)&skillInfo, 0, 0, 0);
+					SendMsg(NULL, UM_USESKILL, (INT_PTR)&skillInfo, 0, 0, 0);
 				break;
 			}
 
@@ -6376,7 +6376,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 
 		UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 		for (int i = 0; i < m_menuItems.size(); ++i)
-			menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 
 		if (m_typeWnd == 0)
 			menu->SendMsg(NULL, UM_SET_CALLER_WID, WID_SKILLLISTWND, 0, 0, 0);
@@ -6905,14 +6905,14 @@ INT_PTR UIMerchantShopMakeWnd::SendMsg(UIWindow* sender, int message, INT_PTR va
 				}
 				}
 
-				gameMode->SendMsg(MM_REQ_OPENSTORE, (int)m_shopTitle->GetText(), 1, 0);
+				gameMode->SendMsg(MM_REQ_OPENSTORE, (INT_PTR)m_shopTitle->GetText(), 1, 0);
 				g_windowMgr.DeleteWindow(WID_MERCHANTSHOPMAKEWND);
 
 				char msg[256];
 				std::list<ITEM_INFO>::iterator it = m_itemList.begin();
 
 				sprintf(msg, "======================  SALE LIST  ======================");
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0x96ffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, 0x96ffff, 0, 0);
 
 				for (int i = 0; i < m_itemList.size(); ++i) {
 					char name[256];
@@ -6945,23 +6945,23 @@ INT_PTR UIMerchantShopMakeWnd::SendMsg(UIWindow* sender, int message, INT_PTR va
 						sprintf(priceText, "%s", GetNumberText(atoi(cPrice), moneyTxt));
 
 					sprintf(msg, "    %s  :  %s  Zeny", name, priceText);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0x5affff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, 0x5affff, 0, 0);
 
 					++it;
 				}
 
 				sprintf(priceText, "%s", GetNumberText(g_session.GetGold(), moneyTxt));
 				sprintf(msg, "                                          Current Zeny : %s Z", priceText);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0x78ffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, 0x78ffff, 0, 0);
 
 				sprintf(msg, "============================ ============================");
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0x96ffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, 0x96ffff, 0, 0);
 			}
 			break;
 		case ID_CANCEL:
 			{
 				CGameMode* gameMode = g_modeMgr.GetGameMode();
-				gameMode->SendMsg(MM_REQ_OPENSTORE, (int)m_shopTitle->GetText(), 0, 0);
+				gameMode->SendMsg(MM_REQ_OPENSTORE, (INT_PTR)m_shopTitle->GetText(), 0, 0);
 				g_windowMgr.DeleteWindow(WID_MERCHANTSHOPMAKEWND);
 			}
 			break;

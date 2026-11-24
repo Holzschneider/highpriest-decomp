@@ -78,7 +78,7 @@ INT_PTR	UIIllustWnd :: SendMsg(UIWindow * sender, int message, INT_PTR val1, INT
 	switch (message) {
 	case UM_COMMAND:
 		if (val1 == ID_CLOSE)
-			g_modeMgr.GetGameMode()->SendMsg(MM_SHOW_IMAGE, (int)"", -1, 0);
+			g_modeMgr.GetGameMode()->SendMsg(MM_SHOW_IMAGE, (INT_PTR)"", -1, 0);
 		break;
 	case UM_SET_BITMAP: {
 		RAG_BUDGET_FILL(12)

@@ -328,12 +328,12 @@ const char*	FontInfo :: GetFontFace()
 
 	logFont.lfCharSet = fontCharset;
 
-	if(!EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (LONG)fontFace9x[fontType], 0))
+	if(!EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (INT_PTR)fontFace9x[fontType], 0))
 	{
 		return fontFace9x[fontType];
 	}
 
-	if(EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (LONG)fontFaceNT[fontType], 0) == 0)
+	if(EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (INT_PTR)fontFaceNT[fontType], 0) == 0)
 	{
 		return fontFaceNT[fontType];
 	}

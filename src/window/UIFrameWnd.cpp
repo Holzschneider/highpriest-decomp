@@ -311,7 +311,7 @@ void UIMessageBoxAutoreturn::Create(char const *msg, unsigned int autoReturnTime
 	m_textViewer->m_bgG = gg;
 	m_textViewer->m_bgB = bb;
 	AddChild(m_textViewer);
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)m_msg.c_str(), 0x26, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_msg.c_str(), 0x26, 0, 0);
 
 	m_barGraph = new UIBarGraph2;
 	m_barGraph->Create(240, 15);
@@ -373,7 +373,7 @@ void UIMessageBoxAutoreturn::OnProcess()
 			sprintf(text, m_countMsg.c_str(), m_remainSecond);
 			m_msg = text;
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)m_msg.c_str(), 0x26, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_msg.c_str(), 0x26, 0, 0);
 		}
 
 		m_barGraph->SetAmount((float)(((timeGetTime() + m_maxSecond * 1000) * 100 - m_autoReturnTime * 100) / (m_maxSecond * 1000)));
@@ -440,7 +440,7 @@ void UIMessageBox::Create(char const *msg, int type, int isDefYes, unsigned int 
 	m_textViewer->m_bgG = gg;
 	m_textViewer->m_bgB = bb;
 	AddChild(m_textViewer);
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)m_msg.c_str(), 0x26, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_msg.c_str(), 0x26, 0, 0);
 
 	if (type == 2)
 		m_defPushId = 0x7a;
@@ -532,7 +532,7 @@ void UIMessageBox::OnProcess()
 			sprintf(text, m_countMsg.c_str(), m_remainSecond);
 			m_msg = text;
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)m_msg.c_str(), 0x26, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_msg.c_str(), 0x26, 0, 0);
 		}
 	}
 }
@@ -997,8 +997,8 @@ INT_PTR UILoginWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR
 			return 0;
 		case ID_LOGIN: {
 			PlayWave("\xb9\xf6\xc6\xb0\xbc\xd2\xb8\xae.wav", 0.0f, 0.0f, 0.0f, 0xfa, 0x28, 1.0f);
-			g_modeMgr.GetCurMode()->SendMsg(LMM_PASSWORD, (int)m_password->GetText(), 0, 0);
-			g_modeMgr.GetCurMode()->SendMsg(LMM_ID, (int)m_login->GetText(), 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(LMM_PASSWORD, (INT_PTR)m_password->GetText(), 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(LMM_ID, (INT_PTR)m_login->GetText(), 0, 0);
 			g_modeMgr.GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR, 0, 0, 0);
 			g_windowMgr.PostQuit(this);
 			return 0;
@@ -1028,7 +1028,7 @@ INT_PTR UILoginWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR
 			m_comboMode = 1;
 			int comboCnt = (int)m_classStringList.size();
 			for (int i = 0; i < m_classStringList.size(); ++i)
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_classStringList[i].c_str(), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_classStringList[i].c_str(), 0, 0, 0);
 
 			int height = min(comboCnt * 16, 48);
 			comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, 0, 0, 0, 0);
@@ -1476,7 +1476,7 @@ void UINoticeWnd::PrintNotice()
 	int count = 1;
 	lineStart[0] = 0;
 	if (fileLen > 0) {
-		int lineBase = count - (int)fileBuf;
+		int lineBase = count - (INT_PTR)fileBuf;
 		for (char* p = fileBuf; fileLen > 0; ++p, --fileLen) {
 			char ch = *p;
 			if (ch != '\n') {
@@ -1498,7 +1498,7 @@ void UINoticeWnd::PrintNotice()
 			}
 			else if (!mark) {
 				*p = 0;
-				lineStart[count] = lineBase + (int)p;
+				lineStart[count] = lineBase + (INT_PTR)p;
 				count++;
 			}
 		}
@@ -2095,7 +2095,7 @@ void UISelectCharWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 				if (tex == NULL)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			}
@@ -2257,14 +2257,14 @@ INT_PTR UISelectCharWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, IN
 
 		case ID_CHARGE: {
 			char msg[256];
-			g_modeMgr.GetCurMode()->SendMsg(LMM_GET_BILLING_INFO, (int)msg, 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(LMM_GET_BILLING_INFO, (INT_PTR)msg, 0, 0);
 			g_windowMgr.ErrorMsg(msg, ME_OK, TRUE, FALSE, 0);
 			return 0;
 		}
 
 		case ID_NOTICE: {
 			char msg[256];
-			g_modeMgr.GetCurMode()->SendMsg(LMM_GET_BILLING_INFO, (int)msg, 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(LMM_GET_BILLING_INFO, (INT_PTR)msg, 0, 0);
 			g_windowMgr.ErrorMsg(msg, ME_OK, TRUE, FALSE, 0);
 			return 0;
 		}
@@ -2287,7 +2287,7 @@ INT_PTR UISelectCharWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, IN
 			CHARACTER_INFO *charInfo = (CHARACTER_INFO *)g_modeMgr.GetCurMode()->SendMsg(
 				8, m_curPage * 3 + m_curSlot, 0, 0);
 			UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_CHANGENAMEWND);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)charInfo, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)charInfo, 0, 0, 0);
 			return 0;
 		}
 
@@ -2562,7 +2562,7 @@ void UIMakeCharWnd::OnDraw()
 		CSprClip* clip = curMotion->GetClip(i);
 		SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 		if (clip->clipType == 0) {
-			tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+			tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 			if (tex == NULL)
 				tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 		}
@@ -2716,10 +2716,10 @@ INT_PTR UIMakeCharWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 				g_windowMgr.ErrorMsg(MsgStr(MSI_ENTER_NAME_MORE_THAN_4_CHAR), ME_OK, 1, 0, 0);
 			}
 			{
-				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_MAKING_CHAR_NAME, (int)m_nameEditCtrl->GetText(), 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_MAKING_CHAR_NAME, (INT_PTR)m_nameEditCtrl->GetText(), 0, 0);
 				int param[8] = { m_charInfo.Str, m_charInfo.Agi, m_charInfo.Vit, m_charInfo.Int,
 					m_charInfo.Dex, m_charInfo.Luk, m_charInfo.headpalette, m_charInfo.head };
-				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_CHAR_PARAM, (int)param, 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_CHAR_PARAM, (INT_PTR)param, 0, 0);
 			}
 			RAG_BUDGET_FILL(9)
 			break;
@@ -3155,7 +3155,7 @@ void UIChatWnd::WriteChatToReportFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -3178,7 +3178,7 @@ void UIChatWnd::WriteChatToFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -3286,9 +3286,9 @@ INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR 
 					g_windowMgr.DeleteWindow(WID_COMBOBOXWND);
 
 				UIFrameWnd* comboBoxWnd = g_windowMgr.MakeWindow(WID_COMBOBOXWND);
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_ALL), 0, 0, 0);
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_PARTY), 0, 0, 0);
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_SEND_TO_GUILD), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_ALL), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_PARTY), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_SEND_TO_GUILD), 0, 0, 0);
 				comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, g_session.m_talkType, 0, 0, 0);
 				comboBoxWnd->Resize(112, 48);
 				comboBoxWnd->SendMsg(NULL, UM_SET_CALLER_WID, WID_CHATWND, 0, 0, 0);
@@ -3310,9 +3310,9 @@ INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR 
 				if (whisperSize) {
 					UIFrameWnd* comboBoxWnd = g_windowMgr.MakeWindow(WID_COMBOBOXWND);
 					for (int i = 0; i < whisperSize; ++i)
-						comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_whisperChat->m_hisChat[i].c_str(), 0, 0, 0);
+						comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_whisperChat->m_hisChat[i].c_str(), 0, 0, 0);
 
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)"", 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)"", 0, 0, 0);
 					int height = (whisperSize + 1) * 16 < 80 ? (whisperSize + 1) * 16 : 80;
 
 					comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, m_whisperChat->m_curHis, 0, 0, 0);
@@ -3325,7 +3325,7 @@ INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR 
 					comboBoxWnd->Move(gx + 1, gy - height + 1);
 				} else {
 					g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NOWHISPERLIST), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NOWHISPERLIST), 0xff, 0, 0);
 				}
 			}
 			break;
@@ -3343,14 +3343,14 @@ INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR 
 
 				if (g_serviceType == ServiceAmerica) {
 					if (!g_session.IsOnlyEnglish(chatBuf)) {
-						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
+						g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
 						break;
 					}
 				}
 
 				if (m_whisperChat->GetTextSize() && chatBuf[0] != '/') {
 					g_windowMgr.SetChatMsg(chatBuf);
-					g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (int)m_whisperChat->GetText(), 0, 0);
+					g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (INT_PTR)m_whisperChat->GetText(), 0, 0);
 					break;
 				}
 
@@ -3360,7 +3360,7 @@ INT_PTR UIChatWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR 
 				if (talkOffset != -1) {
 					g_windowMgr.SetChatMsg(chatBuf + talkOffset);
 				}
-				g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (int)param, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (INT_PTR)param, 0);
 			}
 			break;
 
@@ -3579,7 +3579,7 @@ void UIChatRoomWnd::WriteChatToReportFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -3605,7 +3605,7 @@ void UIChatRoomWnd::WriteChatToFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -3636,7 +3636,7 @@ INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 
 			if (g_serviceType == ServiceAmerica) {
 				if (!g_session.IsOnlyEnglish(chatBuf)) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
 					return 0;
 				}
 			}
@@ -3651,7 +3651,7 @@ INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 			if (m_memberListBox->GetSelected() != -1 && chatBuf[0] != '/' && !isMyName) {
 				g_windowMgr.SetChatMsg(chatBuf);
 				std::string whisperMember = m_memberListBox->GetItem(m_memberListBox->GetSelected());
-				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (int)whisperMember.c_str(), 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (INT_PTR)whisperMember.c_str(), 0, 0);
 			} else {
 				std::string param[3];
 				TALKTYPE talkType;
@@ -3664,7 +3664,7 @@ INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 					talkType = TT_REQ_SAVE_CHAT_FROM_CHATROOM;
 				else if (talkType == TT_REQ_REPORT_CHAT)
 					talkType = TT_REQ_REPORT_CHAT_FROM_CHATROOM;
-				g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (int)param, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (INT_PTR)param, 0);
 			}
 
 			m_chatEdit->StoreInHistory();
@@ -3685,18 +3685,18 @@ INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 		case 0:
 			if (m_memberListBox->GetSelected() != -1) {
 				std::string name = m_memberListBox->GetItem(m_memberListBox->GetSelected());
-				curMode->SendMsg(MM_REQ_EXPEL_MEMBER, (int)name.c_str(), 0, 0);
+				curMode->SendMsg(MM_REQ_EXPEL_MEMBER, (INT_PTR)name.c_str(), 0, 0);
 			}
 			break;
 		case 1:
 			if (m_memberListBox->GetSelected() != -1) {
 				std::string name = m_memberListBox->GetItem(m_memberListBox->GetSelected());
-				curMode->SendMsg(MM_REQ_ROLE_CHANGE, (int)name.c_str(), 0, 0);
+				curMode->SendMsg(MM_REQ_ROLE_CHANGE, (INT_PTR)name.c_str(), 0, 0);
 			}
 			break;
 		case 2: {
 			UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_CHATROOMCHANGEWND);
-			wnd->SendMsg(NULL, UM_SETINFO, (int)curMode->GetLastChatroomInfo(), 0, 0, 0);
+			wnd->SendMsg(NULL, UM_SETINFO, (INT_PTR)curMode->GetLastChatroomInfo(), 0, 0, 0);
 			break;
 		}
 		case 3:
@@ -3774,7 +3774,7 @@ INT_PTR UIChatRoomWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 		if (m_menuItems.size() != 0) {
 			UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 			for (int i = 0; i < m_menuItems.size(); ++i)
-				menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 			menu->SendMsg(NULL, UM_SET_CALLER_WID, (int)WID_CHATROOMWND, 0, 0, 0);
 			menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
 			val1 = g_mouse.GetXPos() + 1;
@@ -3963,7 +3963,7 @@ INT_PTR UIAllyGuildAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 			msg += MsgStr(MSI_SUGGEST_ALLY_GUILD);
 
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), 0x26, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), 0x26, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -4187,7 +4187,7 @@ void UIMonsterInfoWnd::OnDraw()
 			if (clip->sprIndex != -1) {
 				SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 				if (clip->clipType == 0) {
-					tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+					tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 					if (tex == NULL)
 						tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 				}
@@ -4482,7 +4482,7 @@ void UIPetInfoWnd::OnDraw()
 				CSprClip* clip = curMotion->GetClip(a);
 				SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 				palette = sprRes->m_pal;
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 				if (tex == NULL)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 
@@ -4568,10 +4568,10 @@ INT_PTR UIPetInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			turnegg = MsgStr(MSI_PET_RETURN_EGG);
 			accOff = MsgStr(MSI_PET_ACC_OFF);
 
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)feeding.c_str(), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)perfomance.c_str(), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)accOff.c_str(), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)turnegg.c_str(), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)feeding.c_str(), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)perfomance.c_str(), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)accOff.c_str(), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)turnegg.c_str(), 0, 0, 0);
 			comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, 0, 0, 0, 0);
 			comboBoxWnd->Resize(110, 64);
 			comboBoxWnd->SendMsg(NULL, UM_SET_CALLER_WID, WID_PETINFOWND, 0, 0, 0);
@@ -4595,7 +4595,7 @@ INT_PTR UIPetInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			MsgStr(MSI_PETNAME_CHANGE_ONLYONCE);
 			int result = g_windowMgr.ErrorMsg(msg, ME_YESNO, 0, 0, 0);
 			if (result != ID_NO) {
-				g_modeMgr.GetGameMode()->SendMsg(MM_PET_RENAME, (int)m_newName->GetText(), 0, 0);
+				g_modeMgr.GetGameMode()->SendMsg(MM_PET_RENAME, (INT_PTR)m_newName->GetText(), 0, 0);
 				g_session.m_isPetNameModified = 1;
 				sprintf(g_session.m_petName, m_newName->GetText());
 				m_button->Move(-100, -100);
@@ -4681,8 +4681,8 @@ INT_PTR UITalkboxTrapInputWnd::SendMsg(UIWindow *sender, int message, INT_PTR va
 			values[1] = m_gSkillDx;
 			values[2] = m_gSkillDy;
 			values[3] = m_skillUseLevel;
-			values[4] = (int)m_trapText->GetText();
-			g_modeMgr.GetGameMode()->SendMsg(MM_USE_SKILL_TOGROUND_WITH_TALKBOX, (int)values, 0, 0);
+			values[4] = (INT_PTR)m_trapText->GetText();
+			g_modeMgr.GetGameMode()->SendMsg(MM_USE_SKILL_TOGROUND_WITH_TALKBOX, (INT_PTR)values, 0, 0);
 
 		case ID_CANCEL:
 			g_windowMgr.PostQuit(this);
@@ -5067,7 +5067,7 @@ INT_PTR UIHomunInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT
 			MsgStr(MSI_HOMUN_NAME_CHANGE_ONLYONCE);
 			int result = g_windowMgr.ErrorMsg(msg, ME_YESNO, 0, 0, 0);
 			if (result != ID_NO) {
-				g_modeMgr.GetGameMode()->SendMsg(MM_MER_RENAME, (int)m_newName->GetText(), 0, 0);
+				g_modeMgr.GetGameMode()->SendMsg(MM_MER_RENAME, (INT_PTR)m_newName->GetText(), 0, 0);
 				g_session.m_isHomunNameModified = 1;
 				sprintf(g_session.m_homunName, m_newName->GetText());
 				m_button->Move(-100, -100);
@@ -5255,7 +5255,7 @@ void UIMerInfoWnd::OnDraw()
 		textLen = sprintf(text, "%d / %d", g_session.m_merSP, g_session.m_merMaxSP);
 		TextOutA(218, 85, text, textLen, 1, 14, 0);
 
-		tt = (int)&g_session.m_merExpireDate;
+		tt = (INT_PTR)&g_session.m_merExpireDate;
 		tm* expireTime = localtime(&tt);
 		strftime(text, 128, MsgStr(MSI_TIME_TYPE2), expireTime);
 		textLen = strlen(text);

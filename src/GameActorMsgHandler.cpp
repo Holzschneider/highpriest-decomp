@@ -173,9 +173,9 @@ void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
 
 				totalDamage = wba.damage;
 				if (count == 1)
-					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 				else
-					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 
 				if ( (leftDamage&&GetJob() < JT_MON_BEGIN) || (leftDamage&&GetJob() > JT_2004_JOB_BEGIN) )
 				{
@@ -184,7 +184,7 @@ void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
 						wba.time += doubleAttackTerm/2;
 						wba.damage = damage+rGen.RandNum();
 						totalDamage += wba.damage;
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 						wba.time -= doubleAttackTerm/2;
 					}
 					wba.message = actorMsg;
@@ -192,9 +192,9 @@ void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
 					wba.damage = leftDamage;
 					totalDamage += wba.damage;
 					if (count == 1)
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 					else
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 				}
 				else
 				{
@@ -203,7 +203,7 @@ void	CGameActor :: Am_Action(CGameObject *sender, int arg1, int arg2, int arg3)
 						wba.time += doubleAttackTerm;
 						wba.damage = damage + rGen.RandNum();
 						totalDamage += wba.damage;
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 					}
 				}
 			}
@@ -273,7 +273,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 		if (skillId == SKID_HT_BLITZBEAT || skillId == SKID_SN_FALCONASSAULT)
 		{
 			if (m_birdEffect != NULL)
-				m_birdEffect->SendMsg(NULL, AM_REQ_ATTACK, int(&tActor->m_pos));
+				m_birdEffect->SendMsg(NULL, AM_REQ_ATTACK, INT_PTR(&tActor->m_pos));
 		}
 	}
 	else if(tActor = gameMode->GetWorld()->GetSkillByAID(m_targetGid))
@@ -318,7 +318,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 
 					DWORD	delayTime = m_attackMotion * m_motionSpeed * 24.0f;
 					WBA wba(AM_ATTACKED_SKILL, damage, delayTime + timeGetTime(), m_gid, tCellX, tCellY, -1, -1, level, attackedSpeedFactor);
-					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 					break;
 				}
 			}
@@ -398,7 +398,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 				if (effect)
 				{
 					effect->SendMsg(NULL, AM_SETCOUNT, count);
-					effect->SendMsg(NULL, AM_SETPOS, int(&tPos));
+					effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&tPos));
 				}
 
 				int		atkedEfId = EF_HIT1;
@@ -512,33 +512,33 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 					case SKID_TK_DOWNKICK :
 					case SKID_TK_TURNKICK :
 						wba.time += 300;
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED2, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED2, INT_PTR(&wba), totalDamage);
 						break;
 					case SKID_TK_STORMKICK :
 					case SKID_TK_COUNTER :
 					case SKID_TK_JUMPKICK :
 					case SKID_SM_BASH :
 					case SKID_KN_BOWLINGBASH :
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED2, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED2, INT_PTR(&wba), totalDamage);
 						break;
 					case SKID_ASC_BREAKER :
 					case SKID_MO_EXTREMITYFIST :
-						tActor->SendMsg(this, AM_ATTACKED_CRITICAL, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_ATTACKED_CRITICAL, INT_PTR(&wba), totalDamage);
 						break;
 					case SKID_MO_COMBOFINISH :
 						tActor->LaunchEffect(EF_HP_DAMAGE);
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 						break;
 					case SKID_CH_TIGERFIST :
 					case SKID_NPC_BLOODDRAIN :
-						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+						tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 						break;
 					default:
 						if (count == 1)
 						{
-							tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+							tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 						} else {
-							tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+							tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 						}
 						break;
 				}
@@ -593,7 +593,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 							CRagEffect *	effect = LaunchEffect(EF_CHEMICAL2DASH);
 							if (effect) {
 								vector3d	pos = tActor->m_pos;
-								effect->SendMsg(NULL, AM_SETPOS, int(&pos));
+								effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&pos));
 							}
 						}
 						break;
@@ -627,16 +627,16 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 								{
 									wba.effectId2 = EF_SONICBLOWHIT;
 									if (i == 2) {
-										SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+										SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 
 										int randNum = (wba.damage / 10) + random(wba.damage / 10);
 										wba.message = actorMsg;
 										wba.effectId1 = EF_HIT2;
-										tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+										tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 										continue;
 									}
 							}
-							SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+							SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 						}
 #ifdef	SECONDJOB_SKILL2
 						else if (skillId == SKID_MO_CHAINCOMBO)
@@ -647,7 +647,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 						else if (skillId == SKID_CH_CHAINCRUSH || skillId == SKID_CG_ARROWVULCAN)
 						{
 							wba.message = AM_WILL_BE_ATTACK;
-							SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba));
+							SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 						}
 						wba.message		= actorMsg;
 
@@ -658,10 +658,10 @@ void	CGameActor :: Am_Skill(CGameObject *sender, int arg1, int arg2, int arg3)
 							case SKID_TK_TURNKICK :
 							case SKID_TK_COUNTER :
 							case SKID_TK_JUMPKICK :
-								tActor->SendMsg(this, AM_WILL_BE_ATTACKED2DASH, int(&wba), totalDamage);
+								tActor->SendMsg(this, AM_WILL_BE_ATTACKED2DASH, INT_PTR(&wba), totalDamage);
 								break;
 							default:
-								tActor->SendMsg(this, AM_WILL_BE_ATTACKED, int(&wba), totalDamage);
+								tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
 								break;
 						}
 					}
@@ -774,7 +774,7 @@ void	CGameActor :: Am_Groundskill(CGameObject *sender, int arg1, int arg2, int a
 		{
 			vector3d dPos(destX, destY, destZ);
 			gameMode->PlaceEffect(&dPos, EF_DETECTING, durationTable[EF_DETECTING] + 10);
-			if(m_birdEffect) m_birdEffect->SendMsg(NULL, AM_REQ_ATTACK, int(&dPos));
+			if(m_birdEffect) m_birdEffect->SendMsg(NULL, AM_REQ_ATTACK, INT_PTR(&dPos));
 			break;
 		}
 		case	SKID_AS_VENOMDUST:
@@ -933,7 +933,7 @@ void	CGameActor :: Am_Make_Number(CGameObject *sender, int arg1, int arg2, int a
 		CMsgEffect *	numEffect = new CMsgEffect;
 		numEffect->m_sprArgb = sprArgb;
 		numEffect->SendMsg(NULL, AM_SETMASTERGID, m_gid, msgEffectType);
-		numEffect->SendMsg(NULL, AM_SETPOS2, (int)(&m_pos), eachNum[i], -i*fontWidth + (fontWidth/2)*(numberCnt-1));
+		numEffect->SendMsg(NULL, AM_SETPOS2, (INT_PTR)(&m_pos), eachNum[i], -i*fontWidth + (fontWidth/2)*(numberCnt-1));
 		numEffect->SendMsg(this, AM_SET_MASTER_POINTER);
 
 		if (msgEffectType == 0x16) {

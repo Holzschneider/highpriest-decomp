@@ -385,12 +385,12 @@ void CLoginMode::OnChangeState(int state)
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_SAYDIALOGWND);
 		wnd->Resize(400, 300);
 		wnd->Move((g_renderer->m_width - 640) / 2 + 120, (g_renderer->m_height - 480) / 2 + 90);
-		wnd->SendMsg(NULL, UM_ADD_BUTTON, 0x87, (int)"btn_disagree", 0, 0);
-		wnd->SendMsg(NULL, UM_ADD_BUTTON, 0x98, (int)"btn_agree", 0, 0);
+		wnd->SendMsg(NULL, UM_ADD_BUTTON, 0x87, (INT_PTR)"btn_disagree", 0, 0);
+		wnd->SendMsg(NULL, UM_ADD_BUTTON, 0x98, (INT_PTR)"btn_agree", 0, 0);
 		if (g_serviceType == ServiceIndonesia)
-			wnd->SendMsg(NULL, UM_SETSAYDIALOG, (int)GetLicenceText(), 0, 0x35, 0);
+			wnd->SendMsg(NULL, UM_SETSAYDIALOG, (INT_PTR)GetLicenceText(), 0, 0x35, 0);
 		else
-			wnd->SendMsg(NULL, UM_SETSAYDIALOG, (int)GetLicenceText(), 0, 0x3a, 0);
+			wnd->SendMsg(NULL, UM_SETSAYDIALOG, (INT_PTR)GetLicenceText(), 0, 0x3a, 0);
 		wnd->SendMsg(NULL, UM_SET_TARGET, LMM_GOTOSELECTACCOUNT, 0, 0, 0);
 		break;
 	}
@@ -399,7 +399,7 @@ void CLoginMode::OnChangeState(int state)
 			m_wallPaperBmpName = TITLE_FILE;
 			g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
 			UISelectServerWnd *selectServerWnd = (UISelectServerWnd *)g_windowMgr.MakeWindow(WID_SELECTSERVERWND);
-			selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTACCOUNT, (int)"NUMACCOUNT", 0, 0);
+			selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTACCOUNT, (INT_PTR)"NUMACCOUNT", 0, 0);
 			std::vector<accountInfo>::iterator iter = m_accountInfo.begin();
 			while (iter != m_accountInfo.end()) {
 				selectServerWnd->m_serverList->AddItem(iter->display.c_str());
@@ -417,7 +417,7 @@ void CLoginMode::OnChangeState(int state)
 			m_wallPaperBmpName = TITLE_FILE;
 			g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
 			UISelectServerWnd *selectServerWnd = (UISelectServerWnd *)g_windowMgr.MakeWindow(WID_SELECTSERVERWND);
-			selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTACCOUNT2, (int)"NUMACCOUNT", 0, 0);
+			selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTACCOUNT2, (INT_PTR)"NUMACCOUNT", 0, 0);
 			std::vector<accountInfo>::iterator iter = m_accountInfo2.begin();
 			while (iter != m_accountInfo2.end()) {
 				selectServerWnd->m_serverList->AddItem(iter->display.c_str());
@@ -447,7 +447,7 @@ void CLoginMode::OnChangeState(int state)
 		m_wallPaperBmpName = TITLE_FILE;
 		g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
 		UISelectServerWnd *selectServerWnd = (UISelectServerWnd *)g_windowMgr.MakeWindow(WID_SELECTSERVERWND);
-		selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTSVR, (int)"NUMSERVER", 0, 0);
+		selectServerWnd->SendMsg(NULL, UM_SET_TARGET, LMM_SELECTSVR, (INT_PTR)"NUMSERVER", 0, 0);
 		for (int i = 0; i < m_numServer; ++i) {
 			char serverName[64] = "";
 			if (m_serverInfo[i].property == SERVERPROPERTY_NEW) sprintf(serverName, MsgStr(MSI_SERVER_PROPERTY_NEW));
@@ -944,18 +944,18 @@ INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR v
 {
 	switch (messageId) {
 	case LMM_GET_EMAIL_ADDRESS:
-		return (int)m_emaiAddress;
+		return (INT_PTR)m_emaiAddress;
 	case LMM_SET_EMAIL_ADDRESS:
 		g_windowMgr.InvalidateAll();
 		strcpy(m_emaiAddress, (char *)val1);
 		break;
 	case LMM_GET_MAKING_CHAR_NAME:
-		return (int)m_makingCharName;
+		return (INT_PTR)m_makingCharName;
 	case LMM_SET_MAKING_CHAR_NAME:
 		strcpy(m_makingCharName, (char *)val1);
 		break;
 	case LMM_GET_CHAR_PARAM:
-		return (int)m_charParam;
+		return (INT_PTR)m_charParam;
 	case LMM_SET_CHAR_PARAM:
 	{
 		int *param = (int *)val1;
@@ -1150,7 +1150,7 @@ INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR v
 	{
 		for (int i = 0; i < m_numChar; ++i) {
 			if (m_charInfo[i].CharNum == val1)
-				return (int)&m_charInfo[i];
+				return (INT_PTR)&m_charInfo[i];
 		}
 		return 0;
 	}

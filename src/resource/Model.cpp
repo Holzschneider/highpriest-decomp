@@ -1290,7 +1290,7 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, int* Re
 
 		GrannyTexture *Texture = Mesh->TextureReferences[Group->MaterialIndex];
 		if(Texture && Mesh->TextureCount>Group->MaterialIndex) {
-			*RetTex = (int)Texture->tex;
+			*RetTex = (INT_PTR)Texture->tex;
 		}
 		else {
 			*RetTex = NULL;
@@ -1306,7 +1306,7 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, int* Re
 				poseMat->SetRow4(Transform[12],Transform[13],Transform[14]);
 
 				ret = (VOID*)Mesh->Vertices;
-				*RetFaceArr = (int)Mesh->VerIdx;
+				*RetFaceArr = (INT_PTR)Mesh->VerIdx;
 				*nIndexNo = GrannyGetMeshIndexCount(Mesh->Mesh)/3;
 
 				if( strstr(Mesh->Mesh->Name, "hair_pivot") ) {
@@ -1333,7 +1333,7 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, int* Re
 			unsigned char *Indices = (unsigned char *)GrannyGetMeshIndices(Mesh->Mesh);
 
 			ret = (VOID*)m_Scene.MatVer;
-			*RetFaceArr = (int)Mesh->VerIdx;
+			*RetFaceArr = (INT_PTR)Mesh->VerIdx;
 			*nIndexNo = GrannyGetMeshIndexCount(Mesh->Mesh)/3;
 
 			poseMat->MakeIdentity();

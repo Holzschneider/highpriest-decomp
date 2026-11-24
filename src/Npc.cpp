@@ -936,7 +936,7 @@ void	CNpc :: ProcessContact()
 			s.nid	= m_gid;
 			s.job	= GetJob();
 			s.type	= 1;
-			gameMode->SendMsg(10, int(&s), 0, 0);
+			gameMode->SendMsg(10, INT_PTR(&s), 0, 0);
 		}
 		m_playerIswithinBox = true;
 	} else {

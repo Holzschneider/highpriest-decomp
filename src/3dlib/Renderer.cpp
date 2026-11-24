@@ -680,8 +680,8 @@ START:
 		for (; cacheInfo != surfaceIt->info.end(); ++cacheInfo)
 		{
 			if (cacheInfo->lastTime < expireTime) {
-				cacheInfo->id = (unsigned int)&img;
-				cacheInfo->palID = (unsigned int)pal;
+				cacheInfo->id = (INT_PTR)&img;
+				cacheInfo->palID = (INT_PTR)pal;
 				if (g_serviceType != ServiceGermany) {
 					cacheInfo->tu1 = float(img.width + cacheInfo->x) / 256.0f;
 					cacheInfo->tv1 = float(img.height + cacheInfo->y) / 256.0f;
@@ -784,7 +784,7 @@ CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, unsigned int palID, CacheInf
 		for (std::vector<CacheInfo>::iterator infoIter = iter->info.begin();
 			infoIter != iter->info.end(); ++infoIter)
 		{
-			if (infoIter->id == (unsigned int)&img && infoIter->palID == palID)
+			if (infoIter->id == (INT_PTR)&img && infoIter->palID == palID)
 			{
 				unsigned int tick = timeGetTime();
 				infoIter->lastTime = tick;

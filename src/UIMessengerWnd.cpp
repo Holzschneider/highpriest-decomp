@@ -548,7 +548,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 
 		UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 		for (int i = 0; i < m_menuItems.size(); ++i)
-			menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+			menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 
 		menu->SendMsg(NULL, UM_SET_CALLER_WID, WID_MESSENGERGROUPWND, 0, 0, 0);
 		menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
@@ -596,7 +596,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 				if (m_curItem != -1) {
 					FRIEND_INFO info = GetItemInfoBySequence(m_curItem);
 					if (info.isValid)
-						g_modeMgr.GetCurMode()->SendMsg(MM_REQ_JOIN_GROUP, (int)info.characterName.c_str(), 0, 0);
+						g_modeMgr.GetCurMode()->SendMsg(MM_REQ_JOIN_GROUP, (INT_PTR)info.characterName.c_str(), 0, 0);
 				}
 				break;
 			}
@@ -615,7 +615,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 						g_windowMgr.MakeWindow(WID_MAILLISTWND);
 					if (g_windowMgr.GetMailListWnd()) {
 						g_windowMgr.GetMailListWnd()->SetType2(1);
-						g_windowMgr.GetMailListWnd()->SendMsg(NULL, UM_NEWMAIL, (int)info.characterName.c_str(), 0, 0, 0);
+						g_windowMgr.GetMailListWnd()->SendMsg(NULL, UM_NEWMAIL, (INT_PTR)info.characterName.c_str(), 0, 0, 0);
 					}
 				}
 			}
@@ -626,11 +626,11 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 				FRIEND_INFO info = GetItemInfoBySequence(m_curItem);
 				if (info.isValid && info.characterName != g_session.GetCharName()) {
 					if (g_windowMgr.IsFriendName(info.characterName.c_str()))
-						g_windowMgr.SendMsg(UM_RESIZE, (int)info.characterName.c_str(), (int)MsgStr(MSI_FRIEND), 0, 0);
+						g_windowMgr.SendMsg(UM_RESIZE, (INT_PTR)info.characterName.c_str(), (INT_PTR)MsgStr(MSI_FRIEND), 0, 0);
 					else if (g_session.IsGuildMember(info.characterName.c_str()))
-						g_windowMgr.SendMsg(UM_RESIZE, (int)info.characterName.c_str(), (int)"GuildMember", 0, 0);
+						g_windowMgr.SendMsg(UM_RESIZE, (INT_PTR)info.characterName.c_str(), (INT_PTR)"GuildMember", 0, 0);
 					else
-						g_windowMgr.SendMsg(UM_RESIZE, (int)info.characterName.c_str(), 0, 0, 0);
+						g_windowMgr.SendMsg(UM_RESIZE, (INT_PTR)info.characterName.c_str(), 0, 0, 0);
 				}
 			}
 			break;
@@ -668,7 +668,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 					if (info.characterName != g_session.GetCharName()) {
 						if (g_windowMgr.ErrorMsg(MsgStr(MSI_DO_YOU_REALLY_WANT_EXPEL), ME_YESNO, 0, 0, 0) != ID_YES)
 							break;
-						g_modeMgr.GetCurMode()->SendMsg(MM_REQ_EXPEL_GROUP_MEMBER, (int)info.characterName.c_str(), 0, 0);
+						g_modeMgr.GetCurMode()->SendMsg(MM_REQ_EXPEL_GROUP_MEMBER, (INT_PTR)info.characterName.c_str(), 0, 0);
 					}
 				}
 			}

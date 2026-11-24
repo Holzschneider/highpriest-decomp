@@ -398,7 +398,7 @@ UIWaitWnd::~UIWaitWnd() {}
 
 void UIWaitWnd::SetMsg(const char* waitMsg, int fontHeight, int fontType) {
 	m_textViewer->ClearAllItems();
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)waitMsg, 38, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)waitMsg, 38, 0, 0);
 }
 
 void UIWaitWnd::OnCreate(int cx, int cy)
@@ -425,7 +425,7 @@ void UIWaitWnd::OnCreate(int cx, int cy)
 	m_textViewer->m_bgB = bb;
 	AddChild(m_textViewer);
 	const char* waitMsg = MsgStr(MSI_PLEASE_BE_PATIENT);
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)waitMsg, 38, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)waitMsg, 38, 0, 0);
 }
 
 INT_PTR UIWaitWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
@@ -1058,7 +1058,7 @@ void UIEquipWnd::OnRBtnDown(int x, int y)
 	ITEM_INFO itemInfo = GetItemInfo(x, y);
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-		w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+		w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -1449,7 +1449,7 @@ void UIEquipWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)pal, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)pal, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, pal, &info);
 			} else {
@@ -1539,7 +1539,7 @@ INT_PTR UIEquipWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR
 		case ID_EQUIP_OPTION_OFF: {
 			if (g_windowMgr.GetMerchantItemMyShopWnd()) {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_PLEASE_CLOSE_STORE), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_PLEASE_CLOSE_STORE), 0xff, 0, 0);
 				break;
 			}
 
@@ -2446,10 +2446,10 @@ INT_PTR UIOptionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PT
 
 			int skinSize = g_skinMgr.GetNumSkin();
 			UIFrameWnd* comboBoxWnd = g_windowMgr.MakeWindow(WID_COMBOBOXWND);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)"<Basic Skin>", 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)"<Basic Skin>", 0, 0, 0);
 
 			for (int i = 0; i < skinSize; ++i)
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)g_skinMgr.GetSkinName(i), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)g_skinMgr.GetSkinName(i), 0, 0, 0);
 
 			int height = min((skinSize + 1) * 16, 80);
 
@@ -2938,10 +2938,10 @@ INT_PTR UINpcTextEditDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR v
 			if (m_editCtrl->GetTextSize()) {
 				if (!g_insultFilter.IsGoodSentence(m_editCtrl->GetText())) {
 					m_editCtrl->SetTextColor(0xff, 0, 0);
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_BAD_SENTANGE), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_BAD_SENTANGE), 0xff, 0, 0);
 					return 0;
 				}
-				g_modeMgr.GetCurMode()->SendMsg(MM_SEND_TEXT_TO_NPC, m_naid, (int)m_editCtrl->GetText(), 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_SEND_TEXT_TO_NPC, m_naid, (INT_PTR)m_editCtrl->GetText(), 0);
 				g_windowMgr.DeleteWindow(WID_NPCTEXTEDITDIALOGWND);
 			}
 		}
@@ -3011,7 +3011,7 @@ INT_PTR UISkillNameChangeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 		if (val1 == ID_OK) {
 			if (m_skillId != -1 && m_editCtrl->GetTextSize()) {
 				CMode* mode = g_modeMgr.GetCurMode();
-				mode->SendMsg(MM_CHANGE_SKILL_NAME, m_skillId, (int)m_editCtrl->GetText(), 0);
+				mode->SendMsg(MM_CHANGE_SKILL_NAME, m_skillId, (INT_PTR)m_editCtrl->GetText(), 0);
 			}
 			g_windowMgr.DeleteWindow(WID_SKILLNAMECHANGEWND);
 		}
@@ -3070,7 +3070,7 @@ INT_PTR UIEmailAddressWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 	case UM_COMMAND:
 		g_windowMgr.SetModalResult(val1);
 		if (val1 == ID_OK) {
-			g_modeMgr.GetCurMode()->SendMsg(LMM_SET_EMAIL_ADDRESS, (int)m_editCtrl->GetText(), 0, 0);
+			g_modeMgr.GetCurMode()->SendMsg(LMM_SET_EMAIL_ADDRESS, (INT_PTR)m_editCtrl->GetText(), 0, 0);
 		}
 		break;
 	default:
@@ -3137,7 +3137,7 @@ INT_PTR UIPasswordWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_
 	case UM_COMMAND:
 		if (val1 == 0x76) {
 			CMode* mode = g_modeMgr.GetCurMode();
-			mode->SendMsg(MM_REQ_ENTER_ROOM, m_roomId, (int)m_editCtrl->GetText(), 0);
+			mode->SendMsg(MM_REQ_ENTER_ROOM, m_roomId, (INT_PTR)m_editCtrl->GetText(), 0);
 			g_windowMgr.DeleteWindow((WINDOWID)0x1d);
 		}
 		break;
@@ -3238,14 +3238,14 @@ INT_PTR UISayDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT
 	case UM_ENABLENEXTBUTTON:
 		m_defPushId = ID_NEXT;
 		m_target = MM_REQ_NEXT_SCRIPT;
-		SendMsg(NULL, UM_ADD_BUTTON, ID_NEXT, (int)"btn_next", 0, 0);
+		SendMsg(NULL, UM_ADD_BUTTON, ID_NEXT, (INT_PTR)"btn_next", 0, 0);
 		Invalidate();
 		return 0;
 
 	case UM_ENABLECLOSEBUTTON:
 		m_defPushId = ID_CLOSE;
 		m_target = MM_CLOSE_DIALOG;
-		SendMsg(NULL, UM_ADD_BUTTON, ID_NEXT, (int)"btn_close", 0, 0);
+		SendMsg(NULL, UM_ADD_BUTTON, ID_NEXT, (INT_PTR)"btn_close", 0, 0);
 		Invalidate();
 		return 0;
 
@@ -3446,7 +3446,7 @@ void UIItemCollectionWnd::OnRBtnDown(int x, int y)
 
 		UIFrameWnd* itemCollectionWnd = g_windowMgr.MakeWindow(WID_COMBINEDCARDITEMCOLLECTIONWND);
 		itemCollectionWnd->SendMsg(NULL, UM_SET_IDENTIFIY_INFO, dummyItemInfo.m_isIdentified, 0, 0, 0);
-		itemCollectionWnd->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&dummyItemInfo, 0, 0, 0);
+		itemCollectionWnd->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&dummyItemInfo, 0, 0, 0);
 	}
 }
 
@@ -3496,7 +3496,7 @@ INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 			break;
 		case ID_CARDITEM: {
 			UIWindow* wnd = g_windowMgr.MakeWindow(WID_CARDITEMILLUSTWND);
-			wnd->SendMsg(NULL, UM_CARDITEMILLUSTRATE, (int)m_itemInfo.m_itemName.c_str(), m_itemInfo.m_isIdentified, 0, 0);
+			wnd->SendMsg(NULL, UM_CARDITEMILLUSTRATE, (INT_PTR)m_itemInfo.m_itemName.c_str(), m_itemInfo.m_isIdentified, 0, 0);
 			break;
 		}
 		}
@@ -3556,19 +3556,19 @@ INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 				if (g_serviceType == ServiceIndonesia)
 					fontHeight = 24;
 			}
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)buff, fontHeight, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)buff, fontHeight, 0, 0);
 		}
 
 		for (int i = 0; i < itemDescribe.size(); ++i) {
 			if (g_multiLang) {
 				char buff[260];
 				sprintf(buff, "%s%s", g_language->GetLanguageCharset(true), itemDescribe[i]);
-				m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)buff, 0x1a, 0, 0);
+				m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)buff, 0x1a, 0, 0);
 			} else {
 				if (g_serviceType == ServiceIndonesia)
-					m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)itemDescribe[i], 0x18, 0, 0);
+					m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)itemDescribe[i], 0x18, 0, 0);
 				else
-					m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)itemDescribe[i], 0x1a, 0, 0);
+					m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)itemDescribe[i], 0x1a, 0, 0);
 			}
 		}
 
@@ -3577,7 +3577,7 @@ INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 
 		if (val2) {
 			UIItemParamChangeDisplayWnd* wnd = g_windowMgr.GetItemParamChangeDisplayWnd();
-			if (wnd) wnd->SendMsg(NULL, UM_PARAM, (int)m_itemInfo.m_itemName.c_str(), m_itemInfo.m_isIdentified, 0, 0);
+			if (wnd) wnd->SendMsg(NULL, UM_PARAM, (INT_PTR)m_itemInfo.m_itemName.c_str(), m_itemInfo.m_isIdentified, 0, 0);
 		}
 		break;
 	}
@@ -3629,7 +3629,7 @@ INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 		m_textViewer->ClearAllItems();
 
 		for (int j = 0; j < petString.size(); ++j) {
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)petString[j].c_str(), 0x1a, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)petString[j].c_str(), 0x1a, 0, 0);
 		}
 
 		Invalidate();
@@ -3780,10 +3780,10 @@ INT_PTR UISkillDescribeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1,
 				for (std::vector<char const *>::iterator it = skillDescribe.begin(); it != skillDescribe.end(); ++it) {
 					char buff[260];
 					sprintf(buff, "%s%s", g_language->GetLanguageCharset(true), *it);
-					m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)buff, 0x21, 0, 0);
+					m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)buff, 0x21, 0, 0);
 				}
 			} else {
-				m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)"Unknown Skill", 0, 0, 1);
+				m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)"Unknown Skill", 0, 0, 1);
 			}
 
 			Invalidate();
@@ -3908,7 +3908,7 @@ INT_PTR UIQuestDetailWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 
 			int comboCnt = m_classStringList.size();
 			for (int i = 0; i < m_classStringList.size(); ++i)
-				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_classStringList[i].c_str(), 0, 0, 0);
+				comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_classStringList[i].c_str(), 0, 0, 0);
 
 			int height = min(comboCnt * 16, 48);
 			comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, 0, 0, 0, 0);
@@ -3930,11 +3930,11 @@ INT_PTR UIQuestDetailWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 		char buff[260];
 		sprintf(buff, "%s", ITEM_INFO::GetQuestDesc(val1).summaryTXT);
 		m_textViewer->ClearAllItems();
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)buff, 50, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)buff, 50, 0, 0);
 
 		sprintf(buff, "%s", ITEM_INFO::GetQuestDesc(m_questID).objectTXT);
 		m_textViewer2->ClearAllItems();
-		m_textViewer2->SendMsg(NULL, UM_SETTEXT, (int)buff, 50, 0, 0);
+		m_textViewer2->SendMsg(NULL, UM_SETTEXT, (INT_PTR)buff, 50, 0, 0);
 
 		m_classStringList.clear();
 
@@ -4161,14 +4161,14 @@ INT_PTR UIChooseWarpWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, IN
 			if (curItem == -1)
 				break;
 			CGameMode* gameMode = g_modeMgr.GetGameMode();
-			gameMode->SendMsg(MM_SELECT_WARPPOINT, (int)m_mapNameList[curItem].c_str(), m_skid, 0);
+			gameMode->SendMsg(MM_SELECT_WARPPOINT, (INT_PTR)m_mapNameList[curItem].c_str(), m_skid, 0);
 			g_windowMgr.DeleteWindow(WID_CHOOSEWARPWND);
 			break;
 		}
 		case ID_CANCEL:
 			RAG_BUDGET_FILL(8)
 			CGameMode* gameMode = g_modeMgr.GetGameMode();
-			gameMode->SendMsg(MM_SELECT_WARPPOINT, (int)"cancel", m_skid, 0);
+			gameMode->SendMsg(MM_SELECT_WARPPOINT, (INT_PTR)"cancel", m_skid, 0);
 			g_windowMgr.DeleteWindow(WID_CHOOSEWARPWND);
 			break;
 		}
@@ -4927,7 +4927,7 @@ void UINoticeConfirmWnd::OnCreate(int cx, int cy)
 	AddChild(m_textViewer);
 
 	const char* msg = MsgStr(MSI_DO_YOU_AGREE);
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg, 38, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg, 38, 0, 0);
 }
 
 INT_PTR UINoticeConfirmWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4) {
@@ -4999,7 +4999,7 @@ void UIChooseSellBuyWnd::OnCreate(int cx, int cy)
 	AddChild(m_textViewer);
 
 	const char* msg = MsgStr(MSI_SELECT_DEAL_TYPE);
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg, 38, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg, 38, 0, 0);
 }
 
 void UIChooseSellBuyWnd::OnDraw() {
@@ -5077,7 +5077,7 @@ void UIExchangeAcceptWnd::OnCreate(int cx, int cy)
 	m_textViewer->m_bgB = bb;
 	AddChild(m_textViewer);
 
-	m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)"deal", 38, 0, 0);
+	m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)"deal", 38, 0, 0);
 }
 
 INT_PTR UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
@@ -5097,7 +5097,7 @@ INT_PTR UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 		msg += MsgStr(MSI_SUGGEST_DEAL);
 
 		m_textViewer->ClearAllItems();
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), 0x8a, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), 0x8a, 0, 0);
 
 		if (val2 > 0 && val3 > 0 && val3 < 100) {
 			int total = val2;
@@ -5152,7 +5152,7 @@ INT_PTR UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 			sprintf(msg2, "%d", val3);
 			RAG_BUDGET_SITES(1)
 			msg += msg2;
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), 0x8a, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), 0x8a, 0, 0);
 		}
 		break;
 	}
@@ -5269,9 +5269,9 @@ void UITipOfTheDayWnd::OnCreate(int cx, int cy)
 		m_indexOfTip = randValue % g_tipOfTheDay.Size();
 		StringList& stringList = g_tipOfTheDay.GetTip(m_indexOfTip);
 
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)MsgStr(MSI_DIDYOUKNOW), 38, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)MsgStr(MSI_DIDYOUKNOW), 38, 0, 0);
 		for (i = 0; i < stringList.size(); ++i)
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)stringList[i].c_str(), 38, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)stringList[i].c_str(), 38, 0, 0);
 	}
 }
 
@@ -5395,7 +5395,7 @@ INT_PTR UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 				if (m_indexOfTip < 0)
 					m_indexOfTip = g_tipOfTheDay.Size() - 1;
 				StringList& stringList = g_tipOfTheDay.GetTip(m_indexOfTip);
-				SendMsg(NULL, UM_SETTEXT, (int)&stringList, 0, 0, 0);
+				SendMsg(NULL, UM_SETTEXT, (INT_PTR)&stringList, 0, 0, 0);
 			}
 			break;
 		case ID_NEXT:
@@ -5404,7 +5404,7 @@ INT_PTR UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 				if (m_indexOfTip >= g_tipOfTheDay.Size())
 					m_indexOfTip = 0;
 				StringList& stringList = g_tipOfTheDay.GetTip(m_indexOfTip);
-				SendMsg(NULL, UM_SETTEXT, (int)&stringList, 0, 0, 0);
+				SendMsg(NULL, UM_SETTEXT, (INT_PTR)&stringList, 0, 0, 0);
 			}
 			break;
 		case ID_CLOSE:
@@ -5415,11 +5415,11 @@ INT_PTR UITipOfTheDayWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 		break;
 	case UM_SETTEXT: {
 		m_textViewer->ClearAllItems();
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)MsgStr(MSI_DIDYOUKNOW), UM_DROP, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)MsgStr(MSI_DIDYOUKNOW), UM_DROP, 0, 0);
 
 		StringList* stringList = (StringList*)val1;
 		for (i = 0; i < stringList->size(); ++i)
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)(*stringList)[i].c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)(*stringList)[i].c_str(), UM_DROP, 0, 0);
 
 		break;
 	}
@@ -5457,7 +5457,7 @@ INT_PTR UIJoinPartyAcceptWnd::SendMsg(UIWindow* sender, int message, INT_PTR val
 		msg += MsgStr(MSI_SUGGEST_JOIN_PARTY);
 
 		m_textViewer->ClearAllItems();
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		break;
 	}
 	default:
@@ -5480,7 +5480,7 @@ INT_PTR UICoupleAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, 
 			msg += MsgStr(MSI_SUGGEST_COUPLE);
 
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -5520,7 +5520,7 @@ INT_PTR UIStarPlaceAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 				msg = MsgStr(MSI_STARPLACE_ACCEPT);
 
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -5554,7 +5554,7 @@ INT_PTR UIYourItemWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 			std::string msg;
 			msg = MsgStr(MSI_YOURITEM_EQUIP);
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 			val_index = val1;
 			val_wear = val2;
 		}
@@ -5599,7 +5599,7 @@ INT_PTR UIBabyAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, IN
 			msg += MsgStr(MSI_SUGGEST_BABY);
 
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -5635,7 +5635,7 @@ INT_PTR UIBabyAcceptWnd2::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 			m_naid = val1;
 			std::string msg = MsgStr(MSI_SUGGEST_BABY2);
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -5674,7 +5674,7 @@ INT_PTR UIJoinGuildAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val
 			msg += MsgStr(MSI_SUGGEST_JOIN_GUILD);
 
 			m_textViewer->ClearAllItems();
-			m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg.c_str(), UM_DROP, 0, 0);
+			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), UM_DROP, 0, 0);
 		}
 		break;
 	case UM_COMMAND:
@@ -5900,7 +5900,7 @@ INT_PTR UIChatRoomMakeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, 
 			info.title = m_roomTitle->GetText();
 			info.pass = m_passWord->GetText();
 			CMode* mode = g_modeMgr.GetCurMode();
-			mode->SendMsg(MM_CREATE_CHATROOM, (int)&info, 0, 0);
+			mode->SendMsg(MM_CREATE_CHATROOM, (INT_PTR)&info, 0, 0);
 			g_windowMgr.DeleteWindow(WID_CHATROOMMAKEWND);
 		}
 			break;
@@ -5932,14 +5932,14 @@ INT_PTR UIChatRoomMakeWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, 
 				m_comboMode = 0;
 				comboCnt = m_numStringList.size();
 				for (int i = 0; i < m_numStringList.size(); ++i)
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_numStringList[i].c_str(), 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_numStringList[i].c_str(), 0, 0, 0);
 				break;
 			}
 			case ID_CLASSCOMBO: {
 				m_comboMode = 1;
 				comboCnt = m_classStringList.size();
 				for (int i = 0; i < m_classStringList.size(); ++i)
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_classStringList[i].c_str(), 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_classStringList[i].c_str(), 0, 0, 0);
 				break;
 			}
 			}
@@ -6044,7 +6044,7 @@ INT_PTR UIChatRoomChangeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 			info.title = m_roomTitle->GetText();
 			info.pass = m_passWord->GetText();
 			CMode* mode = g_modeMgr.GetCurMode();
-			mode->SendMsg(MM_CHANGE_CHATROOM, (int)&info, 0, 0);
+			mode->SendMsg(MM_CHANGE_CHATROOM, (INT_PTR)&info, 0, 0);
 			g_windowMgr.DeleteWindow(WID_CHATROOMCHANGEWND);
 			break;
 		}
@@ -6065,14 +6065,14 @@ INT_PTR UIChatRoomChangeWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 				m_comboMode = 0;
 				comboCnt = m_numStringList.size();
 				for (int i = 0; i < m_numStringList.size(); ++i)
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_numStringList[i].c_str(), 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_numStringList[i].c_str(), 0, 0, 0);
 				break;
 			}
 			case ID_CLASSCOMBO: {
 				m_comboMode = 1;
 				comboCnt = m_classStringList.size();
 				for (int i = 0; i < m_classStringList.size(); ++i)
-					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)m_classStringList[i].c_str(), 0, 0, 0);
+					comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_classStringList[i].c_str(), 0, 0, 0);
 				break;
 			}
 			}
@@ -6338,7 +6338,7 @@ void UIExchangeWnd::OnRBtnDown(int x, int y)
 	if (itemInfo.m_itemIndex) {
 		UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
 		if (w)
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&itemInfo, 0, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&itemInfo, 0, 0, 0);
 	}
 }
 
@@ -6729,7 +6729,7 @@ INT_PTR UIPartySettingWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, 
 		case ID_RADIOBTN:
 			if (g_session.GetNumParty() && !g_session.m_amIPartyMaster) {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ONLY_PARTYMASTER), 0xffff64, 9, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ONLY_PARTYMASTER), 0xffff64, 9, 0);
 				break;
 			}
 
@@ -6919,7 +6919,7 @@ void UIWhisperWnd::WriteChatToFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -6946,7 +6946,7 @@ void UIWhisperWnd::WriteChatToReportFile()
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)chatStoreMsg.c_str(), 0xff00, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)chatStoreMsg.c_str(), 0xff00, 0, 0);
 	}
 }
 
@@ -6971,13 +6971,13 @@ INT_PTR UIWhisperWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 				break;
 			if (g_serviceType == ServiceAmerica) {
 				if (!g_session.IsOnlyEnglish(chatBuf)) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ENGLISHONLY), 0xff, 0, 0);
 					break;
 				}
 			}
 			if (m_whisperName.size() && chatBuf[0] != '/') {
 				g_windowMgr.SetChatMsg(chatBuf);
-				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (int)m_whisperName.c_str(), 0, 0);
+				g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (INT_PTR)m_whisperName.c_str(), 0, 0);
 			} else {
 				std::string param[3];
 				TALKTYPE talkType;
@@ -6991,7 +6991,7 @@ INT_PTR UIWhisperWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 				else if (talkType == TT_REQ_REPORT_CHAT)
 					WriteChatToReportFile();
 				else
-					g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (int)param, 0);
+					g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, talkType, (INT_PTR)param, 0);
 			}
 			break;
 		}
@@ -7014,11 +7014,11 @@ INT_PTR UIWhisperWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 			if (g_serverType != 3)
 				m_menuItems.push_back(StringId(std::string(MsgStr(MSI_ADD_TO_FRIEND_CHAR_LIST)).c_str(), 0x15));
 		}
-		g_modeMgr.GetCurMode()->SendMsg(MM_INITWHISPERMENU, (int)m_whisperName.c_str(), 0, 0);
+		g_modeMgr.GetCurMode()->SendMsg(MM_INITWHISPERMENU, (INT_PTR)m_whisperName.c_str(), 0, 0);
 		if (m_menuItems.size()) {
 			UIFrameWnd* menu = g_windowMgr.MakeWindow(WID_MENUWND);
 			for (int i = 0; i < m_menuItems.size(); ++i)
-				menu->SendMsg(NULL, UM_ADDITEM, (int)m_menuItems[i].itemName.c_str(), 0, 0, 0);
+				menu->SendMsg(NULL, UM_ADDITEM, (INT_PTR)m_menuItems[i].itemName.c_str(), 0, 0, 0);
 			menu->SendMsg(NULL, UM_ADJUSTSIZE, 0, 0, 0, 0);
 			int x = g_mouse.GetXPos() + 1;
 			int y = g_mouse.GetYPos() + 1;
@@ -7604,7 +7604,7 @@ void UIPetTamingDeceiveWnd::OnDraw()
 	for (; a < curMotion->numClips; ++a) {
 		CSprClip* clip = curMotion->GetClip(a);
 		SprImg* img = sprRes->m_sprites[0][clip->sprIndex];
-		CTexture* tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
+		CTexture* tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)palette, &info);
 		if (tex == NULL)
 			tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 
@@ -8189,8 +8189,8 @@ INT_PTR UIGraffiStrboxWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 			values[1] = m_gSkillDx;
 			values[2] = m_gSkillDy;
 			values[3] = m_skillUseLevel;
-			values[4] = (int)m_trapText->GetText();
-			g_modeMgr.GetGameMode()->SendMsg(MM_USE_SKILL_TOGROUND_WITH_TALKBOX, (int)values, 0, 0);
+			values[4] = (INT_PTR)m_trapText->GetText();
+			g_modeMgr.GetGameMode()->SendMsg(MM_USE_SKILL_TOGROUND_WITH_TALKBOX, (INT_PTR)values, 0, 0);
 
 		case ID_CANCEL:
 			g_windowMgr.PostQuit(this);
@@ -8334,9 +8334,9 @@ INT_PTR UIProhibitListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 			perfomance = MsgStr(MSI_PET_PERFORMANCE);
 			turnegg = MsgStr(MSI_PET_RETURN_EGG);
 			accOff = MsgStr(MSI_PET_ACC_OFF);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_APPEND_PROHIBIT), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_ERASE_PROHIBIT), 0, 0, 0);
-			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (int)MsgStr(MSI_REDUCE_PROHIBIT), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_APPEND_PROHIBIT), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_ERASE_PROHIBIT), 0, 0, 0);
+			comboBoxWnd->SendMsg(NULL, UM_ADDITEM, (INT_PTR)MsgStr(MSI_REDUCE_PROHIBIT), 0, 0, 0);
 
 			comboBoxWnd->SendMsg(NULL, UM_SETCURITEM, 0, 0, 0, 0);
 			comboBoxWnd->Resize(130, 48);
@@ -8361,7 +8361,7 @@ INT_PTR UIProhibitListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 				cntWnd->Move((g_renderer->m_width - 640) / 2 + 200, g_renderer->m_height * 200 / 480);
 				g_windowMgr.AddWindow(cntWnd);
 				cntWnd->SendMsg(NULL, UM_SET_TARGET, MM_REQ_GIVE_MANNER_POINT_MINUS, 0, 0, 0);
-				cntWnd->SendMsg(NULL, UM_SETTEXT, (int)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
+				cntWnd->SendMsg(NULL, UM_SETTEXT, (INT_PTR)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
 				cntWnd->SendMsg(NULL, UM_SET_COUNT, 1, 0, 0, 0);
 			}
 			break;
@@ -8376,7 +8376,7 @@ INT_PTR UIProhibitListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 				cntWnd->Move((g_renderer->m_width - 640) / 2 + 200, g_renderer->m_height * 200 / 480);
 				g_windowMgr.AddWindow(cntWnd);
 				cntWnd->SendMsg(NULL, UM_SET_TARGET, MM_REQ_GIVE_MANNER_POINT_PLUS, 0, 0, 0);
-				cntWnd->SendMsg(NULL, UM_SETTEXT, (int)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
+				cntWnd->SendMsg(NULL, UM_SETTEXT, (INT_PTR)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
 				cntWnd->SendMsg(NULL, UM_SET_COUNT, 1, 0, 0, 0);
 			}
 			break;
@@ -8482,7 +8482,7 @@ void UIBookWnd::OnProcess()
 			++m_PresentLine;
 
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)GetContents(m_bookContents[m_PresentLine].c_str()), 0xe1e4ff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)GetContents(m_bookContents[m_PresentLine].c_str()), 0xe1e4ff, 0, 0);
 
 		if (!m_bookcastBalloon) {
 			m_bookcastBalloon = new UITransBalloonText;
@@ -8640,9 +8640,9 @@ INT_PTR UIBookWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR 
 			if (g_multiLang) {
 				char* text = new char[m_bookContents[line].size() + 17];
 				sprintf(text, "%s%s", g_language->GetLanguageCharset(true), m_bookContents[line].c_str());
-				m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)text, 100, 0, 0);
+				m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)text, 100, 0, 0);
 			} else {
-				m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)m_bookContents[line].c_str(), 100, 0, 0);
+				m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_bookContents[line].c_str(), 100, 0, 0);
 			}
 		}
 
@@ -8790,7 +8790,7 @@ INT_PTR UIJoinFriendAcceptWnd::SendMsg(UIWindow* sender, int message, INT_PTR va
 		m_nReqGID = val2;
 		sprintf(msg, MsgStr(MSI_SUGGEST_JOIN_FRIEND), (const char*)val3);
 		m_textViewer->ClearAllItems();
-		m_textViewer->SendMsg(NULL, UM_SETTEXT, (int)msg, 38, 0, 0);
+		m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg, 38, 0, 0);
 		break;
 	case UM_COMMAND:
 		switch (val1) {
@@ -9039,7 +9039,7 @@ void UICommandListWnd::OnLBtnDown(int x, int y)
 		TTPair* it = m_cmdTempTable.begin() + m_curItem;
 		if (it->second == TT_HI) {
 			std::string param[3];
-			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, it->second, (int)param, 0);
+			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, it->second, (INT_PTR)param, 0);
 		}
 		else {
 			g_modeMgr.GetCurMode()->SendMsg(MM_PROCESS_TALK_TYPE, it->second, 0, 0);
@@ -9388,7 +9388,7 @@ INT_PTR UIAutoMessageWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, I
 	case UM_COMMAND:
 		if (val1 == ID_OK) {
 			g_session.m_strAutoMSG.assign(m_editCtrl->GetText());
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_AUTO_MSG_ON), 0x64ffff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_AUTO_MSG_ON), 0x64ffff, 0, 0);
 			g_windowMgr.FindFocusEditAndSetFocus();
 			g_windowMgr.DeleteWindow(WID_AUTOMESSAGEWND);
 		}
@@ -9599,7 +9599,7 @@ void UIMailListWnd::OnDraw()
 					m_btnFromNameList[i]->Resize2(120, m_btnFromNameList[i]->GetHeight());
 					m_btnFromNameList[i]->SetToolTip(it->FromName);
 					m_btnFromNameList[i]->Move(70, y);
-					m_btnFromNameList[i]->SetId2((int)it->FromName);
+					m_btnFromNameList[i]->SetId2((INT_PTR)it->FromName);
 
 					m_btnMailHeaderList[i]->SetText(std::string(it->HEADER));
 					m_btnMailHeaderList[i]->Resize2(190, m_btnMailHeaderList[i]->GetHeight());
@@ -9666,7 +9666,7 @@ void UIMailListWnd::OnRBtnDown(int x, int y)
 	if (m_type && m_item.m_itemIndex) {
 		if (x > 249 && x < 273 && y > 333 && y < 357) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&m_item, 0, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&m_item, 0, 0, 0);
 		}
 	}
 }
@@ -9762,7 +9762,7 @@ INT_PTR UIMailListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_
 				}
 
 				if (m_Zeny->GetText() && m_inputZeny) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_MAIL_SEND_ERROR2), 0xff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_MAIL_SEND_ERROR2), 0xff, 0, 0);
 					break;
 				}
 
@@ -9783,7 +9783,7 @@ INT_PTR UIMailListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_
 				if (numBadSentenceLine > 0) {
 					g_windowMgr.SendMsg(
 						UIM_PUSHINTOCHATHISTORY,
-						(int)"\xba\xd2\xb7\xae\xb4\xdc\xbe\xee\xb0\xa1 \xb0\xcb\xc3\xe2\xb5\xc7\xbe\xee \xb8\xde\xc0\xcf\xc0\xbb \xba\xb8\xb3\xbe\xbc\xf6 \xbe\xf8\xbd\xc0\xb4\xcf\xb4\xd9.",
+						(INT_PTR)"\xba\xd2\xb7\xae\xb4\xdc\xbe\xee\xb0\xa1 \xb0\xcb\xc3\xe2\xb5\xc7\xbe\xee \xb8\xde\xc0\xcf\xc0\xbb \xba\xb8\xb3\xbe\xbc\xf6 \xbe\xf8\xbd\xc0\xb4\xcf\xb4\xd9.",
 						0xff, 0, 0);
 					break;
 				}
@@ -9793,10 +9793,10 @@ INT_PTR UIMailListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_
 					break;
 
 				gameMode = g_modeMgr.GetGameMode();
-				gameMode->SendMsg(MM_SEND_MAIL, (int)m_receiveName->GetText(), (int)m_MailHeader->GetText(), (int)Buf);
+				gameMode->SendMsg(MM_SEND_MAIL, (INT_PTR)m_receiveName->GetText(), (INT_PTR)m_MailHeader->GetText(), (INT_PTR)Buf);
 				g_session.m_waitForSendMail = 1;
 			} else {
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_MAIL_SEND_ERROR), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_MAIL_SEND_ERROR), 0xff, 0, 0);
 				g_windowMgr.SetFocusEdit(m_MailHeader);
 			}
 			break;
@@ -9867,7 +9867,7 @@ INT_PTR UIMailListWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_
 	case UM_BMP_RBTN_UP:
 		if (m_type == 1 && m_item.m_itemIndex) {
 			UIWindow* wnd = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			wnd->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&m_item, 0, 0, 0);
+			wnd->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&m_item, 0, 0, 0);
 		}
 		break;
 
@@ -10132,7 +10132,7 @@ void UIMailViewWnd::OnRBtnDown(int x, int y)
 	if (m_item.m_itemIndex) {
 		if (x > 249 && x < 273 && y > 333 && y < 357) {
 			UIWindow* w = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			w->SendMsg(NULL, UM_ITEMEXPLANATION, (int)&m_item, 0, 0, 0);
+			w->SendMsg(NULL, UM_ITEMEXPLANATION, (INT_PTR)&m_item, 0, 0, 0);
 		}
 	}
 }
@@ -10148,7 +10148,7 @@ INT_PTR UIMailViewWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 
 		case ID_RETURN_MAIL: {
 			CGameMode* gameMode = g_modeMgr.GetGameMode();
-			gameMode->SendMsg(MM_RETURN_MAIL, g_session.m_mailOpen.MailID, (int)g_session.m_mailOpen.FromName, 0);
+			gameMode->SendMsg(MM_RETURN_MAIL, g_session.m_mailOpen.MailID, (INT_PTR)g_session.m_mailOpen.FromName, 0);
 			return 0;
 		}
 
@@ -10156,7 +10156,7 @@ INT_PTR UIMailViewWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 			g_windowMgr.MakeWindow(WID_MAILLISTWND);
 			UIWindow* mailListWnd = g_windowMgr.GetMailListWnd();
 			if (mailListWnd)
-				mailListWnd->SendMsg(NULL, UM_NEWMAIL, (int)g_session.m_mailOpen.FromName, 0, 0, 0);
+				mailListWnd->SendMsg(NULL, UM_NEWMAIL, (INT_PTR)g_session.m_mailOpen.FromName, 0, 0, 0);
 			return 0;
 		}
 
@@ -10164,7 +10164,7 @@ INT_PTR UIMailViewWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_
 			if (!m_item.m_itemIndex && g_session.m_mailOpen.Money <= 0)
 				g_modeMgr.GetGameMode()->SendMsg(MM_DELETE_MAIL, g_session.m_mailOpen.MailID, 0, 0);
 			else
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_MAIL_DELETE_ERROR), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_MAIL_DELETE_ERROR), 0xff, 0, 0);
 			return 0;
 
 		case ID_CANCEL:
@@ -10380,7 +10380,7 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 				int deleteHour = GetNumberInText((char*)m_deleteHour->GetText());
 
 				if (nowMoney <= 0 || maxMoney <= 0 || deleteHour <= 0) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ERROR_AUCTION_ITEM_INFO), 0xffffff, 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ERROR_AUCTION_ITEM_INFO), 0xffffff, 0, 0);
 					if (nowMoney <= 0)
 						g_windowMgr.SetFocusEdit(m_nowMoney);
 					else if (maxMoney <= 0)
@@ -10394,11 +10394,11 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 				g_session.m_waitForAddAuction = 1;
 				break;
 			} else if (!m_item.m_itemIndex) {
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NOTHING_AUCTION_ITEM_INFO), 0xffffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NOTHING_AUCTION_ITEM_INFO), 0xffffff, 0, 0);
 				return 0;
 			}
 			if (g_session.m_waitForAddAuction) {
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_ERROR_ADD_AUCTION), 0xffffff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_ERROR_ADD_AUCTION), 0xffffff, 0, 0);
 				return 0;
 			}
 			break;
@@ -10435,7 +10435,7 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 			if (item && item->m_itemIndex) {
 				char itemName[25];
 				item->GetItemName(itemName);
-				wnd->SendMsg(0, UM_SETINFO, m_curAuctionItem->AuctionID, (int)itemName, price, 0);
+				wnd->SendMsg(0, UM_SETINFO, m_curAuctionItem->AuctionID, (INT_PTR)itemName, price, 0);
 			}
 
 			SendMsg(0, UM_REFRESH, 0, 0, 0, 0);
@@ -10498,8 +10498,8 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 			char* msg = (char*)operator new(len);
 			strcpy(msg, PolishText2(m_search->GetText(), len - 1));
 			g_session.m_auctionSeachOption = 4;
-			g_session.m_auctionSeachOption2 = (int)msg;
-			gameMode->SendMsg(MM_SEARCH_AUCTION_ITEM, 4, (int)m_search->GetText(), 1);
+			g_session.m_auctionSeachOption2 = (INT_PTR)msg;
+			gameMode->SendMsg(MM_SEARCH_AUCTION_ITEM, 4, (INT_PTR)m_search->GetText(), 1);
 			break;
 		}
 		}
@@ -10514,12 +10514,12 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 
 			if (!dragInfo->m_isIdentified) {
 				m_item = ITEM_INFO();
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_AUCTION_ADD_ITEM_FAILURE), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_AUCTION_ADD_ITEM_FAILURE), 0xff, 0, 0);
 			} else if (dragInfo->m_dragItemType == 0 ||
 				dragInfo->m_dragItemType == 1 ||
 				dragInfo->m_dragItemType == 2) {
 				m_item = ITEM_INFO();
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_AUCTION_ADD_ITEM_FAILURE2), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_AUCTION_ADD_ITEM_FAILURE2), 0xff, 0, 0);
 			} else {
 				char itemName[256];
 				char text[256];
@@ -10560,11 +10560,11 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 			ITEM_INFO* item = GetCurAuctionItem(val1);
 			if (item && item->m_itemIndex) {
 				UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-				wnd->SendMsg(0, UM_ITEMEXPLANATION, (int)item, 0, 0, 0);
+				wnd->SendMsg(0, UM_ITEMEXPLANATION, (INT_PTR)item, 0, 0, 0);
 			}
 		} else if (m_type == 1 && m_item.m_itemIndex) {
 			UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_ITEMCOLLECTIONWND);
-			wnd->SendMsg(0, UM_ITEMEXPLANATION, (int)&m_item, 0, 0, 0);
+			wnd->SendMsg(0, UM_ITEMEXPLANATION, (INT_PTR)&m_item, 0, 0, 0);
 		}
 		break;
 
@@ -10602,7 +10602,7 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 						g_windowMgr.DeleteWindow(WID_IMGMENUWND);
 					UIFrameWnd* wnd = g_windowMgr.MakeWindow(WID_IMGMENUWND);
 					wnd->SendMsg(0, UM_SETINFO, 0, 2,
-						(int)"\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\auction_menu", 0);
+						(INT_PTR)"\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\auction_menu", 0);
 					wnd->SendMsg(0, UM_SETID, val2, 0, 0, 0);
 					wnd->Resize(55, 40);
 					wnd->SendMsg(0, UM_SET_CALLER_WID, WID_AUCTIONWND, 0, 0, 0);
@@ -10629,7 +10629,7 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 		if (item && item->m_itemIndex) {
 			char itemName[25];
 			item->GetItemName(itemName);
-			wnd->SendMsg(0, UM_SETINFO, m_curAuctionItem->AuctionID, (int)itemName, price, 0);
+			wnd->SendMsg(0, UM_SETINFO, m_curAuctionItem->AuctionID, (INT_PTR)itemName, price, 0);
 		}
 		SendMsg(0, UM_REFRESH, 0, 0, 0, 0);
 		break;

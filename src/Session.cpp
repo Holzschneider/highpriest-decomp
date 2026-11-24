@@ -3648,7 +3648,7 @@ bool	CSession :: MoveItemFromItemWndToEquipWnd(ITEM_INFO *itemInfo)
 	char	msg[256];
 	itemInfo->GetItemName(nItemName);
 	sprintf(msg, "%s%s", nItemName, MsgStr(MSI_ITEM_IS_EQUIPED));
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x00c8ff00, 6, 0);
+	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x00c8ff00, 6, 0);
 
 	if (itemInfo->m_isYours == 1)
 		itemInfo->m_isYours = 2;
@@ -3676,7 +3676,7 @@ bool	CSession :: MoveItemFromEquipWndToItemWnd(int wearLocation)
 		char	nItemName[128];
 		m_equipedItems[slotNum[0]].GetItemName(nItemName);
 		sprintf(msg, "%s%s", nItemName, MsgStr(MSI_ITEM_IS_REMOVED));
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0x000000ff, 6, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0x000000ff, 6, 0);
 
 		m_equipedItems[slotNum[0]].m_wearLocation = 0;
 		AddItem(&m_equipedItems[slotNum[0]]);
@@ -5056,7 +5056,7 @@ void	CSession :: HiFriends(int val1)
 	while (it != m_friendList.end())
 	{
 		g_windowMgr.SetChatMsg(temp.c_str());
-		g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (int)it->characterName.c_str(), 0, 0);
+		g_modeMgr.GetCurMode()->SendMsg(MM_WHISPERMSG, (INT_PTR)it->characterName.c_str(), 0, 0);
 		g_MessageHi++;
 
 		if (g_MessageHi > MAX_FRIENDS_LIST)
@@ -5303,7 +5303,7 @@ BOOL	CSession :: SetFriendState(DWORD aid, DWORD gid, bool state)
 				else
 					sprintf(msg, MsgStr(MSI_LOGOUT_FRIEND), it->characterName.c_str());
 
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffff00, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), 0xffff00, 0, 0);
 			}
 
 			return true ;
@@ -5770,7 +5770,7 @@ bool	CSession :: IsProperWeapon(int job, int weapon)
 		}
 		break;
 	default:
-		sAssert(weapon == (int)"Unknown Job <- weapon");
+		sAssert(weapon == (INT_PTR)"Unknown Job <- weapon");
 		switch (weapon) {
 	case	WEAPONTYPE_SHORTSWORD:
 		return	true;
@@ -6214,9 +6214,9 @@ int		CSession :: GetTalkType(const char *chatBuf, TALKTYPE* talkType, string par
 		m_isMinEffect = 1 - m_isMinEffect;
 		m_isMinEffectOld = m_isMinEffect;
 		if (m_isMinEffect)
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MINEFFECT_ON)), int(RGB(255,255,100)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MINEFFECT_ON)), int(RGB(255,255,100)), 0, 0);
 		else
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(MsgStr(MSI_MINEFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_MINEFFECT_OFF)), int(RGB(255,255,100)), 0, 0);
 	}
 	else if (t[0] == "/remove" && t.NumTokens() == 2)
 	{

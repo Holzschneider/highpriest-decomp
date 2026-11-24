@@ -90,7 +90,7 @@ bool IsSameSentence(int nRepeat)
 	if (g_serverType != ServerInstantEvent && g_serviceType != ServiceGermany && nRepeat >= 2)
 	{
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SAME_SENTANCE), 0xff, 0, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SAME_SENTANCE), 0xff, 0, 0);
 		g_windowMgr.ClearChatMsg();
 		return true;
 	}
@@ -191,7 +191,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 					strcat(charName, " !!  ");
 				strcat(charName, MsgStr(MSI_LOVE_SKILL));
 
-			sActor->SendMsg(NULL, 7, int(charName), 0, 0);
+			sActor->SendMsg(NULL, 7, INT_PTR(charName), 0, 0);
 		} else if (val1 == 336) {
 			wsprintf(charName, "%s", m_CoupleName);
 
@@ -202,13 +202,13 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			strcat(charName, " !!  ");
 			strcat(charName, skillName);
 
-			sActor->SendMsg(NULL, 7, int(charName), 0, 0);
+			sActor->SendMsg(NULL, 7, INT_PTR(charName), 0, 0);
 		} else {
 			if (val1 == 326 || val1 == 318 || val1 == 492) {
 			} else {
 					strcpy(skillName, SKILL_INFO::GetSkillNameBySkillId(skillId));
 					strcat(skillName, " !!");
-					sActor->SendMsg(NULL, 7, int(skillName), 0, 0);
+					sActor->SendMsg(NULL, 7, INT_PTR(skillName), 0, 0);
 				}
 		}
 		break;
@@ -307,7 +307,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		g_windowMgr.DeleteWindow(WID_MERCHANTITEMPURCHASEWND);
 		g_windowMgr.DeleteWindow(WID_ITEMCOLLECTIONWND);
 		g_windowMgr.DeleteWindow(WID_ITEMPARAMCHANGEDISPLAYWND);
-		SendMsg(MM_SHOW_IMAGE, (int)"", -1, 0);
+		SendMsg(MM_SHOW_IMAGE, (INT_PTR)"", -1, 0);
 		break;
 	case MM_RELEASE_QUEST_SH:
 		m_isOnQuest = false;
@@ -483,7 +483,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			SendMsg(MM_REQ_HOSTILE_GUILD, m_menuTargetAID, 0, 0);
 			break;
 		case MENUID_INVITE_IN_PARTY:
-			SendMsg(MM_REQ_JOIN_GROUP, int(m_actorNameList[m_menuTargetAID].cName.c_str()), 0, 0);
+			SendMsg(MM_REQ_JOIN_GROUP, INT_PTR(m_actorNameList[m_menuTargetAID].cName.c_str()), 0, 0);
 			break;
 		case MENUID_INVITE_IN_BABY:
 			SendMsg(MM_REQ_JOIN_BABY, m_menuTargetAID, 0, 0);
@@ -493,20 +493,20 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			break;
 		case MENUID_MAKE_WHISPER_WINDOW:
 			if (g_windowMgr.IsFriendName(m_actorNameList[m_menuTargetAID].cName.c_str()))
-				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)m_actorNameList[m_menuTargetAID].cName.c_str(), (int)MsgStr(MSI_FRIEND), 0, 0);
+				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)m_actorNameList[m_menuTargetAID].cName.c_str(), (INT_PTR)MsgStr(MSI_FRIEND), 0, 0);
 			else if (g_session.IsGuildMember(m_actorNameList[m_menuTargetAID].cName.c_str()))
-				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)m_actorNameList[m_menuTargetAID].cName.c_str(), (int)"GuildMember", 0, 0);
+				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)m_actorNameList[m_menuTargetAID].cName.c_str(), (INT_PTR)"GuildMember", 0, 0);
 			else
-				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (int)m_actorNameList[m_menuTargetAID].cName.c_str(), 0, 0, 0);
+				g_windowMgr.SendMsg(UIM_MAKE_WHISPER_WINDOW, (INT_PTR)m_actorNameList[m_menuTargetAID].cName.c_str(), 0, 0, 0);
 			break;
 			case MENUID_REQ_EX_LIST: {
-				ProcessTalkType(TT_REQ_WHISPER_PC_EX, (int)&m_actorNameList[m_menuTargetAID]);
+				ProcessTalkType(TT_REQ_WHISPER_PC_EX, (INT_PTR)&m_actorNameList[m_menuTargetAID]);
 				g_session.AddToExNameList(m_actorNameList[m_menuTargetAID].cName.c_str());
 				g_session.AddToExAidList(m_menuTargetAID);
 				break;
 			}
 			case MENUID_REQ_IN:
-				ProcessTalkType(TT_REQ_WHISPER_PC_IN, (int)&m_actorNameList[m_menuTargetAID]);
+				ProcessTalkType(TT_REQ_WHISPER_PC_IN, (INT_PTR)&m_actorNameList[m_menuTargetAID]);
 				g_session.DeleteFromExNameList(m_actorNameList[m_menuTargetAID].cName.c_str());
 				g_session.DeleteFromExAidList(m_menuTargetAID);
 				break;
@@ -528,7 +528,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 				w->Move(UIX(200), UICY(200));
 				g_windowMgr.AddWindow(w);
 				w->SendMsg(0, UM_SET_TARGET, MM_REQ_GIVE_MANNER_POINT_PLUS, 0, 0, 0);
-				w->SendMsg(0, UM_SETTEXT, (int)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
+				w->SendMsg(0, UM_SETTEXT, (INT_PTR)MsgStr(MSI_GIVE_PLUS_MANNER_POINT), 0, 0, 0);
 				w->SendMsg(0, UM_SET_COUNT, 1, 0, 0, 0);
 			break;
 		}
@@ -540,7 +540,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 				w->Move(UIX(200), UICY(200));
 				g_windowMgr.AddWindow(w);
 				w->SendMsg(0, UM_SET_TARGET, MM_REQ_GIVE_MANNER_POINT_MINUS, 0, 0, 0);
-				w->SendMsg(0, UM_SETTEXT, (int)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
+				w->SendMsg(0, UM_SETTEXT, (INT_PTR)MsgStr(MSI_GIVE_MINUS_MANNER_POINT), 0, 0, 0);
 				w->SendMsg(0, UM_SET_COUNT, 1, 0, 0, 0);
 			break;
 		}
@@ -766,7 +766,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		ITEM_INFO equipedItemInfo = g_session.GetEquipedItems(slotNum[0]);
 
 		if (equipedItemInfo.m_isDamaged) {
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_DAMAGED_ITEM), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_DAMAGED_ITEM), 0xff, 0, 0);
 			break;
 		}
 
@@ -1034,7 +1034,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 		if (m_dragInfo.m_dragType == DT_FROM_ITEMWND) {
 			if (g_windowMgr.GetItemWnd() == NULL) {
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_OPEN_ITEMWND_TO_THROW), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_OPEN_ITEMWND_TO_THROW), 0xff, 0, 0);
 				SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 				return 0;
 			}
@@ -1073,7 +1073,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 			if (!exchangeWnd && equipWnd && !itemStoreWnd && !mailListWnd && !mailViewWnd && !auctionWnd) {
 				g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CLOSEEQUIPWND), 0xff, 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CLOSEEQUIPWND), 0xff, 0, 0);
 			}
 		}
 		break;
@@ -1123,7 +1123,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(val1);
 			if (m_world->m_player->m_stateId == 6) {
 				if (itemInfo.GetItemId() == 601 || itemInfo.GetItemId() == 602 || itemInfo.GetItemId() == 611 || itemInfo.GetItemId() == 605 || itemInfo.GetItemId() == 606) {
-					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CANT_USE_WHEN_SITDOWN), (int)RGB(255, 0, 0), 0, 0);
+					g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CANT_USE_WHEN_SITDOWN), (int)RGB(255, 0, 0), 0, 0);
 					break;
 				}
 			}
@@ -1218,7 +1218,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		BOOL isBad = g_insultFilter.IsBadSentence(chat2);
 		if (isBad) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			g_windowMgr.ClearChatMsg();
 			break;
 		}
@@ -1262,7 +1262,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		BOOL isBad = g_insultFilter.IsBadSentence(chat2);
 		if (isBad) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			g_windowMgr.ClearChatMsg();
 			break;
 		}
@@ -1337,7 +1337,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 							if (m_recordChat[j].length() < 20)
 								break;
 							if (j == m_recordChatNum - 1) {
-								g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)"TOO FAST CHATTING!", (int)RGB(255, 150, 110), 0, 0);
+								g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)"TOO FAST CHATTING!", (int)RGB(255, 150, 110), 0, 0);
 								ChatDori();
 								m_strikeNum = 0;
 								break;
@@ -1440,7 +1440,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		BOOL isBad = g_insultFilter.IsBadSentence(chat2);
 		if (isBad) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			g_windowMgr.ClearChatMsg();
 			break;
 		}
@@ -1481,7 +1481,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		BOOL isBad = g_insultFilter.IsBadSentence(chat2);
 		if (isBad) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			g_windowMgr.ClearChatMsg();
 			break;
 		}
@@ -1522,7 +1522,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		BOOL isBad = g_insultFilter.IsBadSentence(whisperChat2);
 		if (isBad) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			g_windowMgr.ClearChatMsg();
 			break;
 		}
@@ -1588,7 +1588,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_DISCONNECT_ALL_CHARACTER), (const char *)&p);
 		break;
 	}
-	case MM_QUERYRSWNAME:                  return (int)m_rswName;
+	case MM_QUERYRSWNAME:                  return (INT_PTR)m_rswName;
 	case MM_CONTACTNPC: {
 		Trace("MM_CONTACTNPC");
 		if (m_world->m_player)
@@ -1688,7 +1688,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	case MM_REQ_EXCHANGE_ITEM: {
 		if (g_serviceType == ServiceIndonesia && g_windowMgr.GetExchangeAcceptWnd()) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CHARACTER_IS_DEALING), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CHARACTER_IS_DEALING), 0xff, 0, 0);
 			break;
 		}
 		SendMsg(MM_RELEASE_QUEST, 0, 0, 0);
@@ -1715,13 +1715,13 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	case MM_ADD_EXCHANGE_ITEM: {
 		if (g_session.IsExistIndexInMyChangeList(val1)) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_CAN_DRAG_ITEM_OLNY_ONETIME), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_CAN_DRAG_ITEM_OLNY_ONETIME), 0xff, 0, 0);
 			break;
 		}
 
 		if (g_session.IsExchangeItemListFull() && val1) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_MAXEXCHANGE_IS_10_KIND), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_MAXEXCHANGE_IS_10_KIND), 0xff, 0, 0);
 			break;
 		}
 
@@ -1985,13 +1985,13 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			case	SKILLTYPE_PASSIVE:
 				break;
 			case	SKILLTYPE_TOCHARACTER:
-				SendMsg(MM_HANG_USE_SKILL, SUT_TO_CHARACTER, int(skillInfo), skillUseLevel);
+				SendMsg(MM_HANG_USE_SKILL, SUT_TO_CHARACTER, INT_PTR(skillInfo), skillUseLevel);
 				break;
 			case	SKILLTYPE_TOGROUND:
-				SendMsg(MM_HANG_USE_SKILL, SUT_TO_GROUND, int(skillInfo), skillUseLevel);
+				SendMsg(MM_HANG_USE_SKILL, SUT_TO_GROUND, INT_PTR(skillInfo), skillUseLevel);
 				break;
 			case	SKILLTYPE_TOALL:
-				SendMsg(MM_HANG_USE_SKILL, SUT_TO_ALL, int(skillInfo), skillUseLevel);
+				SendMsg(MM_HANG_USE_SKILL, SUT_TO_ALL, INT_PTR(skillInfo), skillUseLevel);
 				break;
 			case	SKILLTYPE_TOME: {
 				DWORD Aid = 0;
@@ -2006,10 +2006,10 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 				break;
 			}
 			case	SKILLTYPE_TOITEM:
-				SendMsg(MM_HANG_USE_SKILL, SUT_TO_ITEM, int(skillInfo), skillUseLevel);
+				SendMsg(MM_HANG_USE_SKILL, SUT_TO_ITEM, INT_PTR(skillInfo), skillUseLevel);
 				break;
 			case	SKILLTYPE_TOSKILL:
-				SendMsg(MM_HANG_USE_SKILL, SUT_TO_SKILL, int(skillInfo), skillUseLevel);
+				SendMsg(MM_HANG_USE_SKILL, SUT_TO_SKILL, INT_PTR(skillInfo), skillUseLevel);
 				break;
 		}
 		break;
@@ -2074,7 +2074,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		if (SKID == 20001) {
 			char msgBuf[256];
 			sprintf(msgBuf, "[ (val1 == 20001) ]");
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msgBuf, (int)RGB(255, 150, 110), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msgBuf, (int)RGB(255, 150, 110), 0, 0);
 			PACKET_CZ_REQ_JOIN_BABY p;
 			p.PacketType = HEADER_CZ_REQ_JOIN_BABY;
 			p.AID = val2;
@@ -2109,12 +2109,12 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			if (g_session.GetSp() < 40) {
 				char msgBuf[256];
 				sprintf(msgBuf, MsgStr(MSI_USESKILL_FAIL_SP_INSUFFICIENT));
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msgBuf, 0xff, 10, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msgBuf, 0xff, 10, 0);
 				return 0;
 			} else if (!IsEffectStatePushCart(g_session.m_effectState)) {
 				char msgBuf[256];
 				sprintf(msgBuf, MsgStr(MSI_MUST_EQUIP_CART));
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msgBuf, 0xff, 10, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msgBuf, 0xff, 10, 0);
 				return 0;
 			}
 			g_windowMgr.MakeWindow(WID_SELECTCARTWND);
@@ -2162,7 +2162,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		strcpy(p.contents, (const char *)values[4]);
 		if (g_insultFilter.IsBadSentence(p.contents)) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			break;
 		}
 		if (p.selectedLevel == 0)
@@ -2430,7 +2430,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		p.key[40-1] = 0;
 
 		if (strcmp(key, g_guildInfo.m_guildName.c_str()))
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)MsgStr(MSI_DISORGANIZE_GUILD_FAILURE), 0xff, 4, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_DISORGANIZE_GUILD_FAILURE), 0xff, 4, 0);
 		else
 			g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_REQ_DISORGANIZE_GUILD), (const char *)(&p));
 		break;
@@ -2517,14 +2517,14 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		memcpy(compName, gName, 2);
 		if (strcmp(compName, "\xa1\xa1") == 0) {
 			sprintf(msg, "Can NOT use space in Guild Name !!");
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(255, 150, 110), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(255, 150, 110), 0, 0);
 			break;
 		}
 
 		memcpy(compName, gName + strlen(gName) - 2, 2);
 		if (strcmp(compName, "\xa1\xa1") == 0) {
 			sprintf(msg, "Can NOT use space in Guild Name !!");
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, (int)RGB(255, 150, 110), 0, 0);
+			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, (int)RGB(255, 150, 110), 0, 0);
 			break;
 		}
 
@@ -2759,7 +2759,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		default:
 			return 0;
 		}
-		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0xffff00, NMSG_GUILD, 0);
+		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, 0xffff00, NMSG_GUILD, 0);
 		break;
 	}
 	case MM_QUIT_TO_IDENTRY:
@@ -2920,7 +2920,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 			char msg[256];
 			sprintf(msg, "[ %s ]", p.CharName);
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, RGB(155,250,110), 0, 0);
+				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)msg, RGB(155,250,110), 0, 0);
 				break;
 			}
 	case MM_RC_ID: {

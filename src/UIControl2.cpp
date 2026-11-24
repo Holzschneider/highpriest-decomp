@@ -1040,7 +1040,7 @@ void UIChatHisBox::OnLBtnUp(int x, int y) {}
 void UIChatHisBox::OnLBtnDblClk(int x, int y) {
 	if (m_curItem != -1) {
 		if (GetTalkerName(m_curItem) != NULL) {
-			m_parent->SendMsg(this, UM_COMMAND, 0x119, (int)GetTalkerName(m_curItem), 0, 0);
+			m_parent->SendMsg(this, UM_COMMAND, 0x119, (INT_PTR)GetTalkerName(m_curItem), 0, 0);
 		}
 	}
 }

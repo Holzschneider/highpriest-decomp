@@ -130,7 +130,7 @@ static int	l_SkillGround (lua_State* L)
 	CGameActor*	myself = (CGameActor*) gameMode->GetWorld()->GetGameActorByAID (myID);
 
 	if ( myself->m_stateId==ST_MOVE || myself->m_stateId==ST_STAND || myself->m_stateId==ST_DAMAGE )
-		gameMode->SendMsg(MM_USE_SKILL_TOGROUND, int(values));
+		gameMode->SendMsg(MM_USE_SKILL_TOGROUND, INT_PTR(values));
 
 	gameMode->SendMsg(MM_SETLOCKONMOUSE, 0) ;
 
@@ -209,9 +209,9 @@ static	int	l_TraceAI ( lua_State* L )
 		char curPath[256];
 		GetCurrentDirectory(256, curPath);
 
-		int Pos = (int)strstr(curPath, "\\data"), logCnt = 0, size = 0;
+		int Pos = (INT_PTR)strstr(curPath, "\\data"), logCnt = 0, size = 0;
 		if (Pos) {
-			Pos = Pos - (int)curPath;
+			Pos = Pos - (INT_PTR)curPath;
 			memcpy(curPath, curPath, Pos);
 		}
 		strcat(curPath, "\\TraceAI.txt");

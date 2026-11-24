@@ -1715,7 +1715,7 @@ void	CRenderObject :: RenderSprite(const RPSprite &spr, unsigned int* const pal,
 
 		if (img->tex == NULL)
 		{
-			tex = g_renderer->GetSpriteIndex(*img, (DWORD)pal, &info);
+			tex = g_renderer->GetSpriteIndex(*img, (INT_PTR)pal, &info);
 			if (tex == 0 )
 			{
 				tex = g_renderer->AddSpriteIndex(*img, pal, &info);
@@ -3791,7 +3791,7 @@ void	CGameActor :: ProcessWillBeAttacked()
 		WBA &wba = *it;
 		if (curTime >= wba.time)
 		{
-			SendMsg(NULL, wba.message, int(&wba), 0, 0);
+			SendMsg(NULL, wba.message, INT_PTR(&wba), 0, 0);
 			it = m_willBeAttackedList.erase(it);
 		}
 		else
@@ -4572,7 +4572,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 							if (effectId2 == EF_BLOODDRAIN || effectId2 == EF_ENERGYDRAIN)
 							{
 								if (tActor)
-									effect->SendMsg(NULL, AM_SETPOS, int(&tActor->m_pos));
+									effect->SendMsg(NULL, AM_SETPOS, INT_PTR(&tActor->m_pos));
 							}
 						}
 					}
@@ -5582,35 +5582,35 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 
 					case	EFST_MER_FLEE:
 						{
-							SendMsg(NULL, AM_CHAT, int("FLEE UP!"));
+							SendMsg(NULL, AM_CHAT, INT_PTR("FLEE UP!"));
 							LaunchEffect(EF_AGIUP);
 						}
 						break;
 
 					case	EFST_MER_ATK:
 						{
-							SendMsg(NULL, AM_CHAT, int("ATK UP!"));
+							SendMsg(NULL, AM_CHAT, INT_PTR("ATK UP!"));
 							LaunchEffect(EF_AGIUP);
 						}
 						break;
 
 					case	EFST_MER_HIT:
 						{
-							SendMsg(NULL, AM_CHAT, int("DEX UP!"));
+							SendMsg(NULL, AM_CHAT, INT_PTR("DEX UP!"));
 							LaunchEffect(EF_AGIUP);
 						}
 						break;
 
 					case	EFST_MER_HP:
 						{
-							SendMsg(NULL, AM_CHAT, int("HP UP!"));
+							SendMsg(NULL, AM_CHAT, INT_PTR("HP UP!"));
 							LaunchEffect(EF_AGIUP);
 						}
 						break;
 
 					case	EFST_MER_SP:
 						{
-							SendMsg(NULL, AM_CHAT, int("SP UP!"));
+							SendMsg(NULL, AM_CHAT, INT_PTR("SP UP!"));
 							LaunchEffect(EF_AGIUP);
 						}
 						break;
