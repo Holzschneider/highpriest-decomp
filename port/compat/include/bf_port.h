@@ -12,6 +12,7 @@
 #include "../../native/codec/include/bf_codec.h"
 #include "../../native/sys/include/bf_file.h"
 #include "../../native/sys/include/bf_settings.h"
+#include "../../native/strings/include/bf_strings.h"
 
 #ifdef __cplusplus
 extern "C" {

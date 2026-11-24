@@ -109,6 +109,17 @@ CSession :: ~CSession()
 #if 1
 void	CSession :: Init()
 {
+#ifdef BF_PORT
+	// The English text of the displayed literals the source keeps in Korean
+	// (bf_tr; port/data/strings, copied to the game folder by assemble.py).
+	if (g_serviceType != ServiceKorea) {
+		char stringsPath[1024];
+		if (bf_file_resolve("data\\bf_strings.tsv", BF_RESOLVE_READ, stringsPath, sizeof(stringsPath)) >= 0)
+			bf_strings_load(stringsPath);
+		else
+			bf_port_missing(BFT_FILE, "file.missing", "data\\bf_strings.tsv: no string table; Korean literals stay");
+	}
+#endif
 	m_averagePingTime = 0;
 	m_talkType = 0;
 	m_isAttrIndicator = 1;
@@ -183,7 +194,7 @@ void	CSession :: Init()
 	InitHomunTargetInfo();
 
 	m_merJob = -1;
-	sprintf(m_merName, "\xbf\xeb\xba\xb4");
+	sprintf(m_merName, bf_tr("\xbf\xeb\xba\xb4"));
 	m_merAtk = 0;
 	m_merMatk = 0;
 	m_merHit = 0;
@@ -3874,7 +3885,7 @@ const char *	CSession :: GetItemName(int index)
 		}
 	}
 
-	return	"\xb0\xcb\xc0\xba\xb9\xb0\xbe\xe0";
+	return	bf_tr("\xb0\xcb\xc0\xba\xb9\xb0\xbe\xe0");
 
 }
 

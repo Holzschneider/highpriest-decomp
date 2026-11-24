@@ -85,6 +85,7 @@ extern	bool		g_isAssert;
 #define uncompress bf_zlib_uncompress
 #define compress bf_zlib_compress
 #else
+#define bf_tr(s) (s)
 extern "C" __declspec(dllimport) int uncompress (BYTE* dest, DWORD *destLen, const BYTE *source, DWORD sourceLen);
 extern "C" __declspec(dllimport) int compress(BYTE* dest, DWORD *destLen, const BYTE *source, DWORD sourceLen);
 #endif

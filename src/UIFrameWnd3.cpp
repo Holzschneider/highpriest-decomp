@@ -2949,11 +2949,11 @@ void UIRoMapWnd::DrawPartyInfos()
 			CGameMode* gameMode = g_modeMgr.GetGameMode();
 			std::string rswName = (char*)gameMode->SendMsg(MM_QUERYRSWNAME, 0, 0, 0);
 			if (rswName == it->mapName) {
-				int starX = GetTextWidth("\xa1\xda", 0, 0, 12, true);
+				int starX = GetTextWidth(bf_tr("\xa1\xda"), 0, 0, 12, true);
 				starX = (starX - it->mapPosInfo.x_LT - it->mapPosInfo.x_RB) / 2;
 				if (starX < 0)
 					starX = -starX;
-				TextOutWithOutline(starX, it->mapPosInfo.y_LT + 16, "\xa1\xda", 0, 0x8080f0, 0xffffff, 0, 12, true);
+				TextOutWithOutline(starX, it->mapPosInfo.y_LT + 16, bf_tr("\xa1\xda"), 0, 0x8080f0, 0xffffff, 0, 12, true);
 			}
 		}
 

@@ -865,7 +865,7 @@ void UINameBalloonText::SetNameText(NamePair const &namePair, bool cutSharp)
 		} else {
 			char temp[256];
 			if (g_serviceType == ServiceKorea)
-				sprintf(temp, "%s\xa1\xba%s\xa1\xbb", cName.c_str(), namePair.pName.c_str());
+				sprintf(temp, bf_tr("%s\xa1\xba%s\xa1\xbb"), cName.c_str(), namePair.pName.c_str());
 			else
 				sprintf(temp, "%s (%s)", cName.c_str(), namePair.pName.c_str());
 			m_strings.push_back(temp);
@@ -875,7 +875,7 @@ void UINameBalloonText::SetNameText(NamePair const &namePair, bool cutSharp)
 		if (namePair.gName.c_str()[0] != '\0') {
 			char temp[256];
 			if (g_serviceType == ServiceKorea)
-				sprintf(temp, "%s\xa1\xba%s\xa1\xbb", namePair.gName.c_str(), namePair.rName.c_str());
+				sprintf(temp, bf_tr("%s\xa1\xba%s\xa1\xbb"), namePair.gName.c_str(), namePair.rName.c_str());
 			else
 				sprintf(temp, "%s [%s]", namePair.gName.c_str(), namePair.rName.c_str());
 			m_strings.push_back(temp); RAG_BUDGET_SITES(1)

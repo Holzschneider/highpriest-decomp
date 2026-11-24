@@ -884,7 +884,7 @@ void UIItemShopWnd::OnMouseHover(int x, int y)
 				sprintf(tmp, "Koin");
 			} else if (g_serviceType == ServiceKorea) {
 				if (g_isGravityID)
-					sprintf(tmp, "\xc7\xd1\xc4\xda\xc0\xce");
+					sprintf(tmp, bf_tr("\xc7\xd1\xc4\xda\xc0\xce"));
 				else
 					sprintf(tmp, MsgStr(MSI_CASH));
 			} else {
@@ -2025,7 +2025,7 @@ void UIItemPurchaseWnd::OnMouseHover(int x, int y)
 				sprintf(tmp, "Koin");
 			} else if (g_serviceType == ServiceKorea) {
 				if (g_isGravityID)
-					sprintf(tmp, "\xc7\xd1\xc4\xda\xc0\xce");
+					sprintf(tmp, bf_tr("\xc7\xd1\xc4\xda\xc0\xce"));
 				else
 					sprintf(tmp, MsgStr(MSI_CASH));
 			} else {
@@ -2220,7 +2220,7 @@ void UIItemPurchaseWnd::OnDraw()
 					sprintf(tmp, "Koin");
 				} else if (g_serviceType == ServiceKorea) {
 					if (g_isGravityID)
-						sprintf(tmp, "\xc7\xd1\xc4\xda\xc0\xce");
+						sprintf(tmp, bf_tr("\xc7\xd1\xc4\xda\xc0\xce"));
 					else
 						sprintf(tmp, MsgStr(MSI_CASH));
 				} else {
@@ -2271,9 +2271,9 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 				sprintf(text, "Total : %d Koin", 0);
 			} else if (g_serviceType == ServiceKorea) {
 				if (g_isGravityID)
-					sprintf(text, "Total : %d \xc7\xd1\xc4\xda\xc0\xce", 0);
+					sprintf(text, bf_tr("Total : %d \xc7\xd1\xc4\xda\xc0\xce"), 0);
 				else
-					sprintf(text, "Total : %d \xc4\xb3\xbd\xc3", 0);
+					sprintf(text, bf_tr("Total : %d \xc4\xb3\xbd\xc3"), 0);
 			} else {
 				sprintf(text, "Total : %d Point", 0);
 			}
@@ -2511,9 +2511,9 @@ INT_PTR UIItemPurchaseWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, 
 				sprintf(text, "Total : %s Koin", GetNumberText(totalPrice, moneyTxt));
 			} else if (g_serviceType == ServiceKorea) {
 				if (g_isGravityID)
-					sprintf(text, "Total : %s \xc7\xd1\xc4\xda\xc0\xce", GetNumberText(totalPrice, moneyTxt));
+					sprintf(text, bf_tr("Total : %s \xc7\xd1\xc4\xda\xc0\xce"), GetNumberText(totalPrice, moneyTxt));
 				else
-					sprintf(text, "Total : %s \xc4\xb3\xbd\xc3", GetNumberText(totalPrice, moneyTxt));
+					sprintf(text, bf_tr("Total : %s \xc4\xb3\xbd\xc3"), GetNumberText(totalPrice, moneyTxt));
 			} else {
 				sprintf(text, "Total : %s Point", GetNumberText(totalPrice, moneyTxt));
 			}
@@ -6830,7 +6830,7 @@ INT_PTR UIMerchantShopMakeWnd::SendMsg(UIWindow* sender, int message, INT_PTR va
 
 				if (g_windowMgr.GetChatRoomWnd() || g_windowMgr.GetChatRoomMakeWnd()) {
 					g_windowMgr.ErrorMsg(
-						"\xbb\xf3\xc1\xa1\xb0\xfa \xc3\xa4\xc6\xc3\xb9\xe6\xc0\xbb \xb5\xbf\xbd\xc3\xbf\xa1 \xbf\xad\xbc\xf6 \xbe\xf8\xbd\xc0\xb4\xcf\xb4\xd9.",
+						bf_tr("\xbb\xf3\xc1\xa1\xb0\xfa \xc3\xa4\xc6\xc3\xb9\xe6\xc0\xbb \xb5\xbf\xbd\xc3\xbf\xa1 \xbf\xad\xbc\xf6 \xbe\xf8\xbd\xc0\xb4\xcf\xb4\xd9."),
 						0, TRUE, FALSE, 0);
 					g_windowMgr.DeleteWindow(WID_MERCHANTSHOPMAKEWND);
 					break;
