@@ -1307,7 +1307,8 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR
 		int VertexCount = GrannyGetMeshVertexCount(Mesh->Mesh);
 		granny_tri_material_group *Group = GrannyGetMeshTriangleGroups(Mesh->Mesh);
 
-		GrannyTexture *Texture = Mesh->TextureReferences[Group->MaterialIndex];
+		// read only within the mesh's materials (a mesh without any has an empty array)
+		GrannyTexture *Texture = Mesh->TextureCount>Group->MaterialIndex ? Mesh->TextureReferences[Group->MaterialIndex] : NULL;
 		if(Texture && Mesh->TextureCount>Group->MaterialIndex) {
 			*RetTex = (INT_PTR)Texture->tex;
 		}
