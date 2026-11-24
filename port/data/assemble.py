@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the game folder's loose data/ folder from the archives' gaps.
 
-  port/data/assemble.py [--game DIR] [--roe DIR] [--check]
+  port/data/assemble.py [--game DIR] [--roe DIR] [--check] [--list]
 
 The client reads data/ before the archives (clientinfo.xml has <readfolder>).
 What goes there, and why:
@@ -20,6 +20,11 @@ What goes there, and why:
                     port/tools/strings.py), copied unchanged; the lookup in
                     port/native/strings reads it, so a translation changes
                     without a rebuild.
+  textures          ROenglishRE's English interface bitmaps, under the
+                    client's own folder names (data/texture/유저인터페이스/...),
+                    each in the version whose image size equals the
+                    archive file's (see TEXTURE_SETS); --list names the
+                    source of every file and why others were left out.
   8 maps            prontera, prt_fild05, prt_fild08, prt_in, prt_church,
                     izlude, alberta, morocc: the 2021 archive holds their
                     renewal layouts, but the test server (rAthena pre-renewal)
@@ -64,6 +69,146 @@ TABLES = [
 ]
 PRE_MAPS = ['alberta', 'izlude', 'morocc', 'prontera', 'prt_church', 'prt_fild05', 'prt_fild08', 'prt_in']
 MAPS = [(m + ext, os.path.join(PRE, m + ext)) for m in PRE_MAPS for ext in ('.rsw', '.gnd', '.gat')]
+
+# --- English interface textures ----------------------------------------------
+# ROenglishRE's translated bitmaps (data/texture/...) exist in several sets.
+# Its own generator builds a pre-renewal client of 2012-04-10 or older from
+# Renewal, overlaid by Pre-Renewal, overlaid by Compatibility/2012-04-10; the
+# later Compatibility/<date> sets are for newer clients. A file is taken from
+# the first set in TEXTURE_SETS whose version has the image size of the file
+# the client reads from the archives today (rdata.grf over data.grf): the 2008
+# UI code places buttons and labels on those sizes, so a version of another
+# size has another layout and is never used. A file the archives lack is not
+# copied (the client never reads it), except the ones in TEXTURE_ABSENT_OK.
+# The files are copied unchanged; their folders get the client's names
+# (ROenglishRE stores the CP949 folder names as Latin-1 characters; the game
+# folder holds them as Unicode, which the sys module's CP949 lookup finds).
+TEXTURE_SETS = ['Pre-Renewal', 'Compatibility/2012-04-10', 'Renewal']   # then every other Compatibility set, oldest first
+# Referenced by the 2008 client (LoginMode.cpp, the licence window's "disagree"
+# button) but no longer in the 2021 archives; the English version has the size
+# of its sibling btn_agree, which is in them.
+TEXTURE_ABSENT_OK = {
+    b'data\\texture\\\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\btn_disagree' + s + b'.bmp'
+    for s in (b'', b'_a', b'_b')
+}
+
+
+def blank_tga(width, height):
+    """A 32-bit TGA, every pixel transparent."""
+    import struct
+    return struct.pack('<BBBHHBHHHHBB', 0, 0, 2, 0, 0, 0, 0, 0, width, height, 32, 8) + bytes(width * height * 4)
+
+
+# Textures with Korean text that ROenglishRE has no English version of and that
+# the English services drew from their own data: client path -> (maker, reason).
+# The title screen draws them for every service (UIWindowMgr::RenderTitleGraphic,
+# as the reference does); a transparent file of the archive's size leaves the
+# picture as it is without the Korean.
+TEXTURE_GENERATED = {
+    b'data\\texture\\\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\t_12\xbc\xbc.tga':
+        (blank_tga, 'transparent in place of the Korean age rating of the title screen'),
+}
+
+
+def image_size(data):
+    """(width, height) of a BMP, TGA, JPEG or PNG, or None."""
+    import struct
+    if data[:2] == b'BM' and len(data) >= 26:
+        w, h = struct.unpack_from('<ii', data, 18)
+        return w, abs(h)
+    if data[:8] == b'\x89PNG\r\n\x1a\n' and len(data) >= 24:
+        return struct.unpack_from('>II', data, 16)
+    if data[:2] == b'\xff\xd8':
+        at = 2
+        while at + 9 < len(data):
+            if data[at] != 0xff:
+                at += 1
+                continue
+            if data[at + 1] in (0xc0, 0xc1, 0xc2):
+                h, w = struct.unpack_from('>HH', data, at + 5)
+                return w, h
+            at += 2 + struct.unpack_from('>H', data, at + 2)[0]
+        return None
+    if len(data) >= 18 and data[2] in (1, 2, 3, 9, 10, 11):
+        return struct.unpack_from('<HH', data, 12)
+    return None
+
+
+def client_name(component):
+    """A ROenglishRE path component as the client's bytes: CP949 names are
+    stored as Latin-1 characters (À¯ÀúÀÎÅÍÆäÀÌ½º is 유저인터페이스)."""
+    import unicodedata
+    component = unicodedata.normalize('NFC', component)
+    try:
+        return component.encode('latin-1')
+    except UnicodeEncodeError:
+        return component.encode('cp949')
+
+
+def archive_tables(game):
+    import grfaudit
+    files = {}
+    for name in ('data.grf', 'rdata.grf'):          # rdata.grf is searched first
+        path = os.path.join(game, name)
+        if os.path.exists(path):
+            files.update(grfaudit.read_table(path)[2])
+    return files
+
+
+def texture_candidates(roe):
+    """client path (lower-case CP949 bytes, data\\texture\\...) -> [(set, file)] in preference order."""
+    comp = os.path.join(roe, TRANS, 'Compatibility')
+    sets = TEXTURE_SETS + ['Compatibility/' + d for d in sorted(os.listdir(comp))
+                           if 'Compatibility/' + d not in TEXTURE_SETS]
+    found = {}
+    for s in sets:
+        data = os.path.join(roe, TRANS, *s.split('/'), 'data')
+        for dirpath, _, names in os.walk(os.path.join(data, 'texture')):
+            for n in sorted(names):
+                full = os.path.join(dirpath, n)
+                rel = os.path.relpath(full, data).split(os.sep)
+                key = b'data\\' + b'\\'.join(client_name(c) for c in rel).lower()
+                found.setdefault(key, []).append((s, full))
+    return found
+
+
+def choose_textures(game, roe):
+    """[(client path, content, source)] and the files left out with why."""
+    import grfaudit
+    archives = archive_tables(game)
+    chosen, left = [], []
+    for key, cands in sorted(texture_candidates(roe).items()):
+        entry = archives.get(key)
+        if entry is None:
+            if key in TEXTURE_ABSENT_OK:
+                s, full = cands[0]
+                chosen.append((key, open(full, 'rb').read(), 'ROenglishRE/%s/%s (absent from the archives)' % (TRANS, s)))
+            else:
+                left.append((key, 'absent from the archives'))
+            continue
+        want = image_size(grfaudit.read_file(entry) or b'')
+        for s, full in cands:
+            with open(full, 'rb') as f:
+                data = f.read()
+            if image_size(data) == want:
+                chosen.append((key, data, 'ROenglishRE/%s/%s' % (TRANS, s)))
+                break
+        else:
+            sizes = ', '.join('%s %s' % (s, image_size(open(f, 'rb').read())) for s, f in cands)
+            left.append((key, 'archive %s, ROenglishRE %s' % (want, sizes)))
+    for key, (make, why) in sorted(TEXTURE_GENERATED.items()):
+        entry = archives.get(key)
+        size = entry and image_size(grfaudit.read_file(entry) or b'')
+        if size:
+            chosen.append((key, make(*size), 'generated: ' + why))
+    return chosen, left
+
+
+def texture_destination(out, key):
+    """The game folder path of a client path: CP949 decoded to Unicode, as the
+    sys module's lookup decodes it."""
+    parts = key.split(b'\\')[1:]
+    return os.path.join(out, *(p.decode('cp949') for p in parts))
 
 
 
@@ -157,6 +302,7 @@ def main():
     ap.add_argument('--address', default=os.environ.get('BF_SERVER_ADDRESS', '127.0.0.1'))
     ap.add_argument('--port', default=os.environ.get('BF_LOGIN_PORT', '6900'))
     ap.add_argument('--check', action='store_true', help='report what would change, write nothing')
+    ap.add_argument('--list', action='store_true', help='also list every texture with its source, and the ones left out')
     args = ap.parse_args()
     roe = args.roe or os.path.join(args.game, 'sources', 'ROenglishRE')
     out = os.path.join(args.game, 'data')
@@ -201,8 +347,29 @@ def main():
     place(os.path.join(args.game, 'DATA.INI'), DATA_INI.replace('\n', '\r\n').encode('latin-1'),
           args.check, report, 'generated by port/data/assemble.py')
 
+    # English interface textures (one summary line per source set; --list for every file).
+    textures, left = choose_textures(args.game, roe)
+    tex_report, per_set = [], {}
+    for key, data, s in textures:
+        dst = texture_destination(out, key)
+        if not args.check:
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+        state = place(dst, data, args.check, tex_report, s)
+        per_set.setdefault(s, {}).setdefault(state, 0)
+        per_set[s][state] += 1
+
     for state, name, size, digest, source in report:
         print(f'  {state:8} {name:32} {size:9} {digest}  {source}')
+    for s, states in per_set.items():
+        print(f'  textures {s}: ' + ', '.join(f'{n} {st}' for st, n in sorted(states.items())))
+    absent = sum(1 for _, why in left if why.startswith('absent'))
+    print(f'  textures left out: {absent} absent from the archives, {len(left) - absent} of another size than the archive\'s')
+    if args.list:
+        for (key, _, s), (state, *_rest) in zip(textures, tex_report):
+            print(f'    {state:8} {key.decode("cp949", "replace")}  <- {s}')
+        for key, why in left:
+            print(f'    left out {key.decode("cp949", "replace")}: {why}')
+    report += tex_report
     for src in missing:
         print(f'  MISSING SOURCE {src}')
     bad = missing or (args.check and any(r[0] != 'same' for r in report))
