@@ -491,6 +491,24 @@ void CLoginMode::OnChangeState(int state)
 			if (wnd)
 				wnd->SendMsg(NULL, UM_ENABLE_CANCEL, 0, 0, 0, 0);
 		}
+#if defined(BF_PORT)
+		// The text test screen (M9.4): BF_TEXTTEST=1 opens the windows that
+		// hold the most text over the login screen, for captures of the
+		// labels in the service's font.
+		if (getenv("BF_TEXTTEST") && *getenv("BF_TEXTTEST") == '1') {
+			// Not the basic information window: it opens the game's other
+			// windows, some of which need the game mode.
+			static const WINDOWID wids[] = { WID_STATUSWND, WID_EQUIPWND, WID_ITEMWND,
+				WID_SKILLLISTWND, WID_OPTIONWND };
+			static const int pos[][2] = { { 8, 8 }, { 296, 8 }, { 584, 8 }, { 296, 184 }, { 8, 184 } };
+			for (int i = 0; i < sizeof(wids) / sizeof(wids[0]); ++i) {
+				UIFrameWnd *w = g_windowMgr.MakeWindow(wids[i]);
+				if (w)
+					w->Move(pos[i][0], pos[i][1]);
+				BF_TRACE(BFT_UI, "texttest: window %d %s", wids[i], w ? "open" : "not made");
+			}
+		}
+#endif
 		break;
 	}
 	case LSM_SELECTSVR:
