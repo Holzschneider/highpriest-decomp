@@ -4,6 +4,12 @@ Everything the macOS port adds lives here. The documents are in [docs/port](../d
 
 Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. The scripts read the Windows headers vendored in `port/compat/winheaders` (Wine 11.0; `regenerate.sh` there rebuilds them); `BF_WIN_HEADERS` names another directory.
 
+## Build and fast check
+
+The port builds with CMake and Ninja from the repository root: `cmake --preset debug && cmake --build --preset debug` (presets `debug`, `asan` with address and undefined-behaviour sanitizers and pattern-filled locals, `release`; build folders `build/cmake/<preset>`). Targets: `bifrost` (the client, from `sources.mk`'s `GAME` list minus the exclusions listed in `CMakeLists.txt`), `native` (every module in `port/native` and its test program), `probes` (`bifrost-packetlen`, `bifrost-netprobe`; `-DBF_PROBE_SRC=src` builds them from the real tree instead of the shadow copy), `check` (all module tests; a window opens and sound plays) and `check-headless`. The client's flags are written once, in `port/tools/flags.sh`, which CMake reads at configure time and the census and probe scripts source.
+
+**The fast check run at every integration** is `port/tools/fastcheck.sh`: it configures and builds the debug preset, runs the headless module tests and the census, and prints one line per part; `--client` also requires the client to build, `--client-errors` instead checks that the client's compile errors match the census's. Logs go to `build/fastcheck/`.
+
 ## Measuring the compile work
 
 ```bash
