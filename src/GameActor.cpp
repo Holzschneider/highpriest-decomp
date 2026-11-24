@@ -6117,7 +6117,22 @@ void	CGameActor :: SetAttrState(int bodyState, int effectState, int healthState,
 		if (g_FirstEffect <= 2)
 		{
 			if (g_FirstEffect == 2)
+#if defined(BF_PORT)
+			{
+				// The reference (0x5735A9) calls through CWorld::m_player unchecked. When the
+				// new player's own OnInit gets here (CGameMode::RemoveGameActorAllAndMake),
+				// m_player is not set yet: the call on NULL stops the night and, with a
+				// quicken in the global stateId, launches blur effects on no actor. The
+				// port stops the night and launches nothing.
+				CPlayer *player = g_modeMgr.GetGameMode()->GetWorld()->m_player;
+				if (player)
+					player->ReLaunchBlurEffects();
+				else
+					g_Weather.StopNight();
+			}
+#else
 				g_modeMgr.GetGameMode()->GetWorld()->m_player->ReLaunchBlurEffects();
+#endif
 			g_FirstEffect++;
 		}
 	}
