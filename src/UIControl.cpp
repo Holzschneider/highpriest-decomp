@@ -2243,6 +2243,13 @@ void UIRadioBtn::SetText(char const *text)
 	Invalidate();
 }
 
+// The auction window (UIAuctionWnd::OnCreate, 0x49B298) writes m_type = 1
+// in place, an inlined setter.
+void UIRadioBtn::SetType(int type)
+{
+	m_type = type;
+}
+
 void UIRadioBtn::OnLBtnDown(int x, int y) {
 	if (m_parent && m_isEnabled) {
 		m_parent->SendMsg(this, UM_COMMAND, m_id, 0, 0, 0);

@@ -10343,9 +10343,410 @@ UIAuctionWnd::UIAuctionWnd()
 UIAuctionWnd::~UIAuctionWnd()
 {}
 
-void UIAuctionWnd::OnCreate(int cx, int cy) {}
+// Restored from the reference (FUN_0049aaa0): the close button, the four
+// tabs, five list rows, the page, sort and search controls and the
+// registration fields; the recovery had left it empty, so every button of
+// the window was an unset pointer.
+void UIAuctionWnd::OnCreate(int cx, int cy)
+{
+	int i;
 
-void UIAuctionWnd::OnDraw() {}
+	{
+		std::string preBmpName = "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\close";
+		char toolTip[] = "Close";
+		UIBitmapButton* closeButton = new UIBitmapButton;
+		closeButton->SetBitmapName((preBmpName + ".bmp").c_str(), 0);
+		closeButton->SetBitmapName((preBmpName + "_a.bmp").c_str(), 1);
+		closeButton->SetBitmapName((preBmpName + "_a.bmp").c_str(), 2);
+		closeButton->Create(closeButton->GetBitmapWidth(), closeButton->GetBitmapHeight());
+		closeButton->Move(m_w - 15, 2);
+		closeButton->SetId(ID_CLOSE);
+		closeButton->SetToolTip(toolTip);
+		AddChild(closeButton);
+	}
+
+	{
+		std::string pathName = "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\";
+		const char* bmpNames[8] = {
+			"auction_view", "auction_view_a", "auction_add", "auction_add_a",
+			"auction_sell", "auction_sell_a", "auction_buy", "auction_buy_a" };
+		int ids[4] = { ID_AUCTION_VIEW, ID_AUCTION_ADD, ID_AUCTION_SELL, ID_AUCTION_BUY };
+		int xs[4] = { 6, 77, 148, 218 };
+		for (i = 0; i < 4; ++i) {
+			UIBitmapButton* tab = new UIBitmapButton;
+			tab->SetBitmapName((pathName + bmpNames[i * 2] + ".bmp").c_str(), 0);
+			tab->SetBitmapName((pathName + bmpNames[i * 2 + 1] + ".bmp").c_str(), 1);
+			tab->SetBitmapName((pathName + bmpNames[i * 2 + 1] + ".bmp").c_str(), 2);
+			tab->Create(tab->GetBitmapWidth(), tab->GetBitmapHeight());
+			tab->Move(xs[i], 264);
+			tab->SetId(ids[i]);
+			AddChild(tab);
+		}
+	}
+
+	const char* apple = "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\item\\\xbb\xe7\xb0\xfa.bmp";
+	for (i = 0; i < 5; ++i) {
+		m_itemBmpList[i] = new UIBitmapButton2;
+		m_itemBmpList[i]->SetBitmapName(apple, 0);
+		m_itemBmpList[i]->SetBitmapName(apple, 1);
+		m_itemBmpList[i]->SetBitmapName(apple, 2);
+		m_itemBmpList[i]->Create(m_itemBmpList[i]->GetBitmapWidth(), m_itemBmpList[i]->GetBitmapHeight());
+		m_itemBmpList[i]->Move(-100, -100);
+		AddChild(m_itemBmpList[i]);
+
+		m_btnItemNameList[i] = new UITextButton;
+		m_btnItemNameList[i]->Create("", 0, 0, 12, false);
+		m_btnItemNameList[i]->SetSelectColor(0x9a9aff);
+		m_btnItemNameList[i]->Move(-100, -100);
+		m_btnItemNameList[i]->SetId(ID_ITEM_NAME);
+		AddChild(m_btnItemNameList[i]);
+
+		m_sellerNameList[i] = new UITextButton;
+		m_sellerNameList[i]->Create("", 0, 0, 12, false);
+		m_sellerNameList[i]->SetSelectColor(0x9a9aff);
+		m_sellerNameList[i]->Move(-100, -100);
+		AddChild(m_sellerNameList[i]);
+
+		m_buyerNameList[i] = new UITextButton;
+		m_buyerNameList[i]->Create("", 0, 0, 12, false);
+		m_buyerNameList[i]->SetSelectColor(0x9a9aff);
+		m_buyerNameList[i]->Move(-100, -100);
+		AddChild(m_buyerNameList[i]);
+	}
+
+	m_prevBtn = new UITextButton;
+	m_prevBtn->Create(MsgStr(MSI_PREV_PAGE), 0xc0c0c0, 0, 12, false);
+	m_prevBtn->SetSelectColor(0x9a9aff);
+	m_prevBtn->Move(-100, -100);
+	m_prevBtn->SetToolTip(MsgStr(MSI_PREV_PAGE));
+	m_prevBtn->SetId(ID_PREV_PAGE);
+	AddChild(m_prevBtn);
+
+	m_nextBtn = new UITextButton;
+	m_nextBtn->Create(MsgStr(MSI_NEXT_PAGE), 0xc0c0c0, 0, 12, false);
+	m_nextBtn->SetSelectColor(0x9a9aff);
+	m_nextBtn->Move(-100, -100);
+	m_nextBtn->SetToolTip(MsgStr(MSI_NEXT_PAGE));
+	m_nextBtn->SetId(ID_NEXT_PAGE);
+	AddChild(m_nextBtn);
+
+	{
+		const char* texts[4] = { MsgStr(MSI_EQUIP), MsgStr(MSI_WEAPON), MsgStr(MSI_CARD), MsgStr(MSI_ETC) };
+		for (i = 0; i < 4; ++i) {
+			m_btnOrder[i] = new UIRadioBtn;
+			m_btnOrder[i]->Create(60, 12);
+			m_btnOrder[i]->Move(-100, -100);
+			m_btnOrder[i]->SetText(texts[i]);
+			m_btnOrder[i]->SetType(1);
+			m_btnOrder[i]->SendMsg(this, UM_SETSTATE, m_curOrderBtn == i, 0, 0, 0);
+			AddChild(m_btnOrder[i]);
+		}
+	}
+
+	{
+		const char* texts[2] = { MsgStr(MSI_ITEM_NAME2), MsgStr(MSI_AUCTION_NUM) };
+		for (i = 0; i < 2; ++i) {
+			m_btnSearch[i] = new UIRadioBtn;
+			m_btnSearch[i]->Create(70, 12);
+			m_btnSearch[i]->Move(-100, -100);
+			m_btnSearch[i]->SetText(texts[i]);
+			m_btnSearch[i]->SetType(1);
+			m_btnSearch[i]->SendMsg(this, UM_SETSTATE, m_curSearchBtn == i, 0, 0, 0);
+			AddChild(m_btnSearch[i]);
+		}
+	}
+
+	m_search = new UIEditCtrl2;
+	m_search->Create(80, 16);
+	m_search->SetType(1);
+	m_search->Move(-100, -100);
+	m_search->SetTextLimit(246);
+	m_search->SetFrameColor(0xff, 0xff, 0xff);
+	AddChild(m_search);
+
+	{
+		std::string pathName = "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\search";
+		m_searchBtn = new UIBitmapButton;
+		m_searchBtn->SetBitmapName((pathName + ".bmp").c_str(), 0);
+		m_searchBtn->SetBitmapName((pathName + ".bmp").c_str(), 1);
+		m_searchBtn->SetBitmapName((pathName + ".bmp").c_str(), 2);
+		m_searchBtn->Create(m_searchBtn->GetBitmapWidth(), m_searchBtn->GetBitmapHeight());
+		m_searchBtn->Move(-100, -100);
+		m_searchBtn->SetId(ID_SEARCH);
+		m_searchBtn->SetToolTip(MsgStr(MSI_AUCTION_SEARCH));
+		AddChild(m_searchBtn);
+	}
+
+	m_itemBmpBtn = new UIBitmapButton2;
+	m_itemBmpBtn->SetBitmapName(apple, 0);
+	m_itemBmpBtn->SetBitmapName(apple, 1);
+	m_itemBmpBtn->SetBitmapName(apple, 2);
+	m_itemBmpBtn->Create(m_itemBmpBtn->GetBitmapWidth(), m_itemBmpBtn->GetBitmapHeight());
+	m_itemBmpBtn->Move(-100, -100);
+	AddChild(m_itemBmpBtn);
+
+	m_itemNameBtn = new UITextButton;
+	m_itemNameBtn->Create("", 0, 0, 12, false);
+	m_itemNameBtn->SetSelectColor(0x9a9aff);
+	m_itemNameBtn->Move(-100, -100);
+	AddChild(m_itemNameBtn);
+
+	m_userNameBtn = new UITextButton;
+	m_userNameBtn->Create(g_session.GetCharName(), 0, 0, 12, false);
+	m_userNameBtn->Resize2(83, m_userNameBtn->GetHeight());
+	m_userNameBtn->SetSelectColor(0x9a9aff);
+	m_userNameBtn->Move(-100, -100);
+	m_userNameBtn->SetToolTip(g_session.GetCharName());
+	AddChild(m_userNameBtn);
+
+	m_nowMoney = new UIEditCtrl2;
+	m_nowMoney->Create(65, 16);
+	m_nowMoney->SetType(1);
+	m_nowMoney->Move(-100, -100);
+	m_nowMoney->SetTextLimit(11);
+	m_nowMoney->SetText("10,000,000");
+	m_nowMoney->SetFrameColor(0xff, 0xff, 0xff);
+	AddChild(m_nowMoney);
+
+	m_maxMoney = new UIEditCtrl2;
+	m_maxMoney->Create(65, 16);
+	m_maxMoney->SetType(1);
+	m_maxMoney->Move(-100, -100);
+	m_maxMoney->SetTextLimit(11);
+	m_maxMoney->SetText("10,000,001");
+	m_maxMoney->SetFrameColor(0xff, 0xff, 0xff);
+	AddChild(m_maxMoney);
+
+	m_deleteHour = new UIEditCtrl2;
+	m_deleteHour->Create(28, 16);
+	m_deleteHour->SetType(1);
+	m_deleteHour->Move(-100, -100);
+	m_deleteHour->SetTextLimit(2);
+	m_deleteHour->SetFrameColor(0xff, 0xff, 0xff);
+	AddChild(m_deleteHour);
+
+	{
+		const char* names[4] = { "add", "cancel", "finish", "buy" };
+		UIBitmapButton** buttons[4] = { &m_addBtn, &m_cancelBtn, &m_finishBtn, &m_buyBtn };
+		int ids[4] = { ID_ADD_AUCTION, ID_CANCEL, ID_FINISH_AUCTION, ID_BUY_AUCTION };
+		for (i = 0; i < 4; ++i) {
+			std::string pathName = std::string("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\") + names[i];
+			UIBitmapButton* button = new UIBitmapButton;
+			*buttons[i] = button;
+			button->SetBitmapName((pathName + ".bmp").c_str(), 0);
+			button->SetBitmapName((pathName + "_a.bmp").c_str(), 1);
+			button->SetBitmapName((pathName + "_a.bmp").c_str(), 2);
+			button->Create(button->GetBitmapWidth(), button->GetBitmapHeight());
+			button->Move(-100, -100);
+			button->SetId(ids[i]);
+			AddChild(button);
+		}
+	}
+}
+
+// Restored from the reference (FUN_0049c130); the recovery had left it
+// empty. Draws the tab's background, title and column heads; the view, sell
+// and buy tabs place the rows' controls over the list of g_session, the
+// register tab its fields and the fee (12000 a hour, rAthena's default).
+void UIAuctionWnd::OnDraw()
+{
+	char windowName[64];
+	char buf[256];
+	char itemName[256];
+	char bmpName[256];
+	char itemHelp[256];
+	char price1[64];
+	char price2[64];
+	MSGSTRINGID msgId;
+
+	CBitmapRes* bitmap;
+	if (m_type == 0) {
+		bitmap = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\auction_bg_0.bmp"), false);
+		msgId = MSI_AUCTION_VIEW;
+	} else if (m_type == 1) {
+		bitmap = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\auction_bg_1.bmp"), false);
+		msgId = MSI_AUCTION_ADD;
+	} else {
+		bitmap = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\auction_bg_2.bmp"), false);
+		msgId = m_type == 2 ? MSI_AUCTION_SELL : MSI_AUCTION_BUY;
+	}
+	sprintf(windowName, "%s - %s", MsgStr(MSI_AUCTION), MsgStr(msgId));
+
+	DrawBitmap(0, 0, bitmap, false);
+	TextOutA(11, 3, windowName, 0, 0, 12, 0xffffff);
+	TextOutA(10, 2, windowName, 0, 0, 12, 0);
+	TextOutA(16, 30, MsgStr(MSI_ITEM2), 0, 0, 12, 0);
+
+	if (m_type == 0) {
+		TextOutA(88, 30, MsgStr(MSI_ITEM_NAME2), 0, 0, 12, 0);
+		TextOutA(177, 30, MsgStr(MSI_ITEM_PRICE), 0, 0, 12, 0);
+		TextOutA(327, 30, MsgStr(MSI_SELLER), 0, 0, 12, 0);
+		TextOutA(401, 30, MsgStr(MSI_BUYER), 0, 0, 12, 0);
+		TextOutA(480, 30, MsgStr(MSI_FINISH_TIME), 0, 0, 12, 0);
+		DrawBox(428, 286, 78, 1, 0x9994fe);
+
+		m_searchBtn->SetDiabled(1);
+		if (strcmp(m_search->GetText(), "") != 0)
+			m_searchBtn->SetDiabled(0);
+
+		if (g_session.m_auctionList.empty()) {
+			if (m_searchAuction)
+				TextOutA(250, 100, MsgStr(MSI_SEARCHING_ITEM), 0, 0, 12, 0);
+			else
+				TextOutA(200, 100, MsgStr(MSI_NOTHING_SEARCH_ITEM), 0, 0, 12, 0);
+			goto drawn;
+		}
+	} else if (m_type == 1) {
+		TextOutA(88, 30, MsgStr(MSI_ITEM_NAME2), 0, 0, 12, 0);
+		TextOutA(180, 30, MsgStr(MSI_ITEM_PRICE), 0, 0, 12, 0);
+		TextOutA(334, 30, MsgStr(MSI_SELLER), 0, 0, 12, 0);
+		TextOutA(406, 30, MsgStr(MSI_SET_TIME), 0, 0, 12, 0);
+		TextOutA(490, 30, MsgStr(MSI_CHARGE), 0, 0, 12, 0);
+
+		if (m_item.m_itemIndex) {
+			m_item.GetItemName(itemName);
+			int x = (94 - GetTextWidth(PolishText(itemName, 94, 0, 12, false), 0, 0, 12, false)) / 2 + 63;
+			m_itemNameBtn->Move(x, 80);
+			m_itemBmpBtn->Move(20, 74);
+		}
+
+		DrawBox(164, 96, 63, 1, 0xc2c2c2);
+		DrawBox(242, 96, 63, 1, 0xc2c2c2);
+		DrawBox(417, 96, 24, 1, 0xc2c2c2);
+		TextOutA(233, 82, "/", 0, 0, 12, 0);
+		m_userNameBtn->Move((83 - GetTextWidth(g_session.GetCharName(), 0, 0, 12, false)) / 2 + 310, 80);
+
+		if (g_windowMgr.GetFocusEdit() != m_nowMoney) {
+			int nowMoney = GetNumberInText((char*)m_nowMoney->GetText());
+			if (nowMoney > 999999999)
+				nowMoney = 999999999;
+			GetNumberText(nowMoney, price1);
+			m_nowMoney->SetText(price1);
+		}
+		if (g_windowMgr.GetFocusEdit() != m_maxMoney) {
+			int nowMoney = GetNumberInText((char*)m_nowMoney->GetText());
+			int maxMoney = GetNumberInText((char*)m_maxMoney->GetText());
+			if (nowMoney >= maxMoney)
+				maxMoney = nowMoney + 1;
+			if (maxMoney > 999999999)
+				maxMoney = 999999999;
+			GetNumberText(maxMoney, price1);
+			m_maxMoney->SetText(price1);
+		}
+		TextOutA(526, 82, "Z", 0, 0, 12, 0);
+
+		int deleteHour = atoi(m_deleteHour->GetText());
+		if (deleteHour > 48 || deleteHour < 0) {
+			deleteHour = deleteHour > 48 ? 48 : 0;
+			itoa(deleteHour, price1, 10);
+			m_deleteHour->SetText(price1);
+		}
+		GetNumberText(deleteHour * 12000, price2);
+		TextOutWithRightAlign(520, 82, price2, strlen(price2), 0, 12, 0);
+		goto drawn;
+	} else {
+		TextOutA(97, 30, MsgStr(MSI_ITEM_NAME2), 0, 0, 12, 0);
+		TextOutA(206, 30, MsgStr(MSI_ITEM_PRICE), 0, 0, 12, 0);
+		TextOutA(471, 30, MsgStr(MSI_FINISH_TIME), 0, 0, 12, 0);
+		TextOutA(375, 30, MsgStr(m_type == 2 ? MSI_BUYER : MSI_SELLER), 0, 0, 12, 0);
+
+		if (g_session.m_auctionList.empty()) {
+			TextOutA(200, 100, MsgStr(m_type == 2 ? MSI_NOTHING_SEARCH_SELL_ITEM : MSI_NOTHING_SEARCH_BUY_ITEM), 0, 0, 12, 0);
+			goto drawn;
+		}
+	}
+
+	{
+		// The view tab: rows of 34 from y 70; the sell and buy tabs: rows of
+		// 38 from y 72, a wider name column and one name column.
+		bool view = m_type == 0;
+		int y = view ? 70 : 72;
+		int row = 0;
+		for (std::vector<AUCTION_ITEM_SEARCH_INFO>::iterator it = g_session.m_auctionList.begin();
+			it != g_session.m_auctionList.end(); ++it, ++row) {
+			if (m_curAuctionItem && m_curAuctionItem->AuctionID == it->AuctionID)
+				DrawBox(1, y - 8, 548, 31, 0xe3dffe);
+
+			ITEM_INFO* item = GetCurAuctionItem2(&*it);
+			if (item) {
+				int nameWidth = view ? 86 : 99;
+				item->GetItemName(itemName);
+				int x = (nameWidth - GetTextWidth(PolishText(itemName, nameWidth, 0, 12, false), 0, 0, 12, false)) / 2 + 68;
+				m_btnItemNameList[row]->SetText(std::string(itemName));
+				m_btnItemNameList[row]->Resize2(nameWidth, m_btnItemNameList[row]->GetHeight());
+				m_btnItemNameList[row]->SetToolTip(itemName);
+				m_btnItemNameList[row]->Move(x, y);
+				m_btnItemNameList[row]->SetId2(it->AuctionID);
+
+				g_session.GetItemBitmapFileName(item->m_itemName.c_str(), bmpName, item->m_isIdentified);
+				sprintf(itemHelp, MsgStr(MSI_EA2), itemName, item->m_num);
+				m_itemBmpList[row]->SetBitmapName(bmpName, 0);
+				m_itemBmpList[row]->SetBitmapName(bmpName, 1);
+				m_itemBmpList[row]->SetBitmapName(bmpName, 2);
+				m_itemBmpList[row]->Move(view ? 21 : 20, y - 4);
+				m_itemBmpList[row]->SetToolTip(itemHelp);
+				m_itemBmpList[row]->SetId(it->AuctionID);
+				m_itemBmpList[row]->Invalidate();
+#if defined(BF_PORT)
+				delete item;   // the 2008 client leaks it, once per row and frame
+#endif
+			}
+
+			GetNumberText(it->NowPrice, price1);
+			GetNumberText(it->MaxPrice, price2);
+			sprintf(buf, "%s / %s", price1, price2);
+			if (view)
+				TextOutA((150 - GetTextWidth(buf, 0, 0, 12, false)) / 2 + 156, y + 2, buf, 0, 0, 12, 0);
+			else
+				TextOutA((171 - GetTextWidth(buf, 0, 0, 12, false)) / 2 + 170, y + 2, buf, 0, 0, 12, 0);
+
+			if (view) {
+				if (strcmp(it->SellerName, "") != 0) {
+					int x = (72 - GetTextWidth(PolishText(it->SellerName, 72, 0, 12, false), 0, 0, 12, false)) / 2 + 309;
+					m_sellerNameList[row]->SetText(std::string(it->SellerName));
+					m_sellerNameList[row]->Resize2(72, m_sellerNameList[row]->GetHeight());
+					m_sellerNameList[row]->SetToolTip(it->SellerName);
+					m_sellerNameList[row]->Move(x, y);
+				}
+				if (strcmp(it->BuyerName, "") != 0) {
+					int x = (72 - GetTextWidth(PolishText(it->BuyerName, 72, 0, 12, false), 0, 0, 12, false)) / 2 + 384;
+					m_buyerNameList[row]->SetText(std::string(it->BuyerName));
+					m_buyerNameList[row]->Resize2(72, m_buyerNameList[row]->GetHeight());
+					m_buyerNameList[row]->SetToolTip(it->BuyerName);
+					m_buyerNameList[row]->Move(x, y);
+				}
+			} else {
+				UITextButton* nameBtn = m_type == 2 ? m_buyerNameList[row] : m_sellerNameList[row];
+				char* name = m_type == 2 ? it->BuyerName : it->SellerName;
+				if ((m_type == 2 || m_type == 3) && strcmp(name, "") != 0) {
+					int x = (93 - GetTextWidth(PolishText(name, 93, 0, 12, false), 0, 0, 12, false)) / 2 + 344;
+					nameBtn->SetText(std::string(name));
+					nameBtn->Resize2(93, nameBtn->GetHeight());
+					nameBtn->SetToolTip(name);
+					nameBtn->Move(x, y);
+				}
+			}
+
+			time_t deleteTime = it->DeleteTime;
+			strftime(buf, 128, MsgStr(MSI_TIME_TYPE), localtime(&deleteTime));
+			if (view)
+				TextOutA((90 - GetTextWidth(buf, 0, 0, 12, false)) / 2 + 459, y + 2, buf, 0, 0, 12, 0);
+			else
+				TextOutA((109 - GetTextWidth(buf, 0, 0, 12, false)) / 2 + 440, y + 2, buf, 0, 0, 12, 0);
+
+			y += view ? 34 : 38;
+		}
+
+		if (view) {
+			sprintf(buf, "%d / %d", m_page, m_maxPage);
+			TextOutA(362, 242, buf, 0, 0, 12, 0xc0c0c0);
+		}
+	}
+
+drawn:
+	if (g_windowMgr.GetAuctionMsgWnd())
+		g_windowMgr.GetAuctionMsgWnd()->Invalidate();
+}
 
 void UIAuctionWnd::OnLBtnDown(int x, int y)
 {
@@ -10702,6 +11103,7 @@ INT_PTR UIAuctionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_P
 			m_searchAuction = 0;
 		if (val2)
 			m_maxPage = val2;
+		InitAllBtnPos();
 		Invalidate();
 		InvalidateChildren();
 		break;
@@ -10785,7 +11187,85 @@ ITEM_INFO * UIAuctionWnd::GetCurAuctionItem2(AUCTION_ITEM_SEARCH_INFO *auction)
 	return item;
 }
 
-void UIAuctionWnd::InitAllBtnPos() {}
+// Restored from the reference (FUN_0049ec50), which UM_REFRESH calls: every
+// control parked outside the window, then the current tab's put in place;
+// the recovery had left it empty and the call out.
+void UIAuctionWnd::InitAllBtnPos()
+{
+	int i;
+	for (i = 0; i < 5; ++i) {
+		m_itemBmpList[i]->Move(-100, -100);
+		m_btnItemNameList[i]->Move(-100, -100);
+		m_sellerNameList[i]->Move(-100, -100);
+		m_buyerNameList[i]->Move(-100, -100);
+	}
+	for (i = 0; i < 4; ++i)
+		m_btnOrder[i]->Move(-100, -100);
+	for (i = 0; i < 2; ++i)
+		m_btnSearch[i]->Move(-100, -100);
+	m_prevBtn->Move(-100, -100);
+	m_nextBtn->Move(-100, -100);
+	m_search->Move(-100, -100);
+	m_searchBtn->Move(-100, -100);
+	m_itemBmpBtn->Move(-100, -100);
+	m_itemNameBtn->Move(-100, -100);
+	m_userNameBtn->Move(-100, -100);
+	m_nowMoney->Move(-100, -100);
+	m_maxMoney->Move(-100, -100);
+	m_deleteHour->Move(-100, -100);
+	m_addBtn->Move(-100, -100);
+	m_cancelBtn->Move(-100, -100);
+	m_finishBtn->Move(-100, -100);
+	m_buyBtn->Move(-100, -100);
+
+	switch (m_type) {
+	case 0:
+		m_prevBtn->Move(325, 240);
+		m_nextBtn->Move(400, 240);
+		m_prevBtn->SetDiabled(0);
+		m_nextBtn->SetDiabled(0);
+		if (m_page == 1) {
+			m_prevBtn->Move(-100, -100);
+			m_prevBtn->SetDiabled(1);
+		}
+		if (m_page == m_maxPage || m_maxPage == 0) {
+			m_nextBtn->Move(-100, -100);
+			m_nextBtn->SetDiabled(1);
+		}
+		for (i = 0; i < 4; ++i)
+			m_btnOrder[i]->Move(i ? i * 50 + 23 : 10, 242);
+		for (i = 0; i < 2; ++i)
+			m_btnSearch[i]->Move(292 + i * 70, 272);
+		m_search->Move(427, 270);
+		m_searchBtn->Move(515, 265);
+		break;
+	case 1:
+		m_nowMoney->Move(162, 80);
+		m_maxMoney->Move(240, 80);
+		m_deleteHour->Move(420, 80);
+		m_addBtn->Move(438, 265);
+		m_cancelBtn->Move(496, 265);
+		break;
+	case 2:
+		m_finishBtn->SetDiabled(1);
+		m_cancelBtn->SetDiabled(1);
+		if (m_curAuctionItem) {
+			m_finishBtn->SetDiabled(0);
+			m_finishBtn->Move(438, 265);
+			// The reference tests the address of BuyerName here, which is
+			// never null: the cancel button shows with every selection.
+			m_cancelBtn->SetDiabled(0);
+			m_cancelBtn->Move(496, 265);
+		}
+		break;
+	case 3:
+		m_buyBtn->Move(465, 265);
+		m_buyBtn->SetDiabled(1);
+		if (m_curAuctionItem)
+			m_buyBtn->SetDiabled(0);
+		break;
+	}
+}
 UIAuctionMsgWnd::UIAuctionMsgWnd() { m_type = 0; m_price = 0; m_auctionID = 0; }
 UIAuctionMsgWnd::~UIAuctionMsgWnd() {}
 
