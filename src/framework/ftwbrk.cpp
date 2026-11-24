@@ -191,7 +191,7 @@ unsigned int TBL_CHTYPE[96] =
 };
 
 
-unsigned long THAICHARTYPETABLE[256] =
+unsigned int THAICHARTYPETABLE[256] =
 {
 	0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
 		   0,0,0,0,    0,0,0,0,    0,0,0,0,    0,0,0,0,
@@ -705,7 +705,7 @@ bool ThaiBreakIterator::InitializeLexicon()
 		delete m_pLexicon;
 	m_pLexicon = new ThaiLexicon;
 	m_pLexicon->fLoadLexicon("..\\ftwrk.lex");
-	memcpy(m_rgThaiCharTypeTable, THAICHARTYPETABLE, 256 * sizeof(unsigned long));
+	memcpy(m_rgThaiCharTypeTable, THAICHARTYPETABLE, 256 * sizeof(unsigned int));
 	if (!m_pLexicon)
 		return false;
 	return true;
@@ -727,9 +727,9 @@ int ThaiBreakIterator::FindThaiWordBreak(const char* szText, unsigned int nStrle
 	bool fCanBreakNext;
 	int nSubStrLen;
 	int iSubLoop;
-	unsigned long dwTypeCur;
+	unsigned int dwTypeCur;
 	byte chCur;
-	unsigned long THAGROUP, SYMGROUP, ENGGROUP;
+	unsigned int THAGROUP, SYMGROUP, ENGGROUP;
 
 	int cchMaxMatch;
 	bool fSeparateSymbol = (uFlags & FTWB_SEPARATESYMBOL) ? true : false;
@@ -822,7 +822,7 @@ LStartLoop:
 			}
 			else if (dwTypeCur & SYMGROUP)
 			{
-				unsigned long dwSav = dwTypeCur;
+				unsigned int dwSav = dwTypeCur;
 				if (cch) { goto LStoreWordLen; }
 				if (rgbBrk[iBrk]) { rgbBrk[++iBrk] = 0; }
 				do {
@@ -857,7 +857,7 @@ LStartLoop:
 				++pchWordWalk;
 				++cch;
 				if ((0xE6 == *pchWordWalk) &&
-					(((unsigned long)pchWordWalk > (unsigned long)(szText + 1)) &&
+					(((unsigned int)pchWordWalk > (unsigned int)(szText + 1)) &&
 					 (XCharType(*(pchWordWalk - 2)) & XT_THAI)))
 				{
 					++pchWordWalk;
@@ -1058,7 +1058,7 @@ LParseThaiChar:
 			}
 		}
 LStoreWordLen:
-		if (((unsigned long)pchFst > (unsigned long)szText) &&
+		if (((unsigned int)pchFst > (unsigned int)szText) &&
 			fCanCat(*(pchFst - 1), *pchFst, uFlags))
 		{
 			if (iBrk && rgbBrk[iBrk] == 0)
@@ -1067,7 +1067,7 @@ LStoreWordLen:
 				rgbBrk[iBrk] += cch;
 		}
 		else
-		if (((unsigned long)pchFst > (unsigned long)szText) &&
+		if (((unsigned int)pchFst > (unsigned int)szText) &&
 			(XCharType(*(pchFst - 1)) & XCharType(*pchFst)) &&
 			(
 			  (
@@ -1112,7 +1112,7 @@ LStoreWordLen:
 	return iBrk;
 }
 
-int ThaiBreakIterator::GetWeight(byte* vmOurDict, byte* szText, byte* pchFst, byte* pchLim, unsigned long dwFlags)
+int ThaiBreakIterator::GetWeight(byte* vmOurDict, byte* szText, byte* pchFst, byte* pchLim, unsigned int dwFlags)
 {
 	byte* pchWordWalk;
 	byte* pchDictWalk;
@@ -1290,12 +1290,12 @@ bool ThaiBreakIterator::fCanCat(byte chPrev, byte ch, unsigned int uFlags)
 	return false;
 }
 
-bool ThaiBreakIterator::HaveType(char ch, unsigned long IsType)
+bool ThaiBreakIterator::HaveType(char ch, unsigned int IsType)
 {
 	return m_rgThaiCharTypeTable[(byte)ch] & IsType ? true : false;
 }
 
-unsigned long ThaiBreakIterator::XCharType(char ch)
+unsigned int ThaiBreakIterator::XCharType(char ch)
 {
 	return m_rgThaiCharTypeTable[(byte)ch];
 }

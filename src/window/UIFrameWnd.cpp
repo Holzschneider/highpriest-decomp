@@ -259,9 +259,9 @@ void UIFrameWnd::DrawLatticeFrame(int x, int y, int width, int height)
 	DrawBitmap(x + width - bmp->m_width, y + height - bmp->m_height, bmp, false);
 
 	{
-		unsigned long gg;
-		unsigned long rr;
-		unsigned long bb;
+		unsigned int gg;
+		unsigned int rr;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(x + 14, y + 14, width - 28, height - 28, RGB(rr, gg, bb));
 	}
@@ -277,7 +277,7 @@ UIMessageBoxAutoreturn::~UIMessageBoxAutoreturn()
 {
 }
 
-void UIMessageBoxAutoreturn::Create(char const *msg, unsigned long autoReturnTime)
+void UIMessageBoxAutoreturn::Create(char const *msg, unsigned int autoReturnTime)
 {
 	m_msg = msg;
 	m_countMsg = msg;
@@ -305,7 +305,7 @@ void UIMessageBoxAutoreturn::Create(char const *msg, unsigned long autoReturnTim
 
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, 260, 48, false);
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -407,7 +407,7 @@ UIMessageBox::~UIMessageBox()
 {
 }
 
-void UIMessageBox::Create(char const *msg, int type, int isDefYes, unsigned long autoReturnTime)
+void UIMessageBox::Create(char const *msg, int type, int isDefYes, unsigned int autoReturnTime)
 {
 	m_msg = msg;
 	m_countMsg = msg;
@@ -434,7 +434,7 @@ void UIMessageBox::Create(char const *msg, int type, int isDefYes, unsigned long
 
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, 260, 65, false);
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -2069,7 +2069,7 @@ void UISelectCharWnd::OnDraw()
 				}
 			}
 
-			unsigned long* palette = sprRes->m_pal;
+			unsigned int* palette = sprRes->m_pal;
 			switch (i) {
 			case 0:
 				if (m_viewChar[curChar].bodyPalette) {
@@ -2095,7 +2095,7 @@ void UISelectCharWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 				if (tex == NULL)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			}
@@ -2543,7 +2543,7 @@ void UIMakeCharWnd::OnDraw()
 			}
 		}
 
-		unsigned long* palette = sprRes->m_pal;
+		unsigned int* palette = sprRes->m_pal;
 		switch (i) {
 		case 0:
 			if (m_viewChar.bodyPalette) {
@@ -2562,7 +2562,7 @@ void UIMakeCharWnd::OnDraw()
 		CSprClip* clip = curMotion->GetClip(i);
 		SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 		if (clip->clipType == 0) {
-			tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+			tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 			if (tex == NULL)
 				tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 		}
@@ -3721,7 +3721,7 @@ int UIChatRoomWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 			g_windowMgr.DeleteWindow(WID_MENUWND);
 
 		std::string myName = g_session.GetCharName();
-		std::map<std::string, unsigned long>::iterator it = m_memberList.find(myName);
+		std::map<std::string, unsigned int>::iterator it = m_memberList.find(myName);
 		int myRole = -1;
 		if (it != m_memberList.end())
 			myRole = m_memberList[myName];
@@ -3810,14 +3810,14 @@ m_roomInfo = *info;
 		return 0;
 
 	case UM_ROLE_CHANGE: {
-		std::map<std::string, unsigned long>::iterator it = m_memberList.find((const char*)val1);
+		std::map<std::string, unsigned int>::iterator it = m_memberList.find((const char*)val1);
 		if (it != m_memberList.end())
 			m_memberList[(const char*)val1] = val2;
 
 		m_memberListBox->ClearAllItems();
 		it = m_memberList.begin();
 		while (it != m_memberList.end()) {
-			unsigned long color = 0;
+			unsigned int color = 0;
 			if (it->second == 0)
 				color = 0x808000;
 			m_memberListBox->AddItem(it->first.c_str(), color, NULL);
@@ -3827,14 +3827,14 @@ m_roomInfo = *info;
 	}
 
 	case UM_MEMBER_EXIT: {
-		std::map<std::string, unsigned long>::iterator it = m_memberList.find((const char*)val1);
+		std::map<std::string, unsigned int>::iterator it = m_memberList.find((const char*)val1);
 		if (it != m_memberList.end()) {
 			m_memberList.erase(it);
 
 			m_memberListBox->ClearAllItems();
 			it = m_memberList.begin();
 			while (it != m_memberList.end()) {
-				unsigned long color = 0;
+				unsigned int color = 0;
 				if (it->second == 0)
 					color = 0x808000;
 				m_memberListBox->AddItem(it->first.c_str(), color, NULL);
@@ -3851,7 +3851,7 @@ m_roomInfo = *info;
 
 	case UM_ADDMEMBER: {
 		m_memberList[(const char*)val1] = val2;
-		unsigned long color = 0;
+		unsigned int color = 0;
 		if (val2 == 0)
 			color = 0x808000;
 		else
@@ -4012,16 +4012,16 @@ void UIMonsterInfoWnd::OnCreate(int cx, int cy)
 
 void UIMonsterInfoWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	char actName[128];
 	CTexture* tex;
 	CSprClip* clip;
 	int half_H;
 
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
-	unsigned long surfaceColor = RGB(rr, gg, bb);
+	unsigned int surfaceColor = RGB(rr, gg, bb);
 	ClearDC(surfaceColor);
 
 	int titleBarMidCount = ((m_w - 24) % 12 != 0) + (m_w - 24) / 12;
@@ -4062,7 +4062,7 @@ void UIMonsterInfoWnd::OnDraw()
 	DrawBitmap(m_w - bmp->m_width, m_h - bmp->m_height, bmp, false);
 
 	g_skinMgr.GetColorChipColor(22, 2, rr, gg, bb);
-	unsigned long borderColor = RGB(rr, gg, bb);
+	unsigned int borderColor = RGB(rr, gg, bb);
 
 	TextOutA(17, 3, MsgStr(MSI_MONSTER_INFO_WINDOW), 0, 0, 12, 0xffffff);
 	TextOutA(16, 2, MsgStr(MSI_MONSTER_INFO_WINDOW), 0, 0, 12, 0);
@@ -4182,12 +4182,12 @@ void UIMonsterInfoWnd::OnDraw()
 		sprRes = (CSprRes*)g_resMgr().Get(sprName, false);
 		if (actRes && sprRes) {
 			CMotion* motion = actRes->GetMotion(0, 0);
-			unsigned long* palette = sprRes->m_pal;
+			unsigned int* palette = sprRes->m_pal;
 			clip = motion->GetClip(0);
 			if (clip->sprIndex != -1) {
 				SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 				if (clip->clipType == 0) {
-					tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+					tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 					if (tex == NULL)
 						tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 				}
@@ -4215,12 +4215,12 @@ void UIMonsterInfoWnd::OnDraw()
 	}
 }
 
-void UIMonsterInfoWnd::DrawPropertyBox(int x, int y, char const *propertyString, int power, unsigned long borderColor, unsigned long surfaceColor)
+void UIMonsterInfoWnd::DrawPropertyBox(int x, int y, char const *propertyString, int power, unsigned int borderColor, unsigned int surfaceColor)
 {
 	char propertyText[64];
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	wsprintf(propertyText, "%s:%d", propertyString, power);
 	g_skinMgr.GetColorChipColor(22, 2, rr, gg, bb);
@@ -4355,7 +4355,7 @@ void UIPetInfoWnd::OnDraw()
 	char windowName[32];
 	DWORD rr;
 	char stHungry[24];
-	unsigned long* palette;
+	unsigned int* palette;
 	DWORD bb;
 	char sprName[128];
 	char actName[128];
@@ -4482,7 +4482,7 @@ void UIPetInfoWnd::OnDraw()
 				CSprClip* clip = curMotion->GetClip(a);
 				SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 				palette = sprRes->m_pal;
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 				if (tex == NULL)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 
@@ -4698,9 +4698,9 @@ int UITalkboxTrapInputWnd::SendMsg(UIWindow *sender, int message, int val1, int 
 
 void UITalkboxTrapInputWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	ClearDC(RGB(rr, gg, bb));
@@ -5195,7 +5195,7 @@ void UIMerInfoWnd::OnDraw()
 {
 	char windowName[32];
 	int textLen;
-	long tt;
+	int tt;
 	char text[24];
 
 	CBitmapRes* bitmap = (CBitmapRes*)g_resMgr().Get(
@@ -5255,7 +5255,7 @@ void UIMerInfoWnd::OnDraw()
 		textLen = sprintf(text, "%d / %d", g_session.m_merSP, g_session.m_merMaxSP);
 		TextOutA(218, 85, text, textLen, 1, 14, 0);
 
-		tt = (long)&g_session.m_merExpireDate;
+		tt = (int)&g_session.m_merExpireDate;
 		tm* expireTime = localtime(&tt);
 		strftime(text, 128, MsgStr(MSI_TIME_TYPE2), expireTime);
 		textLen = strlen(text);

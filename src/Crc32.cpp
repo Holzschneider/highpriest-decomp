@@ -6,19 +6,19 @@ class CFvCrc32 {
 public:
     CFvCrc32();
     ~CFvCrc32();
-    bool Crc32Mem(unsigned char* data, unsigned long len, unsigned long* crc);
-    bool Crc32MemCont(unsigned char* data, unsigned long len, unsigned long* crc);
-    bool Crc32File(const char* filename, unsigned long* crc);
-    bool Crc32FileRange(const char* filename, unsigned long offset, unsigned long len, unsigned long* crc);
-    bool Crc32FileRangeCont(const char* filename, unsigned long offset, unsigned long len, unsigned long* crc);
+    bool Crc32Mem(unsigned char* data, unsigned int len, unsigned int* crc);
+    bool Crc32MemCont(unsigned char* data, unsigned int len, unsigned int* crc);
+    bool Crc32File(const char* filename, unsigned int* crc);
+    bool Crc32FileRange(const char* filename, unsigned int offset, unsigned int len, unsigned int* crc);
+    bool Crc32FileRangeCont(const char* filename, unsigned int offset, unsigned int len, unsigned int* crc);
 private:
-    unsigned long m_table[256];
-    unsigned long m_error;
+    unsigned int m_table[256];
+    unsigned int m_error;
 };
 
 CFvCrc32::CFvCrc32() {
     for (int i = 0; i < 256; ++i) {
-        unsigned long c = i;
+        unsigned int c = i;
         for (int j = 8; j != 0; --j) {
             if (c & 1) c = (c >> 1) ^ 0xEDB88320;
             else c >>= 1;
@@ -29,14 +29,14 @@ CFvCrc32::CFvCrc32() {
 
 CFvCrc32::~CFvCrc32() {}
 
-bool CFvCrc32::Crc32Mem(unsigned char* data, unsigned long len, unsigned long* crc) {
+bool CFvCrc32::Crc32Mem(unsigned char* data, unsigned int len, unsigned int* crc) {
     *crc = 0xffffffff;
     Crc32MemCont(data, len, crc);
     *crc = ~*crc;
     return true;
 }
 
-bool CFvCrc32::Crc32MemCont(unsigned char* data, unsigned long len, unsigned long* crc) {
+bool CFvCrc32::Crc32MemCont(unsigned char* data, unsigned int len, unsigned int* crc) {
     if (!data) {
         m_error = 1;
         return false;
@@ -48,7 +48,7 @@ bool CFvCrc32::Crc32MemCont(unsigned char* data, unsigned long len, unsigned lon
     return true;
 }
 
-bool CFvCrc32::Crc32File(const char* filename, unsigned long* crc) {
+bool CFvCrc32::Crc32File(const char* filename, unsigned int* crc) {
     unsigned char buffer[4096];
     DWORD bytesRead;
     *crc = 0xffffffff;
@@ -76,14 +76,14 @@ bool CFvCrc32::Crc32File(const char* filename, unsigned long* crc) {
     return true;
 }
 
-bool CFvCrc32::Crc32FileRange(const char* filename, unsigned long offset, unsigned long len, unsigned long* crc) {
+bool CFvCrc32::Crc32FileRange(const char* filename, unsigned int offset, unsigned int len, unsigned int* crc) {
     *crc = 0xffffffff;
     Crc32FileRangeCont(filename, offset, len, crc);
     *crc = ~*crc;
     return true;
 }
 
-bool CFvCrc32::Crc32FileRangeCont(const char* filename, unsigned long offset, unsigned long len, unsigned long* crc) {
+bool CFvCrc32::Crc32FileRangeCont(const char* filename, unsigned int offset, unsigned int len, unsigned int* crc) {
     unsigned char buffer[4096];
     DWORD bytesRead;
     if (!filename || !*filename) {

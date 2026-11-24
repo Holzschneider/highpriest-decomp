@@ -307,7 +307,7 @@ struct tlvertex3d {
 public:
 	tlvertex3d() { specular = 0xFF000000; }
 	tlvertex3d(float nx, float ny, float nz, float noow,
-			   unsigned long ncolor, unsigned long nspecular,
+			   unsigned int ncolor, unsigned int nspecular,
 			   float ntu, float ntv)
 	{
 		x = nx;
@@ -324,10 +324,10 @@ public:
 	float z;
 	float oow;
 	union {
-		unsigned long color;
+		unsigned int color;
 		COLOR argb;
 	};
-	unsigned long specular;
+	unsigned int specular;
 	union {
 		texCoor coord;
 		struct {

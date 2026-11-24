@@ -14,33 +14,33 @@ public:
 
     bool Auth(const char* fileName, bool checkName);
     bool DecryptMem(const char* fileName, char* output,
-                    unsigned long outputSize, const char* password);
+                    unsigned int outputSize, const char* password);
     bool DecryptMem2(const char* fileName, char* output,
-                     unsigned long outputSize, const char* password);
+                     unsigned int outputSize, const char* password);
 
 
 
-    unsigned long GetError() { return m_lastError; }
+    unsigned int GetError() { return m_lastError; }
 
 private:
     friend class CGameGuard;
-    bool DecryptRC4(unsigned char* data, unsigned long size);
+    bool DecryptRC4(unsigned char* data, unsigned int size);
 
     HCRYPTPROV m_provider;
     unsigned char* m_buffer;
-    unsigned long m_payloadSize;
+    unsigned int m_payloadSize;
     HCRYPTHASH m_hash;
     HCRYPTKEY m_publicKey;
     unsigned char* m_signature;
-    unsigned long m_signatureSize;
+    unsigned int m_signatureSize;
     unsigned char m_hasFooter;
-    unsigned long m_dataOffset;
-    unsigned long m_fileSize;
-    unsigned long m_footer[4];
-    unsigned long m_nameSize;
+    unsigned int m_dataOffset;
+    unsigned int m_fileSize;
+    unsigned int m_footer[4];
+    unsigned int m_nameSize;
     HCRYPTKEY m_decryptKey;
     HCRYPTHASH m_passwordHash;
-    unsigned long m_lastError;
+    unsigned int m_lastError;
 };
 
 #endif

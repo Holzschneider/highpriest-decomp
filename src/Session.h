@@ -662,42 +662,42 @@ struct FRIEND_INFO {
 	FRIEND_INFO(int n) : isValid(0) {}
 	FRIEND_INFO() : isValid(1) {}
 	int isValid;
-	unsigned long AID;
-	unsigned long GID;
+	unsigned int AID;
+	unsigned int GID;
 	std::string characterName;
 	std::string mapName;
 	int role;
 	int state;
-	unsigned long color;
+	unsigned int color;
 };
 
 class CGameActor;
 
 
 struct FORCE_ANIM_TICK {
-	unsigned long AID;
-	unsigned long tick;
+	unsigned int AID;
+	unsigned int tick;
 };
 
 struct CHAT_PROHIBIT_LOG {
-	unsigned long AID;
-	unsigned long GID;
-	unsigned long prohibitTime;
-	unsigned long logDate;
-	unsigned long logTime;
+	unsigned int AID;
+	unsigned int GID;
+	unsigned int prohibitTime;
+	unsigned int logDate;
+	unsigned int logTime;
 	char accountName[32];
 	char charName[32];
 	char serverName[32];
 };
 struct REQ_ACCOUNT_AID {
 public:
-	unsigned long AID;
+	unsigned int AID;
 	std::string accountName;
 };
 
 struct REQ_ACCOUNTNAME_INFO {
-	unsigned long AID;
-	unsigned long reqTime;
+	unsigned int AID;
+	unsigned int reqTime;
 };
 
 
@@ -870,13 +870,13 @@ public:
 	void InitWhenServerMove();
 	int GetHeadJob(int head, int job);
 	void CorrectHead(int& head, int job);
-	unsigned long GetServerTime();
-	unsigned long GetCurSystemTime();
-	void SetServerTime(unsigned long pingTime);
+	unsigned int GetServerTime();
+	unsigned int GetCurSystemTime();
+	void SetServerTime(unsigned int pingTime);
 	bool IsOnlyEnglish(const char* rswName);
-	void UpdateServerTime(unsigned long pingTime);
+	void UpdateServerTime(unsigned int pingTime);
 	void RecalcAverageDiffTime(int money);
-	void RecalcAveragePingTime(unsigned long pingTime);
+	void RecalcAveragePingTime(unsigned int pingTime);
 	void SetPlayerPosDir(int x, int y, int dir);
 	bool IsBadNameWithSpaceChar(const char* rswName);
 	void SetPlayerInfo(int job, int sex, char* name, int speed);
@@ -891,10 +891,10 @@ public:
 	void AddToExNameList(const char* characterName);
 	void DeleteFromExNameList(const char* characterName);
 	int NumExAid();
-	int IsExAid(unsigned long gid);
+	int IsExAid(unsigned int gid);
 	void DeleteAllExAidList();
-	void AddToExAidList(unsigned long pingTime);
-	void DeleteFromExAidList(unsigned long pingTime);
+	void AddToExAidList(unsigned int pingTime);
+	void DeleteFromExAidList(unsigned int pingTime);
 	std::list<std::string>& GetNumExNameList();
 	const char* GetAttrWaveName(int slot);
 	const char* GetJobHitWaveName(int slot);
@@ -928,7 +928,7 @@ public:
 	const char* GetItemName(int slot);
 	void SetItem(ITEM_INFO* itemInfo);
 	bool AddItem(ITEM_INFO* itemInfo);
-	void DecItem(unsigned long index, int numItem);
+	void DecItem(unsigned int index, int numItem);
 	bool AddEquipItem(ITEM_INFO* itemInfo);
 	bool AddItemNoRefresh(ITEM_INFO* itemInfo);
 	bool IsValidItemIndexInEquiped(int index);
@@ -1050,8 +1050,8 @@ public:
 	int GetNumFriend();
 	FRIEND_INFO GetFriendInfoBySequence(int __$ReturnUdt);
 	void AddFriendToList(FRIEND_INFO& info);
-	int SetFriendState(unsigned long aid, unsigned long gid, bool state);
-	int DeleteFriendFromList(unsigned long gid);
+	int SetFriendState(unsigned int aid, unsigned int gid, bool state);
+	int DeleteFriendFromList(unsigned int gid);
 	void RefreshFriendUI();
 	int IsFriendName(const char* itemName);
 	int IsCheatName(const char* itemName);
@@ -1062,13 +1062,13 @@ public:
 	void ClearParty();
 	int GetNumParty();
 	void RefreshPartyUI();
-	FRIEND_INFO GetPartyInfoByAid(unsigned long __$ReturnUdt);
+	FRIEND_INFO GetPartyInfoByAid(unsigned int __$ReturnUdt);
 	void AddMemberToParty(FRIEND_INFO& info);
-	void ChangeRoleFromParty(unsigned long index, int numItem);
+	void ChangeRoleFromParty(unsigned int index, int numItem);
 	void DeleteMemberFromParty(const char* characterName);
 	FRIEND_INFO GetPartyInfoBySequence(int __$ReturnUdt);
 	FRIEND_INFO GetPartyInfoByName(const char* __$ReturnUdt);
-	unsigned long GetMemberAidFromParty(const char* characterName);
+	unsigned int GetMemberAidFromParty(const char* characterName);
 	int GetWeaponType(int index);
 	int MakeWeaponType(int head, int job);
 	const char* GetShortenItemName(int slot);
@@ -1080,10 +1080,10 @@ public:
 	ITEM_INFO GetOtherUserEquipedItems(int __$ReturnUdt);
 	int GetSex();
 	void SetSex(int money);
-	void SetAid(unsigned long aid) { m_aid = aid; }
-	void SetGid(unsigned long gid) { m_gid = gid; }
-	unsigned long GetAid() { return m_aid; }
-	unsigned long GetGid() { return m_gid; }
+	void SetAid(unsigned int aid) { m_aid = aid; }
+	void SetGid(unsigned int gid) { m_gid = gid; }
+	unsigned int GetAid() { return m_aid; }
+	unsigned int GetGid() { return m_gid; }
 	int GetJob();
 	int IsThisPC(int index);
 	int GetExp() { return m_exp; }
@@ -1259,7 +1259,7 @@ public:
 	void SetAvoidSuccessValue(int value) { m_avoidSuccessValue = value; InvalidateUI(); }
 	void SetCriticalSuccessValue(int value) { m_criticalSuccessValue = value; InvalidateUI(); }
 	void SetPlusAvoidSuccessValue(int value) { m_plusAvoidSuccessValue = value; InvalidateUI(); }
-	unsigned long GetPartyColorBySeq(int seq);
+	unsigned int GetPartyColorBySeq(int seq);
 	void SetEquipArrowIndwx(int money);
 	ITEM_INFO GetEquipedItems(int __$ReturnUdt);
 	TALKTYPE GetNoParamTalkType(const char* command);
@@ -1281,21 +1281,21 @@ public:
 	int GetShieldType(int index);
 	int IsProperShield(int head, int job);
 	void RerecordProhibitLog();
-	void PrintNumber(CFile* fp, unsigned long number);
+	void PrintNumber(CFile* fp, unsigned int number);
 	void InitChattingProhibitLog();
-	void DeleteAssignAID(unsigned long pingTime);
-	void EraseProhibit(unsigned long AID, unsigned long tick);
-	void AppendProhibit(unsigned long AID, unsigned long tick);
+	void DeleteAssignAID(unsigned int pingTime);
+	void EraseProhibit(unsigned int AID, unsigned int tick);
+	void AppendProhibit(unsigned int AID, unsigned int tick);
 	int GetChatProhibittedCnt(char* charName);
-	int GetChatProhibittedCnt(unsigned long gid);
+	int GetChatProhibittedCnt(unsigned int gid);
 	void SetSelectedServerName(const char* serverName) { m_selectedServerName = serverName; }
 	const char* GetSelectedServerName();
 	const char* GetItemResName_WithId(const char* itemName, int isIdentified);
-	unsigned long GetItemDisColor(ITEM_INFO* itemInfo);
+	unsigned int GetItemDisColor(ITEM_INFO* itemInfo);
 	bool GetEmblemState() { return (bool&)m_emblemState; }
 	void GetEmblemFileName(char* buffer, int gdid, int version);
 	void SetEmblemState(unsigned char);
-	void SetCompressedEmblemImage(const char* compressedEmblemImage, unsigned long emblemLen, int GDID, int emblemVersion);
+	void SetCompressedEmblemImage(const char* compressedEmblemImage, unsigned int emblemLen, int GDID, int emblemVersion);
 	void InitShortCutTextFromReg();
 	int IsExistEffectState(int index);
 	int IsKorean();
@@ -1320,7 +1320,7 @@ public:
 	void GetPetIllustName(int job, int IsAccEquiped, char* fName);
 	void GetPetTalkString(char* srcStr, char* bufStr, int petGID, int isChange);
 	void GetMonsterSkillInfo(char* Name, int skillId, int& act, int& loopType);
-	void GetMonsterTalkInfo(int job, int stateId, int arg1, char* speak, unsigned long gid);
+	void GetMonsterTalkInfo(int job, int stateId, int arg1, char* speak, unsigned int gid);
 	char* GetPetName(int hunger);
 	char* GetPetActText(int hunger);
 	char* GetPetAccActName(int hunger);
@@ -1329,10 +1329,10 @@ public:
 	int GetPetFriendlyState(int index);
 	int GetPetTalkNumber(int job, int act, int hungry);
 	int GetPetEmotion(int Hunger, int Friendly, int act) { return m_petEmotionTable[Hunger][Friendly][act]; }
-	CGameActor* GetGameActorByAid(unsigned long aid);
+	CGameActor* GetGameActorByAid(unsigned int aid);
 	char* GetStateName(int hunger);
-	unsigned long GetForceAnimEndTick(unsigned long AID);
-	void SetForceAnimEndTick(unsigned long AID, unsigned long tick);
+	unsigned int GetForceAnimEndTick(unsigned int AID);
+	void SetForceAnimEndTick(unsigned int AID, unsigned int tick);
 	int IsEFST_Berserk();
 	int IsEFST_TrickDead();
 	int m_curMapType;
@@ -1353,7 +1353,7 @@ public:
 	std::vector<int> m_guildSkillUseLevelList;
 	std::vector<int> m_homunSkillUseLevelList;
 	std::vector<int> m_merSkillUseLevelList;
-	unsigned long m_targetGID;
+	unsigned int m_targetGID;
 	std::vector<CHAT_PROHIBIT_LOG> m_chatProhibitLog;
 	std::vector<REQ_ACCOUNT_AID> m_recievedAccountName;
 	std::vector<REQ_ACCOUNTNAME_INFO> m_reqAccountInfo;
@@ -1368,9 +1368,9 @@ public:
 	char m_curMap[20];
 	int m_numLatePacket;
 	int m_showType;
-	unsigned long m_averagePingTime;
-	unsigned long m_showDigitTick;
-	unsigned long m_killTimeStartTick;
+	unsigned int m_averagePingTime;
+	unsigned int m_showDigitTick;
+	unsigned int m_killTimeStartTick;
 	int m_isShowTime;
 	int m_isNeverDie;
 	char m_cName[64];
@@ -1379,8 +1379,8 @@ public:
 	int m_sex;
 	int m_charNum;
 	int m_authCode;
-	unsigned long m_userLevel;
-	unsigned long m_lastLoginIP;
+	unsigned int m_userLevel;
+	unsigned int m_lastLoginIP;
 	char m_lastLoginTime[28];
 	int m_mkcount;
 	int m_haircolor;
@@ -1433,10 +1433,10 @@ public:
 	std::vector<char const *> m_jobNameTable;
 	std::vector<char const *> m_sexNameTable;
 	std::vector<char const *> m_shieldNameTable;
-	std::list<unsigned long> m_pingTimeList;
+	std::list<unsigned int> m_pingTimeList;
 	std::vector<char const *> m_palJobNameTable;
 	std::vector<std::string> m_shortcutText;
-	unsigned long m_petGID;
+	unsigned int m_petGID;
 	int m_isPetNameModified;
 	char m_petName[32];
 	int m_petAcc;
@@ -1454,8 +1454,8 @@ public:
 	int m_guildDealZeny;
 	int m_MaxItemIndex;
 private:
-	unsigned long m_aid;
-	unsigned long m_gid;
+	unsigned int m_aid;
+	unsigned int m_gid;
 	int m_isWeaponBow;
 	float m_oneCellDist;
 	int m_job;
@@ -1542,7 +1542,7 @@ private:
 	std::vector<std::string> m_weaponSwingWaveNameTable;
 	std::vector<std::string> m_jobHitWaveNameTable;
 	std::vector<std::string> m_weaponHitWaveNameTable;
-	std::list<unsigned long> m_exAidList;
+	std::list<unsigned int> m_exAidList;
 	std::list<std::string> m_exNameList;
 	std::vector<std::pair<char const *, bool> > m_enableObjLightMapList;
 public:
@@ -1617,7 +1617,7 @@ public:
 	int m_isBmChat;
 	int m_isStartBmChat;
 	unsigned int m_timeCheckValue;
-	unsigned long m_dwOldTime;
+	unsigned int m_dwOldTime;
 	int m_talkType;
 	int m_langType;
 	int m_expDivType;
@@ -1634,7 +1634,7 @@ public:
 	int m_isSaveChat;
 	int m_sexCheck;
 	int m_cNameCheck;
-	unsigned long m_playingTime;
+	unsigned int m_playingTime;
 	short m_MightyGauge;
 	char m_GaugePacket;
 	std::string killName;
@@ -1642,7 +1642,7 @@ public:
 	int m_winPoint;
 	int m_losePoint;
 	_SYSTEMTIME expireTime;
-	unsigned long m_homunGID;
+	unsigned int m_homunGID;
 	char m_homunName[32];
 	int m_homunAtk;
 	int m_homunMatk;
@@ -1665,7 +1665,7 @@ public:
 	int m_homunHungry;
 	int m_homunMaxHungry;
 	int m_isHomunNameModified;
-	unsigned long m_homunEnemyGID;
+	unsigned int m_homunEnemyGID;
 	int m_homunEnemyX;
 	int m_homunEnemyY;
 	int m_moveHomunEnemy;
@@ -1677,7 +1677,7 @@ public:
 	int m_homunStateId;
 	int m_oldHomunHungry;
 	int m_homunATKRange;
-	unsigned long m_merGID;
+	unsigned int m_merGID;
 	char m_merName[32];
 	int m_merAtk;
 	int m_merMatk;
@@ -1697,8 +1697,8 @@ public:
 	int m_merCallNum;
 	int m_merKillCounter;
 	int m_merATKRange;
-	long m_merExpireDate;
-	unsigned long m_merEnemyGID;
+	int m_merExpireDate;
+	unsigned int m_merEnemyGID;
 	int m_merEnemyX;
 	int m_merEnemyY;
 	int m_moveMerEnemy;
@@ -1709,7 +1709,7 @@ public:
 	int m_merStateId;
 	unsigned char m_onAutoMSG;
 	std::string m_strAutoMSG;
-	unsigned long m_changeNameGID;
+	unsigned int m_changeNameGID;
 	char m_changeCharName[24];
 	int m_cashPoint;
 	int m_freePoint;
@@ -1722,8 +1722,8 @@ public:
 	int m_tmpDunState;
 	std::string m_dunName;
 	int m_priority;
-	long m_destroyTime;
-	long m_enterTimeOut;
+	int m_destroyTime;
+	int m_enterTimeOut;
 	int m_bOpenEquipedItem;
 	int m_otherUserJob;
 	int m_otherUserSex;

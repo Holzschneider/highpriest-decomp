@@ -382,7 +382,7 @@ enum {
 };
 
 
-enum WINDOWID;
+enum WINDOWID : int;
 
 enum {
 	SB_NULL = -1,
@@ -488,7 +488,7 @@ public:
 	UIWindow* GetAncestor();
 	void GetGlobalCoor(int& x, int& y);
 	int IsShow() { return m_show; }
-	virtual unsigned long GetColor();
+	virtual unsigned int GetColor();
 	virtual void SetShow(int visible) { m_show = visible; }
 	virtual void OnCreate(int cx, int cy) {}
 	virtual void OnDestroy() {}
@@ -519,15 +519,15 @@ public:
 	int GetWidth() { return m_w; }
 protected:
 	void DrawBitmap(int x, int y, CBitmapRes* bitmap, bool drawOnlyNoTrans);
-	void TextOutA(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned long colorRef);
-	void TextOutWithRightAlign(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned long colorRef);
-	void TextOutWithDecoration(int x, int y, const char* text, int textLen, unsigned long* colorRef, int fontType, int fontHeight);
-	void TextOutWithShadow(int x, int y, const char* text, int textLen, unsigned long colorText = 0, unsigned long colorShadow = 0xffffff, int fontType = 0, int fontHeight = 12);
-	void TextOutWithOutline(int x, int y, const char* text, int textLen, unsigned long colorText, unsigned long colorOutline, int fontType, int fontHeight, bool bold);
-	void TextOutWithDecoOutline(int x, int y, const char* text, int textLen, unsigned long* colorText, unsigned long colorOutline, int fontType, int fontHeight, bool bold);
-	void TextOutVertical(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned long colorRef);
-	void TextOutWithOutlineVertical(int x, int y, const char* text, int textLen, unsigned long colorText, unsigned long colorOutline, int fontType, int fontHeight, bool bold);
-	void TextOutWithTwoColors(int x, int y, const char* text, unsigned long colorRef, unsigned long colorRef2, int textLen, int fontType, int fontHeight);
+	void TextOutA(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned int colorRef);
+	void TextOutWithRightAlign(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned int colorRef);
+	void TextOutWithDecoration(int x, int y, const char* text, int textLen, unsigned int* colorRef, int fontType, int fontHeight);
+	void TextOutWithShadow(int x, int y, const char* text, int textLen, unsigned int colorText = 0, unsigned int colorShadow = 0xffffff, int fontType = 0, int fontHeight = 12);
+	void TextOutWithOutline(int x, int y, const char* text, int textLen, unsigned int colorText, unsigned int colorOutline, int fontType, int fontHeight, bool bold);
+	void TextOutWithDecoOutline(int x, int y, const char* text, int textLen, unsigned int* colorText, unsigned int colorOutline, int fontType, int fontHeight, bool bold);
+	void TextOutVertical(int x, int y, const char* text, int textLen, int fontType, int fontHeight, unsigned int colorRef);
+	void TextOutWithOutlineVertical(int x, int y, const char* text, int textLen, unsigned int colorText, unsigned int colorOutline, int fontType, int fontHeight, bool bold);
+	void TextOutWithTwoColors(int x, int y, const char* text, unsigned int colorRef, unsigned int colorRef2, int textLen, int fontType, int fontHeight);
 	int GetTextWidth(const char* text, int textLen, int fontType, int fontHeight, bool bold);
 	int GetTextHeight(const char* text, int textLen, int fontType, int fontHeight, bool bold);
 	int GetTextHeightVertical(const char* text, int textLen, int fontType, int fontHeight, bool bold);
@@ -536,12 +536,12 @@ protected:
 	char* PolishText2(const char* text, int maxNumCharLine);
 	void PolishText3(const char* text, std::vector<std::string>& strings, std::vector<bool>& enters, int width);
 	void PolishText4(const char* text, std::vector<std::string>& strings, int width);
-	void ClearDC(unsigned long color);
-	void ClearDCRect(unsigned long color, tagRECT& rect);
-	void DrawBox(int x, int y, int cx, int cy, unsigned long color);
-	void DrawBorderLine(int x, int y, int cx, int cy, unsigned long color);
-	void DrawTriangleDC(int x1, int y1, int x2, int y2, int x3, int y3, unsigned long color);
-	const char* InterpretColor(const char* color_text, unsigned long* colorRef);
+	void ClearDC(unsigned int color);
+	void ClearDCRect(unsigned int color, tagRECT& rect);
+	void DrawBox(int x, int y, int cx, int cy, unsigned int color);
+	void DrawBorderLine(int x, int y, int cx, int cy, unsigned int color);
+	void DrawTriangleDC(int x1, int y1, int x2, int y2, int x3, int y3, unsigned int color);
+	const char* InterpretColor(const char* color_text, unsigned int* colorRef);
 	const char* FindColorMark(const char* text, const char* text_end);
 public:
 
@@ -562,9 +562,9 @@ protected:
 	int m_state;
 	int m_stateCnt;
 	int m_show;
-	unsigned long m_trans;
-	unsigned long m_transTarget;
-	unsigned long m_transTime;
+	unsigned int m_trans;
+	unsigned int m_transTarget;
+	unsigned int m_transTime;
 };
 
 struct BasicInfoWndInfo;
@@ -917,7 +917,7 @@ protected:
 	virtual void DrawEditText();
 	void DrawSelectionBox(int xOffset, int yOffset, int width);
 	virtual void SetTextByMaxChar();
-	void OnKeyDown(unsigned int wParam, long lParam);
+	void OnKeyDown(unsigned int wParam, int lParam);
 protected:
 	UIScrollBar* m_scrollBar;
 	int m_scrEnabled;
@@ -1084,8 +1084,8 @@ public:
 	virtual void OnMouseShape(int x, int y);
 	void SetBitmap(const char* bitmapName);
 	void SetType(RESIZERTYPE type);
-	void SetColor(unsigned long color, unsigned long backColor);
-	void SetColor(unsigned long);
+	void SetColor(unsigned int color, unsigned int backColor);
+	void SetColor(unsigned int);
 protected:
 	std::string m_bitmapName;
 	int m_startX;
@@ -1093,8 +1093,8 @@ protected:
 	RESIZERTYPE m_type;
 	int m_parentWidth;
 	int m_parentHeight;
-	unsigned long m_color;
-	unsigned long m_backColor;
+	unsigned int m_color;
+	unsigned int m_backColor;
 };
 
 class UITab : public UIWindow {
@@ -1135,7 +1135,7 @@ public:
 	virtual void OnMouseShape(int cx, int cy);
 	int GetShopOwnerAid();
 	UIStaticText* m_title;
-	unsigned long m_shopOwnerAid;
+	unsigned int m_shopOwnerAid;
 	short m_shopfont;
 };
 
@@ -1254,7 +1254,7 @@ public:
 	virtual bool ShouldDoHitTest() { return false; }
 	void SetText(const char* msg, const int maxNumCharLine);
 	void AddText(const char* msg);
-	void SetFntColor(unsigned long fntColor, unsigned long bgColor) { m_fontColor = fntColor; m_bgColor = bgColor; }
+	void SetFntColor(unsigned int fntColor, unsigned int bgColor) { m_fontColor = fntColor; m_bgColor = bgColor; }
 	void SetFntSize(int fontSize);
 	void SetBackTrans(unsigned char);
 	void SetCharFont(short charfont) { m_charfont = charfont; }
@@ -1264,8 +1264,8 @@ protected:
 	unsigned char m_isBold;
 	int m_fontSize;
 	std::vector<std::string> m_strings;
-	unsigned long m_fontColor;
-	unsigned long m_bgColor;
+	unsigned int m_fontColor;
+	unsigned int m_bgColor;
 	unsigned char m_isBack;
 	short m_charfont;
 };
@@ -1279,7 +1279,7 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void Move(int cx, int cy);
 	virtual void Resize(int cx, int cy);
-	void SetTransBoxColor(unsigned long transboxColor);
+	void SetTransBoxColor(unsigned int transboxColor);
 	BOXINFO m_transBoxInfo;
 };
 
@@ -1346,7 +1346,7 @@ class UITextButton : public UIButton {
 public:
 	UITextButton();
 	virtual ~UITextButton();
-	void Create(const char* text, unsigned long fontColor, int fontFace, int fontSize, bool isFontBold);
+	void Create(const char* text, unsigned int fontColor, int fontFace, int fontSize, bool isFontBold);
 	virtual void OnDraw();
 	virtual void OnLBtnUp(int x, int y);
 	virtual void OnRBtnDown(int x, int y);
@@ -1356,14 +1356,14 @@ public:
 	void Resize();
 	void Resize2(int x, int y);
 	void SetFontBold(unsigned char);
-	void SetFontColor(unsigned long);
-	void SetSelectColor(unsigned long selectColor) { m_selectColor = selectColor; }
+	void SetFontColor(unsigned int);
+	void SetSelectColor(unsigned int selectColor) { m_selectColor = selectColor; }
 	void SetId2(int id) { m_id2 = id; }
 protected:
-	unsigned long m_btnColor;
-	unsigned long m_fontColor;
-	unsigned long m_selectColor;
-	unsigned long m_fontBgColor;
+	unsigned int m_btnColor;
+	unsigned int m_fontColor;
+	unsigned int m_selectColor;
+	unsigned int m_fontBgColor;
 	bool m_isFontBold;
 	int m_fontSize;
 	int m_fontFace;
@@ -1411,11 +1411,11 @@ public:
 	virtual ~UITabControl();
 	virtual void OnDraw();
 	virtual void OnLBtnDown(int x, int y);
-	void Create(bool bVerticalType, int width, int height, unsigned long onColor, unsigned long offColor, unsigned long bgColor, unsigned long btmColor);
+	void Create(bool bVerticalType, int width, int height, unsigned int onColor, unsigned int offColor, unsigned int bgColor, unsigned int btmColor);
 	int GetTabWidth();
 	int GetTabHeight();
-	unsigned long GetColorOnTab();
-	unsigned long GetColorOffTab();
+	unsigned int GetColorOnTab();
+	unsigned int GetColorOffTab();
 	void SetTabNum(int);
 	void SetTabString(const char* tabString);
 protected:
@@ -1426,10 +1426,10 @@ protected:
 	int m_maxTab;
 	int m_tabHeight;
 	int m_tabWidth;
-	unsigned long m_colorOnTab;
-	unsigned long m_colorOffTab;
-	unsigned long m_colorBgTab;
-	unsigned long m_colorBtmTab;
+	unsigned int m_colorOnTab;
+	unsigned int m_colorOffTab;
+	unsigned int m_colorBgTab;
+	unsigned int m_colorBtmTab;
 	std::list<std::string> m_TabStrings;
 };
 
@@ -1556,20 +1556,20 @@ public:
 	virtual void OnDraw();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 	virtual bool IsTransmitMouseInput() { return true; }
-	virtual void AddItem(const char* txt, unsigned long itemRGB, const char* name);
+	virtual void AddItem(const char* txt, unsigned int itemRGB, const char* name);
 	virtual void ClearAllItems();
 	virtual void Resize(int cx, int cy);
 	virtual void SetShow(int visible);
 	void DeleteFirstHalfItem();
-	unsigned long GetItemColor(int);
+	unsigned int GetItemColor(int);
 	int WriteChatToReportFile(const char* fileName);
 	int WriteChatToFile(const char* fileName);
-	void AddItem2(const char* txt, unsigned long itemRGB, const char* name);
+	void AddItem2(const char* txt, unsigned int itemRGB, const char* name);
 protected:
 	const char* GetTalkerName(int item);
 protected:
 	std::vector<std::string> m_talkerNameList;
-	std::vector<unsigned long> m_itemColors;
+	std::vector<unsigned int> m_itemColors;
 	int m_maxItem;
 };
 
@@ -1614,13 +1614,13 @@ public:
 	virtual void OnCreate(int cx, int cy);
 	virtual void Resize(int cx, int cy);
 	virtual void OnDraw();
-	virtual void AddItem(const char* txt, unsigned long itemRGB);
+	virtual void AddItem(const char* txt, unsigned int itemRGB);
 	void SetItemSpacing(int pos) { m_itemSpacing = pos; }
 	void SetBgColor(int r, int g, int b) { m_bR = r; m_bG = g; m_bB = b; }
 	void SetFontSize(int pos);
 	void SetType(int pos);
 	int GetFontSize();
-	void AddItem2(const char* txt, unsigned long itemRGB, const char* tab);
+	void AddItem2(const char* txt, unsigned int itemRGB, const char* tab);
 	void SetScrollPos(int pos);
 protected:
 	int m_type;
@@ -1651,7 +1651,7 @@ public:
 struct StringAndColor {
 public:
 	std::string String;
-	unsigned long Color;
+	unsigned int Color;
 };
 
 struct WhisperListWndInfo {
@@ -1669,7 +1669,7 @@ class UIWindowMgr {
 public:
 	UIWindowMgr();
 	virtual ~UIWindowMgr();
-	void ClearDC(unsigned long color);
+	void ClearDC(unsigned int color);
 	void DestroyDC();
 	void OnProcess();
 	void Render();
@@ -1739,12 +1739,12 @@ public:
 	void GetDeltaSnap(UIWindow* snapWindow, int& isConnected, int& rdx, int rdy);
 	void DeleteSnapInfo(UIWindow* snapWindow);
 	int IsFriendName(const char* cName);
-	int AddWhisperChatToWhisperWnd(const char* cName, const char* chatMsg, unsigned long color);
-	bool ProcessPushButton(unsigned long virtualKey, int newKeydown, int PASS);
+	int AddWhisperChatToWhisperWnd(const char* cName, const char* chatMsg, unsigned int color);
+	bool ProcessPushButton(unsigned int virtualKey, int newKeydown, int PASS);
 	bool IsFirstFocusEdit(UIWindow* wnd);
 	bool IsLastFocusEdit(UIWindow* wnd);
-	bool ExcuteMsgInBattleMode(unsigned long virtualKey, int newKeydown);
-	bool ExcuteMsgInBattleModeVietnam(long lnKey);
+	bool ExcuteMsgInBattleMode(unsigned int virtualKey, int newKeydown);
+	bool ExcuteMsgInBattleModeVietnam(int lnKey);
 	bool isFocusChatWnd();
 	bool DeleteWindow(WINDOWID windowId);
 	bool ShowWindow(WINDOWID windowId, int show);
@@ -1753,9 +1753,9 @@ public:
 	unsigned char IsMinimapVisible();
 	int ProcessInput();
 	int DoModal(UIWindow* wnd);
-	int ErrorMsg(const char* msg, int type, int isDefYes, int changeMsg, unsigned long autoReturnTime);
-	int MGScoreMsg(unsigned long, int, int, int, unsigned long);
-	int ErrorMsgAutoreturn(const char* msg, unsigned long autoReturnTime);
+	int ErrorMsg(const char* msg, int type, int isDefYes, int changeMsg, unsigned int autoReturnTime);
+	int MGScoreMsg(unsigned int, int, int, int, unsigned int);
+	int ErrorMsgAutoreturn(const char* msg, unsigned int autoReturnTime);
 	int EmailAddress();
 	int GetWallpaperLeft();
 	int GetWallpaperTop();
@@ -1875,7 +1875,7 @@ public:
 	int m_gronMsgWndShow;
 	int m_chatWndStatus;
 	float m_miniMapZoomFactor;
-	unsigned long m_miniMapArgb;
+	unsigned int m_miniMapArgb;
 	int m_isDrawCompass;
 	int m_isDragAll;
 	int m_conversionMode;

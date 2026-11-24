@@ -6,12 +6,12 @@ struct MZHeader {
 };
 
 struct PE_Header {
-    unsigned long signature;
+    unsigned int signature;
     unsigned short machine;
     unsigned short numSections;
-    unsigned long timeDateStamp;
-    unsigned long pointerToSymbolTable;
-    unsigned long numOfSymbols;
+    unsigned int timeDateStamp;
+    unsigned int pointerToSymbolTable;
+    unsigned int numOfSymbols;
     unsigned short sizeOfOptionHeader;
     unsigned short characteristics;
 };
@@ -20,42 +20,42 @@ struct PE_ExtHeader {
     unsigned short magic;
     unsigned char majorLinkerVersion;
     unsigned char minorLinkerVersion;
-    unsigned long sizeOfCode;
-    unsigned long sizeOfInitializedData;
-    unsigned long sizeOfUninitializedData;
-    unsigned long addressOfEntryPoint;
-    unsigned long baseOfCode;
-    unsigned long baseOfData;
-    unsigned long imageBase;
-    unsigned long sectionAlignment;
-    unsigned long fileAlignment;
+    unsigned int sizeOfCode;
+    unsigned int sizeOfInitializedData;
+    unsigned int sizeOfUninitializedData;
+    unsigned int addressOfEntryPoint;
+    unsigned int baseOfCode;
+    unsigned int baseOfData;
+    unsigned int imageBase;
+    unsigned int sectionAlignment;
+    unsigned int fileAlignment;
     unsigned short majorOSVersion;
     unsigned short minorOSVersion;
     unsigned short majorImageVersion;
     unsigned short minorImageVersion;
     unsigned short majorSubsystemVersion;
     unsigned short minorSubsystemVersion;
-    unsigned long reserved1;
-    unsigned long sizeOfImage;
-    unsigned long sizeOfHeaders;
-    unsigned long checksum;
+    unsigned int reserved1;
+    unsigned int sizeOfImage;
+    unsigned int sizeOfHeaders;
+    unsigned int checksum;
     unsigned short subsystem;
     unsigned short DLLCharacteristics;
-    unsigned long sizeOfStackReserve;
-    unsigned long sizeOfStackCommit;
-    unsigned long sizeOfHeapReserve;
-    unsigned long sizeOfHeapCommit;
-    unsigned long loaderFlags;
-    unsigned long numberOfRVAAndSizes;
-    unsigned long dataDirectories[16][2];
+    unsigned int sizeOfStackReserve;
+    unsigned int sizeOfStackCommit;
+    unsigned int sizeOfHeapReserve;
+    unsigned int sizeOfHeapCommit;
+    unsigned int loaderFlags;
+    unsigned int numberOfRVAAndSizes;
+    unsigned int dataDirectories[16][2];
 };
 
 struct SectionHeader {
     unsigned char name[8];
-    unsigned long virtualSize;
-    unsigned long virtualAddress;
-    unsigned long rawDataSize;
-    unsigned long rawDataOffset;
+    unsigned int virtualSize;
+    unsigned int virtualAddress;
+    unsigned int rawDataSize;
+    unsigned int rawDataOffset;
     unsigned char rest[16];
 };
 
@@ -79,7 +79,7 @@ private:
 };
 
 void* loadDLL(char* path);
-unsigned long getAlignedSize(unsigned long size, unsigned long align);
+unsigned int getAlignedSize(unsigned int size, unsigned int align);
 bool readPEInfo(char* image, MZHeader* mz, PE_Header* pe,
                 PE_ExtHeader* ext, SectionHeader** sections);
 int calcTotalImageSize(MZHeader* mz, PE_Header* pe, PE_ExtHeader* ext,
@@ -181,8 +181,8 @@ void DeleteTempSafeDll() {
     }
 }
 
-unsigned long myStrlenA(char* text) {
-    unsigned long length = 0;
+unsigned int myStrlenA(char* text) {
+    unsigned int length = 0;
     while (*text) {
         ++length;
         ++text;
@@ -220,7 +220,7 @@ bool readPEInfo(char* image, MZHeader* mz, PE_Header* pe,
         return false;
     }
 
-    char* nt = image + *(unsigned long*)(image + 0x3c);
+    char* nt = image + *(unsigned int*)(image + 0x3c);
     if (*(unsigned short*)(nt + 0x14) != 0xe0) {
         return false;
     }
@@ -233,8 +233,8 @@ bool readPEInfo(char* image, MZHeader* mz, PE_Header* pe,
     return true;
 }
 
-void getKern32AndNtdllAddr(unsigned long* kernel32, unsigned long* ntdll) {
-    unsigned long* entry;
+void getKern32AndNtdllAddr(unsigned int* kernel32, unsigned int* ntdll) {
+    unsigned int* entry;
 
     __asm {
         mov eax, fs:[0x30]
@@ -244,7 +244,7 @@ void getKern32AndNtdllAddr(unsigned long* kernel32, unsigned long* ntdll) {
     }
 
     *ntdll = entry[2];
-    entry = (unsigned long*)entry[0];
+    entry = (unsigned int*)entry[0];
     *kernel32 = entry[2];
 }
 
@@ -276,7 +276,7 @@ int calcTotalImageSize(MZHeader* inMZ, PE_Header* inPE, PE_ExtHeader* inpeXH,
     return result;
 }
 
-unsigned long getAlignedSize(unsigned long size, unsigned long align) {
+unsigned int getAlignedSize(unsigned int size, unsigned int align) {
     if (size % align) {
         return (size / align + 1) * align;
     }
@@ -285,22 +285,22 @@ unsigned long getAlignedSize(unsigned long size, unsigned long align) {
 
 bool loadPE(char* image, MZHeader* mz, PE_Header* pe, PE_ExtHeader* ext,
             SectionHeader* sections, void* mapped) {
-    memcpy(mapped, image, *(unsigned long*)((unsigned char*)ext + 0x3c));
+    memcpy(mapped, image, *(unsigned int*)((unsigned char*)ext + 0x3c));
 
     char* cursor = (char*)mapped +
-        getAlignedSize(*(unsigned long*)((unsigned char*)ext + 0x3c),
-                       *(unsigned long*)((unsigned char*)ext + 0x20));
+        getAlignedSize(*(unsigned int*)((unsigned char*)ext + 0x3c),
+                       *(unsigned int*)((unsigned char*)ext + 0x20));
     SectionHeader* section = sections;
     for (int i = 0; i < *(unsigned short*)((unsigned char*)pe + 0x06);
          ++i, ++section) {
-        unsigned long copySize = section->rawDataSize;
+        unsigned int copySize = section->rawDataSize;
         if (copySize > 0) {
             if (copySize > section->virtualSize) {
                 copySize = section->virtualSize;
             }
             memcpy(cursor, image + section->rawDataOffset, copySize);
             cursor += getAlignedSize(section->virtualSize,
-                                     *(unsigned long*)((unsigned char*)ext + 0x20));
+                                     *(unsigned int*)((unsigned char*)ext + 0x20));
         }
     }
 

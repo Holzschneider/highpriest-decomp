@@ -33,7 +33,7 @@ public:
 	CTexture* lmtex;
 	CLightmap* lmap;
 	COLOR argb;
-	unsigned long alpha;
+	unsigned int alpha;
 	int MtlId;
 };
 
@@ -98,12 +98,12 @@ public:
 	virtual void GetHeightMinMax(int x, int y, float& topHeight, float& bottomHeight) {}
 	virtual void CalcLmIntensityFloatRGBAll() {}
 	virtual int GetLmIntensityFloatRGBByGatCoor(int cx, int cy, float& r, float& g, float& b) { return 0; }
-	void ConvertToCellCoor(float x, float z, long& cx, long& cy);
+	void ConvertToCellCoor(float x, float z, int& cx, int& cy);
 	void UpdateWater();
 	void SetWaterInfo(float waterLevel, int textureType, int textureAnimSpeed, int pitch, int speed, float height);
-	virtual void RenderAttrTile(const matrix& wtm, int attrX, int attrY, unsigned long color) {}
+	virtual void RenderAttrTile(const matrix& wtm, int attrX, int attrY, unsigned int color) {}
 	virtual void SetGndRiseAmount(float amount, int x, int y) {}
-	void RenderGroundTile(const matrix& wtm, int attrX, int attrY, unsigned long color, CTexture* tex, vector2d* uv);
+	void RenderGroundTile(const matrix& wtm, int attrX, int attrY, unsigned int color, CTexture* tex, vector2d* uv);
 	virtual bool GetGroundVertics(vector3d* nwvert, int attrX, int attrY);
 	CTexture* GetWaterTexture();
 protected:
@@ -152,7 +152,7 @@ private:
 	virtual bool GetGroundVertics(vector3d* nwvert, int attrX, int attrY);
 	void RenderNew(const matrix& wtm, CGndSurface* surface, bool needClip);
 	void RenderNewLod(const matrix& wtm, CGndSurface* surface, bool needClip);
-	virtual void RenderAttrTile(const matrix& wtm, int attrX, int attrY, unsigned long color);
+	virtual void RenderAttrTile(const matrix& wtm, int attrX, int attrY, unsigned int color);
 	void SetLmIntensityFloatRGBByGatCoor(int cx, int cy, float& r, float& g, float& b);
 private:
 	std::vector<CGndSurface> m_V15surfaces;

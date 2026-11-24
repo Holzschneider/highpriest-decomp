@@ -14,16 +14,16 @@ public:
 	bool operator!=(const CHash& hash) const;
 protected:
 	void CreateHashCode();
-	unsigned long m_HashCode;
+	unsigned int m_HashCode;
 	char m_String[252];
 };
 
 struct PakPack {
 public:
-	unsigned long m_dataSize;
-	unsigned long m_compressSize;
-	unsigned long m_size;
-	unsigned long m_Offset;
+	unsigned int m_dataSize;
+	unsigned int m_compressSize;
+	unsigned int m_size;
+	unsigned int m_Offset;
 	char m_type;
 	CHash m_fName;
 };

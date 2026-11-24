@@ -46,9 +46,9 @@ public:
 	const char* GetCompositionString() { return m_compStr.c_str(); }
 	int GetCompositionStringSize() { return m_compStr.size(); }
 	int GetCompositionCursorPos() { return m_compCursorPos; }
-	virtual long ProcessImeMessage(HWND__* hWnd, unsigned int message, unsigned int wParam, long lParam, bool* trapped);
-	void OnKeyDown(unsigned int wParam, long lParam);
-	void OnChar(unsigned int wParam, long lParam);
+	virtual int ProcessImeMessage(HWND__* hWnd, unsigned int message, unsigned int wParam, int lParam, bool* trapped);
+	void OnKeyDown(unsigned int wParam, int lParam);
+	void OnChar(unsigned int wParam, int lParam);
 	const char* GetCandidateString(int nCandidate);
 	int GetCandidateCount() { return m_candidateCount; }
 	int GetCandidateSelection() { return m_candidateSelection; }
@@ -81,7 +81,7 @@ protected:
 	void ReadCandidate();
 	void ClearCandidate();
 protected:
-	std::deque<unsigned long> m_fakeInput;
+	std::deque<unsigned int> m_fakeInput;
 	tagCANDIDATELIST* m_candidateList;
 	int m_candidateCount;
 	int m_candidatePageSize;

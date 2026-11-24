@@ -359,14 +359,14 @@ public:
 	float CalcDist(float x, float z);
 	float GetStateCnt();
 	float GetLastPixelRatio() { return m_lastPixelRatio; }
-	bool GetTargetPos(unsigned long targetGid, vector3d& tPos);
+	bool GetTargetPos(unsigned int targetGid, vector3d& tPos);
 	int GetLastTlvertX() { return m_lastTlvertX; }
 	int GetLastTlvertY() { return m_lastTlvertY; }
 	void SetForceAnimSpeed(unsigned char speed);
-	void SetForceAnimEndTick(unsigned long tick);
-	void SetForceAnimation(int act, int mot, int maxMot, int finishAct, int finishMot, int isAnim, unsigned long endTick, int isLoop = 1);
-	void SetForceAnimation2(int act, int mot, int act2, int mot2, int act3, int mot3, int act4, int mot4, int act5, int mot5, int isAnim, unsigned long endTick, int isLoop);
-	void SetForceAnimation3(int act, int mot, int maxMot, int isAnim, unsigned long endTick, int isLoop);
+	void SetForceAnimEndTick(unsigned int tick);
+	void SetForceAnimation(int act, int mot, int maxMot, int finishAct, int finishMot, int isAnim, unsigned int endTick, int isLoop = 1);
+	void SetForceAnimation2(int act, int mot, int act2, int mot2, int act3, int mot3, int act4, int mot4, int act5, int mot5, int isAnim, unsigned int endTick, int isLoop);
+	void SetForceAnimation3(int act, int mot, int maxMot, int isAnim, unsigned int endTick, int isLoop);
 	void SetSprName(const char* sprName);
 	const char* GetSprName();
 	CSprRes* GetSprRes();
@@ -404,13 +404,13 @@ public:
 	int m_sprShift;
 	int m_sprAngle;
 	int m_offsetOow;
-	unsigned long m_colorOfSingleColor;
-	unsigned long m_singleColorStartTick;
-	unsigned long m_stateStartTick;
+	unsigned int m_colorOfSingleColor;
+	unsigned int m_singleColorStartTick;
+	unsigned int m_stateStartTick;
 	ACTOR_COLOR m_oldColor;
 	ACTOR_COLOR m_curColor;
 	union {
-		unsigned long m_sprArgb;
+		unsigned int m_sprArgb;
 		COLOR m_sprColor;
 	};
 	unsigned char m_isLieOnGround;
@@ -441,8 +441,8 @@ public:
 	int m_isForceAnimFinish;
 	int m_isForceState2;
 	int m_isForceState3;
-	unsigned long m_forceStateCnt;
-	unsigned long m_forceStateEndTick;
+	unsigned int m_forceStateCnt;
+	unsigned int m_forceStateEndTick;
 	int m_BodyLight;
 	char m_BeZero;
 	char m_BodyFlag;
@@ -505,7 +505,7 @@ private:
 	int m_master_gid;
 	int m_ground_pos_x;
 	int m_ground_pos_y;
-	unsigned long m_lastingTime;
+	unsigned int m_lastingTime;
 	int m_scope_size;
 	float m_rot;
 	float m_rot_speed;
@@ -536,8 +536,8 @@ public:
 	void OnInit();
 	void OnExit();
 private:
-	unsigned long m_processCnt;
-	unsigned long m_emitSpeed;
+	unsigned int m_processCnt;
+	unsigned int m_emitSpeed;
 	int m_type;
 	float m_param[4];
 };
@@ -558,8 +558,8 @@ private:
 	int m_height;
 	float m_range;
 	float m_diagonal;
-	unsigned long m_lastPlayTime;
-	unsigned long m_cycle;
+	unsigned int m_lastPlayTime;
+	unsigned int m_cycle;
 };
 
 class CGameActor : public CAbleToMakeEffect {
@@ -605,12 +605,12 @@ public:
 	virtual void SetPropensityInfo(int honor, int virtue) {}
 	bool FindPath(int mssx, int mssy, int mscellX, int mscellY, int msdx, int msdy, int msspeed);
 	void ProcessWillBeAttacked();
-	void MakeSpecialAttackEffect(unsigned long targetGid, float hideTime);
+	void MakeSpecialAttackEffect(unsigned int targetGid, float hideTime);
 	void CalcAccel(float speed);
 	vector3d CalcAccel3d(vector3d __$ReturnUdt, float to);
 	void ProcessActionWithDir();
 	void AddDist(vector3d& lastPos, vector3d& pos);
-	unsigned long GetGID() { return m_gid; }
+	unsigned int GetGID() { return m_gid; }
 	void ProcessChatBalloon();
 	void DeleteChatBalloon();
 	void SetJob(int job);
@@ -654,7 +654,7 @@ public:
 	int IsFreezeState();
 	void SetGroupMemberAndVisible(int job);
 	int GetGroupMemberAndVisible() { return m_bIsMemberAndVisible; }
-	void SetFreezeEndTick(unsigned long freezeEndTick) { m_freezeEndTick = freezeEndTick; }
+	void SetFreezeEndTick(unsigned int freezeEndTick) { m_freezeEndTick = freezeEndTick; }
 	int GetTargetGid() { return m_targetGid; }
 	virtual _MSG2AI& GetMsg2AI(int merType);
 	virtual void SetMsg2AI(_MSG2AI& msg, int merType);
@@ -664,7 +664,7 @@ public:
 	bool MerAIIsOpened() { return m_merAI && m_merAI->IsOpened(); }
 	int m_moveDestX;
 	int m_moveDestY;
-	unsigned long m_speed;
+	unsigned int m_speed;
 	int m_isCounter;
 	int m_isTrickDead;
 	int m_isPlayHitWave;
@@ -672,7 +672,7 @@ public:
 	char* m_emblemWnd;
 	char* m_WordDisplayWnd;
 	char m_hitWaveName[128];
-	unsigned long m_colorEndTick;
+	unsigned int m_colorEndTick;
 	short m_clevel;
 	short m_MaxHp;
 	short m_Hp;
@@ -688,27 +688,27 @@ public:
 protected:
 	vector3d m_accel;
 	CPathInfo m_path;
-	unsigned long m_moveStartTime;
+	unsigned int m_moveStartTime;
 	unsigned char m_isNeverAnimation;
 	int m_pathStartCell;
 	float m_dist;
-	unsigned long m_lastProcessStateTime;
-	unsigned long m_lastServerTime;
-	unsigned long m_chatTick;
-	unsigned long m_targetGid;
+	unsigned int m_lastProcessStateTime;
+	unsigned int m_lastServerTime;
+	unsigned int m_chatTick;
+	unsigned int m_targetGid;
 	float m_attackMotion;
 	int m_isBladeStop;
-	unsigned long m_gid;
+	unsigned int m_gid;
 	int m_job;
 	int m_sex;
 	UIBalloonText* m_balloon;
 	UIChatRoomTitle* m_chatTitle;
 	UIMerchantShopTitle* m_merchantShopTitle;
 	UIRechargeGage* m_skillRechargeGage;
-	unsigned long m_freezeEndTick;
-	unsigned long m_petEmotionStartTick;
-	unsigned long m_skillRechargeEndTick;
-	unsigned long m_skillRechargeStartTick;
+	unsigned int m_freezeEndTick;
+	unsigned int m_petEmotionStartTick;
+	unsigned int m_skillRechargeEndTick;
+	unsigned int m_skillRechargeStartTick;
 	int m_chatWidth;
 	int m_chatHeight;
 	int m_nameWidth;
@@ -726,8 +726,8 @@ protected:
 	int m_pkState;
 	float m_damageDestX;
 	float m_damageDestZ;
-	unsigned long m_effectLaunchCnt;
-	unsigned long m_vanishTime;
+	unsigned int m_effectLaunchCnt;
+	unsigned int m_vanishTime;
 	int m_actorType;
 	int m_bIsMemberAndVisible;
 	int m_gdid;
@@ -789,8 +789,8 @@ public:
 	virtual void SetHeadPalette(int job);
 	virtual void SetHonor(int job);
 	virtual void SetPropensityInfo(int honor, int virtue);
-	long GetPKRank() { return m_pk_rank; }
-	long GetPKTotal() { return m_pk_total; }
+	int GetPKRank() { return m_pk_rank; }
+	int GetPKTotal() { return m_pk_total; }
 	void SetPKRank(int rank) { m_pk_rank = rank; }
 	void SetPKTotal(int total) { m_pk_total = total; }
 	void RenderBody2(matrix& vtm, int changed);
@@ -836,8 +836,8 @@ protected:
 	int m_renderWithoutLayer;
 	std::string m_headPaletteName;
 	UIPcGage* m_gage;
-	long m_pk_rank;
-	long m_pk_total;
+	int m_pk_rank;
+	int m_pk_total;
 private:
 	std::vector<CSprRes *> m_sprResList;
 	std::vector<CActRes *> m_actResList;
@@ -874,8 +874,8 @@ public:
 	virtual void SetPropensityInfo(int honor, int virtue);
 	virtual void ProcessMotion();
 	virtual void SetAction(int action, int speed, int type);
-	long GetPKRank();
-	long GetPKTotal();
+	int GetPKRank();
+	int GetPKTotal();
 	void SetPKRank(int weapon);
 	void SetPKTotal(int weapon);
 	void ProcessGage();
@@ -909,8 +909,8 @@ protected:
 	int m_renderWithoutLayer;
 	std::string m_headPaletteName;
 	UIPcGage* m_gage;
-	long m_pk_rank;
-	long m_pk_total;
+	int m_pk_rank;
+	int m_pk_total;
 	C3dGrannyModelRes* m_GrannyActorRes;
 	C3dGrannyModelRes* m_GrannyPartRes[10];
 	granny_model_instance* m_Instance;
@@ -925,7 +925,7 @@ protected:
 	int m_baseAction;
 	float m_fCurRot;
 	unsigned char m_RenderAlpha;
-	unsigned long m_nVertCol;
+	unsigned int m_nVertCol;
 	int m_nLastActAnimation;
 	int m_curFrame;
 	char m_strJobFn[260];
@@ -967,19 +967,19 @@ public:
 	void ReLaunchBlurEffects();
 	int m_destCellX;
 	int m_destCellZ;
-	unsigned long m_attackReqTime;
-	unsigned long m_preMoveStartTick;
+	unsigned int m_attackReqTime;
+	unsigned int m_preMoveStartTick;
 	PROCEEDTYPE m_proceedType;
 	int m_preMoveOn;
 	int m_attackMode;
 	int m_isAttackRequest;
 	int m_isWaitingMoveAck;
 	int m_isPreengageStateOfMove;
-	unsigned long m_proceedTargetGid;
-	unsigned long m_totalAttackReqCnt;
-	unsigned long m_tickOfMoveForAttack;
-	unsigned long m_moveReqTick;
-	unsigned long m_standTick;
+	unsigned int m_proceedTargetGid;
+	unsigned int m_totalAttackReqCnt;
+	unsigned int m_tickOfMoveForAttack;
+	unsigned int m_moveReqTick;
+	unsigned int m_standTick;
 	int m_skillId;
 	int m_skillAttackRange;
 	int m_skillUseLevel;
@@ -1017,7 +1017,7 @@ public:
 	float m_x2;
 	float m_z2;
 	int m_playerIswithinBox;
-	unsigned long m_lastEffectLaunchTick;
+	unsigned int m_lastEffectLaunchTick;
 	int m_doesLaunchEffect;
 	UIPlayerGage* m_gage;
 	UIPcGage* m_gage2;
@@ -1065,10 +1065,10 @@ public:
 	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
 protected:
 	float m_motionY;
-	unsigned long m_alphaDelta;
-	unsigned long m_r;
-	unsigned long m_g;
-	unsigned long m_b;
+	unsigned int m_alphaDelta;
+	unsigned int m_r;
+	unsigned int m_g;
+	unsigned int m_b;
 };
 
 class CItem : public CRenderObject {
@@ -1081,10 +1081,10 @@ public:
 	virtual void Render(matrix& vtm);
 	virtual void SendMsg(CGameObject* sender, int message, int arg1, int arg2, int arg3);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
-	unsigned long GetAID() { return m_aid; }
+	unsigned int GetAID() { return m_aid; }
 	std::string m_itemName;
 protected:
-	unsigned long m_aid;
+	unsigned int m_aid;
 	int m_isJumping;
 	float m_sfallingSpeed;
 	float m_sPosY;
@@ -1100,16 +1100,16 @@ public:
 	virtual bool OnProcess();
 	virtual void SendMsg(CGameObject* sender, int message, int arg1 = 0, int arg2 = 0, int arg3 = 0);
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
-	unsigned long GetAID() { return m_aid; }
+	unsigned int GetAID() { return m_aid; }
 protected:
 	char* GetTrapModelName();
 	void ShowModel(char* modelName);
 	void HideModel();
-	void SetAID(unsigned long aid) { m_aid = aid; }
+	void SetAID(unsigned int aid) { m_aid = aid; }
 private:
-	unsigned long m_launchCnt;
-	unsigned long m_SkillStartTime;
-	unsigned long m_aid;
+	unsigned int m_launchCnt;
+	unsigned int m_SkillStartTime;
+	unsigned int m_aid;
 	C3dActor* m_3dactor;
 	CRagEffect* m_LoopEffect;
 	int m_effectId;
@@ -1151,7 +1151,7 @@ protected:
 	vector3d m_tPos;
 	float m_fastFactor;
 	float m_hideTime;
-	unsigned long m_targetGid;
+	unsigned int m_targetGid;
 	int m_process;
 };
 
@@ -1205,7 +1205,7 @@ protected:
 	vector3d m_destPos;
 	vector3d m_targetPos;
 	vector3d m_destPos2;
-	unsigned long m_masterGid;
+	unsigned int m_masterGid;
 	int m_isDisappear;
 	float m_dist;
 	float m_orgPosY;

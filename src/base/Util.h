@@ -8,7 +8,7 @@ struct POINTER_FUNC {
 	enum enumConfig { EXCUTE_ONCE = 0, EXCUTE_REPEAT, EXCUTE_RANDOM };
 	int excuteType;
 	void (*pfunc)();
-	long startTime;
+	int startTime;
 };
 
 class CScheduler {
@@ -16,10 +16,10 @@ public:
 	CScheduler();
 	virtual ~CScheduler();
 	void OnRun();
-	bool InsertInList(long excuteTime, int excuteType, void (*pfunc)());
-	bool InsertInList(long excuteTime, POINTER_FUNC excuteType);
+	bool InsertInList(int excuteTime, int excuteType, void (*pfunc)());
+	bool InsertInList(int excuteTime, POINTER_FUNC excuteType);
 private:
-	std::multimap<long, POINTER_FUNC, std::less<long>, std::allocator<POINTER_FUNC> > m_scheduleList;
+	std::multimap<int, POINTER_FUNC, std::less<int> > m_scheduleList;
 };
 
 class CTokenizer {

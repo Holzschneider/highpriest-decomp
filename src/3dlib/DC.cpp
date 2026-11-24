@@ -255,7 +255,7 @@ void	CDCBitmap :: CopyRect(int x, int y, int width, int height, CDC* surface)
 	}
 }
 
-void	CDCBitmap :: BltSprite(int x, int y, CSprRes * sprRes, CMotion * curMotion, unsigned long * palette)
+void	CDCBitmap :: BltSprite(int x, int y, CSprRes * sprRes, CMotion * curMotion, unsigned int * palette)
 {
 	int ox, oy;
 
@@ -670,7 +670,7 @@ void	CDCBitmap :: CreateDCSurface(DWORD w, DWORD h)
 
 	bitmapinfo.bmiHeader.biSize				= sizeof(bitmapinfo.bmiHeader);
 	bitmapinfo.bmiHeader.biWidth			= m_w;
-	bitmapinfo.bmiHeader.biHeight			= -(long)m_h;
+	bitmapinfo.bmiHeader.biHeight			= -(int)m_h;
 	bitmapinfo.bmiHeader.biPlanes			= 1;
 	bitmapinfo.bmiHeader.biBitCount			= 32;
 	bitmapinfo.bmiHeader.biCompression		= BI_RGB;

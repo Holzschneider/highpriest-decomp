@@ -65,7 +65,7 @@ public:
 	int vertStart;
 	int numVerts;
 	unsigned short* indices;
-	unsigned long numIndices;
+	unsigned int numIndices;
 	CTexture* tex;
 	CTexture* tex2;
 };
@@ -81,10 +81,10 @@ public:
 	int numVerts;
 	CTexture* tex;
 	unsigned short* indices;
-	unsigned long numIndices;
-	unsigned long srcAlphaMode;
-	unsigned long destAlphaMode;
-	unsigned long mtPreset;
+	unsigned int numIndices;
+	unsigned int srcAlphaMode;
+	unsigned int destAlphaMode;
+	unsigned int mtPreset;
 	_D3DPRIMITIVETYPE primType;
 };
 
@@ -92,8 +92,8 @@ struct RPTriFace {
 public:
 	tlvertex3d verts[3];
 	CTexture* tex;
-	unsigned long srcAlphaMode;
-	unsigned long destAlphaMode;
+	unsigned int srcAlphaMode;
+	unsigned int destAlphaMode;
 };
 
 struct RPQuadFace : public RPFace {
@@ -118,7 +118,7 @@ public:
 	lmtlvertex3d* lmverts;
 	int numVerts;
 	unsigned short* indices;
-	unsigned long numIndices;
+	unsigned int numIndices;
 	CTexture* tex;
 	CTexture* tex2;
 	_D3DPRIMITIVETYPE primType;
@@ -155,55 +155,55 @@ public:
 	virtual void Resize(int, int) = 0;
 	virtual bool GetDC(HDC__**) = 0;
 	virtual void ReleaseDC(HDC__*) = 0;
-	virtual void Update(int, int, int, int, unsigned long*, bool) = 0;
+	virtual void Update(int, int, int, int, unsigned int*, bool) = 0;
 	virtual void CopyRect(int, int, int, int, CDC*) = 0;
-	virtual void BltSprite(int, int, CSprRes*, CMotion*, unsigned long*) = 0;
+	virtual void BltSprite(int, int, CSprRes*, CMotion*, unsigned int*) = 0;
 	virtual void BltTexture2(int, int, CTexture*, int, int, int, int, int, int, int) = 0;
-	virtual void ClearSurface(tagRECT*, unsigned long) = 0;
-	virtual void DrawSurface(int, int, int, int, unsigned long) = 0;
+	virtual void ClearSurface(tagRECT*, unsigned int) = 0;
+	virtual void DrawSurface(int, int, int, int, unsigned int) = 0;
 };
 
 class CDCSurface : public CDC {
 public:
-	CDCSurface(unsigned long w, unsigned long h, IDirectDrawSurface7* surface);
-	CDCSurface(unsigned long w, unsigned long h);
+	CDCSurface(unsigned int w, unsigned int h, IDirectDrawSurface7* surface);
+	CDCSurface(unsigned int w, unsigned int h);
 	virtual ~CDCSurface();
 	virtual void Resize(int w, int h);
 	virtual bool GetDC(HDC__** hdc);
 	virtual void ReleaseDC(HDC__* hdc);
-	virtual void Update(int x, int y, int width, int height, unsigned long* image, bool SkipColorKey);
+	virtual void Update(int x, int y, int width, int height, unsigned int* image, bool SkipColorKey);
 	virtual void CopyRect(int x, int y, int width, int height, CDC* surface);
-	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned long* palette) {}
+	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned int* palette) {}
 	virtual void BltTexture2(int x, int y, CTexture* src, int srcx, int srcy, int width, int height, int xflip, int zoomx, int zoomy);
-	virtual void ClearSurface(tagRECT* rect, unsigned long color);
-	virtual void DrawSurface(int x, int y, int width, int height, unsigned long color);
+	virtual void ClearSurface(tagRECT* rect, unsigned int color);
+	virtual void DrawSurface(int x, int y, int width, int height, unsigned int color);
 protected:
 	CSurface m_surface;
 };
 
 class CDCBitmap : public CDC {
 public:
-	CDCBitmap(unsigned long w, unsigned long h);
+	CDCBitmap(unsigned int w, unsigned int h);
 	virtual ~CDCBitmap();
 	virtual void Resize(int w, int h);
 	virtual bool GetDC(HDC__** hdc);
 	virtual void ReleaseDC(HDC__* hdc);
-	virtual void Update(int x, int y, int width, int height, unsigned long* imgData, bool SkipColorKey);
+	virtual void Update(int x, int y, int width, int height, unsigned int* imgData, bool SkipColorKey);
 	virtual void CopyRect(int x, int y, int width, int height, CDC* surface);
-	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned long* palette);
+	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned int* palette);
 	virtual void BltTexture2(int x, int y, CTexture* src, int srcx, int srcy, int width, int height, int xflip, int zoomx, int zoomy);
-	virtual void ClearSurface(tagRECT* rect, unsigned long color);
-	virtual void DrawSurface(int x, int y, int w, int h, unsigned long color);
+	virtual void ClearSurface(tagRECT* rect, unsigned int color);
+	virtual void DrawSurface(int x, int y, int w, int h, unsigned int color);
 protected:
 	void UpdateSurface();
-	void CreateDCSurface(unsigned long w, unsigned long h);
+	void CreateDCSurface(unsigned int w, unsigned int h);
 protected:
-	unsigned long m_w;
-	unsigned long m_h;
+	unsigned int m_w;
+	unsigned int m_h;
 	HDC__* m_dc;
 	HBITMAP__* m_bitmap;
 	HBITMAP__* m_bitmapOld;
-	unsigned long* m_image;
+	unsigned int* m_image;
 	unsigned char m_dirty;
 	std::list<CTexture *> m_textureList;
 	typedef std::list<CTexture *> texList;
@@ -214,9 +214,9 @@ class CTexMgr {
 public:
 	CTexMgr();
 	~CTexMgr();
-	CTexture* CreateTexture(int w, int h, unsigned long* pf, PixelFormat surface, bool blackkey);
-	CTexture* CreateTexture(unsigned long w, unsigned long h, PixelFormat pf, IDirectDrawSurface7* surface);
-	void ReCreateTexture(CTexture* tex, int w, int h, unsigned long* imgData);
+	CTexture* CreateTexture(int w, int h, unsigned int* pf, PixelFormat surface, bool blackkey);
+	CTexture* CreateTexture(unsigned int w, unsigned int h, PixelFormat pf, IDirectDrawSurface7* surface);
+	void ReCreateTexture(CTexture* tex, int w, int h, unsigned int* imgData);
 	CTexture* GetTexture(const char* fName, bool blackkey);
 	void DestroyTexture(CTexture* t);
 	void DestroyAllTexture();
@@ -229,7 +229,7 @@ private:
 	void AddTexture(CTexture* t);
 	static CTexture s_dummy_texture;
 private:
-	std::map<char const *, CTexture *, CharPrtLess, std::allocator<CTexture *> > m_texTable;
+	std::map<char const *, CTexture *, CharPrtLess > m_texTable;
 };
 
 struct CacheInfo {
@@ -252,7 +252,7 @@ public:
 	int texHeight;
 	std::vector<CacheInfo> info;
 	int isLocked;
-	unsigned long lastTime;
+	unsigned int lastTime;
 };
 
 struct UVRECT {
@@ -279,7 +279,7 @@ public:
 	void SetLight(vector3d& from, vector3d& at, vector3d& up);
 	void Clear(int clearScreen);
 	void ClearBackground();
-	void SetBackgroundColor(unsigned long color) { m_nClearColor = color; }
+	void SetBackgroundColor(unsigned int color) { m_nClearColor = color; }
 	bool DrawScene();
 	int Lock();
 	void Unlock();
@@ -307,13 +307,13 @@ public:
 	void AddRawRP(RPRaw* rp, int renderFlag);
 	void AddLmRP(RPLmFace* rp, RfLmType renderFlag);
 	void FlushRenderList();
-	CTexture* AddSpriteIndex(SprImg& img, unsigned long pal[], CacheInfo* info);
-	CTexture* GetSpriteIndex(SprImg& img, unsigned long palID, CacheInfo* info);
+	CTexture* AddSpriteIndex(SprImg& img, unsigned int pal[], CacheInfo* info);
+	CTexture* GetSpriteIndex(SprImg& img, unsigned int palID, CacheInfo* info);
 	void DoFog();
 	void FogSwitch(int clearScreen);
 	int FogFactor(float);
 	void SetMultiTextureMode(int clearScreen);
-	int TextOutScreen(int x, int y, const char* text, unsigned long colorRef, int fontHeight, char fontPrint);
+	int TextOutScreen(int x, int y, const char* text, unsigned int colorRef, int fontHeight, char fontPrint);
 	void ShowInfo();
 	void StartFPSCount();
 	tagSIZE* GetTextSize(const char* text, int textLen, int fontType, int fontHeight, bool bold);
@@ -349,8 +349,8 @@ public:
 	int m_halfHeight;
 	int m_curFrame;
 	int m_bRGBBitCount;
-	unsigned long m_fpsFrameCount;
-	unsigned long m_fpsStartTick;
+	unsigned int m_fpsFrameCount;
+	unsigned int m_fpsStartTick;
 	int m_isFoggy;
 	int m_fogChanged;
 	int m_isVertexFog;
@@ -362,16 +362,16 @@ public:
 	float m_guardBandBottom;
 	int m_isShowInfo;
 	vector3d m_eyeVector;
-	unsigned long m_nClearColor;
+	unsigned int m_nClearColor;
 private:
 	friend class C3dDevice;
 	IDirect3DDevice7* m_device;
 	IDirectDrawSurface7* m_lpSurface;
-	unsigned long m_dwScreenWidth;
-	unsigned long m_dwScreenHeight;
+	unsigned int m_dwScreenWidth;
+	unsigned int m_dwScreenHeight;
 	PixelFormat m_pf;
 	void* m_lpSurfacePtr;
-	long m_lPitch;
+	int m_lPitch;
 	struct RPRawTexPrtLess : public std::binary_function<const RPRaw*, const RPRaw*, bool> {
 	public:
 		bool operator()(const RPRaw*, const RPRaw*) const;

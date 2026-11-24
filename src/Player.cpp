@@ -27,7 +27,7 @@ extern UIWindowMgr g_windowMgr;
 extern char g_FirstEffect;
 extern char g_checkBOT;
 extern int g_se_go;
-extern bool IsEffectStateBurrow(unsigned long state);
+extern bool IsEffectStateBurrow(unsigned int state);
 
 #define RadToDeg(rad)  (float((rad) / pi) * 180.0f)
 

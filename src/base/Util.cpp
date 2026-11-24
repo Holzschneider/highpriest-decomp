@@ -329,7 +329,7 @@ CScheduler :: ~CScheduler ( )
 
 
 
-bool	CScheduler :: InsertInList ( long excuteTime, int excuteType, void (*pfunc)() )
+bool	CScheduler :: InsertInList ( int excuteTime, int excuteType, void (*pfunc)() )
 {
 	POINTER_FUNC g_pfunc ;
 	g_pfunc.excuteType = excuteType ;
@@ -341,14 +341,14 @@ bool	CScheduler :: InsertInList ( long excuteTime, int excuteType, void (*pfunc)
 	return true ;
 }
 
-bool	CScheduler :: InsertInList ( long excuteTime, POINTER_FUNC pfunc )
+bool	CScheduler :: InsertInList ( int excuteTime, POINTER_FUNC pfunc )
 {
 	return InsertInList ( excuteTime, pfunc.excuteType, pfunc.pfunc ) ;
 }
 
 void	CScheduler :: OnRun ( )
 {
-	std::multimap<long, POINTER_FUNC>::iterator iter = m_scheduleList.begin ( ) ;
+	std::multimap<int, POINTER_FUNC>::iterator iter = m_scheduleList.begin ( ) ;
 
 	for ( ; iter != m_scheduleList.end() ; ++iter )
 	{

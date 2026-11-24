@@ -5,7 +5,7 @@
 #include <string.h>
 
 static char* GetLine(char* text, char* line);
-unsigned long MemGetPrivateProfileString(const char* section, const char* key, const char* defaultText, char* result, unsigned long size, char* text);
+unsigned int MemGetPrivateProfileString(const char* section, const char* key, const char* defaultText, char* result, unsigned int size, char* text);
 
 unsigned int MemGetPrivateProfileInt(const char* section, const char* key, int defaultValue, char* text) {
     char defaultText[64];
@@ -18,7 +18,7 @@ unsigned int MemGetPrivateProfileInt(const char* section, const char* key, int d
     return number;
 }
 
-unsigned long MemGetPrivateProfileString(const char* section, const char* key, const char* defaultText, char* result, unsigned long size, char* text) {
+unsigned int MemGetPrivateProfileString(const char* section, const char* key, const char* defaultText, char* result, unsigned int size, char* text) {
     char keyPrefix[64];
     char sectionPrefix[64];
     char line[256];
@@ -67,7 +67,7 @@ static char* GetLine(char* text, char* line) {
     return text;
 }
 
-unsigned long MemGetPrivateProfileSectionNames(char* result, unsigned long size, char* text) {
+unsigned int MemGetPrivateProfileSectionNames(char* result, unsigned int size, char* text) {
     char line[256];
     char* dest = result;
     *dest = 0;

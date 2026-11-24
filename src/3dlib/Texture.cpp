@@ -202,13 +202,13 @@ void	CTexture :: ClearSurface(RECT* rect, DWORD color)
 	m_pddsSurface->Blt(rect, NULL, NULL, DDBLT_WAIT | DDBLT_COLORFILL, &bltfx);
 }
 
-long	CTexture :: Lock()
+int	CTexture :: Lock()
 {
 	UpdateStamp();
 	return ++m_lockCnt;
 }
 
-long	CTexture :: Unlock()
+int	CTexture :: Unlock()
 {
 	return --m_lockCnt;
 }

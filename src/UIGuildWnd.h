@@ -58,7 +58,7 @@ protected:
 	std::vector<StringId> m_menuItems;
 	std::string m_emblemResName;
 	char* m_compressedEmblemBitmapFileImage;
-	unsigned long m_compressedEmblemBitmapFileImageSize;
+	unsigned int m_compressedEmblemBitmapFileImageSize;
 	int m_gdid;
 	int m_emblemVersion;
 	int m_curAllyGuild;

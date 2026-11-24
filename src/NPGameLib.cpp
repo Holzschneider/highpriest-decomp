@@ -65,106 +65,106 @@ private:
     CCriticalSector m_section;
     char m_line[0x1000];
     SYSTEMTIME m_time;
-    unsigned long m_pad;
+    unsigned int m_pad;
     rc4_key_st m_rc4;
-    unsigned long m_xorSeed;
-    unsigned long m_limit;
-    unsigned long m_count;
+    unsigned int m_xorSeed;
+    unsigned int m_limit;
+    unsigned int m_count;
 };
 
 class CFvCrc32 {
 public:
     CFvCrc32();
     ~CFvCrc32();
-    bool Crc32File(const char* filename, unsigned long* crc);
-    unsigned long GetError() { return m_error; }
+    bool Crc32File(const char* filename, unsigned int* crc);
+    unsigned int GetError() { return m_error; }
 
 private:
-    unsigned long m_table[256];
-    unsigned long m_error;
+    unsigned int m_table[256];
+    unsigned int m_error;
 };
 
 char* _Dect(char* text);
 char* _Dect1(char* text);
 char* _Enct(char* text);
-void RC4(rc4_key_st* key, unsigned long len, unsigned char* indata,
+void RC4(rc4_key_st* key, unsigned int len, unsigned char* indata,
          unsigned char* outdata);
 void RC4_set_key(rc4_key_st* key, int len, unsigned char* data);
-unsigned long MemGetPrivateProfileString(const char* section, const char* key,
+unsigned int MemGetPrivateProfileString(const char* section, const char* key,
                                          const char* defaultValue,
-                                         char* output, unsigned long size,
+                                         char* output, unsigned int size,
                                          char* data);
 unsigned int MemGetPrivateProfileInt(const char* section, const char* key,
                                      int defaultValue, char* data);
 
 static void GetProcessList();
 static void GetModuleList();
-static bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned long expected);
-static unsigned long ReadMemCrc(PROCESS_INFORMATION& process);
+static bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned int expected);
+static unsigned int ReadMemCrc(PROCESS_INFORMATION& process);
 static bool CheckVersion(char* fileName, unsigned short major, unsigned short minor, unsigned short build, unsigned short revision);
-static unsigned long InitTimeAddr();
-static unsigned long CheckTimeAddr();
-static unsigned long InitSocketAddr();
-static unsigned long CheckSocketAddr();
+static unsigned int InitTimeAddr();
+static unsigned int CheckTimeAddr();
+static unsigned int InitSocketAddr();
+static unsigned int CheckSocketAddr();
 static bool CheckRsaBase();
 static bool RemoveCompatibleMode();
 static void CheckEncryptedClient();
 static DWORD WINAPI SpeedCheckEventThread(void* guard);
 static LONG WINAPI FvUnhandledExceptionFilter(_EXCEPTION_POINTERS* exceptionInfo);
-static BOOL SendGameMonMessage(const void* message, unsigned long size);
+static BOOL SendGameMonMessage(const void* message, unsigned int size);
 static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name);
 
-typedef unsigned long (__cdecl *NPSCInitProc)(unsigned long gameMonId, unsigned long arg1, unsigned long arg2, HANDLE event);
-typedef void (__cdecl *NPSCCloseProc)(unsigned long gameMonId, const char* userId);
+typedef unsigned int (__cdecl *NPSCInitProc)(unsigned int gameMonId, unsigned int arg1, unsigned int arg2, HANDLE event);
+typedef void (__cdecl *NPSCCloseProc)(unsigned int gameMonId, const char* userId);
 
 class CGameGuard {
 public:
     CGameGuard();
     ~CGameGuard();
 
-    unsigned long InitNPGameMonI();
-    unsigned long PreInitNPGameMonI(const char* userId);
+    unsigned int InitNPGameMonI();
+    unsigned int PreInitNPGameMonI(const char* userId);
     void SetHwndToGameMonI(HWND hwnd);
-    void RunFAQWebPageI(unsigned long errorCode);
-    unsigned long CheckNPGameMonI();
-    bool SendCSAuthToGameMonI(unsigned long auth);
+    void RunFAQWebPageI(unsigned int errorCode);
+    unsigned int CheckNPGameMonI();
+    bool SendCSAuthToGameMonI(unsigned int auth);
     bool SendUserIDToGameMonI(const char* userId);
     const char* GetInfoFromGameMonI();
     bool SendCSAuth2ToGameMonI(_GG_AUTH_DATA* auth);
     bool CloseNPGameMonI();
     bool InitNPSC();
-    unsigned long IsDebugger();
+    unsigned int IsDebugger();
     void FtpSendErl();
 
 private:
     friend void GetProcessList();
     friend void GetModuleList();
-    friend bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned long expected);
+    friend bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned int expected);
     friend bool CheckVersion(char* fileName, unsigned short major, unsigned short minor, unsigned short build, unsigned short revision);
     friend LONG WINAPI FvUnhandledExceptionFilter(_EXCEPTION_POINTERS* exceptionInfo);
     friend FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name);
-    friend unsigned long InitTimeAddr();
-    friend unsigned long CheckTimeAddr();
-    friend unsigned long InitSocketAddr();
-    friend unsigned long CheckSocketAddr();
+    friend unsigned int InitTimeAddr();
+    friend unsigned int CheckTimeAddr();
+    friend unsigned int InitSocketAddr();
+    friend unsigned int CheckSocketAddr();
     friend bool CheckRsaBase();
     friend bool RemoveCompatibleMode();
     friend DWORD WINAPI SpeedCheckEventThread(void* guard);
 
-    bool GetGameGuardDirectory(char* path, unsigned long size);
-    bool GetGameDirectory(char* path, unsigned long size);
+    bool GetGameGuardDirectory(char* path, unsigned int size);
+    bool GetGameDirectory(char* path, unsigned int size);
     bool IsWinNT();
     bool CloseNPSC();
-    int CheckSingleInstance(unsigned long timeout);
-    int CheckGameMonSingleInstance(unsigned long timeout);
+    int CheckSingleInstance(unsigned int timeout);
+    int CheckGameMonSingleInstance(unsigned int timeout);
 
     unsigned char m_active;
     unsigned char m_closing;
     unsigned char m_pad02[2];
     HWND m_hwnd;
-    unsigned long m_callbackMsg;
-    unsigned long m_callbackArg;
-    unsigned long m_initResult;
+    unsigned int m_callbackMsg;
+    unsigned int m_callbackArg;
+    unsigned int m_initResult;
     HANDLE m_closeEvent;
     HANDLE m_readyEvent;
     unsigned char m_npscActive;
@@ -174,7 +174,7 @@ private:
     CLog m_log;
     CCommPipe m_pipe;
     CFileAuthClient m_authClient;
-    unsigned long m_processId;
+    unsigned int m_processId;
     char m_clientId[32];
     HMODULE m_npscModule;
     HANDLE m_npscThread;
@@ -182,8 +182,8 @@ private:
     unsigned char m_flag1670;
     unsigned char m_isWinNt;
     unsigned char m_pad1672[2];
-    unsigned long m_npscInterval;
-    unsigned long m_npscOptions;
+    unsigned int m_npscInterval;
+    unsigned int m_npscOptions;
     HANDLE m_gameMonMutex;
     HANDLE m_gameMonReadyEvent;
     unsigned char m_disableAppCompat;
@@ -206,8 +206,8 @@ inline CGameGuard::CGameGuard()
 void* __cdecl operator new(unsigned int size);
 
 BOOL CALLBACK NPGameMonCallback(DWORD msg, DWORD arg);
-bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
-                               unsigned long value);
+bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned int msg,
+                               unsigned int value);
 #define s_logInitGameMonInactive "\001\014\211\306\3746(\210c\220>\305H\315|\243\363*IQ\371\215"
 #define s_logInitGameMonActive "\001\346\027k\216o\017\217\345\263\263\300\263\245\276\273\336'\030\3603\026\340\210\216"
 
@@ -467,26 +467,26 @@ typedef BOOL (WINAPI *Process32NextProc)(HANDLE snapshot, tagPROCESSENTRY32* ent
 typedef BOOL (WINAPI *Module32FirstProc)(HANDLE snapshot, tagMODULEENTRY32* entry);
 typedef BOOL (WINAPI *Module32NextProc)(HANDLE snapshot, tagMODULEENTRY32* entry);
 
-static long nSendErl = 0;
+static int nSendErl = 0;
 static HINSTANCE g_hInst = 0;
-static unsigned long g_dwThreadId = 0;
-static unsigned long g_dwWaitTime = 0;
-static unsigned long g_dwNoUpdate = 0;
-static unsigned long dwClientSequenceNumber = 0;
-static unsigned long dwServerSequenceNumber = 0;
-static unsigned long dwWorkingPID = 0;
-static unsigned long bCheckGameMon = 0;
-static unsigned long dwDE = 0;
-static unsigned long dwRE = 0;
-unsigned long dwGameMonPID = 0;
+static unsigned int g_dwThreadId = 0;
+static unsigned int g_dwWaitTime = 0;
+static unsigned int g_dwNoUpdate = 0;
+static unsigned int dwClientSequenceNumber = 0;
+static unsigned int dwServerSequenceNumber = 0;
+static unsigned int dwWorkingPID = 0;
+static unsigned int bCheckGameMon = 0;
+static unsigned int dwDE = 0;
+static unsigned int dwRE = 0;
+unsigned int dwGameMonPID = 0;
 HANDLE hGameMonHandle = 0;
 static bool bEncryptedClient = 0;
 static bool bEncryptedClientArm = 0;
 static unsigned char bIsWin2K = 0;
 static CGameGuard* gg = 0;
 static char* CONTAINER_NAME = "\x01\x19\xb0\x46\x7a\x25\xea\x6e\x48\x88\x63\x4d\xa3\x84\x85\x94\x41\x32\x3e";
-static unsigned long nSendErlIni = 1;
-static unsigned long g_dwLoseAllowFactor = 4;
+static unsigned int nSendErlIni = 1;
+static unsigned int g_dwLoseAllowFactor = 4;
 static char szLogFile[MAX_PATH];
 static char szGameMon[MAX_PATH];
 
@@ -501,7 +501,7 @@ static inline CGameGuard* GameGuard() {
     return gg;
 }
 
-extern "C" unsigned long InitNPGameMon() {
+extern "C" unsigned int InitNPGameMon() {
     CGameGuard* gameGuard = gg;
     if (!gameGuard) {
         return 0;
@@ -518,7 +518,7 @@ extern "C" void SetHwndToGameMon(HWND hwnd) {
 }
 
 
-extern "C" void RunFAQWebPage(unsigned long errorCode) {
+extern "C" void RunFAQWebPage(unsigned int errorCode) {
     CGameGuard* gameGuard = GameGuard();
     if (gameGuard) {
         gameGuard->RunFAQWebPageI(errorCode);
@@ -528,10 +528,10 @@ extern "C" void RunFAQWebPage(unsigned long errorCode) {
 extern "C" void SetCallbackToGameMon() {
 }
 
-extern "C" unsigned long PreInitNPGameMonA(const char* userId);
+extern "C" unsigned int PreInitNPGameMonA(const char* userId);
 
 
-extern "C" unsigned long PreInitNPGameMonW(const wchar_t* userId) {
+extern "C" unsigned int PreInitNPGameMonW(const wchar_t* userId) {
     char converted[32];
     WideCharToMultiByte(0, 0, userId, wcslen(userId) + 1,
                         converted, sizeof(converted), 0, 0);
@@ -539,7 +539,7 @@ extern "C" unsigned long PreInitNPGameMonW(const wchar_t* userId) {
 }
 
 
-extern "C" unsigned long PreInitNPGameMonA(const char* userId) {
+extern "C" unsigned int PreInitNPGameMonA(const char* userId) {
     if (gg) {
         return 0;
     }
@@ -550,7 +550,7 @@ extern "C" unsigned long PreInitNPGameMonA(const char* userId) {
         setUnhandledExceptionFilter(FvUnhandledExceptionFilter);
 
     gg = new CGameGuard;
-    *(unsigned long*)((unsigned char*)gg + 0x10) =
+    *(unsigned int*)((unsigned char*)gg + 0x10) =
         gg->PreInitNPGameMonI(userId);
 
     HANDLE readyEvent = *(HANDLE*)((unsigned char*)gg + 0x18);
@@ -562,10 +562,10 @@ extern "C" unsigned long PreInitNPGameMonA(const char* userId) {
         setUnhandledExceptionFilter(previousFilter);
     }
 
-    return *(unsigned long*)((unsigned char*)gg + 0x10);
+    return *(unsigned int*)((unsigned char*)gg + 0x10);
 }
 
-extern "C" unsigned long CheckNPGameMon() {
+extern "C" unsigned int CheckNPGameMon() {
     CGameGuard* gameGuard = GameGuard();
     if (!gameGuard) {
         return 0;
@@ -600,7 +600,7 @@ extern "C" int SendUserIDToGameMonA(const char* userId) {
 }
 
 
-extern "C" int SendCSAuthToGameMon(unsigned long auth) {
+extern "C" int SendCSAuthToGameMon(unsigned int auth) {
     CGameGuard* gameGuard = gg;
     if (!gameGuard) {
         return 0;
@@ -645,7 +645,7 @@ extern "C" int CloseNPGameMon() {
 CGameGuard::~CGameGuard() {
 }
 
-unsigned long CGameGuard::InitNPGameMonI() {
+unsigned int CGameGuard::InitNPGameMonI() {
     if (!m_active) {
         m_log.Write(_Dect1(s_logInitGameMonInactive), m_initResult);
         return m_initResult;
@@ -702,7 +702,7 @@ inline bool CLog::Open(const char* fileName) {
             m_line[i] ^= (char)(m_xorSeed + 0x43);
         }
     } else {
-        unsigned long mix = (m_time.wSecond + m_time.wMilliseconds + GetTickCount() + m_time.wMinute) *
+        unsigned int mix = (m_time.wSecond + m_time.wMilliseconds + GetTickCount() + m_time.wMinute) *
                             (m_time.wDay * m_time.wMonth * m_time.wYear * m_time.wMilliseconds + 1);
         mix = (mix & 0xffff) | 0xdc000000;
         m_pad = (((mix % 10) ^ 0x55) << 16) | mix;
@@ -749,7 +749,7 @@ inline bool CLog::Open(const char* fileName) {
     return true;
 }
 
-unsigned long CGameGuard::PreInitNPGameMonI(const char* userId) {
+unsigned int CGameGuard::PreInitNPGameMonI(const char* userId) {
     char* encrypted;
     char* cursor;
     int length;
@@ -807,7 +807,7 @@ unsigned long CGameGuard::PreInitNPGameMonI(const char* userId) {
         }
     }
 
-    unsigned long launchCookie = GetTickCount() & 0xfff00000;
+    unsigned int launchCookie = GetTickCount() & 0xfff00000;
     SECURITY_ATTRIBUTES security;
     security.nLength = sizeof(security);
     security.lpSecurityDescriptor = 0;
@@ -920,7 +920,7 @@ authenticated:
         return exitCode;
     }
     m_log.Write(_Dect1("\001\367J\025\031\207"));
-    unsigned long memoryCrc = ReadMemCrc(process);
+    unsigned int memoryCrc = ReadMemCrc(process);
     CloseHandle(process.hProcess);
     CloseHandle(process.hThread);
 
@@ -952,8 +952,8 @@ authenticated:
     nSendErlIni = MemGetPrivateProfileInt(section, _Dect1("\001:\023u\334\243\245\276b\374\017"), 1, configData);
     g_dwWaitTime = MemGetPrivateProfileInt(section, _Dect1("\001\334\371,\362i\370\030I\331\244\261"), 0x186a0, configData);
     g_dwNoUpdate = MemGetPrivateProfileInt(section, _Dect1("\001KF\002\024\010Q62\033\027o\257"), 0, configData);
-    unsigned long gameMonVersion = MemGetPrivateProfileInt(section, _Dect1("\001JC\012m\263M\303\204\367<\334"), 0, configData);
-    unsigned long gameMonOption = MemGetPrivateProfileInt(section, _Dect1("\001\250]Wn\365\030}\242\216\216"), 0, configData);
+    unsigned int gameMonVersion = MemGetPrivateProfileInt(section, _Dect1("\001JC\012m\263M\303\204\367<\334"), 0, configData);
+    unsigned int gameMonOption = MemGetPrivateProfileInt(section, _Dect1("\001\250]Wn\365\030}\242\216\216"), 0, configData);
     m_useNpsc = !((MemGetPrivateProfileInt(section, _Dect1("\001\244Q \362 \335\235\372\026\036\252l\214,\341"), 0, configData) >> 1) & 1);
     m_npscInterval = MemGetPrivateProfileInt(section, _Dect1("\001h\235\003:$\320\275e\337E%\032\017Z\001_88\342\037U9"), 1000, configData);
     m_npscOptions = MemGetPrivateProfileInt(section, _Dect1("\001\317\322\240\025[\037\002J *\032\025p\265\244R\334\245"), 0, configData);
@@ -1030,12 +1030,12 @@ authenticated:
     }
     if (dwDE) {
 
-        struct Header { unsigned long size; unsigned long command; unsigned long processId; };
+        struct Header { unsigned int size; unsigned int command; unsigned int processId; };
         struct {
             Header header;
             char text[0xfc];
         } message;
-        unsigned long size = strlen(encryptedCommandLine) + 0x0d;
+        unsigned int size = strlen(encryptedCommandLine) + 0x0d;
         Header header = { size, 0x7eb, m_processId };
         message.header = header;
         strcpy(message.text, encryptedCommandLine);
@@ -1057,7 +1057,7 @@ authenticated:
         bCheckGameMon = CheckGameMonCrc(szGameMon, s_gameMonCrcValueName, memoryCrc);
     m_log.Write(_Dect1(s_preInitCommPipeRun));
 
-    unsigned long threadId = m_pipe.RunCommPipe();
+    unsigned int threadId = m_pipe.RunCommPipe();
     if (!threadId) {
         GetLastError();
         m_log.Write(_Dect1("\001\263~\274\000Z\250\310\265\252\343\303\204\276\277\327JR\372"), GetLastError());
@@ -1111,11 +1111,11 @@ authenticated:
         return 0x7a;
 
     CheckEncryptedClient();
-    unsigned long timeAddr = InitTimeAddr();
+    unsigned int timeAddr = InitTimeAddr();
     if (!timeAddr)
         CommPipeCallback(&m_pipe, 0x62d, 0x0b);
     m_log.Write(_Dect1("\001\364A\354d\256\020\320q\301\\\251\334t\015\006\257\330\004\370"), timeAddr);
-    unsigned long socketAddr = InitSocketAddr();
+    unsigned int socketAddr = InitSocketAddr();
     if (!socketAddr)
         m_pipe.SendCommPipe(0x8b1, 0x630, 0x0d);
     m_log.Write(_Dect1("\001%\324\247\021/\225Y\223\026\307N\315E\215\371t\033N\265\335E"), socketAddr);
@@ -1263,14 +1263,14 @@ void CGameGuard::SetHwndToGameMonI(HWND hwnd) {
 
     *(HWND*)(raw + 4) = hwnd;
     ((CCommPipe*)(raw + 0x1464))->SendCommPipe(0x8b1, 0x612,
-                                               (unsigned long)hwnd);
+                                               (unsigned int)hwnd);
 
-    if (*(unsigned long*)(raw + 8)) {
+    if (*(unsigned int*)(raw + 8)) {
         log->Write(_Dect1(s_logSetHwndCallback),
-                   *(unsigned long*)(raw + 8),
-                   *(unsigned long*)(raw + 0x0c));
-        if (!NPGameMonCallback(*(unsigned long*)(raw + 8),
-                               *(unsigned long*)(raw + 0x0c))) {
+                   *(unsigned int*)(raw + 8),
+                   *(unsigned int*)(raw + 0x0c));
+        if (!NPGameMonCallback(*(unsigned int*)(raw + 8),
+                               *(unsigned int*)(raw + 0x0c))) {
             log->Write(_Dect1(s_logSetHwndCallbackFailed));
         }
     }
@@ -1278,7 +1278,7 @@ void CGameGuard::SetHwndToGameMonI(HWND hwnd) {
     log->Write(_Dect1(s_logSetHwndEnd));
 }
 
-void CGameGuard::RunFAQWebPageI(unsigned long errorCode) {
+void CGameGuard::RunFAQWebPageI(unsigned int errorCode) {
     char page[0x10] = {0};
     char currentDir[MAX_PATH] = {0};
 
@@ -1382,13 +1382,13 @@ bool CGameGuard::IsWinNT() {
     return false;
 }
 
-bool CGameGuard::GetGameGuardDirectory(char* path, unsigned long size) {
+bool CGameGuard::GetGameGuardDirectory(char* path, unsigned int size) {
     GetGameDirectory(path, size);
     strcat(path, _Dect1(s_gameGuardDirectorySuffix));
     return true;
 }
 
-bool CGameGuard::GetGameDirectory(char* path, unsigned long size) {
+bool CGameGuard::GetGameDirectory(char* path, unsigned int size) {
     if (!GetModuleFileNameA(0, path, size)) {
         strcpy(path, ".");
         return false;
@@ -1404,8 +1404,8 @@ bool CGameGuard::GetGameDirectory(char* path, unsigned long size) {
     return true;
 }
 
-unsigned long CGameGuard::CheckNPGameMonI() {
-    static unsigned long dwCount = 0;
+unsigned int CGameGuard::CheckNPGameMonI() {
+    static unsigned int dwCount = 0;
     ++dwCount;
 
     if (m_closing) {
@@ -1468,7 +1468,7 @@ unsigned long CGameGuard::CheckNPGameMonI() {
     }
 }
 
-bool CGameGuard::SendCSAuthToGameMonI(unsigned long auth) {
+bool CGameGuard::SendCSAuthToGameMonI(unsigned int auth) {
     if (*(unsigned char*)this) {
         ((CLog*)((unsigned char*)this + 0x20))->Write(_Dect1(s_logSendCSAuth), auth);
         return ((CCommPipe*)((unsigned char*)this + 0x1464))->SendCommPipe(
@@ -1481,7 +1481,7 @@ bool CGameGuard::SendUserIDToGameMonI(const char* userId) {
     if (*(unsigned char*)this) {
         strcpy((char*)this + 0x1630, userId);
         return ((CCommPipe*)((unsigned char*)this + 0x1464))->SendCommPipe(
-            0x8b1, 0x613, (unsigned long)userId);
+            0x8b1, 0x613, (unsigned int)userId);
     }
     return false;
 }
@@ -1496,7 +1496,7 @@ const char* CGameGuard::GetInfoFromGameMonI() {
 bool CGameGuard::SendCSAuth2ToGameMonI(_GG_AUTH_DATA* auth) {
     if (*(unsigned char*)this) {
         return ((CCommPipe*)((unsigned char*)this + 0x1464))->SendCommPipe(
-            0x8b1, 0x619, (unsigned long)auth);
+            0x8b1, 0x619, (unsigned int)auth);
     }
     return false;
 }
@@ -1567,7 +1567,7 @@ bool CGameGuard::InitNPSC() {
     if (!((CFileAuthClient*)(raw + 0x15bc))->Auth(path, true)) {
         DWORD (WINAPI *getLastError)() = GetLastError;
         getLastError();
-        unsigned long authResult = *(unsigned long*)(raw + 0x1600);
+        unsigned int authResult = *(unsigned int*)(raw + 0x1600);
         log->Write(_Dect1(s_logInitNPSCAuthFailed),
                    authResult, getLastError());
         return false;
@@ -1607,10 +1607,10 @@ bool CGameGuard::InitNPSC() {
     }
 
     log->Write(_Dect1(s_logInitNPSCThread), threadId);
-    unsigned long result = (*(NPSCInitProc*)(raw + 0x1688))(
-        *(unsigned long*)(raw + 0x1604),
-        *(unsigned long*)(raw + 0x1678),
-        *(unsigned long*)(raw + 0x1674),
+    unsigned int result = (*(NPSCInitProc*)(raw + 0x1688))(
+        *(unsigned int*)(raw + 0x1604),
+        *(unsigned int*)(raw + 0x1678),
+        *(unsigned int*)(raw + 0x1674),
         *(HANDLE*)(raw + 0x14));
     if (result != 0x6b) {
         log->Write(_Dect1(s_logInitNPSCResultFailed), result);
@@ -1631,7 +1631,7 @@ bool CGameGuard::CloseNPSC() {
     log->Write(_Dect1(s_logCloseNPSCBegin));
 
     NPSCCloseProc closeProc = *(NPSCCloseProc*)(raw + 0x168c);
-    closeProc(*(unsigned long*)(raw + 0x1604), (const char*)(raw + 0x1630));
+    closeProc(*(unsigned int*)(raw + 0x1604), (const char*)(raw + 0x1630));
 
     HANDLE event = *(HANDLE*)(raw + 0x14);
     raw[0x1c] = 0;
@@ -1651,8 +1651,8 @@ bool CGameGuard::CloseNPSC() {
         FreeLibrary(module);
     }
 
-    *(unsigned long*)(raw + 0x1688) = 0;
-    *(unsigned long*)(raw + 0x168c) = 0;
+    *(unsigned int*)(raw + 0x1688) = 0;
+    *(unsigned int*)(raw + 0x168c) = 0;
     log->Write(_Dect1(s_logCloseNPSCEnd));
     return true;
 }
@@ -1679,7 +1679,7 @@ static DWORD WINAPI SpeedCheckEventThread(void* param)
     return 0;
 }
 
-int CGameGuard::CheckSingleInstance(unsigned long timeout) {
+int CGameGuard::CheckSingleInstance(unsigned int timeout) {
     SECURITY_ATTRIBUTES attributes;
     SECURITY_DESCRIPTOR descriptor;
     attributes.nLength = sizeof(attributes);
@@ -1722,7 +1722,7 @@ int CGameGuard::CheckSingleInstance(unsigned long timeout) {
     return true;
 }
 
-int CGameGuard::CheckGameMonSingleInstance(unsigned long timeout) {
+int CGameGuard::CheckGameMonSingleInstance(unsigned int timeout) {
     SECURITY_ATTRIBUTES attributes;
     SECURITY_DESCRIPTOR descriptor;
     attributes.nLength = sizeof(attributes);
@@ -1767,11 +1767,11 @@ int CGameGuard::CheckGameMonSingleInstance(unsigned long timeout) {
     return true;
 }
 
-unsigned long CGameGuard::IsDebugger()
+unsigned int CGameGuard::IsDebugger()
 {
     if (bEncryptedClientArm)
         return 0;
-    unsigned long detected = 0;
+    unsigned int detected = 0;
 
     if (m_isWinNt) {
         __asm {
@@ -1790,20 +1790,20 @@ unsigned long CGameGuard::IsDebugger()
     return detected;
 }
 
-bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
-                               unsigned long value) {
+bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned int msg,
+                               unsigned int value) {
     if (gg) {
         ((CLog*)((unsigned char*)gg + 0x20))->Write(
             _Dect1(s_logCommPipeCallback), msg, value);
     }
 
-    unsigned long callbackMsg;
+    unsigned int callbackMsg;
     switch (msg) {
     case 0x60f:
         callbackMsg = 0x3e9;
         if (!*(unsigned char*)gg) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1811,8 +1811,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
     case 0x610:
         callbackMsg = 0x3ea;
         if (!*(unsigned char*)gg) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1841,8 +1841,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
     case 0x62d:
         callbackMsg = 0x3f3;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1850,8 +1850,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
     case 0x62e:
         callbackMsg = 0x3f4;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1859,8 +1859,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
     case 0x62f:
         callbackMsg = 0x3f5;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1868,8 +1868,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
     case 0x630:
         callbackMsg = 0x3f7;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1878,8 +1878,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
         callbackMsg = 0x3f6;
         value = 0xd2;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1888,8 +1888,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
         callbackMsg = 0x3f6;
         value = 0xdc;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1898,14 +1898,14 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
         callbackMsg = 0x3f6;
         value = 0xe6;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
 
     case 0x619:
-        value = (unsigned long)pipe->GetCSAuth2();
+        value = (unsigned int)pipe->GetCSAuth2();
         callbackMsg = 0x3f9;
         break;
 
@@ -1923,8 +1923,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
             callbackMsg = 0x3f6;
             value = 0xe6;
             if (!*(HWND*)((unsigned char*)gg + 4)) {
-                *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-                *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+                *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+                *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
                 goto done;
             }
             break;
@@ -1939,8 +1939,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
         callbackMsg = 0x3f6;
         value = 0xe6;
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -1953,8 +1953,8 @@ bool CALLBACK CommPipeCallback(CCommPipe* pipe, unsigned long msg,
             callbackMsg = 0x3e8;
         }
         if (!*(HWND*)((unsigned char*)gg + 4)) {
-            *(unsigned long*)((unsigned char*)gg + 8) = callbackMsg;
-            *(unsigned long*)((unsigned char*)gg + 0x0c) = value;
+            *(unsigned int*)((unsigned char*)gg + 8) = callbackMsg;
+            *(unsigned int*)((unsigned char*)gg + 0x0c) = value;
             goto done;
         }
         break;
@@ -2100,7 +2100,7 @@ void CGameGuard::FtpSendErl() {
     char remoteFile[0x104];
     _snprintf(remoteFile, sizeof(remoteFile), _Dect1(s_ftpRemoteFormat),
               raw + 0x1608, '/', reason,
-              *(unsigned long*)((unsigned char*)gg + 0x10), computerName,
+              *(unsigned int*)((unsigned char*)gg + 0x10), computerName,
               userName, raw + 0x1630, time.wYear, time.wMonth, time.wDay,
               time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
 
@@ -2245,7 +2245,7 @@ static bool bInitTA = 0;
 static bool bInitSA = 0;
 
 
-static unsigned long InitTimeAddr()
+static unsigned int InitTimeAddr()
 {
     int hooks = 0;
     HMODULE acLayers = GetModuleHandleA(_Dect1(s_acLayersDll));
@@ -2259,7 +2259,7 @@ static unsigned long InitTimeAddr()
         lpQPC2 = (FARPROC)QueryPerformanceCounter;
         if (gg)
             gg->m_log.Write(_Dect1(s_logPerformancePointers), lpQPC, lpQPC2);
-        if ((unsigned long)lpQPC < (unsigned long)kernel && !ttCore && (!acLayers || (unsigned long)lpQPC < (unsigned long)acLayers)) {
+        if ((unsigned int)lpQPC < (unsigned int)kernel && !ttCore && (!acLayers || (unsigned int)lpQPC < (unsigned int)acLayers)) {
             if (gg)
                 gg->m_log.Write(_Dect1(s_logPerformanceHookModule), kernel);
             hooks = 1;
@@ -2271,7 +2271,7 @@ static unsigned long InitTimeAddr()
         lpGTC2 = (FARPROC)GetTickCount;
         if (gg)
             gg->m_log.Write(_Dect1(s_logTickCountPointers), lpGTC, lpGTC2);
-        if ((unsigned long)lpGTC < (unsigned long)kernel && !ttCore && (!acLayers || (unsigned long)lpQPC < (unsigned long)acLayers)) {
+        if ((unsigned int)lpGTC < (unsigned int)kernel && !ttCore && (!acLayers || (unsigned int)lpQPC < (unsigned int)acLayers)) {
             if (gg)
                 gg->m_log.Write(_Dect1(s_logTickCountHookModule), kernel);
             ++hooks;
@@ -2287,7 +2287,7 @@ static unsigned long InitTimeAddr()
             lpTGT2 = timer;
             if (gg)
                 gg->m_log.Write(_Dect1(s_logTimeGetTimePointers), lpTGT, lpTGT2);
-            if ((unsigned long)lpTGT < (unsigned long)winmm && !ttCore && (!acLayers || (unsigned long)lpQPC < (unsigned long)acLayers)) {
+            if ((unsigned int)lpTGT < (unsigned int)winmm && !ttCore && (!acLayers || (unsigned int)lpQPC < (unsigned int)acLayers)) {
                 if (gg)
                     gg->m_log.Write(_Dect1(s_logTimeGetTimeHookModule), winmm);
                 ++hooks;
@@ -2299,7 +2299,7 @@ static unsigned long InitTimeAddr()
 }
 
 
-static unsigned long CheckTimeAddr()
+static unsigned int CheckTimeAddr()
 {
     if (bEncryptedClient)
         return 1;
@@ -2325,7 +2325,7 @@ static unsigned long CheckTimeAddr()
 }
 
 
-static unsigned long InitSocketAddr()
+static unsigned int InitSocketAddr()
 {
     int hooks = 0;
     HMODULE sockets = GetModuleHandleA(_Dect1(s_ws2Dll));
@@ -2336,7 +2336,7 @@ static unsigned long InitSocketAddr()
         lpWSASend2 = (FARPROC)WSASend;
         if (gg)
             gg->m_log.Write(_Dect1(s_logWSASendPointers), lpWSASend, lpWSASend2);
-        if ((unsigned long)lpWSASend < (unsigned long)sockets) {
+        if ((unsigned int)lpWSASend < (unsigned int)sockets) {
             if (gg)
                 gg->m_log.Write(_Dect1(s_logWSASendHookModule), sockets);
             hooks = 1;
@@ -2347,7 +2347,7 @@ static unsigned long InitSocketAddr()
         lpsend2 = (FARPROC)send;
         if (gg)
             gg->m_log.Write(_Dect1(s_logSendPointers), lpsend, lpsend2);
-        if ((unsigned long)lpsend < (unsigned long)sockets) {
+        if ((unsigned int)lpsend < (unsigned int)sockets) {
             if (gg)
                 gg->m_log.Write(_Dect1(s_logSendHookModule), sockets);
             ++hooks;
@@ -2358,7 +2358,7 @@ static unsigned long InitSocketAddr()
 }
 
 
-static unsigned long CheckSocketAddr()
+static unsigned int CheckSocketAddr()
 {
     if (!bInitSA)
         return 2;
@@ -2376,27 +2376,27 @@ static unsigned long CheckSocketAddr()
     return hooks == 0;
 }
 
-extern "C" void PPEncryptClientPacket(void* packet, unsigned long size, void* key);
-extern "C" void PPDecryptServerPacket(void* packet, unsigned long size, void* key);
-extern "C" void PPDecryptClientPacket(void* packet, unsigned long size, void* key);
+extern "C" void PPEncryptClientPacket(void* packet, unsigned int size, void* key);
+extern "C" void PPDecryptServerPacket(void* packet, unsigned int size, void* key);
+extern "C" void PPDecryptClientPacket(void* packet, unsigned int size, void* key);
 
 
-extern "C" void EncryptPacket(void* packet, unsigned long size) {
+extern "C" void EncryptPacket(void* packet, unsigned int size) {
     PPEncryptClientPacket(packet, size, &dwClientSequenceNumber);
 }
 
 
-extern "C" void DecryptPacket(void* packet, unsigned long size) {
+extern "C" void DecryptPacket(void* packet, unsigned int size) {
     PPDecryptServerPacket(packet, size, &dwServerSequenceNumber);
 }
 
 
-extern "C" void EncryptPeerPacket(void* packet, unsigned long size) {
+extern "C" void EncryptPeerPacket(void* packet, unsigned int size) {
     PPEncryptClientPacket(packet, size, &size);
 }
 
 
-extern "C" void DecryptPeerPacket(void* packet, unsigned long size) {
+extern "C" void DecryptPeerPacket(void* packet, unsigned int size) {
     PPDecryptClientPacket(packet, size, &size);
 }
 
@@ -2406,11 +2406,11 @@ extern "C" void DecryptPeerPacket(void* packet, unsigned long size) {
 #define s_logGameMonCrcKeyFailed "\001\370M3\332l k:\014\317\025\356\364\3239(\220\027\340\\\310P"
 #define s_logGameMonCrcMismatch "\001G:\365\243f/\274D\270\352\363\227U\264\217csvg+\033"
 
-static bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned long expected)
+static bool CheckGameMonCrc(const char* fileName, char* valueName, unsigned int expected)
 {
     DWORD size = sizeof(DWORD);
     DWORD stored = 0;
-    unsigned long crc = 1;
+    unsigned int crc = 1;
     CFvCrc32 crc32;
     HKEY key;
     DWORD disposition;
@@ -2446,10 +2446,10 @@ typedef BOOL (WINAPI *Toolhelp32ReadProcessMemoryProc)(DWORD processId, LPCVOID 
 
 
 
-static unsigned long ReadMemCrc(PROCESS_INFORMATION& process)
+static unsigned int ReadMemCrc(PROCESS_INFORMATION& process)
 {
     unsigned char header[0x40];
-    unsigned long crc = 0;
+    unsigned int crc = 0;
     HMODULE kernel = GetModuleHandleA(_Dect1("\001\341\010]G\330\002\347\261\331ks\322I\254\025"));
     Toolhelp32ReadProcessMemoryProc toolhelpRead = (Toolhelp32ReadProcessMemoryProc)MyGetProcAddress(kernel, _Dect1("\001\337\002$\242t\345\273\326\026\376\2375yH\342\257\307r\355y\030\317D\255\236\327\"I\331C"));
     ReadProcessMemoryProc readMemory = (ReadProcessMemoryProc)MyGetProcAddress(kernel, _Dect1("\001@%\271c\251\374t9\006\372\233D\357~-<)j:h"));
@@ -2459,7 +2459,7 @@ static unsigned long ReadMemCrc(PROCESS_INFORMATION& process)
     if (toolhelpRead && !read)
         read = toolhelpRead(process.dwProcessId, (LPCVOID)0x400000, header, sizeof(header), 0);
     if (read)
-        crc = ~*(unsigned long*)(header + 0x24);
+        crc = ~*(unsigned int*)(header + 0x24);
     return crc;
 }
 
@@ -2485,8 +2485,8 @@ static bool CheckVersion(char* fileName, unsigned short major, unsigned short mi
                     UINT infoSize;
                     query(data, "\\", (void**)&info, &infoSize);
                     if (info->dwSignature == 0xfeef04bd) {
-                        unsigned long installed = ((HIWORD(info->dwFileVersionMS) * 100 + LOWORD(info->dwFileVersionMS)) * 100 + HIWORD(info->dwFileVersionLS)) * 100 + LOWORD(info->dwFileVersionLS);
-                        unsigned long required = (((WORD)major * 100 + (WORD)minor) * 100 + (WORD)build) * 100 + (WORD)revision;
+                        unsigned int installed = ((HIWORD(info->dwFileVersionMS) * 100 + LOWORD(info->dwFileVersionMS)) * 100 + HIWORD(info->dwFileVersionLS)) * 100 + LOWORD(info->dwFileVersionLS);
+                        unsigned int required = (((WORD)major * 100 + (WORD)minor) * 100 + (WORD)build) * 100 + (WORD)revision;
                         if (gg)
                             gg->m_log.Write(_Dect1(s_logFileVersion), fileName, installed, required);
                         if (installed < required)
@@ -2517,8 +2517,8 @@ static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name)
         if (pNTHeader->Signature != IMAGE_NT_SIGNATURE)
             return 0;
 
-        unsigned long exportRva = 0;
-        unsigned long exportSize = 0;
+        unsigned int exportRva = 0;
+        unsigned int exportSize = 0;
         if (pNTHeader->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
             IMAGE_NT_HEADERS64* nt64 = (IMAGE_NT_HEADERS64*)pNTHeader;
             exportRva = nt64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
@@ -2531,13 +2531,13 @@ static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name)
             return 0;
 
         IMAGE_EXPORT_DIRECTORY* pExportDirectory = (IMAGE_EXPORT_DIRECTORY*)((unsigned char*)module + exportRva);
-        unsigned long index = 0;
-        if ((unsigned long)name < 0x10000) {
+        unsigned int index = 0;
+        if ((unsigned int)name < 0x10000) {
 
-            index = (unsigned long)name;
+            index = (unsigned int)name;
             index--;
         } else {
-            unsigned long length = 0;
+            unsigned int length = 0;
             const char* cursor = name;
             while (*cursor) {
                 ++cursor;
@@ -2545,7 +2545,7 @@ static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name)
                     return 0;
             }
 
-            unsigned long* nameTable = (unsigned long*)((unsigned char*)module + pExportDirectory->AddressOfNames);
+            unsigned int* nameTable = (unsigned int*)((unsigned char*)module + pExportDirectory->AddressOfNames);
             bool found = false;
             for (index = 0; index < pExportDirectory->NumberOfNames; ++index) {
                 unsigned char* exportName = (unsigned char*)module + *nameTable;
@@ -2554,7 +2554,7 @@ static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name)
                     return 0;
 
                 bool bEqual = true;
-                for (unsigned long nIdx = 0; nIdx < length; ++nIdx) {
+                for (unsigned int nIdx = 0; nIdx < length; ++nIdx) {
                     if (*exportName - *cursor != 0) {
                         bEqual = false;
                         break;
@@ -2575,7 +2575,7 @@ static FARPROC WINAPI MyGetProcAddress(HINSTANCE module, LPCSTR name)
             index = *ordinals;
         }
 
-        unsigned long* pFuncs = (unsigned long*)((unsigned char*)module + pExportDirectory->AddressOfFunctions);
+        unsigned int* pFuncs = (unsigned int*)((unsigned char*)module + pExportDirectory->AddressOfFunctions);
         pFuncs += index;
         proc = (FARPROC)((unsigned char*)module + *pFuncs);
         if ((unsigned char*)proc >= (unsigned char*)module + exportRva && (unsigned char*)proc < (unsigned char*)module + exportRva + exportSize) {
@@ -2754,14 +2754,14 @@ static void CheckEncryptedClient()
 {
     IMAGE_DOS_HEADER* image = (IMAGE_DOS_HEADER*)GetModuleHandleA(0);
     if (image->e_magic == IMAGE_DOS_SIGNATURE) {
-        const unsigned long* markers = (const unsigned long*)&image->e_res2[4];
+        const unsigned int* markers = (const unsigned int*)&image->e_res2[4];
         if (markers[1] && markers[2]) {
             bEncryptedClient = true;
             if (!markers[0])
                 bEncryptedClientArm = true;
         }
         if (markers[2] && markers[1] && markers[0]) {
-            unsigned long difference = markers[1] > markers[2] ? markers[1] - markers[2] : markers[2] - markers[1];
+            unsigned int difference = markers[1] > markers[2] ? markers[1] - markers[2] : markers[2] - markers[1];
             if (markers[0] == difference || (markers[1] == markers[2] && markers[0] == markers[1]))
                 bEncryptedClientArm = true;
         }
@@ -2770,7 +2770,7 @@ static void CheckEncryptedClient()
 
 
 
-static BOOL SendGameMonMessage(const void* message, unsigned long size) {
+static BOOL SendGameMonMessage(const void* message, unsigned int size) {
     HANDLE mapping = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE,
                                       _Dect1(s_gameMonMessageMapping));
     if (!mapping) {
@@ -2799,23 +2799,23 @@ static BOOL SendGameMonMessage(const void* message, unsigned long size) {
 
     WaitForSingleObject(mutex, INFINITE);
     char* end = view;
-    unsigned long length = *(unsigned long*)end;
+    unsigned int length = *(unsigned int*)end;
     while (length) {
         end += length;
-        if ((unsigned long)(end - view) >= 0xffc) {
+        if ((unsigned int)(end - view) >= 0xffc) {
             end = view;
             break;
         }
-        length = *(unsigned long*)end;
+        length = *(unsigned int*)end;
     }
 
-    if ((unsigned long)(end - view) >= 0xffc - size) {
+    if ((unsigned int)(end - view) >= 0xffc - size) {
         end = view;
     } else {
         memcpy(end, message, size);
         end += size;
     }
-    *(unsigned long*)end = 0;
+    *(unsigned int*)end = 0;
 
     UnmapViewOfFile(view);
     CloseHandle(mapping);
@@ -2829,41 +2829,41 @@ public:
     CNPDword();
     ~CNPDword();
 
-    unsigned long Get();
-    void Set(unsigned long value);
+    unsigned int Get();
+    void Set(unsigned int value);
 
 private:
     void Guard();
     void Release();
 
-    unsigned long* m_value;
+    unsigned int* m_value;
 };
 
 CNPDword::CNPDword() {
-    m_value = (unsigned long*)VirtualAlloc(0, sizeof(unsigned long),
+    m_value = (unsigned int*)VirtualAlloc(0, sizeof(unsigned int),
                                            MEM_COMMIT, PAGE_READWRITE);
 }
 
 CNPDword::~CNPDword() {
-    VirtualFree(m_value, sizeof(unsigned long), MEM_DECOMMIT);
+    VirtualFree(m_value, sizeof(unsigned int), MEM_DECOMMIT);
 }
 
 void CNPDword::Guard() {
-    unsigned long oldProtect;
-    VirtualProtect(m_value, sizeof(unsigned long), PAGE_READONLY, &oldProtect);
+    unsigned int oldProtect;
+    VirtualProtect(m_value, sizeof(unsigned int), PAGE_READONLY, &oldProtect);
 }
 
 void CNPDword::Release() {
-    unsigned long oldProtect;
-    VirtualProtect(m_value, sizeof(unsigned long), PAGE_READWRITE, &oldProtect);
+    unsigned int oldProtect;
+    VirtualProtect(m_value, sizeof(unsigned int), PAGE_READWRITE, &oldProtect);
 }
 
-void CNPDword::Set(unsigned long value) {
+void CNPDword::Set(unsigned int value) {
     Release();
     *m_value = value;
     Guard();
 }
 
-unsigned long CNPDword::Get() {
+unsigned int CNPDword::Get() {
     return *m_value;
 }

@@ -17,7 +17,7 @@ public:
 	const char* GetCurrentSkinName();
 	const char* GetSkinName(int skinNum);
 	void DeleteTmpSkinFolder();
-	void GetColorChipColor(int x, int y, unsigned long& r, unsigned long& g, unsigned long& b);
+	void GetColorChipColor(int x, int y, unsigned int& r, unsigned int& g, unsigned int& b);
 	void ExtractFilesIfZipSkin();
 	std::string m_savedSkinName;
 private:

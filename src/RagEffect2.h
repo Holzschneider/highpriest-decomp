@@ -262,8 +262,8 @@ private:
 	int m_isDisappear;
 	matrix m_matrix;
 	matrix m_rotMat;
-	unsigned long m_argb;
-	unsigned long m_renderFlag;
+	unsigned int m_argb;
+	unsigned int m_renderFlag;
 	int m_any;
 	int m_type;
 	int m_count;

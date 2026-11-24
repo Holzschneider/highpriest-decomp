@@ -70,28 +70,28 @@ UIBarGraph2::~UIBarGraph2() {}
 void UIBarGraph2::OnDraw()
 {
 	if (m_isVertical) {
-		ClearDC(((unsigned long)(unsigned char)m_backB << 16) |
-				((unsigned long)(unsigned char)m_backG << 8) |
+		ClearDC(((unsigned int)(unsigned char)m_backB << 16) |
+				((unsigned int)(unsigned char)m_backG << 8) |
 				(unsigned char)m_backR);
 		if (m_percent == 0.0f)
 			return;
 
 		DrawBox(0, m_h - (int)(((float)m_h * m_percent) / 100.0f), m_w, (int)(((float)m_h * m_percent) / 100.0f),
-				((unsigned long)(unsigned char)m_b << 16) |
-				((unsigned long)(unsigned char)m_g << 8) |
+				((unsigned int)(unsigned char)m_b << 16) |
+				((unsigned int)(unsigned char)m_g << 8) |
 				(unsigned char)m_r);
 		return;
 	}
 
 	DrawBox(0, 0, m_w, m_h, 0xffff00);
 	DrawBox(1, 1, m_w - 2, m_h - 2,
-			((unsigned long)(unsigned char)m_backB << 16) |
-			((unsigned long)(unsigned char)m_backG << 8) |
+			((unsigned int)(unsigned char)m_backB << 16) |
+			((unsigned int)(unsigned char)m_backG << 8) |
 			(unsigned char)m_backR);
 	if (m_percent != 0.0f) {
 		DrawBox(1, 1, (int)(((float)(m_w - 2) * m_percent) / 100.0f), m_h - 2,
-				((unsigned long)(unsigned char)m_b << 16) |
-				((unsigned long)(unsigned char)m_g << 8) |
+				((unsigned int)(unsigned char)m_b << 16) |
+				((unsigned int)(unsigned char)m_g << 8) |
 				(unsigned char)m_r);
 	}
 
@@ -243,7 +243,7 @@ void UIBarGraph4::OnDraw()
 	if (*m_pTotalAmount < *m_pAmount)
 		return;
 
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(0x1a, 2, rr, gg, bb);
 	ClearDC(((gg & 0xff) << 16) | ((gg & 0xff) << 8) | (rr & 0xff));
 
@@ -306,19 +306,19 @@ void UIRechargeGage::SetAmount(int amount, int totalAmount) {
 
 void UIRechargeGage::OnDraw()
 {
-	ClearDC(((unsigned long)(unsigned char)m_edgeB << 16) |
-			((unsigned long)(unsigned char)m_edgeG << 8) |
+	ClearDC(((unsigned int)(unsigned char)m_edgeB << 16) |
+			((unsigned int)(unsigned char)m_edgeG << 8) |
 			(unsigned char)m_edgeR);
 	DrawBox(1, 1, m_w - 2, m_h - 2,
-			((unsigned long)(unsigned char)m_backB << 16) |
-			((unsigned long)(unsigned char)m_backG << 8) |
+			((unsigned int)(unsigned char)m_backB << 16) |
+			((unsigned int)(unsigned char)m_backG << 8) |
 			(unsigned char)m_backR);
 	if (m_totalAmount) {
 		int rate = m_amount * 100 / m_totalAmount;
 		if ((float)rate != 0.0f) {
 			DrawBox(1, 1, (int)((float)m_w * (float)rate / 100.0f - 2.0f), m_h - 2,
-					((unsigned long)(unsigned char)m_b << 16) |
-					((unsigned long)(unsigned char)m_g << 8) |
+					((unsigned int)(unsigned char)m_b << 16) |
+					((unsigned int)(unsigned char)m_g << 8) |
 					(unsigned char)m_r);
 		}
 	}
@@ -449,36 +449,36 @@ void UIPlayerGage::OnDraw()
 	float percent1 = hp * 100 / maxhp;
 	float percent2 = sp * 100 / maxsp;
 
-	ClearDC(((unsigned long)(unsigned char)m_edgeB << 16) |
-			((unsigned long)(unsigned char)m_edgeG << 8) |
+	ClearDC(((unsigned int)(unsigned char)m_edgeB << 16) |
+			((unsigned int)(unsigned char)m_edgeG << 8) |
 			(unsigned char)m_edgeR);
 	DrawBox(1, 1, m_w - 2, (m_h - 3) / 2,
-			((unsigned long)(unsigned char)m_backB << 16) |
-			((unsigned long)(unsigned char)m_backG << 8) |
+			((unsigned int)(unsigned char)m_backB << 16) |
+			((unsigned int)(unsigned char)m_backG << 8) |
 			(unsigned char)m_backR);
 	DrawBox(1, m_h / 2 + 1, m_w - 2, (m_h - 3) / 2,
-			((unsigned long)(unsigned char)m_backB2 << 16) |
-			((unsigned long)(unsigned char)m_backG2 << 8) |
+			((unsigned int)(unsigned char)m_backB2 << 16) |
+			((unsigned int)(unsigned char)m_backG2 << 8) |
 			(unsigned char)m_backR2);
 
 	if (percent1 != 0.0f) {
 		if (percent1 < 25.0f) {
 			DrawBox(1, 1, (int)(((float)m_w * percent1) / 100.0f - 2.0f), (m_h - 3) / 2,
-					((unsigned long)(unsigned char)m_dangerB << 16) |
-					((unsigned long)(unsigned char)m_dangerG << 8) |
+					((unsigned int)(unsigned char)m_dangerB << 16) |
+					((unsigned int)(unsigned char)m_dangerG << 8) |
 					(unsigned char)m_dangerR);
 		} else {
 			DrawBox(1, 1, (int)(((float)m_w * percent1) / 100.0f - 2.0f), (m_h - 3) / 2,
-					((unsigned long)(unsigned char)m_b << 16) |
-					((unsigned long)(unsigned char)m_g << 8) |
+					((unsigned int)(unsigned char)m_b << 16) |
+					((unsigned int)(unsigned char)m_g << 8) |
 					(unsigned char)m_r);
 		}
 	}
 
 	if (percent2 != 0.0f) {
 		DrawBox(1, m_h / 2 + 1, (int)(((float)m_w * percent2) / 100.0f - 2.0f), (m_h - 3) / 2,
-				((unsigned long)(unsigned char)m_b2 << 16) |
-				((unsigned long)(unsigned char)m_g2 << 8) |
+				((unsigned int)(unsigned char)m_b2 << 16) |
+				((unsigned int)(unsigned char)m_g2 << 8) |
 				(unsigned char)m_r2);
 	}
 }
@@ -560,7 +560,7 @@ void UIListBox::OnDraw()
 	int firstItem = m_vertViewOffset;
 	int lastItem = min(m_h / m_itemSpacing - m_horzScrEnabled + firstItem,
 					   m_items.size());
-	unsigned long colorRef = 0;
+	unsigned int colorRef = 0;
 	for (int i = firstItem; i < lastItem; i++) {
 		if (i == m_curItem)
 			DrawBox(0, (i - firstItem) * m_itemSpacing, m_w, m_itemSpacing - 1, 0xfbdfca);
@@ -799,9 +799,9 @@ void UIComboBox::Resize(int cx, int cy)
 
 void UIComboBox::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(6, 6, rr, gg, bb);
 	ClearDC(((bb & 0xff) << 16) | ((gg & 0xff) << 8) | (rr & 0xff));
@@ -984,7 +984,7 @@ void UIChatHisBox::ClearAllItems()
 	m_talkerNameList.erase(m_talkerNameList.begin(), m_talkerNameList.end());
 }
 
-void UIChatHisBox::AddItem(char const *txt, unsigned long itemRGB, char const *name)
+void UIChatHisBox::AddItem(char const *txt, unsigned int itemRGB, char const *name)
 {
 	bool isBottomLine = false;
 	if (m_vertScrEnabled) {
@@ -1012,7 +1012,7 @@ void UIChatHisBox::AddItem(char const *txt, unsigned long itemRGB, char const *n
 	Invalidate();
 }
 
-void UIChatHisBox::AddItem2(char const *txt, unsigned long itemRGB, char const *name)
+void UIChatHisBox::AddItem2(char const *txt, unsigned int itemRGB, char const *name)
 {
 	std::vector<std::string> strings;
 	int width = m_w;
@@ -1225,7 +1225,7 @@ void UITextViewer::OnDraw()
 	else
 		d = lineSpacing;
 	int lastItem = min(m_h / d + firstItem, m_items.size());
-	unsigned long colorRef = 0;
+	unsigned int colorRef = 0;
 	int i;
 	for (i = 0; i < firstItem; i++) {
 		const char* text = m_items[i].c_str();
@@ -1965,7 +1965,7 @@ UITextButton::UITextButton()
 
 UITextButton::~UITextButton() {}
 
-void UITextButton::Create(char const* text, unsigned long fontColor, int fontFace, int fontSize, bool isFontBold)
+void UITextButton::Create(char const* text, unsigned int fontColor, int fontFace, int fontSize, bool isFontBold)
 {
 	UIButton::SetText(std::string(text));
 	m_text2 = m_text;
@@ -2184,7 +2184,7 @@ void UIChatHisBox3::Resize(int cx, int cy) {
 	RecalcScrbarPos();
 }
 
-void UIChatHisBox3::AddItem(char const *txt, unsigned long itemRGB)
+void UIChatHisBox3::AddItem(char const *txt, unsigned int itemRGB)
 {
 	bool isBottomLine = false;
 	if (m_vertScrEnabled) {
@@ -2207,7 +2207,7 @@ void UIChatHisBox3::AddItem(char const *txt, unsigned long itemRGB)
 	Invalidate();
 }
 
-void UIChatHisBox3::AddItem2(char const *txt, unsigned long itemRGB, char const *tab)
+void UIChatHisBox3::AddItem2(char const *txt, unsigned int itemRGB, char const *tab)
 {
 	int tabPx = strlen(tab) * m_fontSize;
 	int width = m_w - (tabPx + tabPx);
@@ -2261,7 +2261,7 @@ UITabControl::UITabControl() {
 UITabControl::~UITabControl()
 {}
 
-void UITabControl::Create(bool bVerticalType, int width, int height, unsigned long onColor, unsigned long offColor, unsigned long bgColor, unsigned long btmColor) {
+void UITabControl::Create(bool bVerticalType, int width, int height, unsigned int onColor, unsigned int offColor, unsigned int bgColor, unsigned int btmColor) {
 	OnCreate(0, 0);
 	m_bVerticalType = bVerticalType;
 	m_tabWidth = width;
@@ -2304,7 +2304,7 @@ void UITabControl::OnDraw()
 	std::list<std::string>::iterator it = m_TabStrings.begin();
 
 	for (; it != m_TabStrings.end(); ++it, ++i) {
-		unsigned long colorTab = m_colorOffTab;
+		unsigned int colorTab = m_colorOffTab;
 		int offset = 1;
 		if (m_tab == i) {
 			colorTab = m_colorOnTab;
@@ -2314,7 +2314,7 @@ void UITabControl::OnDraw()
 		int tabPos = (m_tabWidth - 1) * i;
 		int ty = (m_tabHeight - 12) / 2 + 1;
 		if (m_bVerticalType) {
-			unsigned long colorBgTab = m_colorBgTab;
+			unsigned int colorBgTab = m_colorBgTab;
 			DrawBox(offset + 1, tabPos + 1, m_tabHeight - offset, m_tabWidth - 2, colorBgTab);
 			DrawBorderLine(offset, tabPos, m_tabHeight + 5 - offset, m_tabWidth, colorTab);
 
@@ -2327,7 +2327,7 @@ void UITabControl::OnDraw()
 				TextOutVertical(ty, tx, it->c_str(), 0, 0, 12, colorTab);
 			}
 		} else {
-			unsigned long colorBgTab = m_colorBgTab;
+			unsigned int colorBgTab = m_colorBgTab;
 			DrawBox(tabPos + 1, offset + 1, m_tabWidth - 2, m_tabHeight - offset, colorBgTab);
 			DrawBorderLine(tabPos, offset, m_tabWidth, m_tabHeight + 5 - offset, colorTab);
 

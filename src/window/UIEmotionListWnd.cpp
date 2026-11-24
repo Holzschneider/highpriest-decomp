@@ -157,9 +157,9 @@ void UIEmotionListWnd::OnLBtnDown(int x, int y)
 
 void UIEmotionListWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_left.bmp"), 0);
 	DrawBitmap(0, 0, bmp, false);

@@ -43,17 +43,17 @@ class CDynamicVB {
 public:
 	CDynamicVB();
 	~CDynamicVB();
-	bool Init(const unsigned long theFVF, unsigned long theVertexCount, unsigned long theVertexSize);
+	bool Init(const unsigned int theFVF, unsigned int theVertexCount, unsigned int theVertexSize);
 	void Release();
-	bool Lock(unsigned long vertCount, void** ppLockedData);
+	bool Lock(unsigned int vertCount, void** ppLockedData);
 	void Unlock();
 	IDirect3DVertexBuffer7* GetInterface() const { return m_pVB; }
-	unsigned long GetSize() { return m_vertCount; }
-	void DrawPri(IDirect3DDevice7* device, unsigned long vertCount);
+	unsigned int GetSize() { return m_vertCount; }
+	void DrawPri(IDirect3DDevice7* device, unsigned int vertCount);
 private:
-	unsigned long m_vertCount;
-	unsigned long m_vertSize;
-	unsigned long m_vertOffset;
+	unsigned int m_vertCount;
+	unsigned int m_vertSize;
+	unsigned int m_vertOffset;
 	IDirect3DVertexBuffer7* m_pVB;
 };
 
@@ -61,21 +61,21 @@ class C3dDevice {
 public:
 	C3dDevice();
 	~C3dDevice();
-	long Init(HWND__* hwnd, _GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned long dwFlags);
-	long DestroyObjects();
+	int Init(HWND__* hwnd, _GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned int dwFlags);
+	int DestroyObjects();
 	int IsFullscreen() { return m_bIsFullscreen; }
 	void EnableClipper(int bEnable);
 	bool TestScreen();
 	CRenderer* CreateRenderer();
 	void DestroyRenderer(CRenderer* rc);
-	CDC* CreateDCBuffer(unsigned long w, unsigned long h);
-	CSurface* CreateWallPaper(unsigned long w, unsigned long h);
+	CDC* CreateDCBuffer(unsigned int w, unsigned int h);
+	CSurface* CreateWallPaper(unsigned int w, unsigned int h);
 	void ConvertPalette(SYSTEMPALETTE* destPal, const tagPALETTEENTRY* srcPal, int palCnt);
-	long Clear(unsigned long color);
-	long ClearZBuffer();
-	long RestoreSurfaces();
-	long ShowFrame(bool vertSync);
-	long CloneFrame();
+	int Clear(unsigned int color);
+	int ClearZBuffer();
+	int RestoreSurfaces();
+	int ShowFrame(bool vertSync);
+	int CloneFrame();
 	unsigned short EncodePixel(int, int, int) const;
 	int DecodePixelR(unsigned short color) const;
 	int DecodePixelG(unsigned short color) const;
@@ -85,7 +85,7 @@ public:
 	int GetWindowBitCount() const { return m_windowBitCount; }
 	int EnableGDIObject(int bGDI){ return m_bIsGDIObject = bGDI; }
 	void EnableMipmap();
-	void AdjustTextureSize(unsigned long* w, unsigned long* h);
+	void AdjustTextureSize(unsigned int* w, unsigned int* h);
 	IDirectDraw7* GetDirectDraw() { return m_pDD; }
 	IDirect3D7* GetDirect3D() { return m_pD3D; }
 	IDirect3DDevice7* GetD3DDevice() { return m_pd3dDevice; }
@@ -95,9 +95,9 @@ public:
 	_D3DDeviceDesc7 GetDeviceDesc() { return m_ddDeviceDesc; }
 	_DDSURFACEDESC2* GetFrameBufferDesc() { return &m_ddsdFrameBuffer; }
 	unsigned char GetBltStretchState() { return m_bSupportBltStretch; }
-	unsigned long GetRBitMask() { return m_pfRBitMask; }
-	unsigned long GetGBitMask() { return m_pfGBitMask; }
-	unsigned long GetBBitMask() { return m_pfBBitMask; }
+	unsigned int GetRBitMask() { return m_pfRBitMask; }
+	unsigned int GetGBitMask() { return m_pfGBitMask; }
+	unsigned int GetBBitMask() { return m_pfBBitMask; }
 	int GetRShiftR() { return m_pfRShiftR; }
 	int GetGShiftR() { return m_pfGShiftR; }
 	int GetBShiftR() { return m_pfBShiftR; }
@@ -111,15 +111,15 @@ public:
 	void GetMaterialDiffuse( float* r, float* g, float* b ) { *r = m_fMaterialDiffuseR, *g = m_fMaterialDiffuseG, *b = m_fMaterialDiffuseB; }
 	void GetMaterialAmbient( float* r, float* g, float* b ) { *r = m_fMaterialAmbientR, *g = m_fMaterialAmbientG, *b = m_fMaterialAmbientB; }
 private:
-	long CreateZBuffer();
-	long CreateBuffers(_DDSURFACEDESC2* pddsd, unsigned long dwFlags);
-	long CreateDirectDraw(_GUID* pDriverGUID, unsigned long dwFlags);
-	long CreateDirect3D(_GUID* pDriverGUID, unsigned long dwFlags);
-	long CreateEnvironment(_GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned long dwFlags);
-	long FlipToGDISurface(int bDrawFrame);
+	int CreateZBuffer();
+	int CreateBuffers(_DDSURFACEDESC2* pddsd, unsigned int dwFlags);
+	int CreateDirectDraw(_GUID* pDriverGUID, unsigned int dwFlags);
+	int CreateDirect3D(_GUID* pDriverGUID, unsigned int dwFlags);
+	int CreateEnvironment(_GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned int dwFlags);
+	int FlipToGDISurface(int bDrawFrame);
 	HWND__* m_hWnd;
-	unsigned long m_dwRenderWidth;
-	unsigned long m_dwRenderHeight;
+	unsigned int m_dwRenderWidth;
+	unsigned int m_dwRenderHeight;
 	tagRECT m_rcScreenRect;
 	tagRECT m_rcViewportRect;
 	IDirectDrawSurface7* m_pddsFrontBuffer;
@@ -130,7 +130,7 @@ private:
 	IDirectDraw7* m_pDD;
 	IDirect3D7* m_pD3D;
 	_D3DDeviceDesc7 m_ddDeviceDesc;
-	unsigned long m_dwDeviceMemType;
+	unsigned int m_dwDeviceMemType;
 	_DDPIXELFORMAT m_ddpfZBuffer;
 	_DDSURFACEDESC2 m_ddsdFrameBuffer;
 	int m_bIsFullscreen;
@@ -145,16 +145,16 @@ private:
 	int m_pfBShiftL;
 	int m_pfAShiftR;
 	int m_pfAShiftL;
-	unsigned long m_pfBitCount;
-	unsigned long m_pfRBitMask;
-	unsigned long m_pfGBitMask;
-	unsigned long m_pfBBitMask;
-	unsigned long m_pfABitMask;
-	unsigned long m_dwMinTextureWidth;
-	unsigned long m_dwMinTextureHeight;
-	unsigned long m_dwMaxTextureWidth;
-	unsigned long m_dwMaxTextureHeight;
-	unsigned long m_dwMaxTextureAspectRatio;
+	unsigned int m_pfBitCount;
+	unsigned int m_pfRBitMask;
+	unsigned int m_pfGBitMask;
+	unsigned int m_pfBBitMask;
+	unsigned int m_pfABitMask;
+	unsigned int m_dwMinTextureWidth;
+	unsigned int m_dwMinTextureHeight;
+	unsigned int m_dwMaxTextureWidth;
+	unsigned int m_dwMaxTextureHeight;
+	unsigned int m_dwMaxTextureAspectRatio;
 	unsigned char m_bSupportBltStretch;
 	unsigned char m_bSupportTextureSurface;
 	float m_fMaterialDiffuseR;
@@ -165,7 +165,7 @@ private:
 	float m_fMaterialAmbientB;
 };
 
-inline unsigned long PACK32BIT8888(int a, int r, int g, int b)
+inline unsigned int PACK32BIT8888(int a, int r, int g, int b)
 {
 	return ((a & 0xFF) << 24) + ((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF);
 }

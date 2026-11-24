@@ -249,7 +249,7 @@ void UISelCharForUServerWnd::OnDraw()
 				}
 			}
 
-			unsigned long* palette = sprRes->m_pal;
+			unsigned int* palette = sprRes->m_pal;
 			switch (i) {
 			case 0:
 				if (m_viewChar[j].bodyPalette)
@@ -271,7 +271,7 @@ void UISelCharForUServerWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			} else {
@@ -300,7 +300,7 @@ int UISelCharForUServerWnd::SendMsg(UIWindow *sender, int message, int val1, int
 		switch (val1) {
 		case ID_OK:
 			if (g_windowMgr.ErrorMsg(MsgStr(MSI_CONFIRM_SELECT_CHARACTERS), ME_YESNO, FALSE, FALSE, 0) == ID_YES) {
-				unsigned long m_selCharGID[9] = { 0 };
+				unsigned int m_selCharGID[9] = { 0 };
 
 				int j = 0;
 				for (int i = 0; i < 12; ++i) {
@@ -366,11 +366,11 @@ CHARACTER_INFO* UISelCharForUServerWnd::GetCharInfo(int x, int y)
 
 void UISelCharForUServerWnd::OnMouseMove(int x, int y)
 {
-	ShowCharInfoBalloon(x, y, (unsigned long)-1);
+	ShowCharInfoBalloon(x, y, (unsigned int)-1);
 	UIFrameWnd::OnMouseMove(x, y);
 }
 
-void UISelCharForUServerWnd::ShowCharInfoBalloon(int x, int y, unsigned long fntColor)
+void UISelCharForUServerWnd::ShowCharInfoBalloon(int x, int y, unsigned int fntColor)
 {
 	int color[3];
 	color[0] = (fntColor >> 16) & 0xff;
@@ -974,9 +974,9 @@ void UINewChatWnd::OnDraw2()
 	if (!g_windowMgr.IsChatWndStickOn() || m_h <= m_titleHeight + m_chatEditHeight)
 		return;
 
-	unsigned long colorRef = 0xffffff;
-	unsigned long colorTab1;
-	unsigned long colorTab2;
+	unsigned int colorRef = 0xffffff;
+	unsigned int colorTab1;
+	unsigned int colorTab2;
 
 	if (m_tab == 0) {
 		colorTab1 = 0xffffff;
@@ -1616,7 +1616,7 @@ void UISubChatHisWnd::OnDraw2()
 
 void UISubChatHisWnd::OnDraw()
 {
-	unsigned long colorRef = 0xffffff;
+	unsigned int colorRef = 0xffffff;
 
 	if (m_id == 0) {
 		TextOutA(5, 4, MsgStr(MSI_ST_CHAT), 0, 0, 12, 0);
@@ -1917,9 +1917,9 @@ void UIBattleMsgOptionWnd::OnDraw()
 		DrawBitmap((i + 1) * 12, 0, bmp, false);
 	}
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(0, 17, m_w, m_h - 17, RGB(rr, gg, bb));
 
@@ -1966,9 +1966,9 @@ void UIBattleMsgOptionWnd::OnDraw()
 		}
 		int viewCount = drawCount + 1;
 		if (m_curItem == itemCount) {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 			DrawBox(25, viewCount * 20 + 2 - 3, m_w - 40, 20, RGB(rr, gg, bb));
 			DrawBox(26, viewCount * 20 + 2 - 2, m_w - 42, 18, 0xffffff);
@@ -2396,7 +2396,7 @@ void UIShortCutWnd::OnLBtnDown(int x, int y)
 				}
 			} else {
 				SKILL_INFO skillInfo;
-				unsigned long skillId;
+				unsigned int skillId;
 				if ((skillId = m_shortCutList[slot + page * 9].ID) >= 0x1f40 && skillId < 0x1f51)
 					skillInfo = g_session.GetHomunSkillItemInfoBySkillId(skillId);
 				else {
@@ -2432,7 +2432,7 @@ void UIShortCutWnd::OnRBtnDown(int x, int y)
 
 	int index = slot + (g_session.m_shortcutSlotCnt & 0xff) * 9;
 	char isSkill = m_shortCutList[index].isSkill;
-	unsigned long id = m_shortCutList[index].ID;
+	unsigned int id = m_shortCutList[index].ID;
 	if (isSkill) {
 		UIWindow* wnd = g_windowMgr.MakeWindow(WID_SKILLDESCRIBEWND);
 		wnd->SendMsg(NULL, UM_SKILLDESCRIBE, id, 0, 0, 0);
@@ -2532,7 +2532,7 @@ int UIShortCutWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 
 	case UM_REFRESHITEM: {
 		for (int slot = 0; slot < m_maxSlot; ++slot) {
-			unsigned long id = g_session.m_shortCutList[slot].ID;
+			unsigned int id = g_session.m_shortCutList[slot].ID;
 			int isSkill = g_session.m_shortCutList[slot].isSkill;
 			int level = g_session.m_shortCutList[slot].count;
 
@@ -2844,7 +2844,7 @@ void UIRoMapWnd::OnDraw()
 
 void UIRoMapWnd::DrawRoMap()
 {
-	static unsigned long m_boxColor[12] = { 0x66dc143c, 0x66ffa500, 0x66ffff00, 0x66adff2f, 0x6600bfff, 0x66483d8b, 0x669400d3, 0x66ff1493, 0x66fff5ee, 0x66f5fffa, 0x66f0f8ff, 0x66778899 };
+	static unsigned int m_boxColor[12] = { 0x66dc143c, 0x66ffa500, 0x66ffff00, 0x66adff2f, 0x6600bfff, 0x66483d8b, 0x669400d3, 0x66ff1493, 0x66fff5ee, 0x66f5fffa, 0x66f0f8ff, 0x66778899 };
 	if (m_titleBarTexture)
 		m_titleBarTexture->DrawSurfaceStretch(0, 0, m_w, 17);
 
@@ -3009,7 +3009,7 @@ void UIRoMapWnd::DrawThisMapInfo()
 	it = m_showThisPosInfo->cNameList.begin();
 	i = 0;
 	while (it != m_showThisPosInfo->cNameList.end()) {
-		unsigned long nameColor = 0xffffff;
+		unsigned int nameColor = 0xffffff;
 		if (strcmp((*it).c_str(), g_session.GetCharName()) == 0)
 			nameColor = 0x8080f0;
 		TextOutWithOutline(x + 5, y + 5 + i * th, (*it).c_str(), 0, nameColor, 0, 0, 12, true);

@@ -332,7 +332,7 @@ void CMode::ProcessFadeIn()
 		}
 }
 
-extern unsigned long dwFadeStart;
+extern unsigned int dwFadeStart;
 void CMode::RunFadeOut(int bDrawLogo)
 {
 	unsigned int hFadeBgmThread;

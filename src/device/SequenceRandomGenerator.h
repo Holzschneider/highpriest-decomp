@@ -17,7 +17,7 @@ public:
 		int mulfactor;
 		unsigned int deformed_seed_factor;
 		unsigned int deformed_add_factor;
-		unsigned long issue_time;
+		unsigned int issue_time;
 	};
 
 	struct tagSeedFactor {

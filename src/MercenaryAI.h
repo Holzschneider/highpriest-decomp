@@ -44,7 +44,7 @@ public:
 	CMercenaryAI(int merType);
 	virtual ~CMercenaryAI();
 	int Open(const char* filename);
-	int Proc(unsigned long Gid);
+	int Proc(unsigned int Gid);
 	unsigned char IsOpened() { return m_luaVM != 0; }
 	void Close();
 	void SetEnemyID(int merType);

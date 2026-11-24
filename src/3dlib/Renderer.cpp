@@ -67,9 +67,9 @@ extern float g_avgPixelRatio;
 
 
 
-typedef std::map<char const *, CTexture *, CharPrtLess, std::allocator<CTexture *> >::iterator
+typedef std::map<char const *, CTexture *, CharPrtLess >::iterator
 		texture_map_iter;
-typedef std::map<char const *, CTexture *, CharPrtLess, std::allocator<CTexture *> >::value_type
+typedef std::map<char const *, CTexture *, CharPrtLess >::value_type
 		texture_map_value;
 
 
@@ -445,7 +445,7 @@ void	CTexMgr :: AddTexture(CTexture* tex)
 	sAssert(tex != NULL);
 	sAssert(tex != GetDummyTexture());
 
-	m_texTable.insert(std::map<char const *, CTexture *, CharPrtLess, std::allocator<CTexture *> >::value_type(tex->m_texName, tex));
+	m_texTable.insert(std::map<char const *, CTexture *, CharPrtLess >::value_type(tex->m_texName, tex));
 }
 
 CRenderer :: CRenderer()
@@ -641,7 +641,7 @@ void	CRenderer :: UnloadRarelyUsedCaches()
 	}
 }
 
-CTexture *	CRenderer :: AddSpriteIndex(SprImg &img, unsigned long* const pal, CacheInfo *info)
+CTexture *	CRenderer :: AddSpriteIndex(SprImg &img, unsigned int* const pal, CacheInfo *info)
 {
 	int sector;
 	int offset;
@@ -666,7 +666,7 @@ CTexture *	CRenderer :: AddSpriteIndex(SprImg &img, unsigned long* const pal, Ca
 
 	sector += offset;
 
-	unsigned long expireTime = timeGetTime() - (EXPIRETIME >> 2);
+	unsigned int expireTime = timeGetTime() - (EXPIRETIME >> 2);
 	std::list<CacheSurface>::iterator surfaceIt;
 	CacheInfo *cacheInfo = NULL;
 
@@ -680,8 +680,8 @@ START:
 		for (; cacheInfo != surfaceIt->info.end(); ++cacheInfo)
 		{
 			if (cacheInfo->lastTime < expireTime) {
-				cacheInfo->id = (unsigned long)&img;
-				cacheInfo->palID = (unsigned long)pal;
+				cacheInfo->id = (unsigned int)&img;
+				cacheInfo->palID = (unsigned int)pal;
 				if (g_serviceType != ServiceGermany) {
 					cacheInfo->tu1 = float(img.width + cacheInfo->x) / 256.0f;
 					cacheInfo->tv1 = float(img.height + cacheInfo->y) / 256.0f;
@@ -752,7 +752,7 @@ START:
 }
 
 
-CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, unsigned long palID, CacheInfo *info)
+CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, unsigned int palID, CacheInfo *info)
 {
 	CRenderer *renderer = this;
 	int sector;
@@ -784,9 +784,9 @@ CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, unsigned long palID, CacheIn
 		for (std::vector<CacheInfo>::iterator infoIter = iter->info.begin();
 			infoIter != iter->info.end(); ++infoIter)
 		{
-			if (infoIter->id == (unsigned long)&img && infoIter->palID == palID)
+			if (infoIter->id == (unsigned int)&img && infoIter->palID == palID)
 			{
-				unsigned long tick = timeGetTime();
+				unsigned int tick = timeGetTime();
 				infoIter->lastTime = tick;
 				iter->lastTime = tick;
 				info->tu = infoIter->tu;
@@ -1178,7 +1178,7 @@ void	CRenderer :: ShowInfo()
 }
 
 int	CRenderer :: TextOutScreen(int x, int y, const char *text,
-								   unsigned long colorRef, int fontHeight,
+								   unsigned int colorRef, int fontHeight,
 								   char fontPrint)
 {
 	g_3dDevice.GetRenderSurface()->AddRef();
@@ -1624,9 +1624,9 @@ int CRenderer::SaveBmp(char const *fName, CBitmapRes *bitmap)
 	InfoHdr.bmiHeader.biHeight = m_height;
 	fwrite(&InfoHdr, sizeof(BITMAPINFOHEADER), 1, file);
 
-	unsigned long rMask = g_3dDevice.GetRBitMask();
-	unsigned long gMask = g_3dDevice.GetGBitMask();
-	unsigned long bMask = g_3dDevice.GetBBitMask();
+	unsigned int rMask = g_3dDevice.GetRBitMask();
+	unsigned int gMask = g_3dDevice.GetGBitMask();
+	unsigned int bMask = g_3dDevice.GetBBitMask();
 	int rShiftR = g_3dDevice.GetRShiftR();
 	int gShiftR = g_3dDevice.GetGShiftR();
 	int bShiftR = g_3dDevice.GetBShiftR();
@@ -1637,7 +1637,7 @@ int CRenderer::SaveBmp(char const *fName, CBitmapRes *bitmap)
 							  + ((0 >> g_3dDevice.GetGShiftL()) << g_3dDevice.GetGShiftR())
 							  + ((255 >> g_3dDevice.GetBShiftL()) << g_3dDevice.GetBShiftR()));
 	unsigned char tempBuf[0x2a30];
-	unsigned long argb;
+	unsigned int argb;
 	int i;
 
 	for (i = m_height - 1; i >= 0; i--) {
@@ -1649,7 +1649,7 @@ int CRenderer::SaveBmp(char const *fName, CBitmapRes *bitmap)
 					int x = bitmap->m_width - m_width + j;
 					if (x >= 0 && x < bitmap->m_width && y >= 0 && y < bitmap->m_height) {
 						argb = bitmap->m_data[x + y * bitmap->m_width];
-						unsigned long r = (argb >> 16) & 0xff, g = (argb >> 8) & 0xff, b = argb & 0xff;
+						unsigned int r = (argb >> 16) & 0xff, g = (argb >> 8) & 0xff, b = argb & 0xff;
 						if (transColor != g_3dDevice.EncodePixel(r, g, b)) {
 							tempBuf[j * 3 + 0] = (unsigned char)b;
 							tempBuf[j * 3 + 1] = (unsigned char)g;
@@ -1659,7 +1659,7 @@ int CRenderer::SaveBmp(char const *fName, CBitmapRes *bitmap)
 					}
 				}
 
-				unsigned long color = *(unsigned short *)&src[j * 2];
+				unsigned int color = *(unsigned short *)&src[j * 2];
 				tempBuf[j * 3 + 0] = (unsigned char)(((color & bMask) >> bShiftR) << bShiftL);
 				tempBuf[j * 3 + 1] = (unsigned char)(((color & gMask) >> gShiftR) << gShiftL);
 				tempBuf[j * 3 + 2] = (unsigned char)(((color & rMask) >> rShiftR) << rShiftL);
@@ -1950,17 +1950,17 @@ int CRenderer::SaveJPG(char const *fName, CBitmapRes *bitmap)
 	if (!Lock()) return 0;
 
 	unsigned char *colorBuf = new unsigned char[m_width * m_height * 3];
-	unsigned long rMask = g_3dDevice.GetRBitMask();
-	unsigned long gMask = g_3dDevice.GetGBitMask();
-	unsigned long bMask = g_3dDevice.GetBBitMask();
+	unsigned int rMask = g_3dDevice.GetRBitMask();
+	unsigned int gMask = g_3dDevice.GetGBitMask();
+	unsigned int bMask = g_3dDevice.GetBBitMask();
 	int rShiftR = g_3dDevice.GetRShiftR();
 	int gShiftR = g_3dDevice.GetGShiftR();
 	int bShiftR = g_3dDevice.GetBShiftR();
 	int rShiftL = g_3dDevice.GetRShiftL();
 	int gShiftL = g_3dDevice.GetGShiftL();
 	int bShiftL = g_3dDevice.GetBShiftL();
-	unsigned long transColor = (((255 >> g_3dDevice.GetRShiftL()) << g_3dDevice.GetRShiftR()) + ((0 >> g_3dDevice.GetGShiftL()) << g_3dDevice.GetGShiftR()) + ((255 >> g_3dDevice.GetBShiftL()) << g_3dDevice.GetBShiftR())) & 0xffff;
-	unsigned long argb;
+	unsigned int transColor = (((255 >> g_3dDevice.GetRShiftL()) << g_3dDevice.GetRShiftR()) + ((0 >> g_3dDevice.GetGShiftL()) << g_3dDevice.GetGShiftR()) + ((255 >> g_3dDevice.GetBShiftL()) << g_3dDevice.GetBShiftR())) & 0xffff;
+	unsigned int argb;
 	int i;
 
 
@@ -1992,7 +1992,7 @@ int CRenderer::SaveJPG(char const *fName, CBitmapRes *bitmap)
 				}
 
 
-				unsigned long color = *(unsigned short *)&src[j * 2];
+				unsigned int color = *(unsigned short *)&src[j * 2];
 
 
 				dst[j * 3 + 0] = (unsigned char)(((color & bMask) >> bShiftR) << bShiftL);

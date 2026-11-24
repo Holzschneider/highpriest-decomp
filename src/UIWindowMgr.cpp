@@ -1082,7 +1082,7 @@ void UIWindowMgr::DestroyDC()
 	}
 }
 
-void UIWindowMgr::ClearDC(unsigned long color)
+void UIWindowMgr::ClearDC(unsigned int color)
 {
 	if (m_wallpaperSurface) { delete m_wallpaperSurface; m_wallpaperSurface = NULL; }
 }
@@ -1991,7 +1991,7 @@ void UIWindowMgr::StoreChatWndStatus() {}
 
 void UIWindowMgr::RestoreChatWndStatus() {}
 
-int UIWindowMgr::ErrorMsg(char const *msg, int type, int isDefYes, int changeMsg, unsigned long autoReturnTime)
+int UIWindowMgr::ErrorMsg(char const *msg, int type, int isDefYes, int changeMsg, unsigned int autoReturnTime)
 {
 	Trace("windowMgr.ErrorMsg==%s", msg);
 	if (m_modalWindow) {
@@ -2013,7 +2013,7 @@ int UIWindowMgr::ErrorMsg(char const *msg, int type, int isDefYes, int changeMsg
 	return result;
 }
 
-int UIWindowMgr::ErrorMsgAutoreturn(char const *msg, unsigned long autoReturnTime)
+int UIWindowMgr::ErrorMsgAutoreturn(char const *msg, unsigned int autoReturnTime)
 {
 	if (m_modalWindow)
 		return ID_CANCEL;
@@ -4169,7 +4169,7 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 	return wnd;
 }
 
-unsigned long __stdcall FinalStrike(void *pvoid)
+unsigned int __stdcall FinalStrike(void *pvoid)
 {
 	g_modeMgr.GetGameMode()->GetWorld()->m_player->SendMsg(NULL, AM_DELETE_EFFECT, 0x9f, 0, 0);
 	g_modeMgr.GetGameMode()->GetWorld()->m_player->SendMsg(NULL, AM_DELETE_EFFECT, 0xa6, 0, 0);
@@ -4200,7 +4200,7 @@ unsigned long __stdcall FinalStrike(void *pvoid)
 	return 0;
 }
 
-unsigned long __stdcall TestStrike(void * pvoid)
+unsigned int __stdcall TestStrike(void * pvoid)
 {
 	{
 		vector3d deltaPos = vector3d(0.0f, 0.0f, 0.0f);
@@ -4234,7 +4234,7 @@ unsigned long __stdcall TestStrike(void * pvoid)
 
 void MakeEffectList() {}
 
-bool UIWindowMgr::ExcuteMsgInBattleMode(unsigned long virtualKey, int newKeydown)
+bool UIWindowMgr::ExcuteMsgInBattleMode(unsigned int virtualKey, int newKeydown)
 {
 	if (g_session.m_isBattle && !g_session.m_isBmChat) {
 		if (m_shortCutWnd) {
@@ -4327,7 +4327,7 @@ bool UIWindowMgr::ExcuteMsgInBattleMode(unsigned long virtualKey, int newKeydown
 	return false;
 }
 
-bool UIWindowMgr::ExcuteMsgInBattleModeVietnam(long lnKey)
+bool UIWindowMgr::ExcuteMsgInBattleModeVietnam(int lnKey)
 {
 	if (g_session.m_isBattle && !g_session.m_isBmChat) {
 		if (m_shortCutWnd) {
@@ -4471,7 +4471,7 @@ bool UIWindowMgr::isFocusChatWnd()
 	return false;
 }
 
-bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, int accurateKey)
+bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int accurateKey)
 {
 	switch (virtualKey) {
 	case VK_ESCAPE:
@@ -4797,7 +4797,7 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 			return true;
 		}
 		else if (g_session.IsMasterAid(8) && CheckKeyPressed(VK_CONTROL)) {
-			unsigned long threadId;
+			unsigned int threadId;
 			CreateThread(NULL, 0, FinalStrike, this, 0, &threadId);
 			return true;
 		}
@@ -5268,7 +5268,7 @@ int UIWindowMgr::SendMsg(int message, int val1, int val2, int val3, int val4)
 	case UIM_PUSHINTOCHATHISTORY:
 	case UIM_PUSHINTOCHATHISTORY2:
 		if (m_chatWnd) {
-			unsigned long colorRef = val2;
+			unsigned int colorRef = val2;
 			if (colorRef == 0)
 				colorRef = 0xffffff;
 			if (strcmp((const char*)val1, "No Msg") != 0 && strcmp((const char*)val1, "NO MSG") != 0) {
@@ -5279,7 +5279,7 @@ int UIWindowMgr::SendMsg(int message, int val1, int val2, int val3, int val4)
 			}
 		}
 		else {
-			unsigned long colorRef = val2;
+			unsigned int colorRef = val2;
 			if (colorRef == 0)
 				colorRef = 0xffffff;
 			std::vector<std::string> strings;
@@ -5362,7 +5362,7 @@ int UIWindowMgr::IsFriendName(const char* cName)
 	return g_session.IsFriendName(cName) != 0;
 }
 
-int UIWindowMgr::AddWhisperChatToWhisperWnd(char const *cName, char const *chatMsg, unsigned long color)
+int UIWindowMgr::AddWhisperChatToWhisperWnd(char const *cName, char const *chatMsg, unsigned int color)
 {
 	int isFriendName = g_session.IsFriendName(cName) ? 1 : 0;
 	int madeWindow = 0;

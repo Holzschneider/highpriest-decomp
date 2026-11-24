@@ -88,7 +88,7 @@ C3dDevice :: ~C3dDevice()
 
 HRESULT C3dDevice :: DestroyObjects()
 {
-	long nD3D = 0, nDD = 0;
+	int nD3D = 0, nDD = 0;
 
 	if (m_pd3dDevice) {
 		if ((nD3D = m_pd3dDevice->Release()) > 0) {

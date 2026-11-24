@@ -39,7 +39,7 @@ vector3d ambientCol;
 std::vector<std::pair<float, C3dWorldRes::actorInfo*> > g_3dActors;
 void* g_farModelThread = NULL;
 vector3d player_pos(0.0f, 0.0f, 0.0f);
-unsigned long __stdcall LoadFarModels(void* pvoid);
+unsigned int __stdcall LoadFarModels(void* pvoid);
 
 
 
@@ -47,7 +47,7 @@ unsigned long __stdcall LoadFarModels(void* pvoid);
 typedef C3dWorldRes::actorInfo _ActorInfo_t;
 typedef std::pair<float, _ActorInfo_t *> _ActorInfoPair_t;
 
-unsigned long __stdcall LoadFarModels(void *pvoid)
+unsigned int __stdcall LoadFarModels(void *pvoid)
 {
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 

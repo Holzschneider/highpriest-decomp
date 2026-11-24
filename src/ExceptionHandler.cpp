@@ -112,7 +112,7 @@ LONG CALLBACK ExceptionFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 		HANDLE hProcess;
 		gettimestamp dbgGetTimeStamp;
 		char module_name[256];
-		long module_time;
+		int module_time;
 		HMODULE hModule;
 		HANDLE hThread;
 		DWORD pc;

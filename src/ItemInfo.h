@@ -59,7 +59,7 @@ public:
 	const char* unidentifiedDisplayName;
 	const char* unidentifiedResourceName;
 	std::vector<char const *> unidentifiedDescriptionName;
-	unsigned long slot;
+	unsigned int slot;
 	int slotCount;
 	std::vector<int> parameter;
 };
@@ -143,7 +143,7 @@ protected:
 public:
 	int m_itemType;
 	int m_location;
-	unsigned long m_itemIndex;
+	unsigned int m_itemIndex;
 	int m_wearLocation;
 	int m_num;
 	int m_price;
@@ -154,7 +154,7 @@ public:
 	unsigned char m_isDamaged;
 	int m_refiningLevel;
 	unsigned short m_isYours;
-	long m_deleteTime;
+	int m_deleteTime;
 };
 
 
@@ -162,9 +162,9 @@ public:
 template<class T>
 typename T::referent_type& GetDesc(typename T::key_type itemName, T& table)
 {
-	static T::referent_type nullDesc;
+	static typename T::referent_type nullDesc;
 
-	T::iterator iter = table.find(itemName);
+	typename T::iterator iter = table.find(itemName);
 
 	if (iter == table.end())
 		return nullDesc;

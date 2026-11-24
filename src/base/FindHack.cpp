@@ -40,7 +40,7 @@ typedef int (__cdecl *StartEncryption)();
 typedef int (__cdecl *StopEncryption)();
 typedef int (__cdecl *mCloseDriver)();
 typedef int (__cdecl *GetCryptData)(unsigned char*);
-typedef void (__cdecl *RegisterHWNDForEdit)(unsigned long, void*);
+typedef void (__cdecl *RegisterHWNDForEdit)(unsigned int, void*);
 typedef int (__cdecl *GetInitError)();
 typedef int (__cdecl *GetAthKbdObject)(char*);
 typedef int (__cdecl *GetIMEHangulMode)(void*);
@@ -297,7 +297,7 @@ void ExitFindHack()
 		delete pGameGuard;
 }
 
-void Auth2(unsigned long* pAuth)
+void Auth2(unsigned int* pAuth)
 {
 	pGameGuard->Auth2((PGG_AUTH_DATA)pAuth);
 }
@@ -929,7 +929,7 @@ void IProcess::Unload()
 		FreeLibrary(m_hDll);
 }
 
-int IProcess::GetProcessModule(unsigned long dwPID, unsigned long dwModuleID, tagMODULEENTRY32* lpMe32, unsigned long cbMe32)
+int IProcess::GetProcessModule(unsigned int dwPID, unsigned int dwModuleID, tagMODULEENTRY32* lpMe32, unsigned int cbMe32)
 {
 	BOOL bRet = FALSE;
 	BOOL bFound = FALSE;
@@ -961,7 +961,7 @@ int IProcess::GetProcessModule(unsigned long dwPID, unsigned long dwModuleID, ta
 	return bRet;
 }
 
-int IProcess::EnumModule9X(unsigned long dwPID, FEnumModuleCallback FEnum, void* pUserData)
+int IProcess::EnumModule9X(unsigned int dwPID, FEnumModuleCallback FEnum, void* pUserData)
 {
 	BOOL bRet = FALSE;
 	BOOL bFound = FALSE;
@@ -1005,7 +1005,7 @@ int IProcess::IsWin9X()
 	return osi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 }
 
-int IProcess::EnumModuleNT(unsigned long dwPid, FEnumModuleCallback FEnum, void* pUserData)
+int IProcess::EnumModuleNT(unsigned int dwPid, FEnumModuleCallback FEnum, void* pUserData)
 {
 	HMODULE* pList = NULL;
 	DWORD cbNeeded = 0;
@@ -1048,7 +1048,7 @@ int IProcess::EnumModuleNT(unsigned long dwPid, FEnumModuleCallback FEnum, void*
 	return bRet;
 }
 
-int IProcess::EnumModule(unsigned long dwPid, FEnumModuleCallback FEnum, void* pUserData)
+int IProcess::EnumModule(unsigned int dwPid, FEnumModuleCallback FEnum, void* pUserData)
 {
 	BOOL bRet;
 

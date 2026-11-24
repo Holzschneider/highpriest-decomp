@@ -19,7 +19,7 @@ struct IDirectInputA;
 struct IDirectInputDeviceA;
 
 class CMouse {
-	friend long SetAcquire(int acquire);
+	friend int SetAcquire(int acquire);
 public:
 	CMouse() { m_pMouse = NULL; m_bSwapButton = FALSE; }
 	void Init();

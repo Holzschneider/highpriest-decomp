@@ -33,7 +33,7 @@ public:
 	float RayTest(const ray3d& ray, int x, int y);
 	void SetCellInfo(int Type, int Cellx, int Celly);
 	void GetWorldPos(float attrX, float attrY, vector2d& pos);
-	void ConvertToCellCoor(float, float, long&, long&);
+	void ConvertToCellCoor(float, float, int&, int&);
 	void GetHeightMinMax(const tagRECT& area, float& topHeight, float& bottomHeight);
 	int m_width;
 	int m_height;
@@ -48,10 +48,10 @@ inline	CAttrCell *	C3dAttr :: GetCell(int x, int y)
 	return	&m_cells[y*m_width+x];
 }
 
-inline	void	C3dAttr :: ConvertToCellCoor(float x, float z, long &cx, long &cy)
+inline	void	C3dAttr :: ConvertToCellCoor(float x, float z, int &cx, int &cy)
 {
-	cx = (long)floor(x/m_zoom)+m_width/2;
-	cy = (long)floor(z/m_zoom)+m_height/2;
+	cx = (int)floor(x/m_zoom)+m_width/2;
+	cy = (int)floor(z/m_zoom)+m_height/2;
 }
 
 #endif

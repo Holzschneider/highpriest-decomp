@@ -1707,7 +1707,7 @@ void	CRenderObject :: RenderShadow(matrix &vtm, float zoom)
 	}
 }
 
-void	CRenderObject :: RenderSprite(const RPSprite &spr, unsigned long* const pal, int renderFlag)
+void	CRenderObject :: RenderSprite(const RPSprite &spr, unsigned int* const pal, int renderFlag)
 {
 		SprImg *	img = spr.spr;
 		CTexture *	tex;
@@ -2188,7 +2188,7 @@ void CRenderObject :: SetCharacterPreAngle(int layer, int *imfOffX, int *imfOffY
 	}
 }
 
-void CRenderObject :: SetCharacterLight(RPSprite spr, unsigned long* const pal)
+void CRenderObject :: SetCharacterLight(RPSprite spr, unsigned int* const pal)
 {
 	if ( (m_BodyLight & BL_HIT) == BL_HIT )
 	{
@@ -4447,7 +4447,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, int arg1, int arg2,
 				int tJob = GetJob();
 				vector3d tPos = m_pos;
 
-				unsigned long textColor = 0xFFFFFFFF ;
+				unsigned int textColor = 0xFFFFFFFF ;
 
 				CGameActor * tActor = NULL;
 				int tActorWeapon = -1;

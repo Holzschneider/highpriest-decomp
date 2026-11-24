@@ -4111,7 +4111,7 @@ const int  MEMORIALDUNGEON_NAME_LENGTH = 61;
 
 
 struct SERVER_ADDR {
-	unsigned long ip;
+	unsigned int ip;
 	short port;
 	unsigned char name[20];
 	unsigned short usercount;
@@ -4120,7 +4120,7 @@ struct SERVER_ADDR {
 };
 
 struct CHARACTER_INFO {
-	unsigned long GID;
+	unsigned int GID;
 	int exp;
 	int money;
 	int jobexp;
@@ -4160,7 +4160,7 @@ struct CHARACTER_INFO {
 };
 
 struct TAG_CHARACTER_BLOCK_INFO {
-	unsigned long GID;
+	unsigned int GID;
 	char szExpireDate[20];
 };
 
@@ -4192,7 +4192,7 @@ struct CZ_SELL_ITEM {
 };
 
 struct GROUPMEMBER_INFO {
-	unsigned long AID;
+	unsigned int AID;
 	char characterName[24];
 	char mapName[16];
 	unsigned char role;
@@ -4249,7 +4249,7 @@ struct REPAIRITEM_INFO {
 };
 
 struct AUCTION_ITEM_SEARCH_INFO {
-	unsigned long AuctionID;
+	unsigned int AuctionID;
 	char SellerName[24];
 	unsigned short ITID;
 	int Type;
@@ -4261,23 +4261,23 @@ struct AUCTION_ITEM_SEARCH_INFO {
 	int NowPrice;
 	int MaxPrice;
 	char BuyerName[24];
-	long DeleteTime;
+	int DeleteTime;
 };
 
 struct MAIL_LIST {
-	unsigned long MailID;
+	unsigned int MailID;
 	char HEADER[40];
 	char isOpen;
 	char FromName[24];
-	long DeleteTime;
+	int DeleteTime;
 };
 
 struct MAIL_OPEN {
-	unsigned long MailID;
+	unsigned int MailID;
 	char HEADER[40];
 	char FromName[24];
-	long DeleteTime;
-	unsigned long Money;
+	int DeleteTime;
+	unsigned int Money;
 	int count;
 	unsigned short ITID;
 	unsigned short Type;
@@ -4289,7 +4289,7 @@ struct MAIL_OPEN {
 
 struct ShortCutKey {
 	char isSkill;
-	unsigned long ID;
+	unsigned int ID;
 	short count;
 };
 
@@ -6362,7 +6362,7 @@ struct PACKET_ZC_MER_INIT
 	short	hp, maxHP;
 	short	sp, maxSP;
 #endif
-	long	ExpireDate;
+	int	ExpireDate;
 	short	faith;
 	int     toal_call_num;
 	int		approval_monster_kill_counter;
@@ -6409,7 +6409,7 @@ struct	PACKET_ZC_MER_PROPERTY
 	short   level;
 	short	hp, maxHP;
 	short	sp, maxSP;
-	long	ExpireDate;
+	int	ExpireDate;
 	short	faith;
 	int     toal_call_num;
 	int		approval_monster_kill_counter;

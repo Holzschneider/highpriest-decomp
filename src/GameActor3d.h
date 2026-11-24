@@ -47,7 +47,7 @@ protected:
 	int m_baseAction;
 	float m_fCurRot;
 	unsigned char m_RenderAlpha;
-	unsigned long m_nVertCol;
+	unsigned int m_nVertCol;
 	int m_nLastActAnimation;
 	int m_curFrame;
 	char m_strJobFn[260];
@@ -90,7 +90,7 @@ protected:
 	int m_nStateCnt;
 	float m_fCurRot;
 	unsigned char m_RenderAlpha;
-	unsigned long m_nVertCol;
+	unsigned int m_nVertCol;
 	char m_strJobFn[260];
 };
 

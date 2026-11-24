@@ -42,8 +42,8 @@ extern const char* MsgStr(MSGSTRINGID id);
 extern const char* MsgStrToCompare(MSGSTRINGID id);
 extern char g_MessageHi;
 extern char*      DataTxtDecode(char* str);
-extern bool       IsEffectStateBurrow(unsigned long state);
-extern bool       IsEffectStatePushCart(unsigned long state);
+extern bool       IsEffectStateBurrow(unsigned int state);
+extern bool       IsEffectStatePushCart(unsigned int state);
 extern bool       IsNameYellow(DWORD aid);
 extern bool       IsGravityAid(DWORD aid);
 extern CRenderer* g_renderer;
@@ -63,12 +63,12 @@ inline void SetMustPumpOutReceiveQueue(int v) { g_mustPumpOutReceiveQueue = v; }
 struct PACKET_CZ_INPUT_EDITDLGSTR {
 	short PacketType;
 	unsigned short PacketLength;
-	unsigned long NAID;
+	unsigned int NAID;
 };
 struct PRODUCTINFO_INSTORE {
 	short index;
 	short count;
-	long price;
+	int price;
 };
 #pragma pack(pop)
 #pragma pack(push, 1)
@@ -3321,7 +3321,7 @@ int CGameMode::SendMsg(int messageId, int val1, int val2, int val3)
 
 void CGameMode::ChatDori()
 {
-	unsigned long aid = g_session.GetAid();
+	unsigned int aid = g_session.GetAid();
 	if (IsGravityAid(aid))
 		return;
 

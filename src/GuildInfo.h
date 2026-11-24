@@ -10,8 +10,8 @@ struct RELATED_GUILD_INFORMATION;
 
 struct GUILD_MEMBER_INFORMATION {
 public:
-	unsigned long AID;
-	unsigned long GID;
+	unsigned int AID;
+	unsigned int GID;
 	std::string CharName;
 	int HeadType;
 	int HeadPalette;
@@ -73,12 +73,12 @@ public:
 	void RecalculateGuildExp();
 	void AddMemberInfo(GUILD_MEMBER_INFORMATION* guildMemberInfo);
 	void ClearMemberInfo();
-	void SetMemberInfoState(unsigned long AID, int status);
-	void SetMemberInfoState2(unsigned long AID, int status, unsigned long GID, short sex, short head, short headPalette);
+	void SetMemberInfoState(unsigned int AID, int status);
+	void SetMemberInfoState2(unsigned int AID, int status, unsigned int GID, short sex, short head, short headPalette);
 	void ChangeMemberPosition(int AID, int GID, int positionID);
 	int RemoveMemberInfo(const char* charName);
 	std::list<GUILD_MEMBER_INFORMATION>& GetMemberInfoList() { return m_memberInfoList; }
-	GUILD_MEMBER_INFORMATION GetMemberInfoByAID(unsigned long __$ReturnUdt) const;
+	GUILD_MEMBER_INFORMATION GetMemberInfoByAID(unsigned int __$ReturnUdt) const;
 	int GetAIDbyName(const char* name) const;
 	void AddToBanishList(SGUILD_BANISH_INFO* banishInfo);
 	void UpdatePosInfo(GUILD_POSITION_INFORMATION newInfo);
@@ -101,7 +101,7 @@ public:
 	int m_point;
 	int m_honor;
 	int m_virtue;
-	unsigned long m_zeny;
+	unsigned int m_zeny;
 	int m_guildTabBitmask;
 	int m_gdid;
 	int m_emblemVersion;

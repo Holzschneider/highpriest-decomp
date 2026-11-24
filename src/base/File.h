@@ -34,10 +34,10 @@ public:
 	bool Open(const char* fName, unsigned int nOpenFlags);
 	bool Read(void* lpBuf, unsigned int nCount);
 	bool Write(const void* lpBuf, unsigned int nCount);
-	bool Seek(long lOff, unsigned int nFrom);
+	bool Seek(int lOff, unsigned int nFrom);
 	void Close();
 	char* GetFileName() { return m_fileName; }
-	unsigned long GetLength() { return m_size; }
+	unsigned int GetLength() { return m_size; }
 	const unsigned char* GetBuf() { return (const unsigned char*)m_buf; }
 	const void* GetCurBuf(int lOff = 0) { void* temp = m_buf + m_cursor; m_cursor += lOff; return temp; }
 	static bool __cdecl IsFileExist(const char* fName);
@@ -45,8 +45,8 @@ protected:
 	static void __cdecl MakeFileName(char* output, const char* input);
 	void* m_hFile;
 	char* m_buf;
-	unsigned long m_cursor;
-	unsigned long m_size;
+	unsigned int m_cursor;
+	unsigned int m_size;
 	char m_fileName[128];
 };
 
@@ -59,15 +59,15 @@ class CFileMgr {
 public:
 	~CFileMgr();
 	bool AddPak(const char* name);
-	void* GetData(const char* name, unsigned long* size);
+	void* GetData(const char* name, unsigned int* size);
 	void ReleaseData(void* data);
 	bool IsDataExist(const char* name);
 
 
 
 protected:
-	void* GetPak(const char* name, unsigned long* size);
-	void* GetFile(const char* name, unsigned long* size);
+	void* GetPak(const char* name, unsigned int* size);
+	void* GetFile(const char* name, unsigned int* size);
 	bool IsFileExist(const char* name);
 	friend class CFile;
 protected:

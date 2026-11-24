@@ -18,8 +18,8 @@ extern const char* g_regPath;
 
 namespace {
 struct BinkSleepState {
-    long total_sleep;
-    long slept_in_advance;
+    int total_sleep;
+    int slept_in_advance;
 };
 }
 extern BinkSleepState g_binkSleep;
@@ -68,10 +68,10 @@ int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
 
 
 
-void CBink::BinkGoodSleepUs(long microseconds)
+void CBink::BinkGoodSleepUs(int microseconds)
 {
-    static long total_sleep      = 0;
-    static long slept_in_advance = 0;
+    static int total_sleep      = 0;
+    static int slept_in_advance = 0;
     static unsigned __int64 frequency = 1000;
     static int  got_frequency    = 0;
 
@@ -92,7 +92,7 @@ void CBink::BinkGoodSleepUs(long microseconds)
 
         end = ((end - start) * (unsigned __int64)1000000) / frequency;
 
-        slept_in_advance = (unsigned long)end - total_sleep;
+        slept_in_advance = (unsigned int)end - total_sleep;
         total_sleep %= 1000;
     }
 }

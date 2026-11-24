@@ -52,12 +52,12 @@ bool CHash::operator!=(const CHash& hash) const
 
 void CHash::CreateHashCode()
 {
-	unsigned long len = strlen(m_String);
-	unsigned long result = 5381;
+	unsigned int len = strlen(m_String);
+	unsigned int result = 5381;
 
-	for (unsigned long i = 0; i < len; i++)
+	for (unsigned int i = 0; i < len; i++)
 	{
-		result = ((result << 5) + result) + (unsigned long)(int)(signed char)m_String[i];
+		result = ((result << 5) + result) + (unsigned int)(int)(signed char)m_String[i];
 	}
 
 	m_HashCode = result;

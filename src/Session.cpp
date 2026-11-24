@@ -3250,14 +3250,14 @@ const char *	CSession :: GetShortenItemName(int slot)
 	return	m_shortenItemName[slot].c_str();
 }
 
-void	CSession :: RecalcAveragePingTime(unsigned long pingTime)
+void	CSession :: RecalcAveragePingTime(unsigned int pingTime)
 {
 	m_pingTimeList.push_back(pingTime);
 	while (m_pingTimeList.size() > 3)
 		m_pingTimeList.erase(m_pingTimeList.begin());
 
-	unsigned long sum = 0;
-	std::list<unsigned long>::iterator it = m_pingTimeList.begin();
+	unsigned int sum = 0;
+	std::list<unsigned int>::iterator it = m_pingTimeList.begin();
 	while (it != m_pingTimeList.end()) {
 		sum += *it;
 		it++;

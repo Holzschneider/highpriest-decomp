@@ -63,9 +63,9 @@ bool CConnection::Connect(const ServerAddress *addr)
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_socket != INVALID_SOCKET) {
 
-		unsigned long ul = 1;
+		unsigned int ul = 1;
 
-		if (ioctlsocket(m_socket, FIONBIO, (unsigned long*)&ul) != SOCKET_ERROR) {
+		if (ioctlsocket(m_socket, FIONBIO, (unsigned int*)&ul) != SOCKET_ERROR) {
 
 			memset(&m_addr, 0, sizeof(SOCKADDR));
 			m_addr.sin_addr.s_addr = inet_addr(addr->ip);

@@ -18,7 +18,7 @@ extern CModeMgr g_modeMgr;
 extern CRenderer* g_renderer;
 extern CSession g_session;
 
-static unsigned long tmpShadowDotBuf[35 * 35];
+static unsigned int tmpShadowDotBuf[35 * 35];
 
 C3dGrannyGameActor::C3dGrannyGameActor(char* strJobFn)
 {
@@ -218,7 +218,7 @@ void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo
 
 	RENDER_INFO_RECT info = { g_renderer->m_width, g_renderer->m_height, 0, 0, oow };
 
-	unsigned long vertOffs;
+	unsigned int vertOffs;
 	int nIndexNo;
 	int i;
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
@@ -339,7 +339,7 @@ void C3dGrannyGameActor::RenderBak(matrix &vtm)
 		final.MultMatrix(worldMat, vtm);
 
 		unsigned short* indices = (unsigned short*)m_pFaceArr[i];
-		unsigned long vertOffs = 0;
+		unsigned int vertOffs = 0;
 		rp = m_rp[i];
 		for (j = 0; j < m_nIndexNo[i]; j++) {
 			for (int k = 0; k < 3; k++) {
@@ -417,7 +417,7 @@ void C3dGrannyGameActor::RenderGuildMark(matrix& view)
 
 	if (0) { eyeVec = eyeVec; eyeVec.Normalize(); eyeVec.Normalize(); eyeVec.Normalize(); eyeVec.Normalize(); eyeVec.Normalize(); }
 	RPMesh* rp;
-	unsigned long vertOffs;
+	unsigned int vertOffs;
 	vector3d vec;
 	int j;
 	int i;
@@ -485,10 +485,10 @@ CTexture* C3dGrannyGameActor::GetEmblemTexture() {
 		m_emblemTex = g_texMgr.CreateTexture(24UL, 24UL, (PixelFormat)0, (IDirectDrawSurface7*)0);
 		char strEbm[260];
 		g_session.GetEmblemFileName(strEbm, GetGdid(), GetEmblemVersion());
-		unsigned long dwEmblem[24 * 24];
+		unsigned int dwEmblem[24 * 24];
 		CEmblemRes* res = (CEmblemRes*)g_resMgr().Get(strEbm, 0);
 		if (res) {
-			unsigned long* src = res->GetBitmap()->m_data;
+			unsigned int* src = res->GetBitmap()->m_data;
 			for (int j = 0; j < 24; j++) {
 				for (int i = 0; i < 24; i++) {
 					dwEmblem[j * 24 + i] = src[j * 24 + i];
@@ -757,7 +757,7 @@ void CGrannyCorpse3d::Render(matrix &view)
 	granny_pnt332_vertex* srcVert;
 	float oow;
 	matrix revView;
-	unsigned long vertOffs;
+	unsigned int vertOffs;
 	int pFaceArr = 0;
 	float sinDeg;
 	float y;

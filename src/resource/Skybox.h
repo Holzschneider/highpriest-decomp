@@ -42,7 +42,7 @@ public:
 	void Init();
 private:
 	Flare m_Flare[12];
-	unsigned long m_flareColor[12];
+	unsigned int m_flareColor[12];
 	char m_strTexName[260];
 	vector3d m_vLightPt;
 };

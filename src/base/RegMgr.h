@@ -12,9 +12,9 @@ public:
 	bool open(HKEY__* predKey, const char* subKeyName);
 	bool create(HKEY__* predKey, const char* subKeyName);
 	void close();
-	bool setValue(const char* valueName, unsigned long regType, const unsigned char* value, unsigned long valueLen);
-	bool queryValue(const char* valueName, unsigned long regType, unsigned char* value, unsigned long valueLen);
-	bool queryValueSize(const char* valueName, unsigned long* valueLen);
+	bool setValue(const char* valueName, unsigned int regType, const unsigned char* value, unsigned int valueLen);
+	bool queryValue(const char* valueName, unsigned int regType, unsigned char* value, unsigned int valueLen);
+	bool queryValueSize(const char* valueName, unsigned int* valueLen);
 protected:
 	HKEY__* m_key;
 };

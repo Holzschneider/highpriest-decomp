@@ -12,7 +12,7 @@ enum CLASSTYPE { CT_CGAMEACTOR, CT_CITEM, CT_CSKILL, CT_PET, CT_MER};
 class CActorPickInfo {
 public:
 	vector3d m_vectors[2];
-	unsigned long m_gid;
+	unsigned int m_gid;
 	int m_job;
 	int m_classType;
 	int m_isPkState;
@@ -20,7 +20,7 @@ public:
 	CActorPickInfo() {}
 	~CActorPickInfo() {}
 
-	unsigned long GetGID() { return m_gid; }
+	unsigned int GetGID() { return m_gid; }
 	void SetJob(int j) { m_job = j; }
 	int GetJob() { return m_job; }
 	bool HitTest(vector2d p);

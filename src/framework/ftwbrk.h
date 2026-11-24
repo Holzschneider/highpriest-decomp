@@ -24,7 +24,7 @@ struct _DIFFBYTE {
 
 union _DIFFINDEX {
 	union {
-		long l;
+		int l;
 		_DIFFBYTE b;
 	};
 };
@@ -40,8 +40,8 @@ struct _DICTHEADER {
 	_DICTVERSION version;
 	unsigned int cWord;
 	unsigned int cNode;
-	long code;
-	long nSize;
+	int code;
+	int nSize;
 	unsigned char fValid;
 };
 
@@ -61,13 +61,13 @@ public:
 	bool InitializeLexicon();
 	int FindThaiWordBreak(const char* szText, unsigned int nStrlen, unsigned char* fCharInfoNotMatch, unsigned int rgbBrk, unsigned int nMaxBrk);
 protected:
-	bool HaveType(char ch, unsigned long IsType);
-	unsigned long XCharType(char ch);
-	int GetWeight(unsigned char* vmOurDict, unsigned char* szText, unsigned char* pchFst, unsigned char* pchLim, unsigned long dwFlags);
+	bool HaveType(char ch, unsigned int IsType);
+	unsigned int XCharType(char ch);
+	int GetWeight(unsigned char* vmOurDict, unsigned char* szText, unsigned char* pchFst, unsigned char* pchLim, unsigned int dwFlags);
 	bool fCanCat(unsigned char chPrev, unsigned char ch, unsigned int uFlags);
 protected:
 	ThaiLexicon* m_pLexicon;
-	unsigned long m_rgThaiCharTypeTable[256];
+	unsigned int m_rgThaiCharTypeTable[256];
 };
 
 class ThaiLexicon {
@@ -79,8 +79,8 @@ public:
 	bool fSaveLexicon(const char* lpFileName);
 	bool fLoadLexicon(const char* lpFileName);
 	unsigned int uiGetCountWord() { return m_cWord; }
-	long lGetCountNode() { return m_cNode; }
-	long lGetCountSize() { return m_nSize; }
+	int lGetCountNode() { return m_cNode; }
+	int lGetCountSize() { return m_nSize; }
 	_TRIE* lpGetTriePacked() { return m_trie; }
 	unsigned char* pGetMemDict() { return m_MemDict; }
 	bool SearchMemDict(unsigned char* pchWord);
@@ -95,8 +95,8 @@ protected:
 protected:
 	_TRIE* m_trie;
 	unsigned int m_cWord;
-	long m_cNode;
-	long m_nSize;
+	int m_cNode;
+	int m_nSize;
 	unsigned char* m_MemDict;
 	_DICTHEADER m_DictHeader;
 };

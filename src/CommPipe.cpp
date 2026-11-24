@@ -3,7 +3,7 @@
 #include "CommPipe.h"
 #include <string.h>
 
-bool __stdcall CommPipeCallback(CCommPipe* pipe, unsigned long code, unsigned long value);
+bool __stdcall CommPipeCallback(CCommPipe* pipe, unsigned int code, unsigned int value);
 
 void* CCommPipe::GetChildReadHandle() {
     return m_childInputRead;
@@ -17,21 +17,21 @@ const char* CCommPipe::GetUserInfo() {
     return m_userInfo;
 }
 
-unsigned long* CCommPipe::GetCSAuth2() {
+unsigned int* CCommPipe::GetCSAuth2() {
     return m_csAuth2;
 }
 
-bool CCommPipe::InternalSendCommPipe(unsigned long msg, unsigned long code, unsigned long value) {
+bool CCommPipe::InternalSendCommPipe(unsigned int msg, unsigned int code, unsigned int value) {
     HANDLE pipe = m_writePipe;
     if (pipe == INVALID_HANDLE_VALUE) {
         return false;
     }
 
     struct Header {
-        unsigned long msg;
-        unsigned long seed;
-        unsigned long code;
-        unsigned long value;
+        unsigned int msg;
+        unsigned int seed;
+        unsigned int code;
+        unsigned int value;
     } header;
     DWORD written;
     BOOL ok;
@@ -58,15 +58,15 @@ bool CCommPipe::InternalSendCommPipe(unsigned long msg, unsigned long code, unsi
     } else if (code == 0x619) {
         struct {
             Header header;
-            unsigned long data[4];
+            unsigned int data[4];
         } packet;
 
         header.value = 0x10;
         packet.header = header;
-        packet.data[0] = *(unsigned long*)value;
-        packet.data[1] = *(unsigned long*)(value + 4);
-        packet.data[2] = *(unsigned long*)(value + 8);
-        packet.data[3] = *(unsigned long*)(value + 0x0c);
+        packet.data[0] = *(unsigned int*)value;
+        packet.data[1] = *(unsigned int*)(value + 4);
+        packet.data[2] = *(unsigned int*)(value + 8);
+        packet.data[3] = *(unsigned int*)(value + 0x0c);
         ok = WriteFile(m_writePipe, &packet, 0x20, &written, 0);
     } else {
         ok = WriteFile(m_writePipe, &header, 0x10, &written, 0);
@@ -83,12 +83,12 @@ bool CCommPipe::InternalSendCommPipe(unsigned long msg, unsigned long code, unsi
     return true;
 }
 
-bool CCommPipe::SendCommPipe(unsigned long msg, unsigned long code, unsigned long value) {
+bool CCommPipe::SendCommPipe(unsigned int msg, unsigned int code, unsigned int value) {
     if (m_lastCode != 0x619) {
         if (m_lastMessage == msg &&
             m_lastCode == code &&
             m_lastValue == value) {
-            unsigned long repeat = ++m_repeatedMessages;
+            unsigned int repeat = ++m_repeatedMessages;
             if (repeat > 2) {
                 return true;
             }
@@ -175,7 +175,7 @@ bool CCommPipe::InitCommPipe() {
     return true;
 }
 
-unsigned long CCommPipe::ConnectCommPipe() {
+unsigned int CCommPipe::ConnectCommPipe() {
     if (m_writePipe == INVALID_HANDLE_VALUE) {
         m_writePipe = GetStdHandle(STD_OUTPUT_HANDLE);
         m_readPipe = GetStdHandle(STD_INPUT_HANDLE);
@@ -188,7 +188,7 @@ unsigned long CCommPipe::ConnectCommPipe() {
     return 0;
 }
 
-unsigned long CCommPipe::ConnectCommPipe(void* readHandle, void* writeHandle) {
+unsigned int CCommPipe::ConnectCommPipe(void* readHandle, void* writeHandle) {
     m_writePipe = writeHandle;
     m_readPipe = readHandle;
     if (writeHandle != INVALID_HANDLE_VALUE && readHandle != INVALID_HANDLE_VALUE) {
@@ -198,7 +198,7 @@ unsigned long CCommPipe::ConnectCommPipe(void* readHandle, void* writeHandle) {
     return 0;
 }
 
-unsigned long CCommPipe::CreateEventAndThread() {
+unsigned int CCommPipe::CreateEventAndThread() {
     DWORD threadId;
     m_closeEvent = CreateEventA(0, TRUE, FALSE, 0);
     if (!m_closeEvent) {
@@ -214,7 +214,7 @@ unsigned long CCommPipe::CreateEventAndThread() {
     return threadId;
 }
 
-unsigned long CCommPipe::RunCommPipe() {
+unsigned int CCommPipe::RunCommPipe() {
     DWORD threadId;
     if (m_writePipe == INVALID_HANDLE_VALUE) {
         return 0;
@@ -266,19 +266,19 @@ bool CCommPipe::CloseCommPipe() {
     return true;
 }
 
-unsigned long __stdcall CommPipeThread(void* param)
+unsigned int __stdcall CommPipeThread(void* param)
 {
     CCommPipe* pCommPipe = (CCommPipe*)param;
-    unsigned long dwAvailable = 0;
-    unsigned long bytesRead;
+    unsigned int dwAvailable = 0;
+    unsigned int bytesRead;
     int connectionTicks = 0;
     int nIdleTicks = 0;
     void* faultPC;
     struct {
-        unsigned long message;
-        unsigned long seed;
-        unsigned long code;
-        unsigned long value;
+        unsigned int message;
+        unsigned int seed;
+        unsigned int code;
+        unsigned int value;
     } packet;
 
     __try {

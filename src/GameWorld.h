@@ -73,13 +73,13 @@ public:
 	int IsSiegeMode() { return m_isSiegeMode; }
 	int IsBattleFieldMode() { return m_isBattleFieldMode; }
 	int IsEventPVPMode() { return m_isEventPVPMode; }
-	CGameActor* GetGameActorByAID(unsigned long GID);
-	CItem* GetItemByAID(unsigned long AID);
-	CSkill* GetSkillByAID(unsigned long AID);
-	bool RemoveSkill(unsigned long gameActor);
+	CGameActor* GetGameActorByAID(unsigned int GID);
+	CItem* GetItemByAID(unsigned int AID);
+	CSkill* GetSkillByAID(unsigned int AID);
+	bool RemoveSkill(unsigned int gameActor);
 	bool RemoveGameActor(CGameObject* gameActor);
-	bool RemoveGameActor(unsigned long gameActor);
-	bool RemoveItem(unsigned long gameActor);
+	bool RemoveGameActor(unsigned int gameActor);
+	bool RemoveItem(unsigned int gameActor);
 	void RemoveGameActorAll();
 private:
 	void BuildSceneGraph();
@@ -94,8 +94,8 @@ public:
 	CPlayer* m_player;
 	C3dAttr* m_attr;
 	std::vector<C3dActor *> m_bgObjList;
-	long m_bgObjCount;
-	long m_bgObjThread;
+	int m_bgObjCount;
+	int m_bgObjThread;
 private:
 	friend class CView;
 	int m_isPKZone;

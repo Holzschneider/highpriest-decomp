@@ -23,8 +23,8 @@ struct PakPrtLess : public std::binary_function<const PakPack&, const PakPack&, 
 class CMemFile {
 public:
 	virtual ~CMemFile() {}
-	virtual unsigned long size() = 0;
-	virtual const unsigned char* read(unsigned long, unsigned long) = 0;
+	virtual unsigned int size() = 0;
+	virtual const unsigned char* read(unsigned int, unsigned int) = 0;
 };
 
 class CMemMapFile : public CMemFile {
@@ -34,18 +34,18 @@ public:
 	virtual ~CMemMapFile() { close(); }
 	bool open(const char* name);
 	void close();
-	virtual unsigned long size() { return m_dwFileSize; }
-	virtual const unsigned char* read(unsigned long offset, unsigned long size);
+	virtual unsigned int size() { return m_dwFileSize; }
+	virtual const unsigned char* read(unsigned int offset, unsigned int size);
 protected:
 	void init();
 protected:
 	void* m_hFile;
 	void* m_hFileMap;
-	unsigned long m_dwFileSize;
-	unsigned long m_dwOpenOffset;
-	unsigned long m_dwOpenSize;
-	unsigned long m_dwFileMappingSize;
-	unsigned long m_dwAllocationGranuarity;
+	unsigned int m_dwFileSize;
+	unsigned int m_dwOpenOffset;
+	unsigned int m_dwOpenSize;
+	unsigned int m_dwFileMappingSize;
+	unsigned int m_dwAllocationGranuarity;
 	const unsigned char* m_pFile;
 	std::vector<unsigned char> m_pFileBuf;
 };
@@ -67,10 +67,10 @@ protected:
 	bool OpenPak01();
 	bool OpenPak02();
 protected:
-	unsigned long m_FileVer;
-	unsigned long m_FileCount;
-	unsigned long m_PakInfoOffset;
-	unsigned long m_PakInfoSize;
+	unsigned int m_FileVer;
+	unsigned int m_FileCount;
+	unsigned int m_PakInfoOffset;
+	unsigned int m_PakInfoSize;
 	std::vector<PakPack> m_PakPack;
 	std::vector<unsigned char> m_pDecBuf;
 	CMemFile* m_memFile;

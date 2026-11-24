@@ -46,7 +46,7 @@ inline CMssVariables::CMssVariables()
 extern Registry2     g_registry;
 extern CMssVariables g_mssVar;
 
-unsigned long g_soundMode = 2;
+unsigned int g_soundMode = 2;
 CMssVariables g_mssVar;
 
 
@@ -119,7 +119,7 @@ bool InitMSS()
 				break;
 		}
 	} else if (g_registry.m_soundMode == 2) {
-		unsigned long provider_count = 0;
+		unsigned int provider_count = 0;
 		strcpy(g_registry.m_providerName, "Miles Fast 2D Positional Audio");
 		while (AIL_enumerate_3D_providers(&g_mssVar.enum3D,
 										  &g_mssVar.provider_handles[provider_count],

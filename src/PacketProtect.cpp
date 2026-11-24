@@ -10,11 +10,11 @@ public:
     CFvCrc32();
     ~CFvCrc32();
 
-    bool Crc32Mem(unsigned char* data, unsigned long len, unsigned long* crc);
+    bool Crc32Mem(unsigned char* data, unsigned int len, unsigned int* crc);
 
 private:
-    unsigned long m_table[256];
-    unsigned long m_error;
+    unsigned int m_table[256];
+    unsigned int m_error;
 };
 
 static DWORD SS0[256] = {

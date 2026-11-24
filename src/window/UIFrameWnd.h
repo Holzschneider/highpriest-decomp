@@ -7,7 +7,7 @@
 #include "../Session.h"
 #include <shellapi.h>
 
-enum WINDOWID {
+enum WINDOWID : int {
 	WID_BASICINFOWND = 0,
 	WID_CHATWND = 1,
 	WID_SELECTSERVERWND = 2,
@@ -235,11 +235,11 @@ protected:
 	void DrawItemWithCount(int x, int y, const ITEM_INFO& iteminfo, bool forceidentified, bool boldtext);
 	void DrawItemFrame(int x, int y);
 	void DrawLatticeFrame(int x, int y, int width, int height);
-	int MakeItemText(const ITEM_INFO& iteminfo, unsigned long& manufacturerColor, std::vector<char const *>& itemNameList, char*& itemNameIter, char*& itemNameColored, bool bIsColorList);
-	int TextOutWithItemRect(int x, int y, int width, std::vector<char const *>& itemNameList, char* itemName, char* isColored, unsigned long itemNameColored, unsigned long manufacturerColor, int color, int fontType);
-	int DrawItemText(int x, int y, const ITEM_INFO& iteminfo, unsigned long color, int fontType, int fontHeight);
-	int DrawItemTextRect(int x, int y, int width, const ITEM_INFO& iteminfo, unsigned long color, int fontType, int fontHeight);
-	int DrawItemObtainTextRect(int x, int y, int width, const ITEM_INFO& iteminfo, unsigned long color, int fontType, int fontHeight);
+	int MakeItemText(const ITEM_INFO& iteminfo, unsigned int& manufacturerColor, std::vector<char const *>& itemNameList, char*& itemNameIter, char*& itemNameColored, bool bIsColorList);
+	int TextOutWithItemRect(int x, int y, int width, std::vector<char const *>& itemNameList, char* itemName, char* isColored, unsigned int itemNameColored, unsigned int manufacturerColor, int color, int fontType);
+	int DrawItemText(int x, int y, const ITEM_INFO& iteminfo, unsigned int color, int fontType, int fontHeight);
+	int DrawItemTextRect(int x, int y, int width, const ITEM_INFO& iteminfo, unsigned int color, int fontType, int fontHeight);
+	int DrawItemObtainTextRect(int x, int y, int width, const ITEM_INFO& iteminfo, unsigned int color, int fontType, int fontHeight);
 protected:
 	int m_startGlobalX;
 	int m_startGlobalY;
@@ -420,7 +420,7 @@ public:
 	virtual void OnDraw();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
-	unsigned long m_naid;
+	unsigned int m_naid;
 	UITextViewer* m_textViewer;
 };
 
@@ -602,7 +602,7 @@ private:
 	int m_monGID;
 	int m_destPos;
 	int m_maxDelay;
-	unsigned long m_startTick;
+	unsigned int m_startTick;
 	int m_isSelected;
 };
 
@@ -941,7 +941,7 @@ public:
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 	virtual void SetShow(int visible);
 protected:
-	unsigned long m_roomId;
+	unsigned int m_roomId;
 };
 
 class UIJoinPartyAcceptWnd : public UIExchangeAcceptWnd {
@@ -1020,7 +1020,7 @@ public:
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
 	UIEditCtrl* m_editCtrl;
-	unsigned long m_naid;
+	unsigned int m_naid;
 };
 
 class UINpcTextEditDialogWnd : public UINpcEditDialogWnd {
@@ -1061,7 +1061,7 @@ public:
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
 	int m_oldLogCnt;
-	unsigned long m_AID;
+	unsigned int m_AID;
 };
 
 class UIPetEggListWnd : public UIItemIdentifyWnd {
@@ -1103,9 +1103,9 @@ protected:
 	int m_PresentLine;
 	int m_BookCastTick;
 	unsigned char m_bAutoReadBook;
-	unsigned long m_bgR;
-	unsigned long m_bgG;
-	unsigned long m_bgB;
+	unsigned int m_bgR;
+	unsigned int m_bgG;
+	unsigned int m_bgB;
 	std::vector<std::string> m_bookContents;
 	UISpriteButton* m_BookButton[4];
 };
@@ -1116,8 +1116,8 @@ public:
 	virtual ~UIJoinFriendAcceptWnd();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
-	unsigned long m_nReqAID;
-	unsigned long m_nReqGID;
+	unsigned int m_nReqAID;
+	unsigned int m_nReqGID;
 };
 
 class UIAutoMessageWnd : public UIFrameWnd {
@@ -1135,7 +1135,7 @@ class UIMessageBoxAutoreturn : public UIFrameWnd {
 public:
 	UIMessageBoxAutoreturn();
 	virtual ~UIMessageBoxAutoreturn();
-	void Create(const char* msg, unsigned long autoReturnTime);
+	void Create(const char* msg, unsigned int autoReturnTime);
 	virtual void OnProcess();
 	virtual void OnDraw();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
@@ -1143,8 +1143,8 @@ private:
 	UITextViewer* m_textViewer;
 	UIBarGraph2* m_barGraph;
 	int m_isAutoReturn;
-	unsigned long m_openTime;
-	unsigned long m_autoReturnTime;
+	unsigned int m_openTime;
+	unsigned int m_autoReturnTime;
 	int m_maxSecond;
 	int m_remainSecond;
 	std::string m_countMsg;
@@ -1155,7 +1155,7 @@ class UIMessageBox : public UIFrameWnd {
 public:
 	UIMessageBox();
 	virtual ~UIMessageBox();
-	void Create(const char* msg, int type, int isDefYes, unsigned long autoReturnTime);
+	void Create(const char* msg, int type, int isDefYes, unsigned int autoReturnTime);
 	virtual void OnProcess();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 	virtual void OnDestroy();
@@ -1164,8 +1164,8 @@ private:
 	UITextViewer* m_textViewer;
 	UIRechargeGage* m_barGraph;
 	int m_isAutoReturn;
-	unsigned long m_openTime;
-	unsigned long m_autoReturnTime;
+	unsigned int m_openTime;
+	unsigned int m_autoReturnTime;
 	int m_maxSecond;
 	int m_remainSecond;
 	std::string m_countMsg;
@@ -1269,7 +1269,7 @@ public:
 	virtual void OnDraw();
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
-	void DrawPropertyBox(int x, int y, const char* propertyString, int power, unsigned long borderColor, unsigned long surfaceColor);
+	void DrawPropertyBox(int x, int y, const char* propertyString, int power, unsigned int borderColor, unsigned int surfaceColor);
 protected:
 	PACKET_ZC_MONSTER_INFO m_zc_monster_info;
 };
@@ -1322,7 +1322,7 @@ protected:
 	UIChatHisBox2* m_memberListBox;
 	UIBitmapButton* m_sysButton;
 	UIStaticText* m_title;
-	std::map<std::string, unsigned long> m_memberList;
+	std::map<std::string, unsigned int> m_memberList;
 	std::vector<StringId> m_menuItems;
 	ChatRoomWndInfo* m_info;
 };
@@ -1394,7 +1394,7 @@ private:
 	int m_isEmpty[12];
 	unsigned char m_isAvailable[12];
 	short m_accessory_top[12];
-	unsigned long m_stateStartTick;
+	unsigned int m_stateStartTick;
 	char m_dontmove;
 	int m_curPage;
 	int m_curSlot;
@@ -1685,7 +1685,7 @@ public:
 	virtual void StoreInfo();
 protected:
 	UIStaticText* m_priceText;
-	unsigned long m_aid;
+	unsigned int m_aid;
 	MerchantItemPurchaseWndInfo* m_info;
 	int m_curItem;
 };
@@ -1743,8 +1743,8 @@ public:
 	int m_chatEditHeight;
 	UIBitmapButton* m_btnStickOff;
 	UIBitmapButton* m_btnOption;
-	unsigned long m_colorTab1;
-	unsigned long m_colorTab2;
+	unsigned int m_colorTab1;
+	unsigned int m_colorTab2;
 };
 
 class UIChangeNameWnd : public UIFrameWnd {
@@ -1788,7 +1788,7 @@ public:
 	UIBitmapButton* m_btnOption;
 	UIBitmapButton* m_btnMini;
 	std::vector<std::string> m_chatHistory;
-	std::vector<unsigned long> m_colors;
+	std::vector<unsigned int> m_colors;
 	std::vector<std::string> m_talkerNameList;
 	int m_titleHeight;
 	int m_titleWidth;
@@ -1833,12 +1833,12 @@ public:
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
 	CHARACTER_INFO* GetCharInfo(int x, int y);
-	void ShowCharInfoBalloon(int x, int y, unsigned long fntColor);
+	void ShowCharInfoBalloon(int x, int y, unsigned int fntColor);
 private:
 	viewSprite m_viewChar[12];
 	int m_isEmpty[12];
 	short m_accessory_top[12];
-	unsigned long m_stateStartTick;
+	unsigned int m_stateStartTick;
 	UICheckBox* m_checkBox[12];
 	UIBitmapButton* m_okButton;
 	UICharInfoBalloonText* m_charInfoBalloon;
@@ -2067,7 +2067,7 @@ protected:
 	EquipWndInfo* m_info;
 	UIBitmapButton* m_optionOffButton;
 	UIBitmapButton* m_optionOpenButton;
-	unsigned long m_stateStartTick;
+	unsigned int m_stateStartTick;
 	int m_barHeight;
 	UICheckBox* m_openEquipWndCheckBox;
 };
@@ -2084,7 +2084,7 @@ public:
 protected:
 	std::string m_itemName;
 	std::string m_message;
-	unsigned long m_madeTick;
+	unsigned int m_madeTick;
 	int m_isMoney;
 	ITEM_INFO m_itemInfo;
 	bool m_isIdentified;
@@ -2125,7 +2125,7 @@ protected:
 	std::list<UIBitmapButton *> m_buttonList;
 	std::list<UIBitmapButton *> m_buttonListDeleted;
 	int m_target;
-	unsigned long m_naid;
+	unsigned int m_naid;
 	SayDialogWndInfo* m_info;
 	int m_bClearTextViewer;
 };
@@ -2142,7 +2142,7 @@ protected:
 	int m_index;
 	std::vector<int> m_itemIndex;
 	UIListBox* m_choostList;
-	unsigned long m_naid;
+	unsigned int m_naid;
 	ChooseWndInfo* m_info;
 };
 
@@ -2155,7 +2155,7 @@ public:
 	virtual int SendMsg(UIWindow* sender, int message, int val1, int val2, int val3, int val4);
 protected:
 	UIListBox* m_choostList;
-	unsigned long m_skid;
+	unsigned int m_skid;
 	std::vector<std::string> m_mapNameList;
 };
 
@@ -2204,7 +2204,7 @@ public:
 	int m_posx;
 	int m_posy;
 	std::string m_fileName;
-	unsigned long m_masterAid;
+	unsigned int m_masterAid;
 };
 
 class UIWordDisplayWnd : public UIFrameWnd {
@@ -2218,7 +2218,7 @@ public:
 	int m_posx;
 	int m_posy;
 	std::string m_fileName;
-	unsigned long m_masterAid;
+	unsigned int m_masterAid;
 };
 
 struct PartyMapInfo {

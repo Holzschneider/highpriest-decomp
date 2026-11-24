@@ -12,7 +12,7 @@ struct HWND__;
 class CBink {
 protected:
     int BinkShowNextFrame(BINK* bink, HWND__* window);
-    void BinkGoodSleepUs(long microseconds);
+    void BinkGoodSleepUs(int microseconds);
     int InitOpenning();
     int CloseOpenning();
     int ReadBinkModeRegistry();

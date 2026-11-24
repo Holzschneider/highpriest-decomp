@@ -60,8 +60,8 @@ extern const char* boundaryText;
 extern std::vector<std::string> s_loadingScreenList;
 extern DWORD g_codePage;
 extern unsigned char hex_table[];
-extern bool IsNameYellow(unsigned long aid);
-extern bool IsGravityAid(unsigned long aid);
+extern bool IsNameYellow(unsigned int aid);
+extern bool IsGravityAid(unsigned int aid);
 
 const char* boundaryText = "-";
 char* g_bookmarkPath = "\\BookMark";
@@ -78,7 +78,7 @@ const char* MsgStr(MSGSTRINGID id);
 BOOL IsValidItemIndicator(LPCSTR pszMsg, LPCSTR pszEnd, int* psizeChr, int* pitemId);
 
 #include "rag_budget_fill.h"
-int UIFrameWnd::MakeItemText(const ITEM_INFO& iteminfo, unsigned long& manufacturerColor,
+int UIFrameWnd::MakeItemText(const ITEM_INFO& iteminfo, unsigned int& manufacturerColor,
 	std::vector<const char*>& itemNameList, char*& itemNameIter, char*& itemNameColored,
 	bool bIsColorList)
 {
@@ -251,10 +251,10 @@ int UIFrameWnd::MakeItemText(const ITEM_INFO& iteminfo, unsigned long& manufactu
 	return 1;
 }
 
-int UIFrameWnd::DrawItemText(int x, int y, ITEM_INFO const &iteminfo, unsigned long color, int fontType, int fontHeight)
+int UIFrameWnd::DrawItemText(int x, int y, ITEM_INFO const &iteminfo, unsigned int color, int fontType, int fontHeight)
 {
 	char itemName[256];
-	unsigned long manufacturerColor;
+	unsigned int manufacturerColor;
 	std::vector<const char*> itemNameList;
 	char* itemNameIter = itemName;
 	char* itemNameColored = NULL;
@@ -286,10 +286,10 @@ int UIFrameWnd::DrawItemText(int x, int y, ITEM_INFO const &iteminfo, unsigned l
 	return offset;
 }
 
-int UIFrameWnd::DrawItemTextRect(int x, int y, int width, ITEM_INFO const &iteminfo, unsigned long color, int fontType, int fontHeight)
+int UIFrameWnd::DrawItemTextRect(int x, int y, int width, ITEM_INFO const &iteminfo, unsigned int color, int fontType, int fontHeight)
 {
 	char itemName[256];
-	unsigned long manufacturerColor;
+	unsigned int manufacturerColor;
 	char* itemNameIter = itemName;
 	char* itemNameColored = NULL;
 	std::vector<const char*> itemNameList;
@@ -300,10 +300,10 @@ int UIFrameWnd::DrawItemTextRect(int x, int y, int width, ITEM_INFO const &itemi
 	return ret;
 }
 
-int UIFrameWnd::DrawItemObtainTextRect(int x, int y, int width, ITEM_INFO const &iteminfo, unsigned long color, int fontType, int fontHeight)
+int UIFrameWnd::DrawItemObtainTextRect(int x, int y, int width, ITEM_INFO const &iteminfo, unsigned int color, int fontType, int fontHeight)
 {
 	char itemName[256];
-	unsigned long manufacturerColor;
+	unsigned int manufacturerColor;
 	char* itemNameIter = itemName;
 	char* itemNameColored = NULL;
 	std::vector<const char*> itemNameList;
@@ -318,7 +318,7 @@ int UIFrameWnd::DrawItemObtainTextRect(int x, int y, int width, ITEM_INFO const 
 
 int UIFrameWnd::TextOutWithItemRect(int x, int y, int width,
 	std::vector<const char*>& itemNameList, char* itemName, char* itemNameColored,
-	unsigned long manufacturerColor, unsigned long color, int fontType, int fontHeight)
+	unsigned int manufacturerColor, unsigned int color, int fontType, int fontHeight)
 {
 	int offset = 0;
 	char* text = itemName;
@@ -403,9 +403,9 @@ void UIWaitWnd::SetMsg(const char* waitMsg, int fontHeight, int fontType) {
 
 void UIWaitWnd::OnCreate(int cx, int cy)
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	m_pctrCancel = new UIBitmapButton;
 	m_pctrCancel->SetBitmapName("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\btn_cancel.bmp", BS_NORMAL);
@@ -454,9 +454,9 @@ void UILoadingWnd::OnCreate(int cx, int cy)
 {
 	static int s_loadingScreenIndex;
 	char fnStr[260];
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	m_barGraph = new UIBarGraph2;
 	m_barGraph->Create(240, 15);
@@ -1424,7 +1424,7 @@ void UIEquipWnd::OnDraw()
 				}
 			}
 
-			unsigned long* pal = sprRes->m_pal;
+			unsigned int* pal = sprRes->m_pal;
 			switch (i) {
 			case 0:
 				if (bodyPalette) {
@@ -1449,7 +1449,7 @@ void UIEquipWnd::OnDraw()
 
 			SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned long)pal, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)pal, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, pal, &info);
 			} else {
@@ -2057,9 +2057,9 @@ void UIDetailLevelWnd::OnCreate(int cx, int cy)
 
 void UIDetailLevelWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	ClearDC(RGB(rr, gg, bb));
@@ -2153,7 +2153,7 @@ int UIDetailLevelWnd::SendMsg(UIWindow* sender, int message, int val1, int val2,
 				reloadTexture = true;
 			}
 
-			if (g_registry.m_trilinearFilter != (unsigned long)m_trilinearFilter) {
+			if (g_registry.m_trilinearFilter != (unsigned int)m_trilinearFilter) {
 				g_registry.m_trilinearFilter = m_trilinearFilter;
 				g_3dDevice.EnableMipmap();
 				reloadTexture = true;
@@ -3311,9 +3311,9 @@ UIItemCollectionWnd::~UIItemCollectionWnd() {}
 
 void UIItemCollectionWnd::OnCreate(int cx, int cy)
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	m_windowId = WID_ITEMCOLLECTIONWND;
 
@@ -3703,9 +3703,9 @@ void UISkillDescribeWnd::OnCreate(int cx, int cy)
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(48, 31, cx - 55, cy - 40, false);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -4417,9 +4417,9 @@ void UIItemIdentifyWnd::OnCreate(int cx, int cy)
 void UIItemIdentifyWnd::OnDraw()
 {
 	int drawCount;
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	int itemCount;
 	std::list<ITEM_INFO>::iterator it;
 
@@ -4472,9 +4472,9 @@ void UIItemIdentifyWnd::OnDraw()
 		} else {
 			int y = (drawCount / m_itemHorzNum) * 32 + 34;
 			if (m_curItem == itemCount) {
-				unsigned long rr;
-				unsigned long gg;
-				unsigned long bb;
+				unsigned int rr;
+				unsigned int gg;
+				unsigned int bb;
 				g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 				DrawBox(5, y - 3, m_w - 24, 30, RGB(rr, gg, bb));
 			}
@@ -4917,9 +4917,9 @@ void UINoticeConfirmWnd::OnCreate(int cx, int cy)
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, cx - 20, cy - 55, false);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -4989,9 +4989,9 @@ void UIChooseSellBuyWnd::OnCreate(int cx, int cy)
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, cx - 20, cy - 55, false);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -5068,9 +5068,9 @@ void UIExchangeAcceptWnd::OnCreate(int cx, int cy)
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, cx - 20, cy - 55, false);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -5243,9 +5243,9 @@ void UITipOfTheDayWnd::OnCreate(int cx, int cy)
 	m_textViewer = new UITextViewer;
 	m_textViewer->Create2(10, 22, cx - 20, cy - 55, false);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	m_textViewer->m_bgR = rr;
 	m_textViewer->m_bgG = gg;
@@ -5312,7 +5312,7 @@ void UITipOfTheDayWnd::OnDraw()
 
 
 	{
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, loopCnt, m_h - 38, RGB(rr, gg, bb));
 
@@ -5356,12 +5356,12 @@ void UITipOfTheDayWnd::OnDraw()
 			DrawItemFrame(40, hLoop * 32 + 17);
 		}
 
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(72, 17, itemCols * 32 - 32, itemRows * 32, RGB(rr, gg, bb));
 	}
 
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	TextOutA(9, 4, MsgStr(MSI_TIPOFTHEDAY), 0, 0, 12, RGB(rr, gg, bb));
 	TextOutA(8, 3, MsgStr(MSI_TIPOFTHEDAY), 0, 0, 12, 0);
@@ -6223,13 +6223,13 @@ void UIExchangeWnd::OnDraw()
 	}
 
 	if (m_IsMyDragClosed) {
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(10, 6, rr, gg, bb);
 		DrawBox(4, 17, 134, 54, RGB(rr, gg, bb));
 	}
 
 	if (m_IsOtherDragClosed) {
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(10, 6, rr, gg, bb);
 		DrawBox(144, 17, 134, 54, RGB(rr, gg, bb));
 	}
@@ -6826,9 +6826,9 @@ void UIWhisperWnd::OnCreate(int cx, int cy)
 
 void UIWhisperWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	char title[128];
 
 	CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(
@@ -7285,17 +7285,17 @@ int UIMenuWnd::IsBoundary(int curItem) {
 void UIMenuWnd::OnDraw()
 {
 	int i;
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(6, 6, rr, gg, bb);
 	ClearDC(RGB(rr, gg, bb));
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(1, 1, m_w - 2, m_h - 2, RGB(rr, gg, bb));
 	}
@@ -7344,9 +7344,9 @@ void UIMenuWnd::OnDraw()
 			else
 				TextOutA(3, (m_menuItemSpacing * (i - 1)) / 2 + 1, m_menuItems[i].c_str(), 0, 0, 12, 0);
 		} else {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 			DrawBox(0, (m_menuItemSpacing * i) / 2 + 2, m_w, 1, RGB(rr, gg, bb));
 		}
@@ -7599,12 +7599,12 @@ void UIPetTamingDeceiveWnd::OnDraw()
 	CMotion* curMotion = actRes->GetMotion(m_curAct, curMot);
 	CacheInfo info;
 	int a = 0;
-	unsigned long* palette = sprRes->m_pal;
+	unsigned int* palette = sprRes->m_pal;
 
 	for (; a < curMotion->numClips; ++a) {
 		CSprClip* clip = curMotion->GetClip(a);
 		SprImg* img = sprRes->m_sprites[0][clip->sprIndex];
-		CTexture* tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+		CTexture* tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 		if (tex == NULL)
 			tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 
@@ -7641,11 +7641,11 @@ void UIPetTamingDeceiveWnd::OnProcess()
 {
 	Invalidate();
 	int q = m_curMot / m_delay;
-	if (m_startTick == (unsigned long)-1 && m_destPos == q && m_delay <= m_maxDelay) {
+	if (m_startTick == (unsigned int)-1 && m_destPos == q && m_delay <= m_maxDelay) {
 		m_startTick = timeGetTime();
 		return;
 	}
-	if (m_startTick != (unsigned long)-1 && m_destPos == q && m_delay <= m_maxDelay) {
+	if (m_startTick != (unsigned int)-1 && m_destPos == q && m_delay <= m_maxDelay) {
 		if (timeGetTime() - m_startTick >= 0x7d0)
 			g_windowMgr.DeleteWindow(WID_PETTAMINGDECEIVEWND);
 	}
@@ -7848,9 +7848,9 @@ void UISelectCartWnd::OnCreate(int cx, int cy)
 }
 void UISelectCartWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	char windowName[32];
 
 	CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(
@@ -7939,9 +7939,9 @@ UISpellListWnd::~UISpellListWnd()
 
 void UISpellListWnd::OnDraw()
 {
-	unsigned long gg;
-	unsigned long rr;
-	unsigned long bb;
+	unsigned int gg;
+	unsigned int rr;
+	unsigned int bb;
 	int i;
 	int drawCount;
 	char text[256];
@@ -8000,9 +8000,9 @@ void UISpellListWnd::OnDraw()
 		} else {
 			int y = (drawCount / m_itemHorzNum) * 32 + 34;
 			if (m_curItem == itemCount) {
-				unsigned long gg;
-				unsigned long rr;
-				unsigned long bb;
+				unsigned int gg;
+				unsigned int rr;
+				unsigned int bb;
 				g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 				DrawBox(5, y - 3, m_w - 24, 30, RGB(rr, gg, bb));
 			}
@@ -8121,9 +8121,9 @@ void UIGraffiStrboxWnd::OnCreate(int cx, int cy)
 
 void UIGraffiStrboxWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 	ClearDC(RGB(rr, gg, bb));
@@ -8273,7 +8273,7 @@ void UIProhibitListWnd::OnDraw()
 	sprintf(windowName, MsgStr(MSI_PROHIBIT_LIST));
 	TextOutA(5, 2, windowName, 0, 0, 12, 0);
 
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(0, 17, m_w, m_h - 17, RGB(rr, gg, bb));
 	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
@@ -8437,9 +8437,9 @@ void UIBookWnd::OnCreate(int cx, int cy)
 
 void UIBookWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(
 		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_left.bmp"), false);
@@ -8579,7 +8579,7 @@ int UIBookWnd::SendMsg(UIWindow* sender, int message, int val1, int val2, int va
 			if (!fp.Open(g_language ? g_language->LanguageFile(fName) : fName, CFile::modeRead))
 				break;
 
-			unsigned long fileSize = fp.GetLength();
+			unsigned int fileSize = fp.GetLength();
 			char* contents = new char[fileSize + 1];
 			fp.Read(contents, fileSize);
 			contents[fileSize] = 0;
@@ -8692,7 +8692,7 @@ char * UIBookWnd::GetContents(char const * text)
 	int textLen = strlen(text);
 	const char* text_end = text + textLen;
 	const char* msg_charset = text + FindCharSet(text, text_end - text);
-	unsigned long colorRef = 0;
+	unsigned int colorRef = 0;
 	char* temp = new char[textLen + 1];
 	char* contents = new char[textLen + 1];
 
@@ -8872,9 +8872,9 @@ void UICommandListWnd::OnDraw()
 		DrawBitmap((i + 1) * 12, 0, bmp, false);
 	}
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(0xe, 6, rr, gg, bb);
 	DrawBox(0, 17, m_w, m_h - 17, RGB(rr, gg, bb));
 
@@ -8928,9 +8928,9 @@ void UICommandListWnd::OnDraw()
 				itemY = itemY * 20 + 17;
 
 				if (m_curItem == itemCount) {
-					unsigned long rr;
-					unsigned long gg;
-					unsigned long bb;
+					unsigned int rr;
+					unsigned int gg;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(itemX, (drawCount / m_itemHorzNum) * 20 + 19,
 							(m_w - 40) / 2, 20, RGB(rr, gg, bb));
@@ -8966,9 +8966,9 @@ void UICommandListWnd::OnDraw()
 				itemY = itemY * 20 + 17;
 
 				if (m_curItem == itemCount) {
-					unsigned long rr;
-					unsigned long gg;
-					unsigned long bb;
+					unsigned int rr;
+					unsigned int gg;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(itemX, (drawCount / m_itemHorzNum) * 20 + 19,
 							(m_w - 40) / 2, 20, RGB(rr, gg, bb));

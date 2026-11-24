@@ -31,7 +31,7 @@ void CMercenaryAI::SetEnemyID(int EnemyID)
 {
 }
 
-int CMercenaryAI::Proc(unsigned long Gid)
+int CMercenaryAI::Proc(unsigned int Gid)
 {
 	return 0;
 }

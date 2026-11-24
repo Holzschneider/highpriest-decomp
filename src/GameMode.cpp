@@ -154,11 +154,11 @@ char endchar[2] = { '\r', '\n' };
 CPathFinder g_pathFinder;
 GroundAttrPosInfo g_groundAttrPosInfo;
 std::list<DWORD> g_pingLogList;
-unsigned long g_pingLogStart;
+unsigned int g_pingLogStart;
 int g_isFixedCamera = FALSE;
-unsigned long CGameMode::m_lastLockOnPcGid = 0L;
-unsigned long CGameMode::m_dwOldAutoFollowTime = 0L;
-unsigned long CGameMode::m_dwOldDisappearTime = 0L;
+unsigned int CGameMode::m_lastLockOnPcGid = 0L;
+unsigned int CGameMode::m_dwOldAutoFollowTime = 0L;
+unsigned int CGameMode::m_dwOldDisappearTime = 0L;
 bool g_pingLog = false;
 
 inline int CheckKeyPressed(int vkcode)
@@ -201,9 +201,9 @@ extern int  IsNameSpecific(DWORD aid);
 
 
 
-extern bool IsEffectStateHiding(unsigned long state);
-extern bool IsEffectStateBurrow(unsigned long state);
-extern bool IsEffectStateSpecialHiding(unsigned long state);
+extern bool IsEffectStateHiding(unsigned int state);
+extern bool IsEffectStateBurrow(unsigned int state);
+extern bool IsEffectStateSpecialHiding(unsigned int state);
 
 extern char autosaveFileName[];
 extern "C" int __cdecl access(const char *, int);
@@ -605,12 +605,12 @@ BOOL	CGameMode :: OnRun()
 	return TRUE;
 }
 
-unsigned long nextCacheUnloadTime = 0;
+unsigned int nextCacheUnloadTime = 0;
 
 void CGameMode::OnUpdate()
 {
 	static int timeGap = 0;
-	static unsigned long time_update_start = ::timeGetTime();
+	static unsigned int time_update_start = ::timeGetTime();
 
 	CheckSystemMessage();
 	PollNetworkStatus();
@@ -2282,7 +2282,7 @@ CMsgEffect* CGameMode::MakeEmotion(vector3d &sPos, int emotionType, DWORD master
 	return emotion;
 }
 
-void CGameMode::MakeNumEffect(vector3d &sPos, int number, unsigned long sprArgb, unsigned long masterGid)
+void CGameMode::MakeNumEffect(vector3d &sPos, int number, unsigned int sprArgb, unsigned int masterGid)
 {
 	if (number > 9999)
 		number = 9999;
@@ -2718,7 +2718,7 @@ void	CGameMode :: CheckGuildMemberStatusCache(DWORD gid, const NamePair& actorNa
 
 
 
-NamePair const & CGameMode::GetActorNameByGID(unsigned long gid)
+NamePair const & CGameMode::GetActorNameByGID(unsigned int gid)
 {
 	std::map<DWORD, NamePair>::iterator iter = m_actorNameListByGID.find(gid);
 
@@ -2747,7 +2747,7 @@ COLORREF	CGameMode :: GetActorNameColor(int job, DWORD aid)
 	}
 }
 
-void CGameMode::MakeNameBalloon(unsigned long aid)
+void CGameMode::MakeNameBalloon(unsigned int aid)
 {
 	if (aid == 0)
 		return;

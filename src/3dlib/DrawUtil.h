@@ -2,7 +2,7 @@
 #define HIGHPRIEST_3DLIB_DRAWUTIL_H
 
 #include "Renderer.h"
-void DrawBoxScreen(int x, int y, int cx, int cy, unsigned long color);
+void DrawBoxScreen(int x, int y, int cx, int cy, unsigned int color);
 int FindCharSet(const char* buf, int bufLen);
 int		ReadCharSet(const char* buf);
 int		isHex(char c);
@@ -13,7 +13,7 @@ public:
 	DrawDC(CDC* surface);
 	~DrawDC();
 	void SetFont(int fontType, int fontHeight, bool bold);
-	void SetTextColor(unsigned long colorRef);
+	void SetTextColor(unsigned int colorRef);
 	void TextOutA(int x, int y, const char* buf, int bufLen);
 	void SingleLangTextOut(int x, int y, const char* buf, int bufLen);
 	void GetTextExtentPoint32A(const char* buf, int bufLen, tagSIZE* size);

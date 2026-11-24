@@ -67,7 +67,7 @@ extern int  (__cdecl *MyInitialize)();
 extern int  (__cdecl *MyStartEncryption)();
 extern int  (__cdecl *MyGetInitError)();
 extern int  (__cdecl *MyGetAthKbdObject)(char*);
-extern void (__cdecl *MyRegisterHWNDForEdit)(unsigned long, void*);
+extern void (__cdecl *MyRegisterHWNDForEdit)(unsigned int, void*);
 extern void (__cdecl *MyInstallReg)();
 
 HANDLE ExcuteProgram(const char* excutiveFile);
@@ -159,16 +159,16 @@ void SetWindowActiveMode(BOOL active)
 
 
 extern void          ExitFindHack();
-extern long          SetAcquire(int active);
+extern int          SetAcquire(int active);
 extern int           (__cdecl *MyCloseDriver)();
 extern int           (__cdecl *MyStopEncryption)();
 extern UIWindowMgr   g_windowMgr;
 
 
-long FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+int FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	bool hooked;
-	long lResult = g_language->ProcessImeMessage(hWnd, message, wParam, lParam, &hooked);
+	int lResult = g_language->ProcessImeMessage(hWnd, message, wParam, lParam, &hooked);
 
 	if (hooked)
 	{

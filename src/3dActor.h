@@ -117,7 +117,7 @@ class C3dNode {
 public:
 	struct ColorInfo {
 		union {
-			unsigned long color[3];
+			unsigned int color[3];
 			COLOR argb[3];
 		};
 		vector2d uv[3];

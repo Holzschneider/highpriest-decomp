@@ -440,7 +440,7 @@ BOOL	CRmaRes :: IsValidAction(int action)
 bool	CRmaRes :: Load(const char *fName)
 {
 	char *	buf;
-	long	i;
+	int	i;
 	CTokenizer	a;
 	CFile	fp;
 

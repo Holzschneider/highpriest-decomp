@@ -39,8 +39,8 @@ void mcg_block_decrypt(unsigned char* blk,mcg_key* key);
 //============================================================================
 #ifdef USE_SNEFRU
 
-void Hash512(unsigned long* output, unsigned long* input);
-void HashN(unsigned long* output, unsigned long* input);
+void Hash512(unsigned int* output, unsigned int* input);
+void HashN(unsigned int* output, unsigned int* input);
 #endif // USE_SNEFRU
 //============================================================================
 #ifdef USE_RMD128
@@ -48,7 +48,7 @@ void HashN(unsigned long* output, unsigned long* input);
 /* adapt these, if necessary, 
    for your operating system and compiler */
 typedef    unsigned char        byte;
-typedef    unsigned long        dword;
+typedef    unsigned int        dword;
 
 /* macro definitions */
 
@@ -214,7 +214,7 @@ extern void Safer_Decrypt_Block (safer_block_t block_in, safer_key_t key,
 //============================================================================
 #ifdef USE_CAST128
 typedef unsigned char u8;	/* 8-bit unsigned */
-typedef unsigned long u32;	/* 32-bit unsigned */
+typedef unsigned int u32;	/* 32-bit unsigned */
 
 typedef struct {
 	u32 xkey[32];	/* Key, after expansion */
@@ -229,11 +229,11 @@ void cast_decrypt(cast_key* key, u8* inblock, u8* outblock);
 #ifdef USE_CRYPTON
 typedef unsigned char   u1byte; /* an 8 bit unsigned character type */
 typedef unsigned short  u2byte; /* a 16 bit unsigned integer type   */
-typedef unsigned long   u4byte; /* a 32 bit unsigned integer type   */
+typedef unsigned int   u4byte; /* a 32 bit unsigned integer type   */
 
 typedef signed char     s1byte; /* an 8 bit signed character type   */
 typedef signed short    s2byte; /* a 16 bit signed integer type     */
-typedef signed long     s4byte; /* a 32 bit signed integer type     */
+typedef int     s4byte; /* a 32 bit signed integer type     */
 u4byte *crypton_set_key(const u4byte in_key[], const u4byte key_len);
 void crypton_encrypt(const u4byte in_blk[4], u4byte out_blk[4]);
 void crypton_decrypt(const u4byte in_blk[4], u4byte out_blk[4]);
@@ -279,7 +279,7 @@ TURTLEWORD hare_stream(HK* key);
 #endif // USE_TURTLE
 //============================================================================
 #ifdef USE_TIGER
-typedef unsigned long word32;
+typedef unsigned int word32;
 typedef unsigned char byte;
 void tiger(word32 *str, word32 length, word32 res[6]);
 #endif // USE_TIGER
@@ -287,16 +287,16 @@ void tiger(word32 *str, word32 length, word32 res[6]);
 #ifdef USE_SEAL2
 #define WORDS_PER_SEAL_CALL 1024
 typedef struct {
-    unsigned long t[520]; /* 512 rounded up to a multiple of 5 + 5*/
-    unsigned long s[265]; /* 256 rounded up to a multiple of 5 + 5*/
-    unsigned long r[20]; /* 16 rounded up to multiple of 5 */
-    unsigned long counter; /* 32-bit synch value. */
-    unsigned long ks_buf[WORDS_PER_SEAL_CALL];
+    unsigned int t[520]; /* 512 rounded up to a multiple of 5 + 5*/
+    unsigned int s[265]; /* 256 rounded up to a multiple of 5 + 5*/
+    unsigned int r[20]; /* 16 rounded up to multiple of 5 */
+    unsigned int counter; /* 32-bit synch value. */
+    unsigned int ks_buf[WORDS_PER_SEAL_CALL];
     int ks_pos;
 } seal_ctx;
 
-void seal_encrypt(seal_ctx *c, unsigned long *data_ptr, int w);
-void seal_decrypt(seal_ctx *c, unsigned long *data_ptr, int w);
+void seal_encrypt(seal_ctx *c, unsigned int *data_ptr, int w);
+void seal_decrypt(seal_ctx *c, unsigned int *data_ptr, int w);
 void seal_key(seal_ctx *c, unsigned char *key);
 #endif // USE_SEAL2
 //============================================================================
@@ -311,7 +311,7 @@ void feal8_Encrypt( ByteType *Plain, ByteType *Cipher ) ;
 
 #define MISTY1_KEYSIZE 32
 
-typedef unsigned long u4;
+typedef unsigned int u4;
 typedef unsigned char byte;
 
 void misty1_keyinit(u4  *ek, u4  *k) ;

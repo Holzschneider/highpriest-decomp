@@ -534,7 +534,7 @@ void mcg_block_decrypt(unsigned char *blk,mcg_key* key)
 
 
 
-typedef unsigned long int word32;
+typedef unsigned int word32;
 
 word32 standardSBoxes[MAX_SBOX_COUNT][256]= {
 
@@ -1686,7 +1686,7 @@ void Hash512 (word32* output,word32* input)
 
 
 
-void Increment64BitCounter (word32* counter, long increment)
+void Increment64BitCounter (word32* counter, int increment)
 {
 	word32 maxInt = 0xffffffffL;
 
@@ -1740,7 +1740,7 @@ void main ()
 	word32 hash[INPUT_BLOCK_SIZE];
 	word32 bitCount[2];
 
-	long int byteCount;
+	int byteCount;
 
 
 
@@ -3527,7 +3527,7 @@ static void keyperm(TURTLEWORD sbox[][NTURTLEWORDS],TURTLEWORD* key,int len,int 
 
 #ifdef USE_TIGER
 
-typedef unsigned long word32;
+typedef unsigned int word32;
 word32 table[4*256][2] = {
     0xe1a833ad, 0xfc74c963,    0x97f47ae2, 0xda204122,
     0xbf32463c, 0x5e22924a,    0xd10b3e43, 0x20e43242,
@@ -4293,12 +4293,12 @@ void tiger(word32 *str, word32 length, word32 res[6])
 #define F4_SEAL2(x, y, z) ((x) ^ (y) ^ (z))
 
 extern "C" {
-static int g(unsigned char* in,int i,unsigned long *h)
+static int g(unsigned char* in,int i,unsigned int *h)
 {
 
-    unsigned long h0,h1,h2,h3,h4,a,b,c,d,e,temp;
+    unsigned int h0,h1,h2,h3,h4,a,b,c,d,e,temp;
     unsigned char *kp;
-    unsigned long w[80];
+    unsigned int w[80];
 
     kp = in;
     h0 = WORD(kp); kp += 4;
@@ -4338,9 +4338,9 @@ static int g(unsigned char* in,int i,unsigned long *h)
 }
 }
 
-unsigned long gamma (unsigned char *a ,int i)
+unsigned int gamma (unsigned char *a ,int i)
 {
-    unsigned long h[5];
+    unsigned int h[5];
 
     (void) g(a, i/5, h);
     return h[i % 5];
@@ -4349,7 +4349,7 @@ unsigned long gamma (unsigned char *a ,int i)
 int seal_init( seal_ctx *result, unsigned char *key )
 {
     int i;
-    unsigned long h[5];
+    unsigned int h[5];
 
     for (i=0;i<510;i+=5)
         g(key, i/5, &(result->t[i]));
@@ -4380,10 +4380,10 @@ int seal_init( seal_ctx *result, unsigned char *key )
     return (ALG_OK);
 }
 
-int seal(seal_ctx *key, unsigned long in, unsigned long *out)
+int seal(seal_ctx *key, unsigned int in, unsigned int *out)
 {
     int i,j,l;
-    unsigned long a,b,c,d,n1,n2,n3,n4,*wp;
+    unsigned int a,b,c,d,n1,n2,n3,n4,*wp;
     unsigned short p,q;
 
     wp = out;
@@ -4501,7 +4501,7 @@ void seal_key(seal_ctx *c, unsigned char *key){
 }
 
 
-void seal_encrypt(seal_ctx *c, unsigned long *data_ptr, int w){
+void seal_encrypt(seal_ctx *c, unsigned int *data_ptr, int w){
     int i;
 
     for(i=0;i<w;i++){
@@ -4511,11 +4511,11 @@ void seal_encrypt(seal_ctx *c, unsigned long *data_ptr, int w){
     }
 }
 
-void seal_decrypt(seal_ctx *c, unsigned long *data_ptr, int w) {
+void seal_decrypt(seal_ctx *c, unsigned int *data_ptr, int w) {
     seal_encrypt(c,data_ptr,w);
 }
 
-void seal_resynch(seal_ctx *c, unsigned long synch_word){
+void seal_resynch(seal_ctx *c, unsigned int synch_word){
     c->counter = synch_word;
     c->ks_pos = WORDS_PER_SEAL_CALL;
 }
@@ -4525,7 +4525,7 @@ void seal_resynch(seal_ctx *c, unsigned long synch_word){
 
 #ifdef USE_FEAL8
 
-typedef unsigned long HalfWord ;
+typedef unsigned int HalfWord ;
 
 typedef unsigned int QuarterWord ;
 
@@ -4635,7 +4635,7 @@ HalfWord f( HalfWord AA, QuarterWord BB )
 {
     ByteType f1, f2 ;
     union {
-     unsigned long All ;
+     unsigned int All ;
      ByteType Byte[4] ;
     } RetVal, A ;
     union {
@@ -4665,7 +4665,7 @@ HalfWord FK( HalfWord AA, HalfWord BB )
 {
     ByteType FK1, FK2 ;
     union {
-     unsigned long All ;
+     unsigned int All ;
      ByteType Byte[4] ;
     } RetVal, A, B ;
     ByteType S0( ByteType, ByteType ) ;
@@ -4690,7 +4690,7 @@ HalfWord MakeH1( ByteType *B )
 
 {
     union {
-     unsigned long All ;
+     unsigned int All ;
      ByteType Byte[4] ;
     } RetVal ;
 

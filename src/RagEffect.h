@@ -896,7 +896,7 @@ public:
 	int green;
 	int blue;
 	float alpha;
-	unsigned long argb;
+	unsigned int argb;
 };
 
 struct objectSegment {

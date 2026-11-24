@@ -83,9 +83,9 @@ void UIGuildWnd::InitTabText()
 
 void UIGuildWnd::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	DrawTab(GetTab());
 
@@ -128,9 +128,9 @@ void UIGuildWnd::OnDraw()
 
 void UIGuildWnd::DrawTab(int curTab)
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 
 	g_skinMgr.GetColorChipColor(10, 2, rr, gg, bb);
 	DrawBox(0, 17, m_w, 24, RGB(rr, gg, bb));
@@ -302,9 +302,9 @@ void UIGuildInfoManageWnd::OnCreate(int cx, int cy)
 void UIGuildInfoManageWnd::OnDraw()
 {
 	char text[1024];
-	unsigned long gg;
-	unsigned long bb;
-	unsigned long rr;
+	unsigned int gg;
+	unsigned int bb;
+	unsigned int rr;
 
 	UIGuildWnd::OnDraw();
 
@@ -361,9 +361,9 @@ void UIGuildInfoManageWnd::OnDraw()
 	TextOutA(200, 213, text, 0, 0, 12, 0);
 
 	{
-		unsigned long bb;
-		unsigned long rr;
-		unsigned long gg;
+		unsigned int bb;
+		unsigned int rr;
+		unsigned int gg;
 		g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 		DrawBox(299, 64, 26, 26, RGB(rr, gg, bb));
 	}
@@ -409,9 +409,9 @@ void UIGuildInfoManageWnd::OnDraw()
 		while (it != g_guildInfo.m_relatedGuildInfoList.end() && y < 205) {
 			if (it->relation == 0) {
 				if (count == m_curAllyGuild) {
-					unsigned long bb;
-					unsigned long gg;
-					unsigned long rr;
+					unsigned int bb;
+					unsigned int gg;
+					unsigned int rr;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(204, y, 80, 16, RGB(rr, gg, bb));
 				}
@@ -435,9 +435,9 @@ void UIGuildInfoManageWnd::OnDraw()
 		while (it != g_guildInfo.m_relatedGuildInfoList.end() && y < 279) {
 			if (it->relation == 1) {
 				if (count == m_curHostileGuild) {
-					unsigned long gg;
-					unsigned long rr;
-					unsigned long bb;
+					unsigned int gg;
+					unsigned int rr;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(204, y, 80, 16, RGB(rr, gg, bb));
 				}
@@ -518,7 +518,7 @@ void UIGuildInfoManageWnd::RefreshCompressedEmblemFileImage(const char* emblemBi
 	CFile file;
 	if (file.Open(emblemBitmapName, CFile::modeRead)) {
 		CBitmapRes emblemBitmap;
-		unsigned long fileLength = file.GetLength();
+		unsigned int fileLength = file.GetLength();
 		if (emblemBitmap.LoadFromBuffer(emblemBitmapFileName, file.GetBuf(), fileLength)) {
 			if (emblemBitmap.m_width == 24 && emblemBitmap.m_height == 24) {
 				m_compressedEmblemBitmapFileImageSize = fileLength;
@@ -828,9 +828,9 @@ void UIGuildMemberManageWnd::OnDraw()
 			m_posComboButton[hideIndex]->Move(-200, -200);
 	}
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(4, 45, m_w - 22, m_h - 106, RGB(rr, gg, bb));
 
@@ -874,9 +874,9 @@ void UIGuildMemberManageWnd::OnDraw()
 				DrawBox(5, itemY - 3, m_w - 24, 34, 0xe4ffe2);
 
 			if (m_curItem == itemCount) {
-				unsigned long rr;
-				unsigned long gg;
-				unsigned long bb;
+				unsigned int rr;
+				unsigned int gg;
+				unsigned int bb;
 				g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 				DrawBox(5, itemY - 3, m_w - 24, 34, RGB(rr, gg, bb));
 			}
@@ -899,7 +899,7 @@ void UIGuildMemberManageWnd::OnDraw()
 				CActRes* actRes = (CActRes*)g_resMgr().Get(actName.c_str(), false);
 				CSprRes* sprRes = (CSprRes*)g_resMgr().Get(sprName.c_str(), false);
 				CMotion* motion = actRes->GetMotion(0, 0);
-				unsigned long* palette = sprRes->m_pal;
+				unsigned int* palette = sprRes->m_pal;
 				CSprClip* clip = motion->GetClip(1);
 				SprImg* sprImg = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 
@@ -1770,9 +1770,9 @@ void UIGuildPositionManageWnd::OnDraw()
 			m_payRate[hideIndex]->Move(-200, -200);
 	}
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(4, 45, m_w - 22, m_h - posLineHeight - 69, RGB(rr, gg, bb));
 
@@ -1805,9 +1805,9 @@ void UIGuildPositionManageWnd::OnDraw()
 			} else {
 				int y = drawCount / m_itemHorzNum * posLineHeight + 68;
 				if (m_curItem == itemCount) {
-					unsigned long rr;
-					unsigned long gg;
-					unsigned long bb;
+					unsigned int rr;
+					unsigned int gg;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(5, y - 3, m_w - 24, 18, RGB(rr, gg, bb));
 				}
@@ -2089,9 +2089,9 @@ void UIGuildSkillWnd::OnDraw()
 				int x = (drawCount % m_itemHorzNum) * 32 + 72;
 				int y = (drawCount / m_itemHorzNum) * 32 + 41;
 				if (m_curItem == itemCount) {
-					unsigned long rr;
-					unsigned long gg;
-					unsigned long bb;
+					unsigned int rr;
+					unsigned int gg;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					if (it->level == 0)
 						g_skinMgr.GetColorChipColor(10, 2, rr, gg, bb);
@@ -2545,9 +2545,9 @@ void UIGuildBanishedMemberWnd::OnDraw()
 		m_reason[hideIndex]->Move(-200, -200);
 	}
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(4, 45, m_w - 22, m_h - banishLineHeight - 69, RGB(rr, gg, bb));
 
@@ -2580,9 +2580,9 @@ void UIGuildBanishedMemberWnd::OnDraw()
 			} else {
 				int y = drawCount / m_itemHorzNum * banishLineHeight + 68;
 				if (m_curItem == itemCount) {
-					unsigned long rr;
-					unsigned long gg;
-					unsigned long bb;
+					unsigned int rr;
+					unsigned int gg;
+					unsigned int bb;
 					g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 					DrawBox(5, y - 3, m_w - 24, 18, RGB(rr, gg, bb));
 				}
@@ -2908,9 +2908,9 @@ void UIGuildTotalInfoWnd::OnDraw()
 	for (int hideIndex = 0; hideIndex < 12; ++hideIndex)
 		m_guildName[hideIndex]->Move(-200, -200);
 
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
 	DrawBox(4, 45, m_w - 22, m_h - 69, RGB(rr, gg, bb));
 
@@ -2945,9 +2945,9 @@ void UIGuildTotalInfoWnd::OnDraw()
 
 		int y = drawCount / m_itemHorzNum * banishLineHeight + 68;
 		if (m_curItem == itemCount) {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 			DrawBox(5, y - 3, m_w - 24, 18, RGB(rr, gg, bb));
 		}

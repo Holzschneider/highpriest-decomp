@@ -26,7 +26,7 @@ unsigned char TOKEN[6] = { 0x33, 0xc0, 0x33, 0xdb, 0x33, 0xc9 };
 
 
 
-void Coder(unsigned char* buf, unsigned int len, unsigned long* temp, bool client)
+void Coder(unsigned char* buf, unsigned int len, unsigned int* temp, bool client)
 {
 	char buffer[0x400];
 	__asm {

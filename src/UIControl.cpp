@@ -457,7 +457,7 @@ void UINoneVisibleButton::OnDraw() {
 }
 
 UIColorButton::UIColorButton() {
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 	m_r = rr;
 	m_g = gg;
@@ -472,9 +472,9 @@ UIColorButton::~UIColorButton() {}
 
 void UIColorButton::OnDraw()
 {
-	unsigned long rr;
-	unsigned long gg;
-	unsigned long bb;
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
 	int textWidth = GetTextWidth(m_text.c_str(), 0, 0, 12, false);
 
 	g_skinMgr.GetColorChipColor(22, 2, rr, gg, bb);
@@ -608,7 +608,7 @@ void UISpriteButton::OnDraw()
 		int w = 0, h = 0, ox = 0, oy = 0;
 		for (int a = 0; a < curMotion->sprClips.size(); a++) {
 			CacheInfo info;
-			unsigned long *palette = sprRes->m_pal;
+			unsigned int *palette = sprRes->m_pal;
 			CSprClip *clip = curMotion->GetClip(a);
 			if (clip->sprIndex == -1)
 				return;
@@ -616,7 +616,7 @@ void UISpriteButton::OnDraw()
 			SprImg *img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
 			CTexture *tex;
 			if (clip->clipType == 0) {
-				tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
+				tex = g_renderer->GetSpriteIndex(*img, (unsigned int)palette, &info);
 				if (!tex)
 					tex = g_renderer->AddSpriteIndex(*img, palette, &info);
 			} else {
@@ -796,11 +796,11 @@ void UITransBalloonText::OnDraw()
 
 void UIColorTransBalloonText::OnDraw() {
 	ClearDC(0xffff00ff);
-	unsigned long colorRef = 0xffffff;
+	unsigned int colorRef = 0xffffff;
 	TextOutWithDecoration(6, 4, m_strings[0].c_str(), 0, &colorRef, 0, 0xc);
 }
 
-void UITransBalloonText::SetTransBoxColor(unsigned long transboxColor) {
+void UITransBalloonText::SetTransBoxColor(unsigned int transboxColor) {
 	m_transBoxInfo.color = transboxColor;
 }
 
@@ -1223,7 +1223,7 @@ void UIEditCtrl::DrawEditText()
 	}
 
 	std::string text;
-	unsigned long textColor = RGB(m_textR, m_textG, m_textB);
+	unsigned int textColor = RGB(m_textR, m_textG, m_textB);
 
 	if (g_windowMgr.GetFocusEdit() == this) {
 		RefreshText();
@@ -1281,11 +1281,11 @@ void UIEditCtrl::DrawSelectionBox(int xOffset, int width) {
 	}
 	if (xOffset >= m_w || width <= 0) return;
 	if (xOffset + width > m_w) width = m_w - xOffset;
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 	DrawBox(xOffset, 0, width, m_h,
-			((unsigned long)(unsigned char)bb << 16) |
-			((unsigned long)(unsigned char)gg << 8) |
+			((unsigned int)(unsigned char)bb << 16) |
+			((unsigned int)(unsigned char)gg << 8) |
 			(unsigned char)rr);
 }
 
@@ -1363,7 +1363,7 @@ void UIEditCtrl3::Resize(int cx, int cy)
 	RecalcScrbarPos();
 }
 
-void UIEditCtrl3::OnKeyDown(unsigned int wParam, long lParam)
+void UIEditCtrl3::OnKeyDown(unsigned int wParam, int lParam)
 {
 	m_prePos = 0;
 	m_nextPos = 0;
@@ -1449,7 +1449,7 @@ void UIEditCtrl3::OnKeyDown(unsigned int wParam, long lParam)
 }
 
 void UIEditCtrl3::OnDraw() {
-	ClearDC(((unsigned long)(unsigned char)m_b << 16) | ((unsigned long)(unsigned char)m_g << 8) | (unsigned char)m_r);
+	ClearDC(((unsigned int)(unsigned char)m_b << 16) | ((unsigned int)(unsigned char)m_g << 8) | (unsigned char)m_r);
 	DrawEditText();
 	if (m_parent)
 		m_parent->Invalidate();
@@ -1647,7 +1647,7 @@ void UIEditCtrl3::DrawEditText()
 	}
 
 	std::string text;
-	unsigned long textColor = RGB(m_textR, m_textG, m_textB);
+	unsigned int textColor = RGB(m_textR, m_textG, m_textB);
 	if (g_windowMgr.GetFocusEdit() == this)
 		RefreshText();
 
@@ -1849,11 +1849,11 @@ void UIEditCtrl3::DrawSelectionBox(int xOffset, int yOffset, int width) {
 	}
 	if (xOffset >= m_w || width <= 0) return;
 	if (xOffset + width > m_w) width = m_w - xOffset;
-	unsigned long rr, gg, bb;
+	unsigned int rr, gg, bb;
 	g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 	DrawBox(xOffset, yOffset, width, 14,
-			((unsigned long)(unsigned char)bb << 16) |
-			((unsigned long)(unsigned char)gg << 8) |
+			((unsigned int)(unsigned char)bb << 16) |
+			((unsigned int)(unsigned char)gg << 8) |
 			(unsigned char)rr);
 }
 
@@ -2085,7 +2085,7 @@ void UIResizer::SetBitmap(char const *bitmapName)
 	m_h = bitmap->m_height;
 }
 
-void UIResizer::SetColor(unsigned long color, unsigned long backColor) {
+void UIResizer::SetColor(unsigned int color, unsigned int backColor) {
 	Invalidate();
 	m_color = color;
 	m_backColor = backColor;

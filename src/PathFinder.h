@@ -31,9 +31,9 @@ public:
 	int GetStartCellNumber();
 	float GetStartPointX();
 	float GetStartPointY();
-	unsigned long GetTotalExpectedMovingTime();
-	int GetNextCellInfo(unsigned long currentTime, unsigned long& Time, float& x, float& y);
-	void GetLastCellTime(unsigned long& lastCellTime);
+	unsigned int GetTotalExpectedMovingTime();
+	int GetNextCellInfo(unsigned int currentTime, unsigned int& Time, float& x, float& y);
+	void GetLastCellTime(unsigned int& lastCellTime);
 	void SetStartCellNumber(int num);
 	void SetStartPointX(float x);
 	void SetStartPointY(float x);
@@ -119,15 +119,15 @@ public:
 	~CPathFinder();
 	void Reset();
 	void SetMap(C3dAttr* newMap);
-	bool FindPath(unsigned long startTime, int sx, int sy, int xM, int yM, int dx, int dy, int speedFactor, CPathInfo* pathInfo);
+	bool FindPath(unsigned int startTime, int sx, int sy, int xM, int yM, int dx, int dy, int speedFactor, CPathInfo* pathInfo);
 private:
 	int GetHeuristicCost(int, int);
 	bool IsConnected(int sx, int sy, int dx, int dy);
 	int GetMapWidth();
 	int GetMapHeight();
 	bool ProcessNode(PathNode* parent, int traverseCost, int x, int y, int dir);
-	void BuildResultPath(unsigned long startTime, PathNode* goalNode, int speedFactor, CPathInfo* path);
-	unsigned long GetSecondNodeArrivalTime(unsigned long startTime, CPathInfo* path, int speedFactor);
+	void BuildResultPath(unsigned int startTime, PathNode* goalNode, int speedFactor, CPathInfo* path);
+	unsigned int GetSecondNodeArrivalTime(unsigned int startTime, CPathInfo* path, int speedFactor);
 	PathNode* GetNewNode();
 	PathNode* GetNode(int x, int y);
 	PathNode* FindNode(int x, int y);

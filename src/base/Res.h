@@ -22,7 +22,7 @@ protected:
 	virtual void OnLoadError(const char* fName);
 protected:
 	int m_lockCnt;
-	unsigned long m_timeStamp;
+	unsigned int m_timeStamp;
 	int m_extIndex;
 	CHash m_fName;
 public:
@@ -66,30 +66,30 @@ private:
 	typedef res_map::iterator res_map_iter;
 	typedef res_map::value_type res_map_value;
 private:
-	std::map<char const *, int, CharPrtLess, std::allocator<int> > m_resExt;
+	std::map<char const *, int, CharPrtLess > m_resExt;
 	std::vector<char const *> m_typeDir;
 	std::vector<CRes *> m_objTypes;
-	std::vector<std::map<CHash *, CRes *, ResPtrLess, std::allocator<CRes *> > > m_fileList;
+	std::vector<std::map<CHash *, CRes *, ResPtrLess > > m_fileList;
 	_RTL_CRITICAL_SECTION m_GetResSection;
 	std::map<std::string, std::string> m_realResName;
 public:
-	unsigned long m_usedForSprTexture;
-	unsigned long m_usedForModelTexture;
-	unsigned long m_usedForGNDTexture;
-	unsigned long m_usedForSprite;
-	unsigned long m_usedForSprAction;
-	unsigned long m_usedForGAT;
-	unsigned long m_usedForGND;
-	unsigned long m_usedForIMF;
-	unsigned long m_usedForModel;
-	unsigned long m_ResMemAmount;
-	unsigned long m_ResSprAmount;
-	unsigned long m_ResTexAmount;
-	unsigned long m_ResGatAmount;
-	unsigned long m_ResGndAmount;
-	unsigned long m_ResRswAmount;
-	unsigned long m_ResModAmount;
-	unsigned long m_ResWavAmount;
+	unsigned int m_usedForSprTexture;
+	unsigned int m_usedForModelTexture;
+	unsigned int m_usedForGNDTexture;
+	unsigned int m_usedForSprite;
+	unsigned int m_usedForSprAction;
+	unsigned int m_usedForGAT;
+	unsigned int m_usedForGND;
+	unsigned int m_usedForIMF;
+	unsigned int m_usedForModel;
+	unsigned int m_ResMemAmount;
+	unsigned int m_ResSprAmount;
+	unsigned int m_ResTexAmount;
+	unsigned int m_ResGatAmount;
+	unsigned int m_ResGndAmount;
+	unsigned int m_ResRswAmount;
+	unsigned int m_ResModAmount;
+	unsigned int m_ResWavAmount;
 };
 CResMgr& g_resMgr();
 

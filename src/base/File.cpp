@@ -52,7 +52,7 @@ static void* TraceLookup(const char* name, const char* source, void* data)
 #define TraceLookup(name, source, data) (data)
 #endif
 
-void* CFileMgr::GetData(const char* name, unsigned long* size)
+void* CFileMgr::GetData(const char* name, unsigned int* size)
 {
 	if (g_readFolderFirst) {
 		void* data;
@@ -91,7 +91,7 @@ bool CFileMgr::IsDataExist(const char* name)
 	return IsFileExist(name);
 }
 
-void* CFileMgr::GetPak(const char* name, unsigned long* size)
+void* CFileMgr::GetPak(const char* name, unsigned int* size)
 {
 	for (GPakListIter iter = m_pakList.begin(); iter != m_pakList.end(); ++iter) {
 		PakPack pakPack;
@@ -108,7 +108,7 @@ void* CFileMgr::GetPak(const char* name, unsigned long* size)
 	return NULL;
 }
 
-void* CFileMgr::GetFile(const char* name, unsigned long* size)
+void* CFileMgr::GetFile(const char* name, unsigned int* size)
 {
 	DWORD RByte;
 	HANDLE hFile = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -224,7 +224,7 @@ bool CFile::Write(const void* lpBuf, unsigned int nCount)
 	}
 }
 
-bool CFile::Seek(long lOff, unsigned int nFrom)
+bool CFile::Seek(int lOff, unsigned int nFrom)
 {
 	if (m_hFile) {
 		SetFilePointer(m_hFile, lOff, 0, nFrom);

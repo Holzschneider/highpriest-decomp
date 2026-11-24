@@ -72,9 +72,9 @@ public:
 struct PLAY_WAVE_INFO {
 public:
 	std::string wavName;
-	unsigned long nAID;
-	unsigned long term;
-	unsigned long endTick;
+	unsigned int nAID;
+	unsigned int term;
+	unsigned int endTick;
 };
 
 struct NamePair {
@@ -154,9 +154,9 @@ enum MAKE_MSG_EFFECT_TYPE {
 
 class CGameMode : public CMode {
 	friend class CWorld;
-	static unsigned long m_lastLockOnPcGid;
-	static unsigned long m_dwOldAutoFollowTime;
-	static unsigned long m_dwOldDisappearTime;
+	static unsigned int m_lastLockOnPcGid;
+	static unsigned int m_dwOldAutoFollowTime;
+	static unsigned int m_dwOldDisappearTime;
 	virtual void OnChangeState(int time);
 	void ProcessNeverDie();
 	void PollNetworkStatus();
@@ -165,9 +165,9 @@ class CGameMode : public CMode {
 	void MakeNameBalloonTextWindow(UIWindow** window);
 	void MoveBalloonTextWindow(UIWindow* window, CRenderObject* renderObject);
 	void ProcessAutoFollow();
-	void MonsterTalk(CGameActor* theActor, int job, int stateId, int skillId, unsigned long gid);
-	void DrawMinimapTriangle(float fX, float fY, float trisize, unsigned long argb);
-	void SetMemberVisibleState(unsigned long timeTick, int showType);
+	void MonsterTalk(CGameActor* theActor, int job, int stateId, int skillId, unsigned int gid);
+	void DrawMinimapTriangle(float fX, float fY, float trisize, unsigned int argb);
+	void SetMemberVisibleState(unsigned int timeTick, int showType);
 	int IsExceptionState(int processType);
 	void DrawBossMonsterOnMiniMap(const UVRECT& uvRect);
 public:
@@ -195,7 +195,7 @@ public:
 	void ProcessWheel(int time);
 	void ProcessRBtn();
 	int ProcessGroundPick(int processType);
-	void ProceedAttack(unsigned long timeTick, int showType);
+	void ProceedAttack(unsigned int timeTick, int showType);
 	bool AttackSkillOverWeightMessage();
 	void UnloadRarelyUsedCaches();
 	void ProcessReqEmblem();
@@ -221,20 +221,20 @@ public:
 	void SynchronizeTimeWithServer(bool syncNow);
 	void ProcessInput();
 	bool GetGroundAttrPos(int& dx, int& dy);
-	void RecalcAveragePingTime(unsigned long itemNaid);
+	void RecalcAveragePingTime(unsigned int itemNaid);
 	int ProcessObjClick(CActorPickInfo* actorInfo, int processType);
 	const NamePair& GetNullNamePair() { static NamePair nullnamepair; return nullnamepair; }
-	unsigned long GetActorNameRequestTimer(unsigned long aid);
-	void RemoveActorNameRequestTimer(unsigned long itemNaid);
-	const NamePair& GetActorName(unsigned long aid);
-	void RequestActorName(unsigned long itemNaid);
-	unsigned long GetActorNameByGIDRequestTimer(unsigned long aid);
-	void RemoveActorNameByGIDRequestTimer(unsigned long itemNaid);
-	const NamePair& GetActorNameByGID(unsigned long aid);
-	void RequestActorNameByGID(unsigned long itemNaid);
-	void CheckGuildMemberStatusCache(unsigned long gid, const NamePair& actorName);
-	unsigned long GetActorNameColor(int job, unsigned long aid);
-	void MakeNameBalloon(unsigned long itemNaid);
+	unsigned int GetActorNameRequestTimer(unsigned int aid);
+	void RemoveActorNameRequestTimer(unsigned int itemNaid);
+	const NamePair& GetActorName(unsigned int aid);
+	void RequestActorName(unsigned int itemNaid);
+	unsigned int GetActorNameByGIDRequestTimer(unsigned int aid);
+	void RemoveActorNameByGIDRequestTimer(unsigned int itemNaid);
+	const NamePair& GetActorNameByGID(unsigned int aid);
+	void RequestActorNameByGID(unsigned int itemNaid);
+	void CheckGuildMemberStatusCache(unsigned int gid, const NamePair& actorName);
+	unsigned int GetActorNameColor(int job, unsigned int aid);
+	void MakeNameBalloon(unsigned int itemNaid);
 	void MakeActorNameBalloon(CGameActor* theActor);
 	void MakeAttackedActorNameBalloon(CGameActor* theActor);
 	void ProcessNameBalloon();
@@ -242,17 +242,17 @@ public:
 	CGameActor* NewNpc(int job);
 	void PlaceEffect(vector3d* pos, int effectId, int lastTime, int F1 = 0);
 	void MakeBlowEffect(float cx, float cy, float cz);
-	void MakeArrowEffect(vector3d& sPos, unsigned long targetGid, float hideTime, int job);
+	void MakeArrowEffect(vector3d& sPos, unsigned int targetGid, float hideTime, int job);
 	void MakeArrowEffectPos(vector3d& sPos, vector3d& tPos, float hideTime);
-	void MakeMandraAttackEffect(unsigned long targetGid, int job, float hideTime);
+	void MakeMandraAttackEffect(unsigned int targetGid, int job, float hideTime);
 	void MakeCorpse(float cx, float cy, float cz, const char* actName, const char* sprName, int action, int motion, float roty);
 	void MakeCorpse3d(float cx, float cy, float cz, const char* rmaName, int curFrame, float roty, vector3d pivot, float modelZoom);
 	void MakeGrannyCorpse3d(float cx, float cy, float cz, float fRot, const char* Gr2Name);
-	void MakePotionEffect(int itemId, unsigned long aid);
-	void MakeNumEffect(vector3d& sPos, int number, unsigned long sprArgb, unsigned long masterGid);
-	CMsgEffect* MakeMissEffect(vector3d& sPos, unsigned long sprArgb, unsigned long masterGid);
-	CMsgEffect* MakeEmotion(vector3d& sPos, int emotionType, unsigned long masterGid);
-	CMsgEffect* MakeMsgEffect(MAKE_MSG_EFFECT_TYPE EffectMakeType, vector3d& sPos, unsigned long masterGid);
+	void MakePotionEffect(int itemId, unsigned int aid);
+	void MakeNumEffect(vector3d& sPos, int number, unsigned int sprArgb, unsigned int masterGid);
+	CMsgEffect* MakeMissEffect(vector3d& sPos, unsigned int sprArgb, unsigned int masterGid);
+	CMsgEffect* MakeEmotion(vector3d& sPos, int emotionType, unsigned int masterGid);
+	CMsgEffect* MakeMsgEffect(MAKE_MSG_EFFECT_TYPE EffectMakeType, vector3d& sPos, unsigned int masterGid);
 	void MakeEmblemWnd(CGameActor* theActor, int gdid, int emblemVer);
 	void MakeWordDisplayWnd(CGameActor* theActor);
 	void InvalidatePlayerGage();
@@ -263,7 +263,7 @@ public:
 	void DrawCompassOnMiniMap(const UVRECT& uvRect);
 	void DrawPKRanking();
 	void DrawPKZoneTime();
-	void DrawTime(unsigned long timeTick, int showType);
+	void DrawTime(unsigned int timeTick, int showType);
 	void DrawTimeAttack();
 	void ShowTime();
 	void AutoStatusUp();
@@ -280,7 +280,7 @@ public:
 	int GetNumDragItem() { return m_dragInfo.m_numDragItem; }
 	int GetDragItemIndex() { return m_dragInfo.m_dragItemIndex; }
 	ChatRoomInfo* GetLastChatroomInfo() { return &m_lastChatroomInfo; }
-	unsigned long GetAid(const char* cName);
+	unsigned int GetAid(const char* cName);
 	void ProcessTalkType(int val1, int val2);
 	void ProcessLockOnMouse();
 	void ProcessAssignAID();
@@ -289,9 +289,9 @@ public:
 	void ProcessMonsterPick(int& processType, CActorPickInfo* actorInfo, CGameActor* pc);
 	void WriteNameBalloonPosToReg();
 	void InitNameBalloonPosFromReg();
-	bool IsReqPickupItemNaid(unsigned long itemNaid);
-	void RemovePickupItemNaid(unsigned long itemNaid);
-	void AddPickupItemNaid(unsigned long itemNaid);
+	bool IsReqPickupItemNaid(unsigned int itemNaid);
+	void RemovePickupItemNaid(unsigned int itemNaid);
+	void AddPickupItemNaid(unsigned int itemNaid);
 	void ProcessPlayWave();
 	void ResetDrag();
 	void PrintDebugString();
@@ -299,10 +299,10 @@ public:
 	int IsPlayerDead() { return m_isPlayerDead; }
 	void SetWaitUseItemAck(int isAck) { m_waitingUseItemAck = isAck; }
 	void WriteRagPathToReg();
-	bool IsKillerAid(unsigned long itemNaid);
+	bool IsKillerAid(unsigned int itemNaid);
 	bool HaveSiegfriedItem();
 	bool HaveBookItem(int itemId);
-	void ProceedSkillToFriendList(unsigned long itemNaid);
+	void ProceedSkillToFriendList(unsigned int itemNaid);
 	void InsertScheduler();
 	const char* SetPaddingValue(char* pad, int len);
 	void Zc_Notify_Standentry(const char* modeName);
@@ -310,7 +310,7 @@ public:
 	void Zc_Refuse_Quit(const char* modeName);
 	void Zc_Notify_Move(const char* modeName);
 	void Zc_Notify_Playermove(const char* modeName);
-	void Zc_Notify_Act(unsigned long GID, unsigned long targetGID, unsigned long startTime, int attackMT, int attackedMT, int damage, short count, unsigned char action, int leftDamage);
+	void Zc_Notify_Act(unsigned int GID, unsigned int targetGID, unsigned int startTime, int attackMT, int attackedMT, int damage, short count, unsigned char action, int leftDamage);
 	void Zc_Notify_Playerchat(const char* modeName);
 	void Zc_Notify_Chat(const char* modeName);
 	void Zc_Notify_Time(const char* modeName);
@@ -662,8 +662,8 @@ public:
 	void WriteChat(char* txt);
 	void MakeChatFile();
 	void CloseChatFile();
-	void SetAutoFollowTime(unsigned long oldFollowTime, unsigned long oldDisappearTime);
-	void Inner_Zc_Item_Fall_Entry2(const unsigned long in_ITAID, const unsigned short in_ITID, const bool in_IsIdentified, const short in_count, const short in_xPos, const short in_yPos, const unsigned char in_subX, const unsigned char in_subY);
+	void SetAutoFollowTime(unsigned int oldFollowTime, unsigned int oldDisappearTime);
+	void Inner_Zc_Item_Fall_Entry2(const unsigned int in_ITAID, const unsigned short in_ITID, const bool in_IsIdentified, const short in_count, const short in_xPos, const short in_yPos, const unsigned char in_subX, const unsigned char in_subY);
 	void Zc_Item_Fall_Entry2(const char* modeName);
 	void Zc_Item_Fall_Entry2__m1(const char* modeName);
 	void Zc_Item_Fall_Entry2__m2(const char* modeName);
@@ -671,7 +671,7 @@ public:
 	void Zc_Item_Fall_Entry2__m4(const char* modeName);
 	void Zc_Item_Fall_Entry2__m5(const char* modeName);
 	void Zc_Item_Fall_Entry2__m6(const char* modeName);
-	void Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, const unsigned long in_GID, const short in_speed, const short in_bodyState, const short in_healthState, const int in_effectState, const short in_job, const short in_head, const int in_weapon, const short in_accessory, const unsigned long in_moveStartTime, const short in_accessory2, const short in_accessory3, const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned long in_GUID, const short in_GEmblemVer, const short in_honor, const int in_virtue, const bool in_isPKModeON, const unsigned char in_sex, const unsigned char* in_pMoveData, const unsigned char in_xSize, const unsigned char in_ySize, const short in_clevel);
+	void Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, const unsigned int in_GID, const short in_speed, const short in_bodyState, const short in_healthState, const int in_effectState, const short in_job, const short in_head, const int in_weapon, const short in_accessory, const unsigned int in_moveStartTime, const short in_accessory2, const short in_accessory3, const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned int in_GUID, const short in_GEmblemVer, const short in_honor, const int in_virtue, const bool in_isPKModeON, const unsigned char in_sex, const unsigned char* in_pMoveData, const unsigned char in_xSize, const unsigned char in_ySize, const short in_clevel);
 	void Zc_Notify_Moveentry5(const char* modeName);
 	void Zc_Notify_Moveentry5__m1(const char* modeName);
 	void Zc_Notify_Moveentry5__m2(const char* modeName);
@@ -679,7 +679,7 @@ public:
 	void Zc_Notify_Moveentry5__m4(const char* modeName);
 	void Zc_Notify_Moveentry5__m5(const char* modeName);
 	void Zc_Notify_Moveentry5__m6(const char* modeName);
-	void Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype, const unsigned long in_GID, const short in_speed, const short in_bodyState, const short in_healthState, const short in_effectState, const short in_job, const short in_head, const short in_weapon, const short in_accessory, const short in_shield, const short in_accessory2, const short in_accessory3, const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned long in_GUID, const short in_GEmblemVer, const short in_honor, const short in_virtue, const bool in_isPKModeON, const unsigned char in_sex, const unsigned char* in_PosDir, const unsigned char in_xSize, const unsigned char in_ySize, const unsigned char in_state, const short in_clevel);
+	void Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype, const unsigned int in_GID, const short in_speed, const short in_bodyState, const short in_healthState, const short in_effectState, const short in_job, const short in_head, const short in_weapon, const short in_accessory, const short in_shield, const short in_accessory2, const short in_accessory3, const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned int in_GUID, const short in_GEmblemVer, const short in_honor, const short in_virtue, const bool in_isPKModeON, const unsigned char in_sex, const unsigned char* in_PosDir, const unsigned char in_xSize, const unsigned char in_ySize, const unsigned char in_state, const short in_clevel);
 	void Zc_Notify_Npc_Standentry(const char* modeName);
 	void Zc_Notify_Npc_Standentry__m1(const char* modeName);
 	void Zc_Notify_Npc_Standentry__m2(const char* modeName);
@@ -697,64 +697,64 @@ private:
 	CWorld* m_world;
 	CView* m_view;
 	CMousePointer* m_mousePointer;
-	unsigned long m_leftBtnClickTick;
+	unsigned int m_leftBtnClickTick;
 	int m_oldMouseX;
 	int m_oldMouseY;
 	int m_rBtnClickX;
 	int m_rBtnClickY;
-	unsigned long m_lastPcGid;
-	unsigned long m_lastMonGid;
-	unsigned long m_lastLockOnMonGid;
+	unsigned int m_lastPcGid;
+	unsigned int m_lastMonGid;
+	unsigned int m_lastLockOnMonGid;
 	int m_isAutoMoveClickOn;
 	int m_isWaitingWhisperSetting;
 	int m_isWaitingEnterRoom;
 	int m_isWaitingAddExchangeItem;
-	unsigned long m_waitingWearEquipAck;
-	unsigned long m_waitingTakeoffEquipAck;
+	unsigned int m_waitingWearEquipAck;
+	unsigned int m_waitingTakeoffEquipAck;
 	int m_isReqUpgradeSkillLevel;
 	int m_exchangeItemCnt;
 	int m_isWaitingCancelExchangeItem;
 	std::string m_refuseWhisperName;
 	std::string m_streamFileName;
 	std::string m_lastExchangeCharacterName;
-	std::map<unsigned long, NamePair> m_actorNameList;
-	std::map<unsigned long, unsigned long> m_actorNameReqTimer;
-	std::map<unsigned long, NamePair> m_actorNameListByGID;
-	std::map<unsigned long, unsigned long> m_actorNameByGIDReqTimer;
-	std::map<unsigned long, int> m_guildMemberStatusCache;
-	std::map<unsigned long, CellPos> m_actorPosList;
-	std::list<unsigned long> m_pickupReqItemNaidList;
-	std::map<unsigned long, unsigned long> m_aidList;
-	std::map<unsigned long, ColorCellPos> m_partyPosList;
-	std::map<unsigned long, ColorCellPos> m_guildPosList;
-	std::map<unsigned long, ColorCellPos2> m_compassPosList;
+	std::map<unsigned int, NamePair> m_actorNameList;
+	std::map<unsigned int, unsigned int> m_actorNameReqTimer;
+	std::map<unsigned int, NamePair> m_actorNameListByGID;
+	std::map<unsigned int, unsigned int> m_actorNameByGIDReqTimer;
+	std::map<unsigned int, int> m_guildMemberStatusCache;
+	std::map<unsigned int, CellPos> m_actorPosList;
+	std::list<unsigned int> m_pickupReqItemNaidList;
+	std::map<unsigned int, unsigned int> m_aidList;
+	std::map<unsigned int, ColorCellPos> m_partyPosList;
+	std::map<unsigned int, ColorCellPos> m_guildPosList;
+	std::map<unsigned int, ColorCellPos2> m_compassPosList;
 	std::vector<int> m_menuIdList;
-	std::list<unsigned long> m_visibleTrapList;
-	std::list<unsigned long> m_emblemReqGdidQueue;
-	unsigned long m_lastEmblemReqTick;
-	unsigned long m_lastNameWaitingListTick;
+	std::list<unsigned int> m_visibleTrapList;
+	std::list<unsigned int> m_emblemReqGdidQueue;
+	unsigned int m_lastEmblemReqTick;
+	unsigned int m_lastNameWaitingListTick;
 	std::vector<PLAY_WAVE_INFO> m_playWaveList;
-	std::vector<unsigned long> m_KillerList;
+	std::vector<unsigned int> m_KillerList;
 	std::string m_lastWhisperMenuCharacterName;
 	std::string m_lastWhisper;
 	std::string m_lastWhisperName;
 	int m_noMove;
-	unsigned long m_noMoveStartTick;
+	unsigned int m_noMoveStartTick;
 	int m_isOnQuest;
 	int m_isPlayerDead;
 	int m_canRotateView;
 	int m_hasViewPoint;
 	short ViewPointData[9];
 	int m_receiveSyneRequestTime;
-	unsigned long m_syncRequestTime;
-	unsigned long m_usedCachesUnloadTick;
-	unsigned long m_reqEmotionTick;
-	unsigned long m_reqTickChatRoom;
-	unsigned long m_reqTickMerchantShop;
+	unsigned int m_syncRequestTime;
+	unsigned int m_usedCachesUnloadTick;
+	unsigned int m_reqEmotionTick;
+	unsigned int m_reqTickChatRoom;
+	unsigned int m_reqTickMerchantShop;
 	int m_isReqEmotion;
 	float m_fixedLongitude;
-	unsigned long m_lastCouplePacketAid;
-	unsigned long m_lastCouplePacketGid;
+	unsigned int m_lastCouplePacketAid;
+	unsigned int m_lastCouplePacketGid;
 	char m_CoupleName[24];
 	UINameBalloonText* m_nameBalloon;
 	UINameBalloonText* m_targetNameBalloon;
@@ -763,16 +763,16 @@ private:
 	UITransBalloonText* m_skillNameBalloon;
 	UITransBalloonText* m_skillMsgBalloon;
 	UITransBalloonText* m_skillUsedMsgBalloon;
-	unsigned long m_skillUsedTick;
-	unsigned long m_broadCastTick;
+	unsigned int m_skillUsedTick;
+	unsigned int m_broadCastTick;
 	int m_nameDisplayed;
 	int m_nameDisplayed2;
 	int m_waitingUseItemAck;
 	int m_waitingItemThrowAck;
 	int m_waitingReqStatusAck;
-	unsigned long m_nameActorAid;
-	unsigned long m_lastNaid;
-	unsigned long m_menuTargetAID;
+	unsigned int m_nameActorAid;
+	unsigned int m_lastNaid;
+	unsigned int m_menuTargetAID;
 	int m_nameBalloonWidth;
 	int m_nameBalloonHeight;
 	int m_dragType;
@@ -786,14 +786,14 @@ private:
 	int m_isCheckGndAlpha;
 	int m_lastCardItemIndex;
 	int m_SkillBallonSkillId;
-	unsigned long m_nameBalloonType;
-	unsigned long m_showTimeStartTick;
+	unsigned int m_nameBalloonType;
+	unsigned int m_showTimeStartTick;
 	int m_recordChatNum;
 	std::string m_recordChat[11];
-	unsigned long m_recordChatTime[11];
+	unsigned int m_recordChatTime[11];
 	int m_strikeNum;
-	unsigned long m_strikeTime[3];
-	unsigned long m_doritime[6];
+	unsigned int m_strikeTime[3];
+	unsigned int m_doritime[6];
 	int m_isCtrlLock;
 	int m_isUseYgdrasil;
 	int m_isMakeYgdrasil;
@@ -812,7 +812,7 @@ extern	class CPathFinder	g_pathFinder;
 struct RoomMemberData {
 public:
 	std::string name;
-	unsigned long role;
+	unsigned int role;
 };
 
 #endif

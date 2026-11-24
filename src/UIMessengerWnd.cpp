@@ -726,7 +726,7 @@ int UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, int val1, int va
 			std::list<FRIEND_INFO>::iterator it = m_itemList.begin();
 			while (it != m_itemList.end()) {
 				if ((*it).isValid && !(*it).state) {
-					if ((*it).AID == (unsigned long)val2) {
+					if ((*it).AID == (unsigned int)val2) {
 						CGameActor* actor;
 						int hp;
 						int maxHp;
@@ -763,7 +763,7 @@ int UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, int val1, int va
 			std::list<FRIEND_INFO>::iterator it = m_itemList.begin();
 			while (it != m_itemList.end()) {
 				if ((*it).isValid && !(*it).state) {
-					if ((*it).AID == (unsigned long)val2) {
+					if ((*it).AID == (unsigned int)val2) {
 						m_gageList[itemCount]->Move(-100, -100);
 						Invalidate();
 						return 1;

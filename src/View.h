@@ -82,8 +82,8 @@ protected:
 	float m_latitudeQuake;
 	unsigned char m_isFPSmode;
 	int m_isQuake;
-	unsigned long m_quakeStartTick;
-	unsigned long m_QuakeTime;
+	unsigned int m_quakeStartTick;
+	unsigned int m_QuakeTime;
 	ViewInfo3d m_cur;
 	ViewInfo3d m_dest;
 	ViewInfo3d m_backupCur;

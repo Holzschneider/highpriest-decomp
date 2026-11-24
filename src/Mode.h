@@ -330,11 +330,11 @@ public:
 	void ScreenShot();
 	void SetCursorAction(int state);
 	void RunFadeOut(int state);
-	void DrawSprite(int x, int y, CActRes* act, CSprRes* spr, int actId, int motId, float zoom, float angle, unsigned long color);
-	void DrawTexture(tagRECT* rect, int angle, float oow, unsigned long argb, CTexture* tex, UVRECT uvRect = UVRECT(0,0,1,1));
+	void DrawSprite(int x, int y, CActRes* act, CSprRes* spr, int actId, int motId, float zoom, float angle, unsigned int color);
+	void DrawTexture(tagRECT* rect, int angle, float oow, unsigned int argb, CTexture* tex, UVRECT uvRect = UVRECT(0,0,1,1));
 	void DrawMouseCursor();
 	void DrawBattleMode();
-	void MakeHelpBalloon(const char* helpMsg, int x, int y, unsigned long fntColor);
+	void MakeHelpBalloon(const char* helpMsg, int x, int y, unsigned int fntColor);
 	void ProcessHelpBalloon();
 	void ProcessFadeIn();
 	void ProcessKeyBoard();
@@ -360,8 +360,8 @@ protected:
 	int m_loopCond;
 	int m_isConnected;
 	UITransBalloonText* m_helpBalloon;
-	unsigned long m_helpBalloonTick;
-	unsigned long m_mouseAnimStartTick;
+	unsigned int m_helpBalloonTick;
+	unsigned int m_mouseAnimStartTick;
 	int m_isMouseLockOn;
 	int m_screenShotNow;
 	vector2d m_mouseSnapDiff;

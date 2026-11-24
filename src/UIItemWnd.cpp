@@ -36,7 +36,7 @@ extern char         g_isGravityID;
 
 int           g_isSkillEntry  = 0;
 char          g_SkillEntryNum = 0;
-unsigned long g_SkillEntryTime = 0;
+unsigned int g_SkillEntryTime = 0;
 int           g_EntrySKID     = 0;
 
 UIItemDropCntWnd::UIItemDropCntWnd() {}
@@ -540,9 +540,9 @@ void UIItemBaseWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, (m_w - 60) % 32, m_h - 38, RGB(rr, gg, bb));
 		DrawBox(20, ((m_h - 38) / 32) * 32 + 17, m_w - 24, (m_h - 38) % 32, RGB(rr, gg, bb));
@@ -955,9 +955,9 @@ void UIItemShopWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, (m_w - 60) % 32, m_h - m_barHeight - 17, RGB(rr, gg, bb));
 		DrawBox(20, ((m_h - m_barHeight - 17) / 32) * 32 + 17, m_w - 24, (m_h - m_barHeight - 17) % 32, RGB(rr, gg, bb));
@@ -989,9 +989,9 @@ void UIItemShopWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int itemCols = (m_w - 40) / 32;
 		int itemRows = (m_h - m_barHeight2 - m_barHeight - 17) / 32;
 		for (int itemY = 0; itemY < itemRows; ++itemY)
@@ -1011,9 +1011,9 @@ void UIItemShopWnd::OnDraw()
 		char priceText[64];
 		char moneyTxt[64];
 		char tmp[5];
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int drawCount = 0;
 		int itemCount = 0;
 		std::list<ITEM_INFO>::iterator it = m_itemList.begin();
@@ -1589,9 +1589,9 @@ void UIMerchantItemShopWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, (m_w - 60) % 32, m_h - 38, RGB(rr, gg, bb));
 		DrawBox(20, ((m_h - 38) / 32) * 32 + 17, m_w - 24, (m_h - 38) % 32, RGB(rr, gg, bb));
@@ -1623,9 +1623,9 @@ void UIMerchantItemShopWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int itemCols = (m_w - 40) / 32;
 		int itemRows = (m_h - 38) / 32;
 		for (int itemY = 0; itemY < itemRows; ++itemY)
@@ -1670,9 +1670,9 @@ void UIMerchantItemShopWnd::OnDraw()
 		int itemY = (drawCount / m_itemHorzNum) * 32 + 17;
 
 		if (m_curItem == itemCount) {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 			DrawBox(itemX + 32, itemY + 2, 191, 28, RGB(rr, gg, bb));
 		}
@@ -2115,7 +2115,7 @@ void UIItemPurchaseWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 
 		DrawBox(20, 17,
@@ -2172,7 +2172,7 @@ void UIItemPurchaseWnd::OnDraw()
 			}
 		}
 
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(72, 17, itemCols * 32 - 32, itemRows * 32, RGB(rr, gg, bb));
 	}
@@ -2202,9 +2202,9 @@ void UIItemPurchaseWnd::OnDraw()
 			int itemY = (drawCount / m_itemHorzNum) * 32 + 17;
 
 			if (m_curItem == itemCount) {
-				unsigned long rr;
-				unsigned long gg;
-				unsigned long bb;
+				unsigned int rr;
+				unsigned int gg;
+				unsigned int bb;
 				g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 				DrawBox(itemX + 32, itemY + 2, 191, 28, RGB(rr, gg, bb));
 			}
@@ -2648,9 +2648,9 @@ void UIMerchantItemPurchaseWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, (m_w - 60) % 32, m_h - 38, RGB(rr, gg, bb));
 		DrawBox(20, ((m_h - 38) / 32) * 32 + 17, m_w - 24, (m_h - 38) % 32, RGB(rr, gg, bb));
@@ -2682,9 +2682,9 @@ void UIMerchantItemPurchaseWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int itemCols = (m_w - 40) / 32;
 		int itemRows = (m_h - 38) / 32;
 		for (int hLoop = 0; hLoop < itemRows; ++hLoop) {
@@ -2721,9 +2721,9 @@ void UIMerchantItemPurchaseWnd::OnDraw()
 		int itemY = (drawCount / m_itemHorzNum) * 32 + 17;
 
 		if (m_curItem == itemCount) {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 			DrawBox(itemX + 32, itemY + 2, 191, 28, RGB(rr, gg, bb));
 		}
@@ -3171,7 +3171,7 @@ void UIItemSellWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 
 		DrawBox(20, 17,
@@ -3217,7 +3217,7 @@ void UIItemSellWnd::OnDraw()
 		}
 
 
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(72, 17, itemCols * 32 - 32, itemRows * 32, RGB(rr, gg, bb));
 	}
@@ -3247,9 +3247,9 @@ void UIItemSellWnd::OnDraw()
 		int itemY = (drawCount / m_itemHorzNum) * 32 + 17;
 
 		if (m_curItem == itemCount) {
-			unsigned long rr;
-			unsigned long gg;
-			unsigned long bb;
+			unsigned int rr;
+			unsigned int gg;
+			unsigned int bb;
 			g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 			DrawBox(itemX + 32, itemY + 2, 191, 28, RGB(rr, gg, bb));
 		}
@@ -3963,9 +3963,9 @@ void UIItemWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17, (m_w - 60) % 32, m_h - 38, RGB(rr, gg, bb));
 		DrawBox(20, ((m_h - 38) / 32) * 32 + 17, m_w - 24, (m_h - 38) % 32, RGB(rr, gg, bb));
@@ -4558,9 +4558,9 @@ void UIQuestWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(20, 17,
 			(m_w - 60) % 32, m_h - 38,
@@ -4575,7 +4575,7 @@ void UIQuestWnd::OnDraw()
 	int itemRows = (m_h - 38) / 32;
 	for (int vLoop = 0; vLoop < itemRows; ++vLoop)
 	{
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		for (int wLoop = 0; wLoop < hLoop; ++wLoop)
 			DrawBox(wLoop * 32 + 40, 17,
@@ -5120,7 +5120,7 @@ void UIItemStoreWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr, gg, bb;
+		unsigned int rr, gg, bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 
 		DrawBox(20, 17,
@@ -5157,9 +5157,9 @@ void UIItemStoreWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int itemCols = (m_w - 40) / 32;
 		int itemRows = (m_h - 38) / 32;
 		for (int hLoop = 0; hLoop < itemRows; ++hLoop)
@@ -5725,9 +5725,9 @@ void UISkillListWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		int fillWidth = (m_w - 60) % 32;
 		DrawBox(20, 17, fillWidth, m_h - 38, RGB(rr, gg, bb));
@@ -5762,9 +5762,9 @@ void UISkillListWnd::OnDraw()
 	}
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		int itemCols = (m_w - 40) / 32;
 		int itemRows = (m_h - 38) / 32;
 		for (int frameLoop = 0; frameLoop < itemRows; ++frameLoop) {
@@ -5802,9 +5802,9 @@ void UISkillListWnd::OnDraw()
 			int itemY = (drawCount / m_itemHorzNum) * 32 + 17;
 
 			if (m_curItem == itemCount) {
-				unsigned long rr;
-				unsigned long gg;
-				unsigned long bb;
+				unsigned int rr;
+				unsigned int gg;
+				unsigned int bb;
 				g_skinMgr.GetColorChipColor(6, 2, rr, gg, bb);
 				if (it->level == 0)
 					g_skinMgr.GetColorChipColor(10, 2, rr, gg, bb);
@@ -6572,9 +6572,9 @@ void UIMerchantShopMakeWnd::OnDraw()
 	DrawBitmap(3, 3, bmp, true);
 
 	{
-		unsigned long rr;
-		unsigned long gg;
-		unsigned long bb;
+		unsigned int rr;
+		unsigned int gg;
+		unsigned int bb;
 		g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
 		DrawBox(0, 17, m_w, m_h - 38, RGB(rr, gg, bb));
 	}

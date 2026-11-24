@@ -14,7 +14,7 @@ public:
 	virtual void Reset();
 	CBitmapRes* GetBitmap() { return &m_bitmap; }
 private:
-	bool UnCompressEmblem(unsigned char* bitmap, unsigned long& bitmapSize, unsigned char* emblem, int emSize);
+	bool UnCompressEmblem(unsigned char* bitmap, unsigned int& bitmapSize, unsigned char* emblem, int emSize);
 	virtual void OnLoadError(const char* fName) {}
 private:
 	CBitmapRes m_bitmap;

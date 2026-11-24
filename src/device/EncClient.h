@@ -10,7 +10,7 @@ public:
 
 struct coder_data {
 public:
-	unsigned long temp[65536];
+	unsigned int temp[65536];
 	unsigned char func[4096];
 };
 

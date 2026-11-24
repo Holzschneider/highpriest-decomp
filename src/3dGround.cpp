@@ -180,10 +180,10 @@ void C3dGround::SetWaterInfo(float waterLevel, int textureType, int textureAnimS
 	m_waveHeight   = height;
 }
 
-void C3dGround::ConvertToCellCoor(float x, float z, long &cx, long &cy)
+void C3dGround::ConvertToCellCoor(float x, float z, int &cx, int &cy)
 {
-	cx = (long)floor(x / m_zoom) + m_width / 2;
-	cy = (long)floor(z / m_zoom) + m_height / 2;
+	cx = (int)floor(x / m_zoom) + m_width / 2;
+	cy = (int)floor(z / m_zoom) + m_height / 2;
 }
 
 CTexture* C3dGround::GetWaterTexture()
@@ -226,7 +226,7 @@ void C3dGround::UpdateWater()
 }
 
 
-void C3dGround::RenderGroundTile(const matrix& wtm, int attrX, int attrY, unsigned long color, CTexture* tex, vector2d* uv)
+void C3dGround::RenderGroundTile(const matrix& wtm, int attrX, int attrY, unsigned int color, CTexture* tex, vector2d* uv)
 {
 	vector3d nwvert[4];
 
@@ -1229,7 +1229,7 @@ void C3dGround15::CalcLmIntensityFloatRGBAll()
 
 void C3dGround15::GetBrightObjVal(vector3d v, int *rgb)
 {
-	long x, y;
+	int x, y;
 	ConvertToCellCoor(v.x, v.z, x, y);
 	if (x < 0 || y < 0 || x >= m_width || y >= m_height) {
 		rgb[0] = rgb[1] = rgb[2] = 255;

@@ -61,9 +61,9 @@ enum {
 #pragma pack(1)
 struct BILLING_INFO {
 	char dummy1;
-	unsigned long code;
-	unsigned long time1;
-	unsigned long time2;
+	unsigned int code;
+	unsigned int time1;
+	unsigned int time2;
 	char dummy2[7];
 };
 #pragma pack(pop,billing)
@@ -132,12 +132,12 @@ private:
 	int m_numServer;
 	int m_serverSelected;
 	int m_numChar;
-	unsigned long m_subModeStartTime;
+	unsigned int m_subModeStartTime;
 	SERVER_ADDR m_serverInfo[100];
 	CHARACTER_INFO m_charInfo[12];
 	std::string m_wallPaperBmpName;
 	BILLING_INFO m_billingInfo;
-	unsigned long m_syncRequestTime;
+	unsigned int m_syncRequestTime;
 	UIWaitWnd* m_wndWait;
 	std::vector<accountInfo> m_accountInfo;
 	std::vector<accountInfo> m_accountInfo2;
@@ -170,7 +170,7 @@ public:
 	std::string address;
 	std::string port;
 	int type;
-	unsigned long version;
+	unsigned int version;
 };
 
 #endif

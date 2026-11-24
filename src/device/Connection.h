@@ -25,7 +25,7 @@ public:
 	int Recv(char* buf, int size, bool mustRecv);
 	void ResetQueue();
 	void SetBlock(bool bBlock);
-	void SetDelay(unsigned long dwTime) { m_dwTime = timeGetTime() + dwTime; }
+	void SetDelay(unsigned int dwTime) { m_dwTime = timeGetTime() + dwTime; }
 protected:
 	bool OnSend();
 	bool OnRecv();
@@ -45,7 +45,7 @@ protected:
 	unsigned int m_socket;
 	sockaddr_in m_addr;
 	unsigned char m_bBlock;
-	unsigned long m_dwTime;
+	unsigned int m_dwTime;
 	CPacketQueue m_sendQueue;
 	CPacketQueue m_recvQueue;
 	CPacketQueue m_blockQueue;

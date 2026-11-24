@@ -15,13 +15,13 @@ unsigned char pbPubKey[] = {
     0xfb, 0x23, 0xf7, 0x72, 0xcd, 0xe7, 0xd0, 0x6f,
     0x6a, 0x8e, 0x96, 0xe3
 };
-unsigned long dwPubKeyLen = sizeof(pbPubKey);
+unsigned int dwPubKeyLen = sizeof(pbPubKey);
 
 
-unsigned long g_GGVerRand0 = 0xffffffffUL;
-unsigned long g_GGVerRand1 = 1;
-unsigned long g_GGVerRand2 = 2;
-unsigned long g_GGVerRand3 = 3;
+unsigned int g_GGVerRand0 = 0xffffffffUL;
+unsigned int g_GGVerRand1 = 1;
+unsigned int g_GGVerRand2 = 2;
+unsigned int g_GGVerRand3 = 3;
 
 CFileAuthClient::CFileAuthClient() {
     m_signature = 0;
@@ -248,7 +248,7 @@ bool CFileAuthClient::Auth(const char* fileName, bool checkName) {
 }
 
 bool CFileAuthClient::DecryptMem(const char* fileName, char* output,
-                                 unsigned long outputSize,
+                                 unsigned int outputSize,
                                  const char* password) {
     HANDLE file = CreateFileA(fileName, GENERIC_READ, 3, 0, OPEN_EXISTING,
                               FILE_ATTRIBUTE_NORMAL, 0);
@@ -353,7 +353,7 @@ bool CFileAuthClient::DecryptMem(const char* fileName, char* output,
         }
     }
 
-    unsigned long payloadSize = m_payloadSize;
+    unsigned int payloadSize = m_payloadSize;
     if (outputSize > payloadSize) {
         outputSize = payloadSize;
     }
@@ -368,7 +368,7 @@ bool CFileAuthClient::DecryptMem(const char* fileName, char* output,
 }
 
 bool CFileAuthClient::DecryptMem2(const char* fileName, char* output,
-                                  unsigned long outputSize,
+                                  unsigned int outputSize,
                                   const char* password) {
     HANDLE file = CreateFileA(fileName, GENERIC_READ, 3, 0, OPEN_EXISTING,
                               FILE_ATTRIBUTE_NORMAL, 0);
@@ -461,13 +461,13 @@ bool CFileAuthClient::DecryptMem2(const char* fileName, char* output,
         return false;
     }
 
-    unsigned long dataSize = m_payloadSize;
+    unsigned int dataSize = m_payloadSize;
     if (!DecryptRC4(m_buffer, dataSize)) {
         m_lastError = 0x58;
         return false;
     }
 
-    unsigned long payloadSize = m_payloadSize;
+    unsigned int payloadSize = m_payloadSize;
     if (outputSize > payloadSize) {
         outputSize = payloadSize;
     }
@@ -488,10 +488,10 @@ struct rc4_key_st {
 };
 
 void RC4_set_key(rc4_key_st* key, int len, unsigned char* data);
-void RC4(rc4_key_st* key, unsigned long len, unsigned char* indata,
+void RC4(rc4_key_st* key, unsigned int len, unsigned char* indata,
          unsigned char* outdata);
 
-bool CFileAuthClient::DecryptRC4(unsigned char* data, unsigned long size) {
+bool CFileAuthClient::DecryptRC4(unsigned char* data, unsigned int size) {
     rc4_key_st key;
     unsigned char keyBytes[16];
     DWORD keySize = sizeof(keyBytes);

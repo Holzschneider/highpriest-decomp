@@ -55,7 +55,7 @@ const int HEADER_ANIM_FRAME_NUM = 9;
 const int JOBMINUS = 3950;
 const int Layer_Weapon1 = 5;
 const int Layer_Weapon2 = 6;
-static unsigned long tmpShadowDotBuf[35 * 35];
+static unsigned int tmpShadowDotBuf[35 * 35];
 #ifndef PATH_HUMAN
 #define PATH_HUMAN "\xc0\xce\xb0\xa3\xc1\xb7\\"
 #endif
@@ -4126,7 +4126,7 @@ void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrann
 	float oow;
 	matrix revView;
 	unsigned char isHairMesh;
-	unsigned long vertOffs;
+	unsigned int vertOffs;
 	int pFaceArr;
 	RPMesh** rpArr;
 	granny_world_pose* pWorldPose;
@@ -4341,7 +4341,7 @@ void CGrannyPc::RenderBak(matrix& vtm, int nPartMeshIdx, C3dGrannyModelRes* pMod
 		unsigned short* indices = (unsigned short*)m_pFaceArr[nPartMeshIdx][i];
 		RPMesh* rp = rpArr[i];
 		int nIndexNo = m_nIndexNo[nPartMeshIdx][i];
-		unsigned long vertOffs = 0;
+		unsigned int vertOffs = 0;
 		for (int j = 0; j < nIndexNo; j++) {
 			for (int k = 0; k < 3; k++) {
 				tlvertex3d* verts = &rp->verts[vertOffs];

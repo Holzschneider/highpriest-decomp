@@ -67,4 +67,4 @@ class	CMssVariables {
 extern	CMssVariables	g_mssVar;
 
 #endif
-extern unsigned long g_soundMode;
+extern unsigned int g_soundMode;

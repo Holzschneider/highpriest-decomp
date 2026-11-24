@@ -2062,7 +2062,7 @@ void CGameMode::Zc_Notify_Playermove(char const *buf)
 }
 
 
-void CGameMode::Zc_Notify_Act(unsigned long GID, unsigned long targetGID, unsigned long startTime, int attackMT, int attackedMT, int damage, short count, unsigned char action, int leftDamage)
+void CGameMode::Zc_Notify_Act(unsigned int GID, unsigned int targetGID, unsigned int startTime, int attackMT, int attackedMT, int damage, short count, unsigned char action, int leftDamage)
 {
 	if (damage == -30000)
 		return;
@@ -2489,7 +2489,7 @@ void CGameMode::Zc_Broadcast(char const *buf)
 	chatMsg[msgLen] = 0;
 	int len = strlen(chatMsg);
 
-	unsigned long chatColor = RGB(255, 255, 0);
+	unsigned int chatColor = RGB(255, 255, 0);
 	std::string wMsg = chatMsg;
 	memcpy(temp3, chatMsg, (strlen(chatMsg) > 4) ? 4 : strlen(chatMsg));
 	temp3[4] = 0;
@@ -2504,10 +2504,10 @@ void CGameMode::Zc_Broadcast(char const *buf)
 		memcpy(temp, chatMsg + 4, 6);
 		temp[6] = 0;
 
-		unsigned long value;
+		unsigned int value;
 		sscanf(temp, "%lx", &value);
 
-		unsigned long colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
+		unsigned int colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
 
 		memcpy(temp2, chatMsg + 10, len - 10);
 		temp2[len - 10] = 0;
@@ -2529,10 +2529,10 @@ void CGameMode::Zc_Broadcast(char const *buf)
 		memcpy(temp, chatMsg + 4 + NAME_LENGTH, 6);
 		temp[6] = 0;
 
-		unsigned long value;
+		unsigned int value;
 		sscanf(temp, "%lx", &value);
 
-		unsigned long colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
+		unsigned int colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
 
 		memcpy(temp2, chatMsg + 4 + NAME_LENGTH + 6, msgLen - 4 - NAME_LENGTH - 6);
 		temp2[msgLen - 4 - NAME_LENGTH - 6] = 0;
@@ -10113,7 +10113,7 @@ void CGameMode::Zc_Reply_RemainTime(char const *buf)
 {
 	PACKET_ZC_REPLY_REMAINTIME *p = (PACKET_ZC_REPLY_REMAINTIME *)buf;
 	char buffer[256];
-	long currentTime;
+	int currentTime;
 
 	if (g_serviceType == ServiceChina) {
 		switch (p->Result) {
@@ -10130,7 +10130,7 @@ void CGameMode::Zc_Reply_RemainTime(char const *buf)
 	} else {
 		time(&currentTime);
 		localtime(&currentTime);
-		tm *expirationTime = localtime((long *)&p->ExpirationDate);
+		tm *expirationTime = localtime((int *)&p->ExpirationDate);
 
 		switch (p->Result) {
 		case 100:
@@ -11708,7 +11708,7 @@ void CGameMode::Zc_Notify_Moveentry2(char const *buf)
 		}
 
 		if (theActor->GetGroupMemberAndVisible()) {
-			std::map<unsigned long, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
+			std::map<unsigned int, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
 			if (it != m_partyPosList.end()) {
 				it->second.x = ms.dx;
 				it->second.y = ms.dy;
@@ -11819,7 +11819,7 @@ void CGameMode::Zc_Notify_Moveentry3(char const *buf)
 		}
 
 		if (theActor->GetGroupMemberAndVisible()) {
-			std::map<unsigned long, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
+			std::map<unsigned int, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
 			if (it != m_partyPosList.end()) {
 				it->second.x = ms.dx;
 				it->second.y = ms.dy;
@@ -11936,7 +11936,7 @@ void CGameMode::Zc_Notify_Moveentry4(char const *buf)
 		}
 
 		if (theActor->GetGroupMemberAndVisible()) {
-			std::map<unsigned long, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
+			std::map<unsigned int, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
 			if (it != m_partyPosList.end()) {
 				it->second.x = ms.dx;
 				it->second.y = ms.dy;
@@ -12445,7 +12445,7 @@ void	CGameMode :: Zc_Notify_CrazyKiller (const char *buf)
 	}
 }
 
-extern void Auth2(unsigned long* p);
+extern void Auth2(unsigned int* p);
 void	CGameMode :: Zc_Game_Guard(const char *buf)
 {
 	PACKET_ZC_GAME_GUARD *	p = (PACKET_ZC_GAME_GUARD *)buf;
@@ -14134,7 +14134,7 @@ inline void ReassemblyCertify(PACKET_CZ_REASSEMBLY_IDENTITY& p)
 inline void CGameMode::Zc_Notify_Moveentry5(const char *buf)
 {
 	PACKET_ZC_NOTIFY_MOVEENTRY5 *	p = (PACKET_ZC_NOTIFY_MOVEENTRY5 *)buf;
-	*(unsigned long *)p->moveData ^= p->GID;
+	*(unsigned int *)p->moveData ^= p->GID;
 	Inner_Zc_Notify_Moveentry5(p->objectType, p->GID, p->speed, p->bodyState, p->healthState,
 		p->effectState, p->job, p->head, p->weapon, p->accessory, p->moveStartTime,
 		p->accessory2, p->accessory3, p->headpalette, p->bodypalette, p->headDir,
@@ -14145,7 +14145,7 @@ inline void CGameMode::Zc_Notify_Moveentry5(const char *buf)
 inline void CGameMode::Zc_Notify_Moveentry5__m1(const char *buf)
 {
 	PACKET_ZC_NOTIFY_MOVEENTRY5 *	p = (PACKET_ZC_NOTIFY_MOVEENTRY5 *)buf;
-	*(unsigned long *)p->moveData ^= p->GID;
+	*(unsigned int *)p->moveData ^= p->GID;
 	Inner_Zc_Notify_Moveentry5(p->objectType, p->GID, p->speed, p->bodyState, p->healthState,
 		p->effectState, p->job, p->head, p->weapon, p->accessory, p->moveStartTime,
 		p->accessory2, p->accessory3, p->headpalette, p->bodypalette, p->headDir,
@@ -14156,7 +14156,7 @@ inline void CGameMode::Zc_Notify_Moveentry5__m1(const char *buf)
 inline void CGameMode::Zc_Notify_Moveentry5__m2(const char *buf)
 {
 	PACKET_ZC_NOTIFY_MOVEENTRY5 *	p = (PACKET_ZC_NOTIFY_MOVEENTRY5 *)buf;
-	*(unsigned long *)p->moveData ^= p->GID;
+	*(unsigned int *)p->moveData ^= p->GID;
 	Inner_Zc_Notify_Moveentry5(p->objectType, p->GID, p->speed, p->bodyState, p->healthState,
 		p->effectState, p->job, p->head, p->weapon, p->accessory, p->moveStartTime,
 		p->accessory2, p->accessory3, p->headpalette, p->bodypalette, p->headDir,
@@ -15544,10 +15544,10 @@ void	C3dAttr :: SetCellInfo(int Type, int Cellx, int Celly)
 	cell->flag = Type;
 }
 
-void CGameMode::Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype, const unsigned long in_GID, const short in_speed,
+void CGameMode::Inner_Zc_Notify_Npc_Standentry(const unsigned char in_objecttype, const unsigned int in_GID, const short in_speed,
 	const short in_bodyState, const short in_healthState, const short in_effectState, const short in_job, const short in_head,
 	const short in_weapon, const short in_accessory, const short in_shield, const short in_accessory2, const short in_accessory3,
-	const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned long in_GUID,
+	const short in_headpalette, const short in_bodypalette, const short in_headDir, const unsigned int in_GUID,
 	const short in_GEmblemVer, const short in_honor, const short in_virtue, const bool in_isPKModeON, const unsigned char in_sex,
 	const unsigned char *in_PosDir, const unsigned char in_xSize, const unsigned char in_ySize, const unsigned char in_state,
 	const short in_clevel)
@@ -15674,7 +15674,7 @@ void CGameMode::Zc_Notify_Npc_Standentry(const char *buf)
 		p->state, p->clevel);
 }
 
-void CGameMode::Inner_Zc_Item_Fall_Entry2(const unsigned long in_ITAID, const unsigned short in_ITID, const bool in_IsIdentified, const short in_count, const short in_xPos, const short in_yPos, const unsigned char in_subX, const unsigned char in_subY)
+void CGameMode::Inner_Zc_Item_Fall_Entry2(const unsigned int in_ITAID, const unsigned short in_ITID, const bool in_IsIdentified, const short in_count, const short in_xPos, const short in_yPos, const unsigned char in_subX, const unsigned char in_subY)
 {
 	ITEMSTANDENTRYSTRUCT s;
 	memset(&s, 0, sizeof(s));
@@ -15728,11 +15728,11 @@ void	CGameMode :: Zc_Item_Fall_Entry2__m5(const char *buf)
 	Inner_Zc_Item_Fall_Entry2(p->ITAID, p->ITID, p->IsIdentified, p->count, p->xPos, p->yPos, p->subX, p->subY);
 }
 
-void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, const unsigned long in_GID, const short in_speed,
+void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, const unsigned int in_GID, const short in_speed,
 	const short in_bodyState, const short in_healthState, const int in_effectState, const short in_job, const short in_head,
-	const int in_weapon, const short in_accessory, const unsigned long in_moveStartTime, const short in_accessory2,
+	const int in_weapon, const short in_accessory, const unsigned int in_moveStartTime, const short in_accessory2,
 	const short in_accessory3, const short in_headpalette, const short in_bodypalette, const short in_headDir,
-	const unsigned long in_GUID, const short in_GEmblemVer, const short in_honor, const int in_virtue,
+	const unsigned int in_GUID, const short in_GEmblemVer, const short in_honor, const int in_virtue,
 	const bool in_isPKModeON, const unsigned char in_sex, const unsigned char *in_pMoveData, const unsigned char in_xSize,
 	const unsigned char in_ySize, const short in_clevel)
 {
@@ -15785,7 +15785,7 @@ void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, co
 		}
 
 		if (theActor->GetGroupMemberAndVisible()) {
-			std::map<unsigned long, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
+			std::map<unsigned int, ColorCellPos>::iterator it = m_partyPosList.find(theActor->GetGID());
 			if (it != m_partyPosList.end()) {
 				it->second.x = ms.dx;
 				it->second.y = ms.dy;
@@ -15848,7 +15848,7 @@ void CGameMode::Inner_Zc_Notify_Moveentry5(const unsigned char in_objecttype, co
 void CGameMode::Zc_Notify_Moveentry5__m4(const char *buf)
 {
 	PACKET_ZC_NOTIFY_MOVEENTRY5 *	p = (PACKET_ZC_NOTIFY_MOVEENTRY5 *)buf;
-	*(unsigned long *)p->moveData ^= p->GID;
+	*(unsigned int *)p->moveData ^= p->GID;
 	Inner_Zc_Notify_Moveentry5(p->objectType, p->GID, p->speed, p->bodyState, p->healthState,
 		p->effectState, p->job, p->head, p->weapon, p->accessory, p->moveStartTime,
 		p->accessory2, p->accessory3, p->headpalette, p->bodypalette, p->headDir,
@@ -15859,7 +15859,7 @@ void CGameMode::Zc_Notify_Moveentry5__m4(const char *buf)
 void	CGameMode :: Zc_Notify_Moveentry5__m6(const char *buf)
 {
 	PACKET_ZC_NOTIFY_MOVEENTRY5 *	p = (PACKET_ZC_NOTIFY_MOVEENTRY5 *)buf;
-	*(unsigned long *)p->moveData ^= p->GID;
+	*(unsigned int *)p->moveData ^= p->GID;
 	Inner_Zc_Notify_Moveentry5(p->objectType, p->GID, p->speed, p->bodyState, p->healthState,
 		p->effectState, p->job, p->head, p->weapon, p->accessory, p->moveStartTime,
 		p->accessory2, p->accessory3, p->headpalette, p->bodypalette, p->headDir,
