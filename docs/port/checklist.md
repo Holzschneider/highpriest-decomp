@@ -70,8 +70,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M5.1 Pointer through the DirectInput adapter | compat | M4.1, M4.3 |
-| [ ] | M5.2 Keyboard with the Mac-adapted defaults; clipboard | compat | M4.1, M4.3 |
+| [x] 6d49fd8 | M5.1 Pointer through the DirectInput adapter | compat | M4.1, M4.3 |
+| [x] 6d49fd8 | M5.2 Keyboard with the Mac-adapted defaults; clipboard | compat | M4.1, M4.3 |
 | [ ] | M5.3 Edit control for account and password; Keychain | src | M5.2 |
 | [ ] | M5.4 Character selection and creation screens | src | M5.3 |
 | [ ] | M5.5 Launch arguments for server, account, character | src | M5.4 |

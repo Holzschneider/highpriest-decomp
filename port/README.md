@@ -90,6 +90,16 @@ cmake -S port/native/<module> -B build/native/<module> -G Ninja && cmake --build
 | [`formats/granny`](native/formats/granny/README.md) | Granny 2 model reader: sections (Oodle0), type tree, skeleton, meshes, materials, curves | game folder |
 | [`formats/bink`](native/formats/bink/README.md) | Bink 1 movie decoder, video and audio | game folder; public sample movies under the test folder |
 
+## Adapters
+
+The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/<area>` maps the Windows names the client calls onto a native module and has its own test program (built and run by `cmake --build --preset debug --target check`; areas are listed in the root `CMakeLists.txt`).
+
+| Area | Windows names | On |
+|---|---|---|
+| [`gdi`](compat/gdi/README.md) | gdi32: memory DCs, DIB sections, fonts, text, the triangle fill | `text` |
+| [`miles`](compat/miles/README.md) | the 46 `AIL_*` functions of Miles | `audio` |
+| [`input`](compat/input/README.md) | user32 window, message pump, keyboard state, clipboard; DirectInput 7 mouse; imm32 (no IME) | `app`, `view` |
+
 ## Test harness
 
 `port/harness/` drives the client through its control socket ([protocol](native/control/PROTOCOL.md)) and confirms each step in the test server's SQL logs; see [harness/README.md](harness/README.md). `python3 port/harness/run.py --self-test` checks the harness against its mock client; `BF_CLIENT=<binary> python3 port/harness/run.py <script>` runs a test script against the client and the test server, with the report under `build/harness/`.
