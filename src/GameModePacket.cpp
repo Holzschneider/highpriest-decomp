@@ -2453,19 +2453,20 @@ void CGameMode::Zc_Ack_Reqname(char const *buf)
 void	CGameMode :: Zc_Ack_Reqname_bygid(const char *buf)
 {
 	PACKET_ZC_ACK_REQNAME_BYGID *	p = (PACKET_ZC_ACK_REQNAME_BYGID *) buf;
-	m_actorNameListByGID[p->GID].cName.assign(p->CName, NAME_LENGTH);
+	m_actorNameListByGID[(DWORD)p->GID].cName.assign(p->CName, NAME_LENGTH);	// copies: the packed field is misaligned for the map's reference
 	RemoveActorNameByGIDRequestTimer(p->GID);
-	CheckGuildMemberStatusCache(p->GID, m_actorNameListByGID[p->GID]);
+	CheckGuildMemberStatusCache(p->GID, m_actorNameListByGID[(DWORD)p->GID]);
 }
 
 
 void CGameMode::Zc_Ack_Reqnameall(char const *buf)
 {
 	PACKET_ZC_ACK_REQNAMEALL *p = (PACKET_ZC_ACK_REQNAMEALL *)buf;
-	m_actorNameList[p->AID].cName.assign(p->CName, 24);
-	m_actorNameList[p->AID].pName.assign(p->PName, 24);
-	m_actorNameList[p->AID].gName.assign(p->GName, 24);
-	m_actorNameList[p->AID].rName.assign(p->RName, 24);
+	// copies of AID: the packed field is misaligned for the map's reference
+	m_actorNameList[(DWORD)p->AID].cName.assign(p->CName, 24);
+	m_actorNameList[(DWORD)p->AID].pName.assign(p->PName, 24);
+	m_actorNameList[(DWORD)p->AID].gName.assign(p->GName, 24);
+	m_actorNameList[(DWORD)p->AID].rName.assign(p->RName, 24);
 	RemoveActorNameRequestTimer(p->AID);
 }
 
