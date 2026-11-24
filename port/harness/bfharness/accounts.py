@@ -82,31 +82,51 @@ class Accounts:
                 [_q(userid), _q(password), _q(sex), _q(email), int(group_id)]))
         return self.logs.account(userid)["account_id"]
 
-    def make_char(self, userid, name, slot=0, map="prontera", x=155, y=183):
-        """Set-up: a Novice in `slot` of the account (made like the character
-        server makes one: stats 5, hair 1, 42/11 HP/SP); returns its row. An
-        existing character of that name is returned unchanged."""
+    # make_char's columns: as the character server makes a Novice (stats 5,
+    # hair 1, 42/11 HP/SP), saved at prontera 155,183.
+    CHAR_DEFAULTS = (("class", 0), ("base_level", 1), ("job_level", 1), ("zeny", 0),
+                     ("str", 5), ("agi", 5), ("vit", 5), ("int", 5), ("dex", 5), ("luk", 5),
+                     ("max_hp", 42), ("hp", 42), ("max_sp", 11), ("sp", 11), ("hair", 1),
+                     ("hair_color", 0), ("save_map", "prontera"), ("save_x", 155), ("save_y", 183))
+    MOCK_CHAR = ("class", "base_level", "job_level", "zeny", "max_hp", "hp", "max_sp", "sp")
+
+    def make_char(self, account, name, slot=0, map="prontera", x=155, y=183, **columns):
+        """Set-up, offline: a character in `slot` of `account` (userid or
+        account id) standing at map x,y, its row written in SQL with
+        CHAR_DEFAULTS and `columns` over them (any `char` column: job is
+        `class`, `weapon`, `sex`, `save_map`...). The one place the harness
+        inserts a character row (npcplay.new_player and mail.py use it;
+        play.fresh_character has bifrost-bot make it instead). Returns the
+        row; an existing character of that name is returned unchanged. The
+        mock gets the same row, stats only where `columns` names them."""
         c = self.logs.char(name)
         if c:
             return c
-        acc = self.logs.account(userid)
-        if not acc:
-            raise SqlError("no account %r" % userid)
+        if isinstance(account, int):
+            aid = account
+        else:
+            acc = self.logs.account(account)
+            if not acc:
+                raise SqlError("no account %r" % account)
+            aid = acc["account_id"]
+        row = dict(self.CHAR_DEFAULTS)
+        row.update(columns)
+        row.update(account_id=aid, char_num=int(slot), name=name, last_map=map, last_x=int(x), last_y=int(y))
         mock = getattr(self.sql, "db", None)
         if mock is not None:  # MockSql
             cid = max([r["char_id"] for r in mock.rows("char")] or [150000]) + 1
-            mock.put("char", char_id=cid, account_id=acc["account_id"], char_num=int(slot), name=name, **{
-                "class": 0, "base_level": 1, "job_level": 1, "zeny": 0, "last_map": map,
-                "last_x": int(x), "last_y": int(y), "online": 0, "max_hp": 42, "hp": 42,
-                "max_sp": 11, "sp": 11})
+            keep = set(self.MOCK_CHAR) | set(columns) | {"account_id", "char_num", "name", "last_map",
+                                                         "last_x", "last_y"}
+            mock.put("char", char_id=cid, online=0, **{k: v for k, v in row.items() if k in keep})
             return self.logs.char(name)
-        self.sql.execute(
-            "INSERT INTO `char` (`account_id`, `char_num`, `name`, `class`, `str`, `agi`, `vit`, `int`, "
-            "`dex`, `luk`, `max_hp`, `hp`, `max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, "
-            "`last_y`, `save_map`, `save_x`, `save_y`) VALUES (%d, %d, %s, 0, 5, 5, 5, 5, 5, 5, 42, 42, "
-            "11, 11, 1, 0, %s, %d, %d, 'prontera', 155, 183)"
-            % (acc["account_id"], int(slot), _q(name), _q(map), int(x), int(y)))
-        return self.logs.char(name)
+        cols = sorted(row)
+        self.sql.execute("INSERT INTO `char` (%s) VALUES (%s)" % (
+            ", ".join("`%s`" % k for k in cols),
+            ", ".join(_q(row[k]) if isinstance(row[k], str) else "%d" % int(row[k]) for k in cols)))
+        c = self.logs.char(name)
+        if not c:
+            raise SqlError("character %s not created" % name)
+        return c
 
     def set_char(self, name, map=None, x=None, y=None, job=None, base_level=None,
                  job_level=None, zeny=None, save_point=False, hp=None, status_point=None):

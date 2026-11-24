@@ -18,7 +18,7 @@ in SQL on first use; `--param user= password= char=`) at prontera 155,183.
 
 import time
 
-from bfharness.play import enter_game, login, own_character, own_home, say_and_confirm, token, walk_click
+from bfharness.play import enter_game, login, fresh_character, own_home, say_and_confirm, token, walk_click
 
 NAME = "camera"
 MILESTONE = "M8"
@@ -70,7 +70,10 @@ def free_line(ctl, length):
 
 
 def run(t):
-    user, password, name = own_character(t, "bfhcamera", "BfhCameraman")
+    user = t.param("user", "bfhcamera")
+    password = t.param("password", "bfh-test")
+    name = t.param("char", "BfhCameraman")
+    fresh_character(t, user, password, name)
     with t.step("set-up: place character", "SQL, offline: prontera %d,%d" % START) as s:
         c = t.accounts.set_char(name, map="prontera", x=START[0], y=START[1])
         s.state("char row", {k: c[k] for k in ("char_id", "last_map", "last_x", "last_y", "online")})

@@ -42,23 +42,11 @@ MAIL_HEADERS = {"0x0260": "ZC_MAIL_WINDOWS", "0x023f": "CZ_MAIL_GET_LIST", "0x02
 
 
 def make_char(t, account_id, name, map, x, y, zeny=0, sex="F"):
-    """A level-1 Novice in the account's first slot (SQL, offline set-up)."""
-    if t.logs.char(name):
-        return t.logs.char(name)
-    mock = getattr(t.db, "db", None)
-    if mock is not None:
-        cid = max([r["char_id"] for r in mock.rows("char")] or [150000]) + 1
-        mock.put("char", char_id=cid, account_id=account_id, char_num=0, name=name, last_map=map,
-                 last_x=x, last_y=y, zeny=zeny, online=0, base_level=1, job_level=1, max_hp=40, hp=40,
-                 max_sp=11, sp=11, **{"class": 0})
-        return t.logs.char(name)
-    t.db.execute(
-        "INSERT INTO `char` (`account_id`, `char_num`, `name`, `class`, `zeny`, `str`, `agi`, `vit`, `int`, "
-        "`dex`, `luk`, `max_hp`, `hp`, `max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, "
-        "`save_map`, `save_x`, `save_y`, `sex`) VALUES (%d, 0, %s, 0, %d, 1, 1, 1, 1, 1, 1, 40, 40, 11, 11, "
-        "1, 0, %s, %d, %d, %s, %d, %d, %s)"
-        % (account_id, quote(name), zeny, quote(map), x, y, quote(map), x, y, quote(sex)))
-    return t.logs.char(name)
+    """A level-1 Novice in the account's first slot (SQL, offline set-up),
+    stats 1 and 40/11 HP/SP, saved where it stands."""
+    return t.accounts.make_char(account_id, name, 0, map, x, y, zeny=zeny, sex=sex, max_hp=40, hp=40,
+                                str=1, agi=1, vit=1, int=1, dex=1, luk=1,
+                                save_map=map, save_x=x, save_y=y)
 
 
 def put_mail(t, sender, dest, title, message):

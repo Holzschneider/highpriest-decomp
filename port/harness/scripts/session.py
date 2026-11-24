@@ -5,7 +5,7 @@ Done when (implementation plan, M6): a five-minute scripted session leaves
 no unknown packet header and no failed assertion in the trace.
 
 Set-up: the script's own character (account bfhsession, BfhSessioner,
-made in SQL on first use; `--param user= password= char=` for another) at
+made by bifrost-bot on first use; `--param user= password= char=` for another) at
 prontera 155,183 (SQL, offline); a second player
 (bifrost-bot, group 99) beside it, which says a line now and then and
 walks between two cells, so the client receives other players' chat and
@@ -35,7 +35,7 @@ in the client's packet table; the client exits cleanly.
 import time
 
 from bfharness.bot import Bot
-from bfharness.play import enter_game, login, own_home, own_character, token
+from bfharness.play import enter_game, login, own_home, fresh_character, token
 from bfharness.sql import wait_rows
 from bfharness import pktlog
 
@@ -202,7 +202,10 @@ def hover(ctl, tally):
 
 
 def run(t):
-    user, password, name = own_character(t, "bfhsession", "BfhSessioner")
+    user = t.param("user", "bfhsession")
+    password = t.param("password", "bfh-test")
+    name = t.param("char", "BfhSessioner")
+    fresh_character(t, user, password, name)
     seconds = float(t.param("seconds", "20" if t.mock else "300"))
 
     with t.step("set-up: place character", "SQL, offline: prontera %d,%d" % START) as s:

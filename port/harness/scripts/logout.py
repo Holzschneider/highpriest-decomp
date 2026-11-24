@@ -13,7 +13,8 @@ characters (only the one in the world is online; none after the exit), and
 `loginlog` 'login ok' for both logins.
 
 Set-up: the script's own account (bfhlogout) with two characters,
-BfhLogoutA in slot 0 and BfhLogoutB in slot 1, made in SQL on first use
+BfhLogoutA in slot 0 (made by bifrost-bot, play.fresh_character) and
+BfhLogoutB in slot 1 (Accounts.make_char), both made on first use
 (`--param user= password=` for another account with two characters,
 `--param char_a= char_b=` for their names), both at prontera 155,183.
 """
@@ -21,7 +22,7 @@ BfhLogoutA in slot 0 and BfhLogoutB in slot 1, made in SQL on first use
 import subprocess
 
 from bfharness.control import ControlError
-from bfharness.play import enter_game, login, own_home
+from bfharness.play import enter_game, fresh_character, login, own_home
 from bfharness.sql import wait_rows
 
 NAME = "logout"
@@ -112,11 +113,11 @@ def run(t):
     a = t.param("char_a", "BfhLogoutA")
     b = t.param("char_b", "BfhLogoutB")
 
-    with t.step("set-up: account with two characters", "SQL, offline: slot 0 %s, slot 1 %s at prontera 155,183" % (a, b)) as s:
-        aid = t.accounts.create_account(user, password)
-        for slot, n in ((0, a), (1, b)):
-            t.accounts.make_char(user, n, slot=slot)
-            t.accounts.set_char(n, map="prontera", x=155, y=183)
+    fresh_character(t, user, password, a, place=("prontera", 155, 183))
+    with t.step("set-up: the second character", "SQL, offline: slot 1 %s at prontera 155,183" % b) as s:
+        aid = t.logs.account(user)["account_id"]
+        t.accounts.make_char(aid, b, slot=1)
+        t.accounts.set_char(b, map="prontera", x=155, y=183)
         rows = t.logs.chars(aid)
         s.state("char rows", [{k: r[k] for k in ("char_id", "char_num", "name", "online")} for r in rows])
         s.check([r["name"] for r in rows][:2] == [a, b], "slots 0 and 1 hold %s and %s" % (a, b))

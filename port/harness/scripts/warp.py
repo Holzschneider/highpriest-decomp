@@ -22,7 +22,7 @@ char.last_map/last_x/last_y after quitting.
 import re
 import subprocess
 
-from bfharness.play import enter_game, login, say_and_confirm, token, own_home, own_character
+from bfharness.play import enter_game, login, say_and_confirm, token, own_home, fresh_character
 from bfharness.sql import wait_rows
 
 NAME = "warp"
@@ -86,7 +86,10 @@ def through(t, ctl, warp, char_id):
 
 
 def run(t):
-    user, password, name = own_character(t, "bfhwarp", "BfhWarper")
+    user = t.param("user", "bfhwarp")
+    password = t.param("password", "bfh-test")
+    name = t.param("char", "BfhWarper")
+    fresh_character(t, user, password, name)
 
     with t.step("set-up: place character", "SQL, offline: %s %d,%d" % START) as s:
         c = t.accounts.set_char(name, map=START[0], x=START[1], y=START[2])

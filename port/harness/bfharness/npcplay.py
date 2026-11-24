@@ -43,13 +43,13 @@ def new_player(t, tag, map, x, y, zeny=0, items=(), skills=(), job=0, job_level=
     password = "bfh-npc"
     name = t.param("char") or unique_name(tag=tag + "c")
     aid = t.accounts.create_account(userid, password, group_id=99)
+    c = t.accounts.make_char(aid, name, 0, map, x, y, **{
+        "class": job, "base_level": base_level, "job_level": job_level, "zeny": zeny, "weapon": 1,
+        "sex": "F", "save_map": map, "save_x": x, "save_y": y})
     mock = getattr(t.db, "db", None)
     if mock is not None:
-        cid = max([r["char_id"] for r in mock.rows("char")] or [150000]) + 1
-        mock.put("char", char_id=cid, account_id=aid, char_num=0, name=name, **{
-            "class": job, "base_level": base_level, "job_level": job_level, "zeny": zeny,
-            "last_map": map, "last_x": x, "last_y": y, "online": 0, "max_hp": 40, "hp": 40,
-            "max_sp": 11, "sp": 11, "skills": dict(skills)})
+        cid = c["char_id"]
+        mock.update("char", cid, skills=dict(skills))
         for nameid, amount in items:
             iid = max([r["id"] for r in mock.rows("inventory")] or [0]) + 1
             mock.put("inventory", id=iid, char_id=cid, nameid=nameid, amount=amount, equip=0)
@@ -57,15 +57,6 @@ def new_player(t, tag, map, x, y, zeny=0, items=(), skills=(), job=0, job_level=
             sid = max([r["id"] for r in mock.rows("storage")] or [0]) + 1
             mock.put("storage", id=sid, account_id=aid, nameid=nameid, amount=amount)
         return userid, password, t.logs.char(name)
-    t.db.execute(
-        "INSERT INTO `char` (`account_id`, `char_num`, `name`, `class`, `base_level`, `job_level`, `zeny`,"
-        " `str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`, `max_sp`, `sp`, `hair`, `weapon`,"
-        " `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`, `sex`) VALUES"
-        " (%d, 0, %s, %d, %d, %d, %d, 5, 5, 5, 5, 5, 5, 42, 42, 11, 11, 1, 1, %s, %d, %d, %s, %d, %d, 'F')"
-        % (aid, quote(name), job, base_level, job_level, zeny, quote(map), x, y, quote(map), x, y))
-    c = t.logs.char(name)
-    if not c:
-        raise SqlError("character %s not created" % name)
     for nameid, amount in items:
         t.db.execute("INSERT INTO `inventory` (`char_id`, `nameid`, `amount`, `identify`) VALUES (%d, %d, %d, 1)"
                      % (c["char_id"], nameid, amount))

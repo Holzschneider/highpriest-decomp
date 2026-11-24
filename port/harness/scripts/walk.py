@@ -19,7 +19,7 @@ Frames under <game folder>/test/frames/walk/, checksums in the manifest.
 """
 
 from bfharness.bot import Bot
-from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home, own_character
+from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home, fresh_character
 from bfharness.sql import wait_rows
 
 NAME = "walk"
@@ -32,7 +32,10 @@ BOT_CELL = (158, 186)
 
 
 def run(t):
-    user, password, name = own_character(t, "bfhwalk", "BfhWalker")
+    user = t.param("user", "bfhwalk")
+    password = t.param("password", "bfh-test")
+    name = t.param("char", "BfhWalker")
+    fresh_character(t, user, password, name)
 
     with t.step("set-up: place character", "SQL, offline: prontera 155,183") as s:
         c = t.accounts.set_char(name, map="prontera", x=155, y=183)
