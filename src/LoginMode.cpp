@@ -154,6 +154,16 @@ void CLoginMode::OnInit(const char * modeName)
 		}
 	}
 
+#if defined(BF_PORT)
+	// Skip the licence and intro screens (spec section 2, the settings option
+	// SkipIntroScreens, on by default): the warning notice and the licence
+	// go straight on to the service selection, which LSM_SELECTACCOUNT skips
+	// as well when the clientinfo names only one service.
+	if (bf_port_option(BF_OPT_SKIP_INTRO) && (g_loginStartMode == LSM_WARNING || g_loginStartMode == LSM_LICENCE)) {
+		BF_TRACE(BFT_MODE, "login: %s skipped (option %s)", g_loginStartMode == LSM_WARNING ? "warning notice" : "licence", BF_OPT_SKIP_INTRO);
+		g_loginStartMode = LSM_SELECTACCOUNT;
+	}
+#endif
 	SetSubState(g_loginStartMode);
 
 	g_loginStartMode = LSM_IDENTRY;
@@ -395,6 +405,13 @@ void CLoginMode::OnChangeState(int state)
 		break;
 	}
 	case LSM_SELECTACCOUNT:
+#if defined(BF_PORT)
+		if (InitAccountInfo() && m_accountInfo.size() == 1 && bf_port_option(BF_OPT_SKIP_INTRO)) {
+			BF_TRACE(BFT_MODE, "login: service selection skipped, one service (option %s)", BF_OPT_SKIP_INTRO);
+			SendMsg(LMM_SELECTACCOUNT, 0, 0, 0);
+			break;
+		}
+#endif
 		if (InitAccountInfo()) {
 			m_wallPaperBmpName = TITLE_FILE;
 			g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
