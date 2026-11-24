@@ -55,8 +55,9 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [x] 1fcc699 | M4.1 Application module: window, fullscreen, Metal layer, single instance, event queue, no App Nap | native | |
-| [ ] | M4.2 Graphics module on Metal, with test draws for the 16 multitexture presets and the blend modes | native | |
-| [ ] | M4.3 Logical resolution, UI scale 1×/2×/3×, resize path | native | M4.1, M4.2 |
+| [x] 9c857f6 | M4.2 Graphics module on Metal, with test draws for the 16 multitexture presets and the blend modes | native | |
+| [ ] | M4.3 Logical resolution, UI scale 1×/2×/3×, resize path: the native half (app and gfx follow the window, logical size and scale computed in one place, a resize test) | native | M4.1, M4.2 |
+| [ ] | M4.3a Resize path in the client: renderer size, projection, picking, window-manager bounds, saved window positions clamped | src | M4.3, M4.4 |
 | [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2, M3.2 |
 | [x] 2a6bf9d | M4.5 Text module on CoreText, unsmoothed, with a metrics test | native | |
 | [ ] | M4.5a GDI adapter | compat | M4.5, M3.2 |
