@@ -11,3 +11,9 @@ Entries are added at every milestone exit, for every parked item, for every devi
   - Reference frames stay outside git; the repository holds checksums and verdicts.
   - Protocol differences are resolved in the client only; the test server stays stock.
   - M12 in the run is the application bundle with its settings window and the Granny and Bink readers; the rest of the former M12 list is future work.
+
+## 2026-11-24: run stopped by the owner
+
+- Stopped during round 1, a few minutes after its 16 packages started. Nothing from round 1 was integrated; the checklist is accurate (only M1.0 is done).
+- Left behind, outside git: empty worktrees `build/wt/<package>` with branches `pkg/<package>` (no commits), a draft `port/data/fetch.sh` in `build/wt/data`, and a partial copy of `data.grf` (801 MB) in the game folder. The test server is stopped with its database kept.
+- Before restarting: remove the round-1 worktrees and `pkg/*` branches, or the workers cannot create theirs.
