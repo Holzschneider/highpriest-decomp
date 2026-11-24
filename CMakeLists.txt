@@ -199,6 +199,7 @@ endfunction()
 #   miles  mss32 (on port/native/audio)
 #   input  user32 windows, messages, keyboard, clipboard; DirectInput; imm32
 #          (on port/native/app)
+#   granny granny2 (on port/native/formats/granny)
 # BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
 # C library's file names (fopen, access, remove, ...) keep their own meaning
 # there instead of going through the game-folder translation of the win32 area.
@@ -210,7 +211,7 @@ function(bf_compat_flags target)
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32 d3d gdi miles input)
+set(BF_COMPAT_AREAS win32 d3d gdi miles input granny)
 set(BF_COMPAT_LIBS)
 add_custom_target(compat)
 foreach(area IN LISTS BF_COMPAT_AREAS)
@@ -279,9 +280,9 @@ endif()
 # the port never compiles. Its four entry points (SetHwnd, SendID,
 # ExitFindHack, Auth2 in base/FindHack.cpp) are empty under BF_PORT.
 # Replaced behind their interfaces under BF_PORT, and so still built:
-# movie/CBink (reports no movie; the Bink SDK headers are not included) and
-# the Granny resource classes in resource/Model.cpp (load nothing; CGameMode
-# creates no Granny actor).
+# movie/CBink (reports no movie; the Bink SDK headers are not included). The
+# Granny resource classes in resource/Model.cpp are built as they were; the
+# granny2 names they call come from port/compat/granny (M12.3a).
 set(BF_CLIENT_EXCLUDE
 	# Keyboard encryption (npkcrypt) and the self-patching code that installs
 	# it: protection, removed (3.3, "Protection").
