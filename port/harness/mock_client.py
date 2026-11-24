@@ -44,7 +44,8 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
        "PARTYSETTINGWND": 53, "WHISPERWND": -1,
-       "MAILLISTWND": 98, "MAILVIEWWND": 99, "ITEMDROPCNTWND": 15}
+       "MAILLISTWND": 98, "MAILVIEWWND": 99, "ITEMDROPCNTWND": 15,
+       "ITEMPURCHASEWND": 23, "ITEMSTOREWND": 33, "NPCEDITDIALOGWND": 56}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 # char columns the mock saves on logout when the character row has them
 SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
@@ -63,6 +64,14 @@ for _n, _e in EQUIPMENT.items():
     ITEMS.setdefault(_n, _e[:2])
 HEAL = {501: 45, 502: 105}
 STATS = ("str", "agi", "vit", "int", "dex", "luk")
+ITEMS.update({512: ("Apple", 15), 713: ("Empty Bottle", 6)})
+HEAL.setdefault(512, 16)
+SHOP_ITEMS = (501, 502)
+
+
+def item_tab(nameid):
+    """The item window's tab for an item (as item_windows() sorts them); the storage's too."""
+    return "equip" if nameid in EQUIPMENT else "item" if nameid in HEAL else "etc"
 JOBS = {"Swordman": 1, "Mage": 2, "Archer": 3, "Acolyte": 4, "Merchant": 5, "Thief": 6}
 MAPS = {"prontera": (312, 392), "prt_fild08": (400, 400), "prt_in": (180, 180), "izlude": (256, 256)}
 NPCS = [  # map, x, y, name, sprite, role
@@ -71,8 +80,11 @@ NPCS = [  # map, x, y, name, sprite, role
     ("prontera", 156, 22, "Gate Guard", 105, "talk"),
     ("prt_in", 126, 76, "Tool Dealer", 53, "shop"),
     ("prontera", 146, 86, "Mailbox", 888, "mailbox"),   # npc/other/mail.txt
+    ("prontera", 123, 102, "Merchant", 85, "exchange"),       # Merchant#pron, novice_exchange.txt
+    ("prontera", 146, 89, "Kafra Employee", 117, "kafra"),     # kaf_prontera5
 ]
 MAILBOX_FEE = 130
+NPC_HEIGHT = 60   # an NPC takes clicks on its body, up to this far above its feet
 PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362), ("prt_fild08", 170, 360)]
 PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
            ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
@@ -204,7 +216,11 @@ class Mock:
         self.pick = None
         self.talk = None
         self.cart = {}
-        self.drag = None          # an inventory row dragged from the item window
+        self.drag = None          # (window, inventory row or item id) under the left button
+        self.dialog = None        # an NPC conversation: a generator of window requests (M8.1e)
+        self.dialog_req = None
+        self.deal = None          # "buy" or "sell" while the deal windows are open
+        self.store_tab = "item"   # the storage window's tab
         self.selected_slot = 0
         self.last_click = (-1, 0, 0)
         self.after_connect = None
@@ -366,6 +382,9 @@ class Mock:
             return
         if w and w.focus_control:
             c = w.control(w.focus_control)
+            if w.data.get("select_all"):     # UIEditCtrl::MakeSelect: typing replaces the text
+                w.data["select_all"] = False
+                c["text"] = ""
             if len(c["text"]) < c.get("limit", 23):
                 c["text"] += ch
 
@@ -415,8 +434,16 @@ class Mock:
         elif self.mode == "makechar":
             self.make_char()
         elif self.mode == "game":
-            if self.window("ITEMDROPCNTWND"):
-                self.drop_item()
+            top = self.windows[0].name if self.windows else None
+            if top in ("NPCEDITDIALOGWND", "ITEMDROPCNTWND"):
+                self.confirm_input(top)
+                return
+            if self.dialog:
+                w = self.window("SAYDIALOGWND")
+                for b in ("next", "close"):
+                    if w and w.control(b):
+                        self.on_control(w, w.control(b), False)
+                        return
                 return
             if self.window("SAYDIALOGWND"):
                 self.close_window("SAYDIALOGWND")
@@ -432,10 +459,21 @@ class Mock:
 
     def on_escape(self):
         if self.mode == "game":
+            for name in ("ITEMDROPCNTWND", "NPCEDITDIALOGWND", "ITEMPURCHASEWND", "ITEMSTOREWND"):
+                if self.close_window(name):
+                    if name == "ITEMPURCHASEWND":
+                        self.close_window("ITEMSHOPWND")
+                        self.deal, self.cart = None, {}
+                    return
             for name in ("CHOOSEWND", "SAYDIALOGWND", "ITEMSHOPWND", "ITEMSELLWND",
                          "CHOOSESELLBUYWND", "RESTARTWND"):
                 if self.close_window(name):
                     self.talk = None
+                    self.dialog = None
+                    if name in ("ITEMSHOPWND", "ITEMSELLWND"):
+                        self.close_window("ITEMSELLWND")
+                        self.close_window("ITEMSHOPWND")
+                        self.deal, self.cart = None, {}
                     return
             L = self.logical()
             self.open_window(Window("RESTARTWND", [L[0] // 2 - 80, L[1] // 2 - 40, 160, 80], [
@@ -454,16 +492,18 @@ class Mock:
         else:
             self.buttons.discard(button)
         if button == "left" and down and self.mode == "game":
-            w = self.window_at(x, y)
-            c = w.hit(x, y) if w else None
-            self.drag = c["row"] if w and w.name == "ITEMWND" and c and c["id"].startswith("item:") else None
+            self.drag = self.item_at(x, y)
             return
         if button != "left" or down:
             return
         if self.drag is not None:
-            row, self.drag = self.drag, None
-            if self.window_at(x, y) is None and self.mode == "game":
-                self.begin_drop(row)
+            drag, self.drag = self.drag, None
+            target = self.window_at(x, y)
+            if target is None and drag[0] == "ITEMWND":
+                self.begin_drop(drag[1])
+                return
+            if target and target.name != drag[0]:
+                self.drop(drag, target)
                 return
         now = self.frame
         dbl = self.last_click[0] >= now - 30 and abs(self.last_click[1] - x) < 4 and abs(self.last_click[2] - y) < 4
@@ -522,17 +562,35 @@ class Mock:
                 self.open_shop()
             elif cid == "sell":
                 self.open_sell()
-        elif w.name in ("ITEMSHOPWND", "ITEMSELLWND"):
-            if cid.startswith("item:"):
-                nid = int(cid[5:])
-                self.cart[nid] = self.cart.get(nid, 0) + 1
-            elif cid == "ok":
-                (self.buy if w.name == "ITEMSHOPWND" else self.sell)()
+        elif w.name in ("ITEMPURCHASEWND", "ITEMSELLWND"):
+            if cid in ("ok", "cancel"):
+                if cid == "ok":
+                    (self.buy if w.name == "ITEMPURCHASEWND" else self.sell)()
                 self.close_window(w.name)
-                self.cart = {}
+                self.close_window("ITEMSHOPWND")
+                self.deal, self.cart = None, {}
+                self.refresh_items()
+        elif w.name == "ITEMSTOREWND" and cid.startswith("tab:"):
+            self.store_tab = cid[4:]
+            self.refresh_items()
+        elif w.name == "ITEMSTOREWND" and cid == "close":
+            self.close_window(w.name)
+        elif w.name in ("NPCEDITDIALOGWND", "ITEMDROPCNTWND") and cid == "ok":
+            self.confirm_input(w.name)
+        elif w.name == "SAYDIALOGWND" and cid in ("next", "close") and self.dialog:
+            w.controls = [k for k in w.controls if k["id"] != cid]
+            self.dialog_step(None)
+        elif w.name == "CHOOSEWND" and self.dialog:
+            if cid.startswith("choice:"):
+                w.data["selected"] = [k["id"] for k in w.controls if k["id"].startswith("choice:")].index(cid)
+                if dbl:
+                    self.on_control(w, w.control("ok"), False)
+            elif cid == "ok" and w.data.get("selected") is not None:
+                self.close_window(w.name)
+                self.dialog_step(w.data["selected"])
             elif cid == "cancel":
                 self.close_window(w.name)
-                self.cart = {}
+                self.end_dialog()
         elif w.name == "CHOOSEWND":
             self.close_window(w.name)
             self.choose(cid)
@@ -651,9 +709,9 @@ class Mock:
             return
         L = self.logical()
         self.open_window(Window("ITEMDROPCNTWND", [L[0] // 2 - 91, L[1] // 2 - 64, 182, 46], [
-            ctl("edit:0", "edit", L[0] // 2 - 76, L[1] // 2 - 42, 80, 16, str(r["amount"])),
+            ctl("edit", "edit", L[0] // 2 - 76, L[1] // 2 - 42, 80, 16, str(r["amount"])),
             ctl("text:0", "text", L[0] // 2 - 76, L[1] // 2 - 58, 152, 15, ITEMS.get(r["nameid"], ("?item",))[0]),
-            ctl("ok", "button", L[0] // 2 + 20, L[1] // 2 - 44, 40, 20, "OK")], data={"row": row}))
+            ctl("ok", "button", L[0] // 2 + 20, L[1] // 2 - 44, 40, 20, "OK")], data={"row": row, "select_all": True}))
 
     def drop_item(self, r=None, n=None):
         if r is None:
@@ -661,7 +719,7 @@ class Mock:
             self.close_window("ITEMDROPCNTWND")
             r = next((x for x in self.inventory() if x["id"] == w.data["row"]), None)
             try:
-                n = int(w.control("edit:0")["text"] or 0)
+                n = int(w.control("edit")["text"] or 0)
             except ValueError:
                 n = 0
         if not r or n <= 0:
@@ -838,7 +896,8 @@ class Mock:
     def on_world_click(self, x, y):
         for a in self.actors:
             p = self.screen_of(a["x"], a["y"])
-            if p and abs(p["x"] - x) <= CELL // 2 and abs(p["y"] - y) <= CELL // 2 and a["type"] != "portal":
+            top = NPC_HEIGHT if a["type"] == "npc" else CELL // 2
+            if p and abs(p["x"] - x) <= CELL // 2 and -top <= y - p["y"] <= CELL // 2 and a["type"] != "portal":
                 self.interact(a)
                 return
         cell = self.cell_at(x, y)
@@ -867,18 +926,9 @@ class Mock:
                     ctl("cancel", "button", L[0] // 2 - 25, L[1] // 2 + 5, 50, 20, "Cancel")]))
             elif a["role"] == "mailbox":
                 self.mailbox_step(None)
-            elif a["role"] == "jobmaster":
-                s = self.self_
-                if s["class"] != 0 or s["job_level"] < 10:
-                    self.open_window(Window("SAYDIALOGWND", [L[0] // 2 - 150, L[1] // 2 - 60, 300, 120],
-                                            [ctl("text", "text", L[0] // 2 - 140, L[1] // 2 - 50, 280, 60,
-                                                 "[Job Master] You need job level 10 as a Novice.")]))
-                    self.system("[Job Master] You need job level 10 as a Novice.", "normal")
-                else:
-                    ctls = [ctl("choice:%s" % n, "button", L[0] // 2 - 90, L[1] // 2 - 60 + i * 20, 180, 18, n)
-                            for i, n in enumerate(JOBS)]
-                    ctls.append(ctl("choice:cancel", "button", L[0] // 2 - 90, L[1] // 2 + 60, 180, 18, "Cancel"))
-                    self.open_window(Window("CHOOSEWND", [L[0] // 2 - 100, L[1] // 2 - 70, 200, 160], ctls))
+            elif a["role"] in ("jobmaster", "exchange", "kafra"):
+                self.start_dialog({"jobmaster": self.dlg_jobmaster, "exchange": self.dlg_exchange,
+                                   "kafra": self.dlg_kafra}[a["role"]]())
             else:
                 self.open_window(Window("SAYDIALOGWND", [L[0] // 2 - 150, L[1] // 2 - 60, 300, 120],
                                         [ctl("text", "text", L[0] // 2 - 140, L[1] // 2 - 50, 280, 60,
@@ -986,22 +1036,19 @@ class Mock:
         self.system("You have successfully mailed a message.")
 
     def open_shop(self):
-        L = self.logical()
-        ctls = [ctl("item:%d" % n, "item", L[0] // 2 - 140, L[1] // 2 - 80 + i * 20, 200, 18, ITEMS[n][0])
-                for i, n in enumerate((501, 502))]
-        ctls += [ctl("ok", "button", L[0] // 2 + 70, L[1] // 2 + 60, 50, 20, "Buy"),
-                 ctl("cancel", "button", L[0] // 2 + 125, L[1] // 2 + 60, 50, 20, "Cancel")]
-        self.open_window(Window("ITEMSHOPWND", [L[0] // 2 - 150, L[1] // 2 - 90, 330, 180], ctls))
+        """Buy: the shop's list (ITEMSHOPWND) and the purchase window; items are
+        dragged from the list into the purchase window (M8.1e)."""
+        self.deal, self.cart = "buy", {}
+        self.open_window(Window("ITEMSHOPWND", [0, 120, 280, 312]))
+        self.open_window(Window("ITEMPURCHASEWND", [280, 280, 280, 152]))
+        self.refresh_items()
 
     def open_sell(self):
-        L = self.logical()
-        inv = self.inventory()
-        ctls = [ctl("item:%d" % r["nameid"], "item", L[0] // 2 - 140, L[1] // 2 - 80 + i * 20, 200, 18,
-                    "%s %d" % (ITEMS.get(r["nameid"], ("?item", 0))[0], r["amount"]))
-                for i, r in enumerate(inv)]
-        ctls += [ctl("ok", "button", L[0] // 2 + 70, L[1] // 2 + 60, 50, 20, "Sell"),
-                 ctl("cancel", "button", L[0] // 2 + 125, L[1] // 2 + 60, 50, 20, "Cancel")]
-        self.open_window(Window("ITEMSELLWND", [L[0] // 2 - 150, L[1] // 2 - 90, 330, 180], ctls))
+        """Sell: the sellable inventory (ITEMSHOPWND in sell mode) and the sell window."""
+        self.deal, self.cart = "sell", {}
+        self.open_window(Window("ITEMSHOPWND", [0, 120, 280, 312]))
+        self.open_window(Window("ITEMSELLWND", [280, 280, 280, 152]))
+        self.refresh_items()
 
     def inventory(self):
         return [r for r in self.db.rows("inventory") if r["char_id"] == self.self_["char_id"]]
@@ -1047,6 +1094,232 @@ class Mock:
                 gain += (ITEMS.get(n, ("", 0))[1] // 2) * k
         if gain:
             self.add_zeny(gain, "S")
+
+    # -- NPC dialogues, deal and storage windows (M8.1e) ---------------------
+
+    def start_dialog(self, gen):
+        self.dialog = gen
+        self.dialog_req = None
+        self.dialog_step(None, first=True)
+
+    def end_dialog(self):
+        self.dialog = self.dialog_req = self.talk = None
+        for name in ("SAYDIALOGWND", "CHOOSEWND", "NPCEDITDIALOGWND"):
+            self.close_window(name)
+
+    def dialog_step(self, value, first=False):
+        """Hand the player's answer to the NPC's script and show what it asks
+        next: ("next"|"close", lines), ("menu", entries[, lines]), ("number",)."""
+        try:
+            req = next(self.dialog) if first else self.dialog.send(value)
+        except StopIteration:
+            self.end_dialog()
+            return
+        self.dialog_req = req
+        L = self.logical()
+        if req[0] in ("next", "close") or (req[0] == "menu" and len(req) > 2):
+            lines = req[1] if req[0] != "menu" else req[2]
+            w = self.window("SAYDIALOGWND") or self.open_window(Window("SAYDIALOGWND", [200, 100, 280, 180]))
+            w.controls = [ctl("text", "list", 210, 110, 260, 140, "\n".join(lines))]
+            if req[0] != "menu":
+                w.controls.append(ctl(req[0], "button", 434, 256, 42, 20, ""))
+        if req[0] == "menu":
+            entries = req[1]
+            ctls = [ctl("choice:%s" % e, "item", 212, 326 + 16 * i, 256, 16, e) for i, e in enumerate(entries)]
+            ctls.append(ctl("list", "list", 212, 326, 256, 16 * len(entries), entries[0]))   # after: hit()'s order
+            ctls += [ctl("ok", "button", 388, 330 + 16 * len(entries), 42, 20, ""),
+                     ctl("cancel", "button", 434, 330 + 16 * len(entries), 42, 20, "")]
+            self.open_window(Window("CHOOSEWND", [200, 300, 280, 56 + 16 * len(entries)], ctls))
+        elif req[0] == "number":
+            w = self.open_window(Window("NPCEDITDIALOGWND", [L[0] // 2 - 120, L[1] // 2 - 64, 176, 46], [
+                ctl("edit", "edit", L[0] // 2 - 105, L[1] // 2 - 42, 99, 16, "0"),
+                ctl("ok", "button", L[0] // 2 + 1, L[1] // 2 - 50, 42, 20, "")]))
+            w.data["select_all"] = True
+
+    def confirm_input(self, name):
+        w = self.window(name)
+        if "row" in w.data:          # an item dropped on the ground (M8.1d)
+            self.drop_item()
+            return
+        text = w.control("edit")["text"]
+        self.close_window(name)
+        try:
+            n = int(text)
+        except ValueError:
+            n = 0
+        if name == "NPCEDITDIALOGWND":
+            self.dialog_step(n)
+        else:
+            self.count_entered(w.data["move"], n)
+
+    def dlg_jobmaster(self):
+        """npc/custom/jobmaster.txt for a Novice: job menu, Next, confirm menu, Next, Close."""
+        s = self.self_
+        head = ["[Job Master]"]
+        if s["class"] != 0 or s["job_level"] < 10:
+            yield ("close", head + ["Level requirement:", "1 (Base) / 10 (Job)"])
+            return
+        names = ["Swordsman", "Magician", "Archer", "Acolyte", "Merchant", "Thief"]
+        i = yield ("menu", [" ~ " + n for n in names] + [" ~ ^777777Cancel^000000"], head + ["Select a job."])
+        if i >= len(names):
+            return
+        yield ("next", head + ["Select a job."])
+        j = yield ("menu", [" ~ Change into ^0055FF%s^000000 class" % names[i], " ~ ^777777Go back^000000"],
+                   head + ["Do you want to change into ^0055FF%s^000000 class?" % names[i]])
+        if j != 0:
+            return
+        yield ("next", head + ["Do you want to change into ^0055FF%s^000000 class?" % names[i]])
+        s["class"], s["job_level"] = i + 1, 1
+        self.trace("game", "job change %s" % names[i])
+        yield ("close", head + ["You are now a %s!" % names[i]])
+
+    def dlg_exchange(self):
+        """npc/merchants/novice_exchange.txt, Merchant#pron: Jellopies for Red Potions."""
+        head = ["[Merchant]"]
+        yield ("next", head + ["Good day!", "Have you collected any", "items like Shells or Fluff?"])
+        yield ("next", head + ["Of course, I won't ask you", "to give me that stuff for free."])
+        if (yield ("menu", ["Sure!", "I think it's a rip-off!", "No, thanks."])) != 0:
+            yield ("close", head + ["Alright,", "no problem."])
+            return
+        yield ("next", head + ["So which item do", "you want to bring me?"])
+        if (yield ("menu", ["Shells", "Jellopies", "Fluff", "Cancel"])) != 1:
+            yield ("close", head + ["Sure~", "No problem."])
+            return
+        have = sum(r["amount"] for r in self.inventory() if r["nameid"] == 909)
+        if have < 10:
+            yield ("close", head + ["Hey, where are", "all those Jellopy?"])
+            return
+        yield ("next", head + ["Okay, let me check", "how many Jellopy you", "have on you. Hmm..."])
+        yield ("next", head + ["You have", "a total of %d Jellopy." % have])
+        yield ("next", head + ["What do you say?", "Do we have a deal?"])
+        if (yield ("menu", ["Deal.", "No deal."])) != 0:
+            yield ("close", head + ["Huh~", "Alright."])
+            return
+        yield ("next", head + ["You know the exact", "number of Red Potions"])
+        yield ("next", head + ["Now, I can trade you", "a minimum of 1 Red Potion"])
+        n = yield ("number",)
+        if n <= 0 or n > 100 or have < 10 * n:
+            yield ("close", head + ["What...?"])
+            return
+        self.add_item(909, -10 * n, "N")
+        self.add_item(501, n, "N")
+        yield ("close", head + ["There you go!", "Thanks, that was a good deal~"])
+
+    def dlg_kafra(self):
+        """kaf_prontera5 through F_Kafra and F_KafStor: Use Storage for 40 zeny."""
+        head = ["[Kafra Employee]"]
+        s = self.self_
+        yield ("next", head + ["Welcome to the", "Kafra Corporation.", "How may I assist you?"])
+        i = yield ("menu", ["Save", "Use Storage", "Use Teleport Service", "Rent a Pushcart",
+                            "Check Other Information", "Cancel"])
+        if i != 1:
+            return
+        skills = {int(k): v for k, v in (s.get("skills") or {}).items()}
+        if skills.get(1, 0) < 6 and s["class"] == 0:
+            yield ("close", head + ["I'm sorry, but you", "need the Novice's", "Basic Skill Level 6"])
+            return
+        if s["zeny"] < 40:
+            yield ("close", head + ["I'm sorry, but you don't", "have enough zeny"])
+            return
+        self.add_zeny(-40, "N")
+        yield ("close", head + ["Here, let me open", "your Storage for you."])
+        self.open_window(Window("ITEMSTOREWND", [360, 200, 280, 312]))
+        self.refresh_items()
+
+    def stored(self):
+        aid = self.account["account_id"]
+        return [r for r in self.db.rows("storage") if r["account_id"] == aid]
+
+    def store_add(self, nameid, amount):
+        rows = [r for r in self.stored() if r["nameid"] == nameid]
+        if rows:
+            n = rows[0]["amount"] + amount
+            if n <= 0:
+                self.db.put("storage", id=rows[0]["id"], account_id=rows[0]["account_id"], _deleted=True)
+            else:
+                self.db.update("storage", rows[0]["id"], amount=n)
+        elif amount > 0:
+            sid = max([r["id"] for r in self.db.rows("storage")] or [0]) + 1
+            self.db.put("storage", id=sid, account_id=self.account["account_id"], nameid=nameid, amount=amount)
+
+    def item_list(self, name):
+        """(item id, count) shown by an item window, as the client lists them."""
+        inv = [(r["nameid"], r["amount"]) for r in self.inventory() if not r.get("equip")]
+        if name == "ITEMSTOREWND":
+            return [(r["nameid"], r["amount"]) for r in self.stored() if item_tab(r["nameid"]) == self.store_tab]
+        if name == "ITEMSHOPWND":
+            return [(n, 0) for n in SHOP_ITEMS] if self.deal == "buy" else inv
+        return sorted(self.cart.items())
+
+    def refresh_items(self):
+        """Rebuild the item cells (`item:<id>`, 32 pixels from (40, 17)) of the open deal and storage
+        windows and the storage's tabs; the item window is item_windows()'s (`item:<index>`)."""
+        self.item_windows()
+        for w in self.windows:
+            if w.name not in ("ITEMSTOREWND", "ITEMSHOPWND", "ITEMPURCHASEWND", "ITEMSELLWND"):
+                continue
+            x, y, ww, hh = w.rect
+            horz = 1
+            ctls = []
+            if w.name == "ITEMSTOREWND":
+                ctls += [ctl("tab:%s" % n, "button", x, y + 17 + 27 * i, 20, 27, "on" if n == self.store_tab else "")
+                         for i, n in enumerate(("item", "equip", "etc"))]
+            if w.name in ("ITEMPURCHASEWND", "ITEMSELLWND"):
+                ctls += [ctl("ok", "button", x + ww - 106, y + hh - 24, 42, 20, ""),
+                         ctl("cancel", "button", x + ww - 61, y + hh - 24, 42, 20, "")]
+            if w.name == "ITEMSTOREWND":
+                ctls.append(ctl("close", "button", x + ww - 61, y + hh - 24, 42, 20, ""))
+            for i, (n, k) in enumerate(self.item_list(w.name)):
+                ctls.append(ctl("item:%d" % n, "item", x + 40 + (i % horz) * 32, y + 17 + (i // horz) * 32,
+                                32, 32, "%s %d" % (ITEMS.get(n, ("?item", 0))[0], k)))
+            w.controls = ctls
+
+    def item_at(self, x, y):
+        w = self.window_at(x, y)
+        c = w.hit(x, y) if w else None
+        if c and c["kind"] == "item" and c["id"].startswith("item:") and w.name != "CHOOSEWND":
+            # the item window names an inventory row (index), the others an item id
+            return (w.name, c["row"] if w.name in ("ITEMWND", "EQUIPWND") else int(c["id"].split(":")[1]))
+        return None
+
+    def drop(self, drag, target):
+        """An item dropped on another window asks for the amount (ITEMDROPCNTWND)."""
+        src, key = drag
+        if src == "ITEMWND":
+            r = next((r for r in self.inventory() if r["id"] == key), None)
+            if not r:
+                return
+            nameid = r["nameid"]
+        else:
+            nameid = key
+        moves = {("ITEMSHOPWND", "ITEMPURCHASEWND"), ("ITEMSHOPWND", "ITEMSELLWND"),
+                 ("ITEMWND", "ITEMSTOREWND"), ("ITEMSTOREWND", "ITEMWND")}
+        if (src, target.name) not in moves:
+            return
+        have = r["amount"] if src == "ITEMWND" else dict(self.item_list(src)).get(nameid, 0)
+        L = self.logical()
+        w = self.open_window(Window("ITEMDROPCNTWND", [L[0] // 2 - 120, L[1] // 2 - 64, 182, 46], [
+            ctl("edit", "edit", L[0] // 2 - 105, L[1] // 2 - 42, 80, 16, str(have or 1)),
+            ctl("ok", "button", L[0] // 2 + 7, L[1] // 2 - 50, 42, 20, "")]))
+        w.data.update(select_all=True, move=(src, target.name, nameid))
+
+    def count_entered(self, move, n):
+        src, dst, nameid = move
+        if src == "ITEMWND":
+            have = sum(r["amount"] for r in self.inventory() if r["nameid"] == nameid and not r.get("equip"))
+        else:
+            have = dict(self.item_list(src)).get(nameid, 0)
+        if n > 0:
+            if dst in ("ITEMPURCHASEWND", "ITEMSELLWND"):
+                if dst == "ITEMSELLWND":
+                    n = min(n, have - self.cart.get(nameid, 0))
+                if n > 0:
+                    self.cart[nameid] = self.cart.get(nameid, 0) + n
+            elif n <= have:
+                sign = -1 if dst == "ITEMSTOREWND" else 1
+                self.add_item(nameid, sign * n, "R")
+                self.store_add(nameid, -sign * n)
+        self.refresh_items()
 
     def say(self, line):
         s = self.self_

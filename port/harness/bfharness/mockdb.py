@@ -3,7 +3,7 @@ JSON-lines file, one {"table": ..., "row": ...} per line. The mock client
 writes what the server would log; MockSql reads it with the same readers.
 
 Log tables are append-only and get ids as the server's AUTO_INCREMENT would.
-`login`, `char`, `inventory` and `mail` hold current rows: a later row with the same
+`login`, `char`, `inventory`, `mail` and `storage` hold current rows: a later row with the same
 key replaces the earlier one.
 """
 
@@ -14,7 +14,7 @@ import threading
 
 from .sql import LOG_TABLES
 
-KEYED = {"login": "account_id", "char": "char_id", "inventory": "id", "mail": "id"}
+KEYED = {"login": "account_id", "char": "char_id", "inventory": "id", "mail": "id", "storage": "id"}
 
 
 def utcnow():

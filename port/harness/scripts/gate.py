@@ -8,7 +8,9 @@ Set-up, by atcommands typed through the client (logged in atcommandlog) on a
 fresh group-99 account: job level 10, 1000 zeny, and the moves between the
 scenes (@warp to prt_fild08, prt_in, prontera). What is under test is played:
 creating the character, attacking, picking up, the shop windows, the Job
-Master's menu, the chat line.
+Master's menu, the chat line. The NPC and deal windows are played as in
+npc.py and shop.py (bfharness/npcplay.py): menus by entry and OK, items
+dragged into the deal window with the amount typed.
 
 | Step | SQL evidence |
 |---|---|
@@ -24,12 +26,14 @@ Server requirement: the Job Master is rAthena's npc/custom/jobmaster.txt,
 which the stock configuration does not load; port/server/import must add it
 (`npc: npc/custom/jobmaster.txt` in map_conf.txt). Shop: Tool Dealer at
 prt_in 126,76. Control ids used (PROTOCOL.md `controls`): CHOOSESELLBUYWND
-`buy`/`sell`, ITEMSHOPWND and ITEMSELLWND `item:<id>` and `ok`, CHOOSEWND
-`choice:<label>`.
+`buy`/`sell`, ITEMSHOPWND `item:<id>`, ITEMPURCHASEWND and ITEMSELLWND
+`item:<id>` and `ok`, ITEMDROPCNTWND `edit`, CHOOSEWND `choice:<label>` and
+`ok`, SAYDIALOGWND `next`/`close`.
 """
 
 import time
 
+from bfharness import npcplay
 from bfharness.accounts import unique_name
 from bfharness.play import enter_game, login, say_and_confirm, token
 from bfharness.sql import wait_rows
@@ -117,10 +121,12 @@ def run(t):
         click_actor(ctl, lambda a: a["type"] == "npc" and a["name"].startswith("Tool Dealer"), "Tool Dealer")
         ctl.wait_window("CHOOSESELLBUYWND")
         ctl.click_control("CHOOSESELLBUYWND", "buy")
-        ctl.wait_window("ITEMSHOPWND")
-        ctl.click_control("ITEMSHOPWND", "item:%d" % RED_POTION)
+        ctl.wait_window("ITEMPURCHASEWND")
+        npcplay.wait_control(ctl, "ITEMSHOPWND", "item:%d" % RED_POTION)
+        npcplay.drag_item(ctl, "ITEMSHOPWND", RED_POTION, "ITEMPURCHASEWND")
+        npcplay.type_into(ctl, "ITEMDROPCNTWND", 1, s, "the amount")
         s.frame("shop")
-        ctl.click_control("ITEMSHOPWND", "ok")
+        ctl.click_control("ITEMPURCHASEWND", "ok")
         s.rows("picklog S Red Potion +", wait_rows(lambda: t.logs.bought(char_id, RED_POTION, after=mark)))
         z = s.rows("zenylog S", wait_rows(lambda: t.logs.zeny(char_id, "S", after=mark)))
         s.check(z[-1]["amount"] < 0, "zeny paid", amount=z[-1]["amount"])
@@ -131,7 +137,9 @@ def run(t):
         ctl.wait_window("CHOOSESELLBUYWND")
         ctl.click_control("CHOOSESELLBUYWND", "sell")
         ctl.wait_window("ITEMSELLWND")
-        ctl.click_control("ITEMSELLWND", "item:%d" % JELLOPY)
+        npcplay.wait_control(ctl, "ITEMSHOPWND", "item:%d" % JELLOPY)
+        npcplay.drag_item(ctl, "ITEMSHOPWND", JELLOPY, "ITEMSELLWND")
+        npcplay.type_into(ctl, "ITEMDROPCNTWND", 1, s, "the amount")
         ctl.click_control("ITEMSELLWND", "ok")
         s.rows("picklog S Jellopy -", wait_rows(lambda: t.logs.sold(char_id, JELLOPY, after=mark)))
         z = s.rows("zenylog S", wait_rows(lambda: t.logs.zeny(char_id, "S", after=mark)))
@@ -144,7 +152,7 @@ def run(t):
         click_actor(ctl, lambda a: a["type"] == "npc" and a["name"] == "Job Master", "Job Master")
         ctl.wait_window("CHOOSEWND")
         s.frame("job-master")
-        ctl.click_control("CHOOSEWND", "choice:Swordman")
+        npcplay.run_dialogue(ctl, s, answers=["Swordsman", "Change into"])
         deadline = time.monotonic() + 15
         while ctl.state("self")["self"]["job"] != SWORDMAN and time.monotonic() < deadline:
             ctl.wait({"frames": 10})
