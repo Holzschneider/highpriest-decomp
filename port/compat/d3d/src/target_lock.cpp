@@ -37,6 +37,7 @@ struct Buffer {
 	LONG pitch = 0;
 	volatile State state = IDLE;
 	bool written = false;
+	unsigned long long serial = 0;   // target_serial right after the last write-back
 };
 Buffer s_buf;
 
@@ -164,7 +165,17 @@ void target_unlock()
 		bf_gfx_write_pixels(G.gfx, BF_GFX_SPACE_LOGICAL, &r, s_buf.mem, int(s_buf.pitch), 0);
 		G.target_writebacks++;
 		target_changed();
+		s_buf.serial = G.target_serial;
 	}
+}
+
+const uint8_t *target_buffer_current(int *w, int *h, LONG *pitch)
+{
+	if (!s_buf.mem || s_buf.state != IDLE || s_buf.serial != g().target_serial) return nullptr;
+	*w = s_buf.w;
+	*h = s_buf.h;
+	*pitch = s_buf.pitch;
+	return s_buf.mem;
 }
 
 bool target_is_locked() { return s_buf.state != IDLE; }
@@ -179,6 +190,7 @@ void target_drop_buffer()
 	s_buf.w = s_buf.h = 0;
 	s_buf.pitch = 0;
 	s_buf.written = false;
+	s_buf.serial = 0;
 }
 
 } // namespace bfd3d

@@ -354,6 +354,68 @@ static HRESULT blt_generic(Surface *dst, const RECT &dr, Surface *src, const REC
 	return dst->write_argb(dr, dpx.data(), keysrc ? dskip.data() : nullptr) ? DD_OK : DDERR_GENERIC;
 }
 
+// A part of the target shown in the whole window: DirectDraw stretches a Blt
+// to the primary from the source rectangle to the destination (the client
+// area). The window shows the whole target, so the part is drawn stretched
+// over the target first, filtered linearly as the hardware blitters of the
+// time did. CBink::BinkShowNextFrame does this: the movie at the top left of
+// the back buffer, shown in the whole window. The part's pixels come from
+// the lock buffer when the client has just written them there (no read-back).
+static void stretch_part_over_target(Surface *target, const RECT &sr)
+{
+	Global &G = g();
+	int sw = rw(sr), sh = rh(sr);
+	std::vector<uint32_t> spx;
+	const void *src;
+	int src_pitch;
+	int bw, bh;
+	LONG bp;
+	if (const uint8_t *buf = target_buffer_current(&bw, &bh, &bp)) {
+		src = buf + size_t(sr.top) * size_t(bp) + size_t(sr.left) * 4;
+		src_pitch = int(bp);
+	} else {
+		if (!target->read_argb(sr, spx, nullptr)) return;
+		src = spx.data();
+		src_pitch = sw * 4;
+	}
+	int tw = 0, th = 0;
+	if (G.part_tex) bf_gfx_texture_get_info(G.part_tex, &tw, &th, nullptr, nullptr);
+	if (!G.part_tex || tw != sw || th != sh) {
+		bf_gfx_texture_destroy(G.part_tex);
+		G.part_tex = bf_gfx_texture_create(G.gfx, sw, sh, BF_GFX_FORMAT_A8R8G8B8, 1);
+		if (!G.part_tex) return;
+	}
+	bf_gfx_texture_update(G.part_tex, 0, 0, sw, sh, src, src_pitch);
+
+	bf_gfx_state st;
+	bf_gfx_state_init(&st);
+	st.stage[0].color_op = BF_GFX_OP_SELECT_ARG1;
+	st.stage[0].color_arg1 = BF_GFX_ARG_TEXTURE;
+	st.stage[0].alpha_op = BF_GFX_OP_SELECT_ARG1;
+	st.stage[0].alpha_arg1 = BF_GFX_ARG_DIFFUSE;
+	st.stage[0].address_u = st.stage[0].address_v = BF_GFX_ADDRESS_CLAMP;
+	st.stage[0].mag_filter = st.stage[0].min_filter = BF_GFX_FILTER_LINEAR;
+	st.stage[1].color_op = st.stage[1].alpha_op = BF_GFX_OP_DISABLE;
+	st.depth_enable = 0;
+	st.depth_write = 0;
+	st.cull = BF_GFX_CULL_NONE;
+	bf_gfx_set_state(G.gfx, &st);
+	bf_gfx_set_texture(G.gfx, 0, G.part_tex);
+	bf_gfx_set_texture(G.gfx, 1, nullptr);
+	int w, h;
+	target_size(&w, &h);
+	struct V { float x, y, z, rhw; uint32_t diffuse, specular; float u, v; };
+	// Direct3D 7 pixel centres: the quad's edges at -0.5 cover the target exactly.
+	V v[4] = {{-0.5f, -0.5f, 0, 1, 0xFFFFFFFFu, 0, 0, 0},
+	          {w - 0.5f, -0.5f, 0, 1, 0xFFFFFFFFu, 0, 1, 0},
+	          {-0.5f, h - 0.5f, 0, 1, 0xFFFFFFFFu, 0, 0, 1},
+	          {w - 0.5f, h - 0.5f, 0, 1, 0xFFFFFFFFu, 0, 1, 1}};
+	bf_gfx_draw(G.gfx, BF_GFX_PRIM_TRIANGLE_STRIP, BF_GFX_VERTEX_TL1, v, 4);
+	G.own_draws++;
+	target_changed();
+	bf_count("d3d.part_presents", 1);
+}
+
 HRESULT Surface::Blt(RECT *dst_rect, IDirectDrawSurface7 *src_if, RECT *src_rect, DWORD flags, DDBLTFX *fx)
 {
 	Global &G = g();
@@ -396,7 +458,11 @@ HRESULT Surface::Blt(RECT *dst_rect, IDirectDrawSurface7 *src_if, RECT *src_rect
 	RECT sr = src_rect ? *src_rect : whole(src);
 
 	// Presentation: back buffer (or target) into the window.
-	if (kind == K_PRIMARY && src->is_target()) return present();
+	if (kind == K_PRIMARY && src->is_target()) {
+		if (src_rect && !is_whole(src, sr) && rect_ok(src, sr) && rw(sr) > 0 && rh(sr) > 0)
+			stretch_part_over_target(src, sr);
+		return present();
+	}
 	// CloneFrame: the window into the back buffer. The target holds the frame already.
 	if (src->kind == K_PRIMARY && kind == K_TARGET) return DD_OK;
 	// UpdateMipmap: level 0 into a lower level. The gfx module regenerates mips.
@@ -1015,6 +1081,8 @@ extern "C" void bf_compat_d3d_set_device(bf_gfx_device *dev)
 			s->lost = true;
 		}
 		G.textures.clear();
+		bf_gfx_texture_destroy(G.part_tex);
+		G.part_tex = nullptr;
 		if (G.backup_holder) {
 			G.backup_holder->holds_backup = false;
 			G.backup_holder = nullptr;

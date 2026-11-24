@@ -44,6 +44,10 @@ struct Global {
 	DDraw *ddraw = nullptr;                 // weak
 	D3D *d3d = nullptr;                     // weak: the IDirect3D7 of ddraw
 	long long target_locks = 0, target_readbacks = 0, target_writebacks = 0;
+	// Draws of the adapter's own (the stretched present): a device seeing
+	// this change sends its state and textures to gfx again before its next draw.
+	unsigned long long own_draws = 0;
+	bf_gfx_texture *part_tex = nullptr;     // the stretched present's source
 };
 Global &g();
 
@@ -76,6 +80,9 @@ void *target_lock(DWORD flags, LONG *pitch);
 void target_unlock();
 bool target_is_locked();
 void target_drop_buffer();
+// The lock buffer when it still holds the target as written back (nothing has
+// changed the target since): the pixels without a read-back. NULL otherwise.
+const uint8_t *target_buffer_current(int *w, int *h, LONG *pitch);
 
 // ---- surfaces ------------------------------------------------------------------
 

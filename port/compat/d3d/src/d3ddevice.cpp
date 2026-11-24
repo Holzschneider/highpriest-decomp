@@ -160,6 +160,7 @@ struct Device final : public IDirect3DDevice7 {
 	DWORD tss[8][32];
 	bf_gfx_state st;
 	bool st_dirty = true;
+	unsigned long long own_draws_seen = 0;   // Global::own_draws
 	D3DVIEWPORT7 vp{};
 	D3DMATRIX xf[32];
 	D3DMATERIAL7 material{};
@@ -505,6 +506,12 @@ HRESULT Device::GetTexture(DWORD stage, IDirectDrawSurface7 **surface)
 
 void Device::flush_state()
 {
+	if (g().own_draws != own_draws_seen && g().gfx) {
+		// The adapter drew on its own (the stretched present): state and textures again.
+		own_draws_seen = g().own_draws;
+		st_dirty = true;
+		for (int i = 0; i < 2; ++i) bf_gfx_set_texture(g().gfx, i, tex[i] ? tex[i]->gfx_texture() : nullptr);
+	}
 	if (st_dirty && g().gfx) {
 		bf_gfx_set_state(g().gfx, &st);
 		st_dirty = false;

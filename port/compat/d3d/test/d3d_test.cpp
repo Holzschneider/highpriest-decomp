@@ -988,6 +988,41 @@ int main(int argc, char **argv)
 		check(m_pd3dDevice->SetLight(0, &light) == D3D_OK && m_pd3dDevice->LightEnable(0, TRUE) == D3D_OK, "SetLight / LightEnable");
 	}
 
+	// ---- CBink::BinkShowNextFrame: a movie written at the top left of the back buffer,
+	// then Blt to the primary from its rectangle only: stretched over the window.
+	{
+		bool ok = renderer_lock() && m_bRGBBitCount == 32;
+		for (int y = 0; ok && y < 240; ++y)
+			for (int x = 0; x < 320; ++x)
+				*(DWORD *)((BYTE *)m_lpSurfacePtr + y * m_lPitch + x * 4) =
+				    (x < 160 && y < 120) ? (x < 80 ? 0x00FF0000u : 0x000000FFu) : 0x0000FF00u;
+		if (ok) renderer_unlock();
+		RECT src = {0, 0, 160, 120}, dst = {100, 100, 420, 340};   // dst: the client area on the screen
+		state_ui();
+		m_pd3dDevice->SetTexture(0, tex[0].s);   // bound before; the present draws with its own
+		HRESULT hr = m_pddsFrontBuffer->Blt(&dst, m_pddsBackBuffer, &src, DDBLT_WAIT, NULL);
+		check(ok && hr == DD_OK && close_to(pix(5, 5), 0xFFFF0000u, 1) && close_to(pix(150, 230), 0xFFFF0000u, 1)
+		          && close_to(pix(170, 5), 0xFF0000FFu, 1) && close_to(pix(315, 235), 0xFF0000FFu, 1),
+		      "Blt of a part of the back buffer to the primary stretches it over the window (CBink)",
+		      hex(pix(5, 5)) + " " + hex(pix(150, 230)) + " " + hex(pix(170, 5)) + " " + hex(pix(315, 235)));
+		uint32_t before = pix(200, 200);
+		RECT all = {0, 0, 320, 240};
+		m_pddsFrontBuffer->Blt(&dst, m_pddsBackBuffer, &all, DDBLT_WAIT, NULL);
+		check(pix(200, 200) == before, "Blt of the whole back buffer presents it unchanged");
+		// The next draw of the client gets its own texture and state back: the
+		// UI state modulates the texture with the vertex colour.
+		tlvertex3d q[4];
+		m_pd3dDevice->BeginScene();
+		quad(q, 8, 104, TW, TW, 0xFF808080, 0xFFFFFFFF, 32, 32);
+		m_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0x1C4, q, 4, 0);
+		m_pd3dDevice->EndScene();
+		state_end();
+		m_pd3dDevice->SetTexture(0, NULL);
+		uint32_t t = texel_argb(PF_A1R5G5B5, img[0][2 * TW + 2]), want = 0xFF000000u;
+		for (int s = 0; s < 24; s += 8) want |= uint32_t(lroundf(((t >> s) & 0xFF) * 128.0f / 255.0f)) << s;
+		check_px("after the stretched present the client's texture and state are back", 8 + 2, 104 + 2, want, 1);
+	}
+
 	// ---- C3dDevice::DestroyObjects: the counts the client checks -----------------------------------
 	for (int f = 0; f < 4; ++f) tex[f].s->Release();
 	lm.s->Release();
