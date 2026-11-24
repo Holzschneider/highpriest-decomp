@@ -14,7 +14,9 @@ if [ ! -d "$SRC" ]; then echo "no source tree at $SRC" >&2; exit 1; fi
 . "$ROOT/port/tools/flags.sh"
 OUT=$ROOT/build/port; mkdir -p "$OUT/bin" "$OUT/obj"
 
-CXX="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
+# The probes open no game files, so they keep the C library's own file
+# names (port/compat/include/bf_win32_crt.h) and link no adapter.
+CXX="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_COMPAT_ADAPTER $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
 
 "$ROOT/port/tools/gen_packet_names.py" "$SRC/packet.h" > "$OUT/obj/bf_packet_names.cpp"
 

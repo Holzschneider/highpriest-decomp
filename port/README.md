@@ -25,8 +25,9 @@ port/tools/shadow.sh     # applies the automatic rewrites to a copy of src/ and 
 | after the recovery (M1, 147 units) | 60 | 2,775 |
 | after the automatic rewrites (M2.2) | 90 | 2,283 |
 | after the 64-bit plumbing, the stubs and the assembly sites (M2.3, M2.5, M2.6; 139 units, the build's exclusions skipped) | 89 | 352 |
+| after the last sweep (M2.4) | 139 | 0 |
 
-The census skips the units the build excludes (`BF_CLIENT_EXCLUDE` in the root `CMakeLists.txt`; `BF_CENSUS_ALL=1` counts them). The remaining locations are loop variables used after their loop, runtime names and one-off errors (M2.4).
+The census skips the units the build excludes (`BF_CLIENT_EXCLUDE` in the root `CMakeLists.txt`; `BF_CENSUS_ALL=1` counts them). Since M2.4 every unit compiles.
 
 ## Probes
 
