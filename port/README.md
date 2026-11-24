@@ -54,6 +54,8 @@ port/tools/layoutcheck.py [--tree DIR] [--ref-tree DIR]
 
 Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. Since M2.2 every record on `src/` matches (804 records).
 
+**Coverage (M9.5):** `BF_COVERAGE=<path>` writes the session's coverage report at exit (JSON): untranslated literals, placeholder lookups, drawn Korean or non-Windows-1252 text, each with its call frames; the `coverage` state part shows it live. `BF_CLIENT=<binary> python3 port/harness/run.py english_session` plays the M9 session and passes only with an empty report. Details in [native/strings/README.md](native/strings/README.md).
+
 ## Reference executable
 
 `port/tools/refexe.sh --string TEXT | --addr 0xA | --func NAME | --callers 0xA | --refs 0xA` prints the decompilation of the matching function (`--refs` lists the reads and writes of a global) in the stock 2008-09-03a Sakexe (Ghidra project in `$BF_REFEXE_DIR`, default `~/Games/Bifrost/refexe`). Provenance, rebuild steps and anchors: [reference-exe.md](../docs/port/reference-exe.md). The executable is never run.
