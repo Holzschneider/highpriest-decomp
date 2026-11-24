@@ -16,6 +16,7 @@ in a few logic steps, and captures are synthetic PNGs (no game artwork).
 
 import json
 import os
+import plistlib
 import selectors
 import signal
 import socket
@@ -49,7 +50,7 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 # char columns the mock saves on logout when the character row has them
 SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
-EVENTS = ["mode", "map", "chat", "window", "sound", "damage", "bye", "error"]
+EVENTS = ["mode", "map", "chat", "window", "sound", "damage", "movie", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
 DETAIL = {"login": "LSM_IDENTRY", "connecting": "LSM_WAITRESP_FROM_ACSVR",
           "charselect": "LSM_SELECTCHAR", "makechar": "LSM_MAKECHAR",
@@ -236,7 +237,12 @@ class Mock:
         self.voice_serial = 0
         self.voices_started = 0
         self.seed()
-        self.set_mode("login")
+        self.movie = {"playing": False, "paused": False, "file": None, "width": 0, "height": 0, "frames": 0,
+                      "frame": 0, "fps": 0.0, "tracks": 0, "sound": False, "voice": 0, "sound_seconds": 0.0,
+                      "opened": 0, "closed": 0, "ended": False, "last_frame": 0}
+        self.movie_t0 = None
+        if not self.start_intro():
+            self.set_mode("login")
 
     # -- infrastructure ------------------------------------------------------
 
@@ -396,6 +402,9 @@ class Mock:
 
     def on_key(self, key, down, mods):
         if not down:
+            return
+        if self.movie["playing"]:
+            self.end_movie(stopped=True)     # WndProc: g_Bink.Break takes every key
             return
         if key == "q" and "cmd" in mods:
             self.trace("input", "cmd+q")
@@ -838,6 +847,89 @@ class Mock:
                            "duration": dur, "position": played % dur, "volume": 100 / 127.0,
                            "opened": st["opened"], "failures": 0},
                 "recent": list(self.voices)}
+
+    # -- the intro movie (CBink::OpenningMain(1) at the start) --------------
+
+    def settings_path(self):
+        home = os.environ.get("BF_HOME")
+        if not home:
+            return None
+        return Path(home) / "Library" / "Application Support" / paths.app_name() / "Settings.plist"
+
+    def settings(self):
+        p = self.settings_path()
+        try:
+            with open(p, "rb") as f:
+                return plistlib.load(f)
+        except (TypeError, OSError, plistlib.InvalidFileException):
+            return {}
+
+    def start_intro(self):
+        """As CBink::OpenningMain(1): the option, BINKMODE, then the movie:
+        BF_INTRO_MOVIE or openning.bik in the game folder. A mock movie named
+        ...01.bik is 512x256, 450 frames at 30 fps without sound; any other is
+        512x384, 280 frames at 25 fps with one sound track."""
+        st = self.settings()
+        if int(st.get("Options", {}).get("SkipIntroScreens", 1)):
+            self.trace("ui", "intro: skipped (option SkipIntroScreens)")
+            return False
+        if int(st.get("Client", {}).get("BINKMODE", 0)) == 1:
+            self.trace("ui", "intro: skipped (BINKMODE 1: a key stopped it before)")
+            return False
+        name = os.environ.get("BF_INTRO_MOVIE") or ""
+        if not name:
+            folder = Path(os.environ.get("BF_CLIENT_DIR") or paths.client_dir())
+            if not (folder / "openning.bik").exists():
+                self.trace("ui", "intro: no movie (openning.bik not found in the game folder)")
+                return False
+            name = "openning.bik"
+        small = name.lower().endswith("01.bik")
+        w, h, frames, fps, tracks = (512, 256, 450, 30.0, 0) if small else (512, 384, 280, 25.0, 1)
+        m = self.movie
+        m.update(playing=True, paused=False, file=name, width=w, height=h, frames=frames, frame=0, fps=fps,
+                 tracks=tracks, sound=tracks > 0, voice=0, sound_seconds=frames / fps if tracks else 0.0,
+                 opened=m["opened"] + 1)
+        self.movie_t0 = time.monotonic()
+        self.trace("gfx", "bink: open %s: %dx%d, %d frames at %.3f fps, %d sound track(s)%s"
+                   % (name, w, h, frames, fps, tracks, ", first track played" if tracks else ""))
+        self.trace("ui", "intro: start, %d frames" % frames)
+        self.emit("movie", what="start", file=name, frames=frames, frame=0, ended=False)
+        return True
+
+    def movie_tick(self):
+        m = self.movie
+        f = min(m["frames"], 1 + int((time.monotonic() - self.movie_t0) * m["fps"]))
+        if f > m["frame"]:
+            if m["frame"] == 0 and m["sound"]:
+                self.voice_serial += 1
+                self.voices_started += 1
+                v = {"serial": self.voice_serial, "file": m["file"], "volume": 1.0, "pan": 0.0,
+                     "distance": None, "loop": False, "started": True, "duration": m["sound_seconds"]}
+                self.voices = (self.voices + [v])[-16:]
+                m["voice"] = self.voice_serial
+                self.emit("sound", **v)
+            m["frame"] = f
+        elif f >= m["frames"]:
+            self.end_movie(stopped=False)
+
+    def end_movie(self, stopped):
+        m = self.movie
+        ended = not stopped and m["frame"] >= m["frames"]
+        m.update(playing=False, voice=0, closed=m["closed"] + 1, ended=ended, last_frame=m["frame"])
+        self.trace("ui", "intro: end at frame %d of %d (%s)" % (m["frame"], m["frames"], "ended" if ended else "stopped"))
+        self.trace("gfx", "bink: close %s after frame %d of %d (%s)"
+                   % (m["file"], m["frame"], m["frames"], "ended" if ended else "stopped"))
+        if stopped:
+            # CBink::Break: any key but R sets BINKMODE 1, written at the end.
+            p = self.settings_path()
+            if p:
+                st = self.settings()
+                st.setdefault("Client", {})["BINKMODE"] = 1
+                p.parent.mkdir(parents=True, exist_ok=True)
+                with open(p, "wb") as f:
+                    plistlib.dump(st, f)
+        self.emit("movie", what="end", file=m["file"], frames=m["frames"], frame=m["frame"], ended=ended)
+        self.set_mode("login")
 
     # -- world ---------------------------------------------------------------
 
@@ -1493,6 +1585,8 @@ class Mock:
             ev = self.inputs.pop(0)
             ev()
             self.consumed += 1
+        if self.movie["playing"]:
+            self.movie_tick()
         if self.mode in ("connecting", "loading"):
             self.mode_timer -= 1
             if self.mode_timer <= 0:
@@ -1729,6 +1823,13 @@ class Mock:
               "makechar": (60, 80, 60, 255), "loading": (0, 0, 0, 255), "game": (70, 110, 60, 255)}
         k = self.scale
         rects = []
+        if self.movie["playing"]:
+            # A synthetic picture that changes with the movie's frame.
+            f = self.movie["frame"]
+            col = (40 + (f * 3) % 200, 40 + (f * 7) % 200, 120, 255)
+            x = (f * 2) % max(1, self.width - 100)
+            return write_png(path, self.width, self.height, [(x, self.height // 3, 100, 100, (250, 250, 250, 255))],
+                             col)
         if self.mode == "game":
             for a in self.actors:
                 p = self.screen_of(a["x"], a["y"])
@@ -1779,6 +1880,7 @@ class Mock:
         self.item_windows()
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
         put("sound", self.sound_state())
+        put("movie", dict(self.movie))
         return out
 
     def cmd_state(self, c, rid, msg):

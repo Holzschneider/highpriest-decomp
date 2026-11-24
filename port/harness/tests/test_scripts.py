@@ -58,6 +58,12 @@ class ScriptsAgainstMock(unittest.TestCase):
         self.assertIn("login music loops", names)
         self.assertIn("distance-scaled volume", names)
 
+    def test_intro(self):
+        rep = self.run_script("intro")
+        names = [s["name"] for s in rep["steps"]]
+        self.assertIn("A: the movie ends and the login screen follows", names)
+        self.assertIn("E: Esc stops the movie and the login screen follows", names)
+
     def test_failure_is_reported(self):
         """A step that fails stops the script and the report says FAIL."""
         import types
