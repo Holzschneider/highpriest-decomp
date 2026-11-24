@@ -1083,6 +1083,9 @@ public:
 	virtual void SetRenderInfo(RENDER_INFO_RECT& info, const float tlvertX, const float tlvertY);
 	unsigned int GetAID() { return m_aid; }
 	std::string m_itemName;
+#if defined(BF_PORT)
+	int m_bfItemId;   // the entry's ITID, which m_itemName no longer holds (the control socket's `actors`)
+#endif
 protected:
 	unsigned int m_aid;
 	int m_isJumping;

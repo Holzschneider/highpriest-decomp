@@ -32,6 +32,9 @@ void CItem::OnInit()
 	m_zoom = 1.0f;
 	m_shadowOn = true;
 	m_colorOfSingleColor = 0xffffff00;
+#if defined(BF_PORT)
+	m_bfItemId = -1;
+#endif
 }
 
 void CItem::OnExit()
@@ -111,6 +114,9 @@ void CItem::SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2
 			m_aid = s->ITAID;
 			m_itemName = s->name;
 			std::string orgItemName = m_itemName;
+#if defined(BF_PORT)
+			m_bfItemId = atoi(s->name);
+#endif
 
 			gameMode->GetClientCoor(s->x, s->y, s->subX, s->subY, m_pos.x, m_pos.z);
 

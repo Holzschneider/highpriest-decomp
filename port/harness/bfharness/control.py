@@ -272,9 +272,20 @@ class Control:
         x, y, w, h = self.control_rect(window, control_id)
         return self.click(x + w // 2, y + h // 2)
 
-    def actor(self, pred, state=None):
+    def actor(self, pred, state=None, learn_names=True):
+        """The first actor of `state` (default: a fresh one) that pred accepts.
+        When none does and some on-screen actors' names are still "?name"
+        (the 2008 client asks the server for a name only when the pointer
+        rests on the actor, PROTOCOL.md `actors`), the pointer rests on each
+        of them once and the actors are read again."""
         st = state or self.state("actors")
         for a in st["actors"]:
             if pred(a):
                 return a
-        return None
+        unknown = [a for a in st["actors"] if a.get("name") == "?name" and a.get("screen")]
+        if not learn_names or not unknown:
+            return None
+        for a in unknown:
+            self.move(a["screen"]["x"], a["screen"]["y"])
+            self.wait({"frames": 10}, timeout=10.0)
+        return self.actor(pred, learn_names=False)

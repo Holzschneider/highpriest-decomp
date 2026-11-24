@@ -330,12 +330,14 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 set(BF_CLIENT_PORT_SOURCES
 	port/compat/stubs/bf_crash.cpp
 	port/compat/stubs/bf_client_state.cpp
+	port/compat/stubs/bf_client_game.cpp
 	port/compat/stubs/bf_replay.cpp)
 # The entry point and the start-up glue (main, the zlib wrappers, the C
 # runtime names macOS lacks), compiled as port code (bf_compat_flags) with the
 # native modules' headers. main is pulled out of the library by the linker.
 add_library(bf_port_main STATIC
 	port/compat/stubs/bf_main.cpp
+	port/compat/stubs/bf_control_game.cpp
 	port/compat/stubs/bf_zlib.cpp
 	port/compat/stubs/bf_crt.cpp)
 bf_compat_flags(bf_port_main)

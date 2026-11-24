@@ -2948,6 +2948,9 @@ bool UIWindowMgr::ShowWindow(WINDOWID windowId, int show)
 // The control socket names a window by its WID (bf_client_state.cpp): every
 // window made here is recorded with the id it was made for.
 extern "C" void bf_client_window_made(UIWindow *wnd, int windowId);
+// The control socket's `chat` event (bf_client_game.cpp): every line pushed
+// into the chat history.
+extern "C" void bf_client_chat_line(int second, const char *text, int type, const char *talker);
 
 UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 {
@@ -5492,6 +5495,9 @@ INT_PTR UIWindowMgr::SendMsg(int message, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 	case UIM_PUSHINTOCHATHISTORY:
 	case UIM_PUSHINTOCHATHISTORY2:
+#if defined(BF_PORT)
+		bf_client_chat_line(message == UIM_PUSHINTOCHATHISTORY2, (const char*)val1, (int)val3, (const char*)val4);
+#endif
 		if (m_chatWnd) {
 			unsigned int colorRef = val2;
 			if (colorRef == 0)

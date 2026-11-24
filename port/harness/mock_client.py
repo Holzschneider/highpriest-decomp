@@ -560,6 +560,21 @@ class Mock:
         sy = L[1] // 2 - (y - self.self_["y"]) * CELL
         return {"x": sx, "y": sy} if 0 <= sx < L[0] and 0 <= sy < L[1] else None
 
+    def hover(self, x, y):
+        """The pointer resting on an actor makes its name known, as the
+        client's name request on hover does (PROTOCOL.md, `actors`)."""
+        if self.mode != "game" or not self.self_:
+            return
+        for a in self.actors:
+            p = self.screen_of(a["x"], a["y"])
+            if p and abs(p["x"] - x) <= CELL // 2 and abs(p["y"] - y) <= CELL // 2:
+                a["named"] = True
+
+    def shown_name(self, a):
+        if a["type"] == "item" or a.get("named"):
+            return a["name"]
+        return "?name"
+
     def cell_at(self, x, y):
         if self.mode != "game" or not self.self_:
             return None
@@ -971,6 +986,7 @@ class Mock:
         if x is not None:
             def mv(x=x, y=y):
                 self.pointer = [x, y]
+                self.hover(x, y)
             evs.append(mv)
         px, py = (x, y) if x is not None else tuple(self.pointer)
         if action == "move":
@@ -1062,7 +1078,7 @@ class Mock:
                      "dir": 0, "moving": s.get("dest") is not None, "dest": s.get("dest"),
                      "hp": s["hp"], "max_hp": s["max_hp"], "sp": s["sp"], "max_sp": s["max_sp"],
                      "zeny": s["zeny"], "weight": 0, "max_weight": 2400} if s else None)
-        put("actors", [{"id": a["id"], "type": a["type"], "name": a["name"], "job": a["job"], "x": a["x"],
+        put("actors", [{"id": a["id"], "type": a["type"], "name": self.shown_name(a), "job": a["job"], "x": a["x"],
                         "y": a["y"], "screen": self.screen_of(a["x"], a["y"])} for a in self.actors] if s else [])
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
         return out

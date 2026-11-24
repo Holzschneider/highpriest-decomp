@@ -56,6 +56,7 @@
 #include "bf_trace.h"
 #include "bf_view.h"
 #include "bf_client_ui.h"
+#include "bf_control_game.h"
 
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
 extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
@@ -248,10 +249,7 @@ void WriteDetail(bf_control_writer *w, void *)
 // The client's bytes are Windows-1252 (spec section 5).
 void WriteText(bf_control_writer *w, const char *text)
 {
-	int n = (int)strlen(text);
-	std::string utf8((size_t)n * 3 + 1, '\0');
-	int m = bf_text_to_utf8(1252, text, n, &utf8[0], (int)utf8.size());
-	bf_control_write_string_n(w, utf8.data(), m > 0 ? (size_t)m : 0);
+	bf_control_game_write_text(w, text);
 }
 
 void WriteRect(bf_control_writer *w, int x, int y, int cx, int cy)
@@ -388,6 +386,7 @@ void OpenControl(const char *path)
 	bf_control_register_state("windows", WriteWindows, nullptr);
 	bf_control_declare_event("mode");
 	bf_control_declare_event("window");
+	bf_control_game_install();   // map, self, actors, pointer; events map, chat
 	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
 	if (bf_control_open(&config) != BF_CONTROL_OK)
 		bf_tracef(BFT_ERR, "control: cannot open %s; running without the socket", path);
@@ -547,6 +546,7 @@ extern "C" void bf_port_frame(void)
 		return;
 	ReportModeChange();
 	ReportWindowChanges();
+	bf_control_game_frame();
 	bf_control_poll();
 }
 

@@ -20,6 +20,7 @@
 #include "bf_client_ui.h"
 
 extern UIWindowMgr g_windowMgr;
+extern int g_bfModeRunning;   // Mode.cpp: a mode is in OnRun
 
 extern "C" const char *bf_port_mode(const char **detail);
 
@@ -68,6 +69,12 @@ extern "C" const char *bf_port_mode(const char **detail)
 		return "quitting";
 	}
 	if (g_modeMgr.GetGameMode()) {
+		// OnInit loads the map; the game is played once OnRun runs, and
+		// `map` and `self` are reported from then on (bf_client_game.cpp).
+		if (!g_bfModeRunning) {
+			*detail = "MT_GAME (loading)";
+			return "loading";
+		}
 		*detail = "MT_GAME";
 		return "game";
 	}

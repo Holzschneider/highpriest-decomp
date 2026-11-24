@@ -116,6 +116,13 @@ Result: the parts below. A part that does not apply in the current mode is `null
 
 Text in `state` and in events is UTF-8, decoded from the client's Windows-1252 bytes; bytes that do not decode (Korean typed by others) appear as U+FFFD.
 
+What the client reports in the game parts, where its own data sets limits (step M6.4):
+
+- **`mode`** is `loading` from the zone server's answer until the map is loaded (the login mode's `LSM_READY_FOR_ZONESVR`, then game mode's `OnInit`, detail `MT_GAME (loading)`), and on every map change; `game` once the map is loaded and play has begun. `map` and `self` are not `null` exactly while the mode is `game`.
+- **`self`**: `x`, `y` are the cell of the character as the client draws it; during a walk they advance with the animation, so they can be a cell ahead of or behind the server's position, and agree with it once the walk has ended. `moving` is true from the server's acknowledgement of a move (`ZC_NOTIFY_PLAYERMOVE`) until the client's walk ends; between a click and that acknowledgement it is still false, so a script waits for `position` together with `moving: false`. `dest` is the walk's destination while `moving`, else `null`. `dir` uses the server's convention (0 north, counting counter-clockwise to 7 north-east). `weight` and `max_weight` are as the client shows them: the server's tenths divided by 10.
+- **`actors`** lists what the client holds: the characters, NPCs and monsters the server has shown it, the items on the ground and the skill units. `type` comes from the client's own tests where it has them (its pet, homunculus and mercenary ids; a pet's head type) and otherwise from the job id: `pc` for player jobs, `portal` for 45 and 139, `monster` for 1001–3999 and 25000–25017, `npc` for 46–999, 10000–19999 and 20000–20017, `homun` for 6001–6016, `merc` for 6017–6046, `other` for the rest. `name` is `?name` until the client knows the name: the 2008 client asks the server for an actor's name (`CZ_REQNAME`) only when the pointer rests on it, and `state` never asks, so a script that looks an actor up by name lets the pointer rest on its `screen` position first (`bfharness.control.Control.actor` does). An item's `name` is the label the client shows for it on the ground (the item's name and count). `screen` is the projection of the actor's position with the current camera, `null` behind the camera or outside the window.
+- **`pointer`**: `x`, `y` and `buttons` are the pointer as the application module holds it, also outside game mode; `cell` is the cell the client's own ground picking (`CGameMode::GetGroundAttrPos`) finds under the pointer, `null` outside game mode or off the ground.
+
 ### `wait`
 
 Arguments: `until` (a condition), `timeout` (default 10000, at most 600000), `after` (an event `seq`; only events after it count; default: the `seq` of the reply to the previous request).
@@ -166,8 +173,8 @@ Physical keys, named after the US layout regardless of the keyboard's layout. Ch
 | Event | Fields | Sent when |
 |---|---|---|
 | `mode` | `mode`, `previous`, `detail` | the mode of `state` changes |
-| `map` | `map`, `x`, `y` | game mode enters a map (first entry and every map change) |
-| `chat` | `channel` (`normal`, `party`, `guild`, `whisper`, `broadcast`, `system`), `from` (sender's name or `null`), `text` | a line is added to the chat window, own lines included |
+| `map` | `map`, `x`, `y` | game mode enters a map (first entry and every map change): sent when `mode` becomes `game`, with the `self` cell at that moment. A teleport within the same map sends none |
+| `chat` | `channel` (`normal`, `party`, `guild`, `whisper`, `broadcast`, `system`), `from` (sender's name or `null`), `text` | a line is added to the chat window, own lines included (as the server sends them back). For `normal`, `party` and `guild`, `from` is the name the line begins with and `text` the rest after the client's `name : `; a `whisper`'s `from` is its sender; `broadcast` and the client's own messages (`system`) have `from` `null` and the whole line as `text`. Lines said in a chat room go to the chat room's window and are not sent |
 | `window` | `action` (`open`, `close`), `wid` (the window's `id` in `state`), `name` | a UI window opens or closes |
 | `bye` | `reason` (`quit`, `signal`, `error`) | the client is about to close the socket and exit |
 | `error` | `code` | without a request to answer (only `busy`, section 1) |

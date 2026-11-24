@@ -324,6 +324,18 @@ void SelfPart(bf_control_writer *w, void *)
 	bf_control_write_end_object(w);
 }
 
+std::string g_mapName;   // "" : the part is null (not on a map)
+
+void MapPart(bf_control_writer *w, void *)
+{
+	if (g_mapName.empty()) { bf_control_write_null(w); return; }
+	bf_control_write_begin_object(w);
+	bf_control_write_key(w, "name"); bf_control_write_string(w, g_mapName.c_str());
+	bf_control_write_key(w, "width"); bf_control_write_int(w, 312);
+	bf_control_write_key(w, "height"); bf_control_write_int(w, 392);
+	bf_control_write_end_object(w);
+}
+
 void BrokenPart(bf_control_writer *w, void *)
 {
 	bf_control_write_int(w, 1);
@@ -888,6 +900,31 @@ void TestWait(Client &c)
 
 	Json z = c.Request("{\"id\":79,\"cmd\":\"wait\",\"until\":{\"mode\":\"game\"},\"timeout\":0}");
 	Check("wait timeout 0: checked once", z.Code() == "timeout", z.text);
+
+	// The game parts the client registers (M6.4): `map` and `self` are null
+	// outside a map, and a condition on them then does not hold.
+	bf_control_register_state("map", MapPart, nullptr);
+	Json offMap = c.Request("{\"id\":80,\"cmd\":\"wait\",\"until\":{\"map\":\"prontera\"},\"timeout\":50}");
+	Json offSelf = c.Request("{\"id\":81,\"cmd\":\"wait\",\"until\":{\"moving\":false},\"timeout\":50}");
+	Json offPos = c.Request("{\"id\":82,\"cmd\":\"wait\",\"until\":{\"position\":{\"x\":150,\"y\":151}},\"timeout\":50}");
+	Check("wait map, moving, position: a null part does not hold (timeout)",
+	      offMap.Code() == "timeout" && offSelf.Code() == "timeout" && offPos.Code() == "timeout",
+	      offMap.text + offSelf.text + offPos.text);
+	g_mapName = "prt_fild08";
+	c.Send("{\"id\":83,\"cmd\":\"wait\",\"until\":{\"map\":\"prontera\"}}\n");
+	bool other = c.ReplyWithin(5);
+	g_mapName = "prontera";
+	Json onMap = c.Reply();
+	Check("wait map: holds when the part's name is the map named, not before",
+	      !other && onMap.Ok() && bf_control_value_type(onMap["met"]) == BF_CONTROL_T_OBJECT, onMap.text);
+	Json st = c.Request("{\"id\":84,\"cmd\":\"state\",\"fields\":[\"map\"]}");
+	const bf_control_value *mp = st["map"];
+	Check("state map: the registered part as written",
+	      st.Ok() && bf_control_value_type(mp) == BF_CONTROL_T_OBJECT &&
+	      bf_control_value_string(bf_control_value_get(mp, "name"), nullptr) &&
+	      strcmp(bf_control_value_string(bf_control_value_get(mp, "name"), nullptr), "prontera") == 0, st.text);
+	g_mapName.clear();
+	bf_control_register_state("map", nullptr, nullptr);
 }
 
 void TestCapture(Client &c, const std::string &dir)

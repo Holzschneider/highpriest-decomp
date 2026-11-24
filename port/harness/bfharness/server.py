@@ -33,7 +33,7 @@ class Server:
     def compose(self, *args, input=None, timeout=120, check=True):
         cmd = ["docker", "compose", "-f", str(self.dir / "docker-compose.yml")] + list(args)
         r = subprocess.run(cmd, cwd=str(self.dir), input=input, capture_output=True,
-                           text=True, timeout=timeout)
+                           text=True, errors="replace", timeout=timeout)   # the server logs Windows-1252 names
         if check and r.returncode != 0:
             raise ServerError("%s: exit %d: %s" % (" ".join(cmd[3:]), r.returncode, r.stderr.strip()))
         return r
