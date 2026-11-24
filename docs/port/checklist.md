@@ -38,7 +38,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [x] aef1fdb | M3.1 Native modules for files, settings, time, threads, shell functions (`port/native`), with test programs | native | |
-| [ ] | M3.1a Their adapters in `port/compat` | compat | M3.1 |
+| [x] 2e9b18e | M3.1a Their adapters in `port/compat` | compat | M3.1 |
 | [ ] | M3.2 Every other imported function as a reporting stub; the binary links | compat | M2.4, M2.7, M3.1a, M4.4, M4.5a, M7.2a |
 | [x] ce92fc1 | M3.3 File lookup: game folder, backslashes, case-insensitive, CP949 names; writes to the Mac locations | native | M3.1 |
 | [x] d8b18e0 | M3.4 Settings: defaults, property list behind the registry adapter, one settings object | native | M3.1 |

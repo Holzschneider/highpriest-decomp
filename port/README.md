@@ -97,6 +97,7 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 
 | Area | Windows names | On |
 |---|---|---|
+| [`win32`](compat/win32/README.md) | kernel32 files, mappings, threads, time; advapi32 registry (onto the settings plist and the Keychain); winmm; `ShellExecute`; `MessageBox`; the client's `fopen` and other C library file calls, translated through `port/compat/include/bf_win32_crt.h` | `sys`, `text` |
 | [`d3d`](compat/d3d/README.md) | `DirectDrawCreateEx`, DirectDraw 7 and Direct3D 7 objects, the DirectX GUIDs; lazy render-target lock | `gfx` |
 | [`gdi`](compat/gdi/README.md) | gdi32: memory DCs, DIB sections, fonts, text, the triangle fill | `text` |
 | [`miles`](compat/miles/README.md) | the 46 `AIL_*` functions of Miles | `audio` |
