@@ -35,6 +35,8 @@
 #define _inline inline
 
 #define _MAX_PATH 260
+#define __max(a,b) (((a) > (b)) ? (a) : (b))
+#define __min(a,b) (((a) < (b)) ? (a) : (b))
 #define stricmp strcasecmp
 #define _stricmp strcasecmp
 #define strcmpi strcasecmp

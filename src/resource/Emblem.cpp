@@ -66,12 +66,16 @@ void	CEmblemRes :: Reset()
 
 bool	CEmblemRes :: UnCompressEmblem(BYTE *bitmap, ULONG &bitmapSize, BYTE *emblem, int emSize)
 {
+#ifdef BF_PORT
+	uncompress(bitmap, &bitmapSize, emblem, emSize);
+#else
 	__try {
 		uncompress(bitmap, &bitmapSize, emblem, emSize);
 	} __except(1) {
 		Trace("Failed - Emblem Uncompress!");
 		return false;
 	}
+#endif
 
 	Trace("Emblem Uncomp Success!");
 	return true;
