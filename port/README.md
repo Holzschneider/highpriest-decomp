@@ -21,10 +21,11 @@ port/tools/shadow.sh     # applies the automatic rewrites to a copy of src/ and 
 
 | | clean units of 152 | distinct error locations |
 |---|---:|---:|
-| `src/` as it is | 60 | 3,226 |
-| after the automatic rewrites | 93 | 1,142 |
+| `src/` as reconstructed (152 units, against the vendored headers) | 60 | 3,215 |
+| after the recovery (M1, 147 units) | 60 | 2,775 |
+| after the automatic rewrites (M2.2) | 90 | 2,283 |
 
-Of the 1,142, 642 are inside the Bink SDK headers, which one unit includes, and 170 are loop variables used after their loop.
+Of the remaining locations, about 1,250 are pointers cast to `int` (M2.3); the Bink SDK headers, which one unit includes, account for most of the rest until `CBink` is stubbed (M2.5).
 
 ## Probes
 
@@ -35,7 +36,7 @@ build/port/bin/bifrost-netprobe                # logs in through to the zone ser
 port/tools/packetdiff.py --rathena <rathena checkout> 20080401 20080910
 ```
 
-The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp`. Because `src/` still declares 32-bit fields as `long`, `build.sh` takes the sources from the rewritten copy; `BF_SRC=src` switches to the real tree once the rewrites are applied there.
+The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp` from `src/` (`BF_SRC` or `-DBF_PROBE_SRC` names another tree, such as the shadow copy).
 
 `bifrost-netprobe` follows the steps of the game's login mode against a running server and reports the first packet whose header the client's length table does not know.
 
@@ -45,7 +46,7 @@ The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `de
 port/tools/layoutcheck.py [--tree DIR] [--ref-tree DIR]
 ```
 
-Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. On the shadow tree eight records still differ, all through `time_t` fields in `packet.h`, which are 32 bits on Win32.
+Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. Since M2.2 every record on `src/` matches.
 
 ## Reference executable
 

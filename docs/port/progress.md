@@ -56,3 +56,18 @@ Entries are added at every milestone exit, for every parked item, for every devi
 - The archive list is read from `DATA.INI` in the game folder; `assemble.py` now writes it (`rdata.grf` before `data.grf`).
 - M12.3b integrated: all 24 embedded Granny textures decode (RAD's Bink texture coder, written fresh from a public, Apache-licensed description and source in another RO client project, read not copied; FORMAT.md describes the source without naming the project), and every model draws textured and skinned through each animation. The curve rule is confirmed on all 111 non-uniform curves; the rest pose rebuilt from local transforms matches the stored inverse-world matrices to 8×10⁻⁶.
 - Deviation: the input adapter (M5.1, M5.2, with the window and message-pump names of user32) starts on the `view` module's pointer mapping instead of waiting for the Direct3D adapter; M9.2's runtime lookup lands in `port/` first, its call sites in `src/` later, since the M2 rewrites hold `src/`.
+
+## 2026-11-24: M1 exit — passed
+
+Verifier's verdict on `dff2f75` (fresh agent, given only the criteria and the commit):
+
+| Criterion | Verdict | Evidence |
+|---|---|---|
+| No source mentions a single-player function or global; the inventory tool reports nothing | pass | `inventory.py --tree src`: 0 sites (557 on `main`); the verifier's own grep for the 160 derived names and for `World_HP`, `data_hp`, `HIGHPRIEST.EXE`, `Setup_HP`, `08.mp3` and the removed helpers: 0 hits |
+| Census: no new error kind, fewer errors | pass | 147 units: 2,775 locations against 2,811 for the baseline's same units (3,220 with the HP files); normalised kinds 67 against 69, none new; no unit has more errors |
+| The inventory accounts for every site and lists the open ones | pass | 557 sites in 54 groups, every group with a verdict; the committed table regenerates identically; one open site (`onupdate-calls`), one marker in the source |
+| M1.6 reference executable | pass | SHA-256 and CRC as documented; not in git; the helper decompiles `CGameMode::OnUpdate` and `SendMsg` |
+
+- Open recovery sites carried to M6 and M8: `onupdate-calls` (three unidentified calls in the 2008 `CGameMode::OnUpdate`; the reference also runs the timed-list call inside the `m_loopCond` block, where the source runs `m_scheduler.OnRun()` outside it).
+- Lead's decisions on the verifier's notes: the `HIGHPRIEST_*_H` include guards stay (they name the reconstruction, not the game, and renaming 98 headers is churn); the Windows `Makefile`, `README.md` and `THIRD-PARTY.md` on this branch keep describing the reconstruction they came from; `fopen("DATA.INI")` resolving against the working directory is handled by the system adapter (M3.1a).
+- M2.2 integrated after the exit: the four rewrites and a new `time_t` rule applied to `src/` as their own commits; the layout check passes on `src/` (0 of 802 records differ); census 90 of 147 units clean, 2,283 locations; the probes build from `src/` and `bifrost-netprobe` ends `OK`. `0x2d4` is now 29 bytes, as the server sends it.

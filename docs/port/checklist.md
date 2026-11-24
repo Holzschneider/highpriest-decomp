@@ -17,14 +17,14 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 2d8cee7 | M1.4 Restore the remaining replaced sites; mark the unsettled ones | src | M1.3 |
 | [x] 3c3c2b6 | M1.5 General client: name constant, no process-name check, no `Setup_HP.exe` loop, settings independent of the HighPriest key | src | M1.3 |
 | [x] 174f7f0 | M1.6 Reference executable downloaded, checksummed, loaded in a disassembler | ref | |
-| [ ] | M1 exit (verifier) | | M1.0–M1.6 |
+| [x] dff2f75 | M1 exit (verifier) | | M1.0–M1.6 |
 
 ## M2. Compiles for arm64
 
 | | Step | Track | Needs |
 |---|---|---|---|
 | [x] 829fac4 | M2.1 Wine headers vendored under `port/compat/winheaders` with licence notice and regeneration script | headers | |
-| [ ] | M2.2 Codemods on `src/`: `long32`, `allocator`, `enumfwd`, `typename`, and `time_t` fields of `packet.h` to 32 bits (found by M2.8) | src | M1.5 |
+| [x] 634ca47 | M2.2 Codemods on `src/`: `long32`, `allocator`, `enumfwd`, `typename`, and `time_t` fields of `packet.h` to 32 bits (found by M2.8) | src | M1.5 |
 | [ ] | M2.3 Message plumbing widened to `INT_PTR`; `ptrcast` applied; reverse direction reviewed | src | M2.2 |
 | [ ] | M2.4 Loop-scope, iterator-as-pointer, runtime-name and one-off errors | src | M2.3, M2.1 |
 | [ ] | M2.5 Units out of the build with reasons; `CBink` and Granny classes stubbed behind their interfaces | src | M2.2 |
