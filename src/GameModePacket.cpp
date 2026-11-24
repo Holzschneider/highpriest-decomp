@@ -11113,8 +11113,8 @@ void CGameMode::Zc_Notify_Newentry2(char const *buf)
 			}
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
@@ -11225,8 +11225,8 @@ void CGameMode::Zc_Notify_Newentry3(char const *buf)
 			}
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
@@ -11339,8 +11339,8 @@ void CGameMode::Zc_Notify_Newentry4(char const *buf)
 			}
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
@@ -11442,8 +11442,8 @@ void CGameMode::Zc_Notify_Standentry2(char const *buf)
 			}
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
@@ -11546,8 +11546,8 @@ void CGameMode::Zc_Notify_Standentry3(char const *buf)
 			}
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
@@ -11645,8 +11645,8 @@ void CGameMode::Zc_Notify_Standentry4(char const *buf)
 			newGameActor->m_charfont = p->charfont;
 		}
 
-		if (newGameActor && (m_partyPosList.find(p->GID) != m_partyPosList.end() ||
-			m_guildPosList.find(p->GID) != m_guildPosList.end()))
+		if (newGameActor && (m_partyPosList.find((DWORD)p->GID) != m_partyPosList.end() ||	// copies: the packed field is misaligned for find's reference
+			m_guildPosList.find((DWORD)p->GID) != m_guildPosList.end()))
 		{
 			newGameActor->SetGroupMemberAndVisible(TRUE);
 		}
