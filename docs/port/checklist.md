@@ -106,7 +106,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [ ] | M8.1 Feature checklist in play order, each item a script (expanded into sub-steps when M6 closes) | src | M6 exit |
-| [ ] | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
+| [x] e2ff959 | M8.2 Headless bot from the network probe: second character, answers trade, party, guild, chat | harness | |
 | [ ] | M8.4 Protocol differences resolved on the client side | src | M6 exit |
 | [ ] | M8.5 Worker threads made safe | src | M6 exit |
 | [ ] | M8.6 Sanitizer runs and one-hour soak | src | M8.1 |

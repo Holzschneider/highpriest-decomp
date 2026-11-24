@@ -45,6 +45,10 @@ Compiles the packet and file-format headers for 32-bit Windows and for arm64 and
 
 `port/tools/refexe.sh --string TEXT | --addr 0xA | --func NAME | --callers 0xA` prints the decompilation of the matching function in the stock 2008-09-03a Sakexe (Ghidra project in `$BF_REFEXE_DIR`, default `~/Games/Bifrost/refexe`). Provenance, rebuild steps and anchors: [reference-exe.md](../docs/port/reference-exe.md). The executable is never run.
 
+## Second player
+
+`port/bot/build.sh` builds `bifrost-bot`, a headless second player for the tests that need two: it logs a character in with the game's own connection code, answers trade, party and guild invitations, whispers and chat, and takes commands as JSON lines on stdin or `--control <socket>`. `port/bot/selftest.py` plays three of them against the test server and checks the round trips in `chatlog`, `party`, `zenylog` and `char`. Commands and events: [bot/README.md](bot/README.md).
+
 ## Auditing game data
 
 ```bash
