@@ -271,6 +271,21 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 	return (int)g_actors.size();
 }
 
+extern "C" int bf_client_game_camera_get(bf_client_game_camera *out)
+{
+	CGameMode *mode = ReadyMode();
+	if (!mode)
+		return 0;
+	CView *v = mode->GetView();
+	out->longitude = v->GetCurLongitude();
+	out->latitude = v->GetCurLatitude();
+	out->distance = v->GetCurDistance();
+	out->dest_longitude = v->GetDestLongitude();
+	out->dest_latitude = v->GetDestLatitude();
+	out->dest_distance = v->GetDestDistance();
+	return 1;
+}
+
 extern "C" int bf_client_game_pointer_cell(int *x, int *y)
 {
 	CGameMode *mode = ReadyMode();

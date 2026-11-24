@@ -46,7 +46,8 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
        "PARTYSETTINGWND": 53, "WHISPERWND": -1,
        "MAILLISTWND": 98, "MAILVIEWWND": 99, "ITEMDROPCNTWND": 15,
-       "ITEMPURCHASEWND": 23, "ITEMSTOREWND": 33, "NPCEDITDIALOGWND": 56}
+       "ITEMPURCHASEWND": 23, "ITEMSTOREWND": 33, "NPCEDITDIALOGWND": 56,
+       "QUITWND": 48}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 # char columns the mock saves on logout when the character row has them
 SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
@@ -511,8 +512,14 @@ class SkillsOptionsMixin:
             self.skill_view = max(0, min(max(0, n - SKILL_ROWS), self.skill_view - dy * 3))
             self.refresh_windows()
             return
+        if "shift" in self.held:      # with Shift the wheel tilts: 5 degrees a notch
+            step = 1 if dy > 0 else -1
+            self.camera["latitude"] = max(-89.0, min(-1.0, self.camera["latitude"] + 5.0 * step))
+            return
         lo, hi = (0.4, 2.5) if self.free_camera else (0.6, 1.0)
         self.cam = max(lo, min(hi, self.cam + 0.06 * dy))
+        # the `camera` part: 24.3 units of distance a notch from 400
+        self.camera["distance"] = 400.0 + (self.cam - 1.0) / 0.06 * 24.3
 
     def cell_px(self):
         return CELL if self.cam == 1.0 else CELL / self.cam
@@ -593,6 +600,8 @@ class Mock(SkillsOptionsMixin):
         self.store_tab = "item"   # the storage window's tab
         self.selected_slot = 0
         self.last_click = (-1, 0, 0)
+        self.camera = {"longitude": 0.0, "latitude": -45.0, "distance": 400.0}
+        self.last_rdown = (-1, 0, 0)
         self.after_connect = None
         self.bye_reason = "quit"
         self.stream = {"file": "", "started": None, "opened": 0}
@@ -858,10 +867,15 @@ class Mock(SkillsOptionsMixin):
                         self.close_window("ITEMSHOPWND")
                         self.deal, self.cart = None, {}
                     return
+            if self.close_window("QUITWND"):
+                return
+            # A living character gets the quit window (UIQuitWnd): character
+            # select (ID_RESTART), exit, cancel, as the real client.
             L = self.logical()
-            self.open_window(Window("RESTARTWND", [L[0] // 2 - 80, L[1] // 2 - 40, 160, 80], [
-                ctl("charselect", "button", L[0] // 2 - 70, L[1] // 2 - 30, 140, 20, "Character select"),
-                ctl("exit", "button", L[0] // 2 - 70, L[1] // 2, 140, 20, "Exit")]))
+            self.open_window(Window("QUITWND", [L[0] // 2 - 80, L[1] // 2 - 60, 160, 130], [
+                ctl("restart", "button", L[0] // 2 - 70, L[1] // 2 - 30, 140, 20, "Character select"),
+                ctl("exit", "button", L[0] // 2 - 70, L[1] // 2, 140, 20, "Exit"),
+                ctl("cancel", "button", L[0] // 2 - 70, L[1] // 2 + 35, 140, 20, "Cancel")]))
         elif self.mode == "makechar":
             self.set_mode("charselect")
         elif self.mode == "charselect":
@@ -874,6 +888,11 @@ class Mock(SkillsOptionsMixin):
             self.buttons.add(button)
         else:
             self.buttons.discard(button)
+        if button == "right" and down and self.mode == "game":
+            now = self.frame
+            if self.last_rdown[0] >= now - 30 and (self.last_rdown[1], self.last_rdown[2]) == (x, y):
+                self.camera["longitude"] = 0.0      # ProcessRBtn BTN_DBLCLK
+            self.last_rdown = (now, x, y)
         if self.button_extra(button, down, x, y):
             return
         if button == "left" and down and self.mode == "game":
@@ -935,6 +954,14 @@ class Mock(SkillsOptionsMixin):
                 self.make_char()
             else:
                 self.set_mode("charselect")
+        elif w.name == "QUITWND":
+            self.close_window(w.name)
+            if cid == "restart":
+                self.save_char()
+                self.set_mode("charselect")
+            elif cid == "exit":
+                self.save_char()
+                self.running = False
         elif w.name == "RESTARTWND":
             self.save_char()
             if cid == "charselect":
@@ -1309,6 +1336,7 @@ class Mock(SkillsOptionsMixin):
 
     def enter_map(self, name, x, y):
         s = self.self_
+        self.camera = {"longitude": 0.0, "latitude": -45.0, "distance": 400.0 + (self.cam - 1.0) / 0.06 * 24.3}
         self.map = name
         s["x"], s["y"], s["dest"], s["path_wait"] = x, y, None, 0
         self.actors = []
@@ -1900,6 +1928,8 @@ class Mock(SkillsOptionsMixin):
 
     def update_world(self):
         s = self.self_
+        if not s:       # saved on the way out (quit window, restart window)
+            return
         d = s.get("dest")
         if d:
             s["path_wait"] += 1
@@ -2148,6 +2178,9 @@ class Mock(SkillsOptionsMixin):
         evs = []
         if x is not None:
             def mv(x=x, y=y):
+                if self.mode == "game" and "right" in self.buttons and not self.held:
+                    # CGameMode::ProcessRBtn: the drag turns the view by its dx
+                    self.camera["longitude"] = (self.camera["longitude"] + x - self.pointer[0]) % 360.0
                 self.pointer = [x, y]
                 self.hover(x, y)
             evs.append(mv)
@@ -2256,6 +2289,7 @@ class Mock(SkillsOptionsMixin):
                        "type": 4 if r["nameid"] in EQUIPMENT else 0, "identified": True}
                       for r in self.inventory()] if s else None)
         self.item_windows()
+        put("camera", dict(self.camera, dest=dict(self.camera)) if s else None)
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
         put("sound", self.sound_state())
         put("movie", dict(self.movie))

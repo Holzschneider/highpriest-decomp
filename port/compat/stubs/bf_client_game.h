@@ -61,6 +61,14 @@ int bf_client_game_actors(const bf_client_game_actor **actors);
 // finds it (CGameMode::GetGroundAttrPos), else 0 (not ready, or no cell).
 int bf_client_game_pointer_cell(int *x, int *y);
 
+typedef struct bf_client_game_camera {
+	float longitude, latitude, distance;            // the view as drawn (CView m_cur)
+	float dest_longitude, dest_latitude, dest_distance; // where it is heading (m_dest)
+} bf_client_game_camera;
+
+// 1 and the game view's camera (degrees, world units) when ready, else 0.
+int bf_client_game_camera_get(bf_client_game_camera *out);
+
 typedef struct bf_client_game_chat {
 	const char *channel;    // normal, party, guild, whisper, broadcast, system
 	const char *from;       // sender's name, NULL when the line has none

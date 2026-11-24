@@ -6,6 +6,7 @@
 //   pointer  {x, y, buttons, cell}: the pointer as the app module has it,
 //            in logical pixels, and the map cell the client's picking finds
 //   items    the character's items, worn ones included, on a loaded map, else null
+//   camera   {longitude, latitude, distance, dest: {...}} of the game view
 // The events: `map` when game mode enters a map, `chat` per chat line,
 // `damage` per number drawn over an actor.
 #include <windows.h>
@@ -180,6 +181,32 @@ void WritePointer(bf_control_writer *w, void *)
 	bf_control_write_end_object(w);
 }
 
+void WriteCameraFields(bf_control_writer *w, double lon, double lat, double dist)
+{
+	bf_control_write_key(w, "longitude");
+	bf_control_write_number(w, lon);
+	bf_control_write_key(w, "latitude");
+	bf_control_write_number(w, lat);
+	bf_control_write_key(w, "distance");
+	bf_control_write_number(w, dist);
+}
+
+void WriteCamera(bf_control_writer *w, void *)
+{
+	bf_client_game_camera c;
+	if (!bf_client_game_camera_get(&c)) {
+		bf_control_write_null(w);
+		return;
+	}
+	bf_control_write_begin_object(w);
+	WriteCameraFields(w, c.longitude, c.latitude, c.distance);
+	bf_control_write_key(w, "dest");
+	bf_control_write_begin_object(w);
+	WriteCameraFields(w, c.dest_longitude, c.dest_latitude, c.dest_distance);
+	bf_control_write_end_object(w);
+	bf_control_write_end_object(w);
+}
+
 bool g_inMap = false;   // a `map` event has been sent for the map game mode is on
 
 void ReportMap()
@@ -260,6 +287,7 @@ void bf_control_game_install(void)
 	bf_control_register_state("actors", WriteActors, nullptr);
 	bf_control_register_state("pointer", WritePointer, nullptr);
 	bf_control_register_state("items", WriteInventory, nullptr);
+	bf_control_register_state("camera", WriteCamera, nullptr);
 	bf_control_declare_event("map");
 	bf_control_declare_event("chat");
 	bf_control_declare_event("damage");
