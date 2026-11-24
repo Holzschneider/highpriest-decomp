@@ -1,3 +1,4 @@
 userid: s1
 passwd: p1
 char_ip: 127.0.0.1
+import: conf/import/maps_enterable.conf
