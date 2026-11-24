@@ -71,6 +71,9 @@ def server_npcs(t, name):
         for (m, x, y, nm, _job, _role) in mock_client.NPCS:
             if m == name:
                 out.setdefault((x, y), []).append(nm)
+        for (m, x, y, nm) in mock_client.GUILD_FLAGS:   # npc/guild/ flags
+            if m == name:
+                out.setdefault((x, y), []).append(nm)
         for (m, x, y, *_rest) in mock_client.PORTALS:
             if m == name:
                 out.setdefault((x, y), []).append("")

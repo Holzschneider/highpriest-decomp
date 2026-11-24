@@ -5,7 +5,9 @@ import sys  # noqa: E402
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # port/harness
 
 import json
+import subprocess
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 
 from bfharness import paths
 from bfharness.runner import Test, load_script
@@ -87,6 +89,26 @@ class ScriptsAgainstMock(unittest.TestCase):
         self.assertFalse(r["passed"])
         self.assertEqual([s["name"] for s in r["steps"]], ["wrong mode expected", "client exits cleanly"])
         self.assertIn("got 'login', expected 'game'", r["steps"][0]["error"])
+
+
+class EveryScriptAgainstMock(unittest.TestCase):
+    """Every script in scripts/ passes with --mock (scripts that need the real
+    client say so in a step and pass), so that a change to the mock or to a
+    script cannot break another script unnoticed. Run in parallel: each
+    script has its own run directory and mock client."""
+
+    def run_one(self, name):
+        r = subprocess.run([sys.executable, str(paths.HARNESS_DIR / "run.py"), name, "--mock"],
+                           capture_output=True, text=True, timeout=300)
+        return name, r.returncode, r.stdout[-1500:]
+
+    def test_every_script(self):
+        names = sorted(p.stem for p in (paths.HARNESS_DIR / "scripts").glob("*.py") if p.stem != "__init__")
+        self.assertGreater(len(names), 20)
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            results = list(pool.map(self.run_one, names))
+        failed = ["%s:\n%s" % (n, out) for n, rc, out in results if rc != 0]
+        self.assertFalse(failed, "scripts failing with --mock:\n" + "\n".join(failed))
 
 
 if __name__ == "__main__":

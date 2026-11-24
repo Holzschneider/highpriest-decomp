@@ -92,6 +92,10 @@ def refusal_fixture(t, src, new):
 
 
 def run(t):
+    if t.mock:
+        with t.step("real client only", "the mock has no packet-log replay") as s:
+            s.note("%s replays a packet log into the real client (BF_PKT_REPLAY); nothing to check against the mock" % NAME)
+        return
     fixture = Path(t.param("fixture", str(FIXTURE)))
     seconds = float(t.param("seconds", "60"))
     global MANIFEST

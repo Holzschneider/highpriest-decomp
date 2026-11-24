@@ -113,6 +113,10 @@ def replay_lines(trace):
 
 
 def run(t):
+    if t.mock:
+        with t.step("real client only", "the mock has no packet-log replay") as s:
+            s.note("%s replays a packet log into the real client (BF_PKT_REPLAY); nothing to check against the mock" % NAME)
+        return
     user = t.param("user", "bftest")
     password = t.param("password", "bftest")
     record = t.param("record", "1") != "0"

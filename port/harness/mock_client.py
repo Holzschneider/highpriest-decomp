@@ -702,6 +702,9 @@ class Mock(SkillsOptionsMixin):
                 ctl("pw_edit", "edit", cx - 40, cy - 8, 130, 16, password=True),
                 ctl("ok", "button", cx + 40, cy + 30, 40, 20, "Login"),
                 ctl("cancel", "button", cx + 90, cy + 30, 40, 20, "Exit")]))
+            if os.environ.get("BF_TEXTTEST") == "1":   # LoginMode.cpp: the text test windows over the login screen
+                for i, name in enumerate(("STATUSWND", "EQUIPWND", "ITEMWND", "SKILLLISTWND", "OPTIONWND")):
+                    self.open_window(Window(name, [10 + i * 190, 10, 280, 200]))
         elif mode in ("connecting", "loading"):
             self.open_window(Window("WAITWND" if mode == "connecting" else "LOADINGWND",
                                     [cx - 100, cy - 20, 200, 40]))
@@ -2234,7 +2237,7 @@ class Mock(SkillsOptionsMixin):
                 return True
             import hashlib
             L = self.logical()
-            self.reply(c, rid, path=path, width=self.width, height=self.height, scale=self.scale,
+            self.reply(c, rid, path=path, width=L[0] * self.scale, height=L[1] * self.scale, scale=self.scale,
                        logical={"w": L[0], "h": L[1]}, frame=self.frame,
                        sha256=hashlib.sha256(data).hexdigest())
             return True
@@ -2242,6 +2245,8 @@ class Mock(SkillsOptionsMixin):
 
     def render(self, path):
         """A synthetic frame: mode colour, windows, actors, self (device pixels)."""
+        # the drawable is the logical size times the scale (PROTOCOL.md, capture)
+        dw, dh = (v * self.scale for v in self.logical())
         bg = {"login": (40, 60, 120, 255), "connecting": (40, 40, 40, 255), "charselect": (60, 40, 100, 255),
               "makechar": (60, 80, 60, 255), "loading": (0, 0, 0, 255), "game": (70, 110, 60, 255)}
         k = self.scale
@@ -2250,8 +2255,8 @@ class Mock(SkillsOptionsMixin):
             # A synthetic picture that changes with the movie's frame.
             f = self.movie["frame"]
             col = (40 + (f * 3) % 200, 40 + (f * 7) % 200, 120, 255)
-            x = (f * 2) % max(1, self.width - 100)
-            return write_png(path, self.width, self.height, [(x, self.height // 3, 100, 100, (250, 250, 250, 255))],
+            x = (f * 2) % max(1, dw - 100)
+            return write_png(path, dw, dh, [(x, dh // 3, 100, 100, (250, 250, 250, 255))],
                              col)
         if self.mode == "game":
             for a in self.actors:
@@ -2269,7 +2274,7 @@ class Mock(SkillsOptionsMixin):
                 cx, cy, cw, ch = ctrl["rect"]
                 rects.append((cx * k, cy * k, cw * k, ch * k, (255, 255, 255, 255) if ctrl["kind"] == "edit"
                               else (120, 130, 170, 255)))
-        return write_png(path, self.width, self.height, rects, bg.get(self.mode, (0, 0, 0, 255)))
+        return write_png(path, dw, dh, rects, bg.get(self.mode, (0, 0, 0, 255)))
 
     def state(self, fields):
         self.refresh_windows()
