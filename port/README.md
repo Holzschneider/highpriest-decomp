@@ -76,7 +76,7 @@ Reads the format version of every world, ground, attribute, model, sprite and ac
 
 ## Game folder
 
-`port/data/` fills and checks `~/Games/Bifrost`: `fetch.sh` copies the archives, music and ROenglishRE from a machine named in the environment, `assemble.py` builds the loose `data/` folder (the missing text tables, `sclientinfo.xml`, the pre-renewal layouts of eight maps the server walks), `port/tools/tablecheck.py` checks the tables against the client's parsers, and `server-maps.sh` writes the server's list of enterable maps. Details in [data/README.md](data/README.md).
+`port/data/` fills and checks `~/Games/Bifrost`: `fetch.sh` copies the archives, music and ROenglishRE from a machine named in the environment, `assemble.py` builds the loose `data/` folder (the missing text tables, `sclientinfo.xml`, the pre-renewal layouts of eight maps the server walks), `port/tools/tablecheck.py` checks the tables against the client's parsers (and `tipOfTheday_e.txt` in the game folder root, which `assemble.py` places from ROenglishRE), and `server-maps.sh` writes the server's list of enterable maps. Details in [data/README.md](data/README.md).
 
 ## Native modules
 
