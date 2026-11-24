@@ -2,7 +2,7 @@
 
 Everything the macOS port adds lives here. The documents are in [docs/port](../docs/port): the [specification](../docs/port/spec.md) says what the client must be, the [technical plan](../docs/port/technical-plan.md) how it is built and why, the [implementation plan](../docs/port/implementation-plan.md) in which order.
 
-Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. Until the port pins its own Windows headers (milestone M2), they read the Wine headers of Homebrew's `game-porting-toolkit` in `/usr/local/include/wine/windows`; `BF_WIN_HEADERS` names another directory.
+Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. The scripts read the Windows headers vendored in `port/compat/winheaders` (Wine 11.0; `regenerate.sh` there rebuilds them); `BF_WIN_HEADERS` names another directory.
 
 ## Measuring the compile work
 
