@@ -84,12 +84,12 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M6.1 World loading: ground, attributes, models, lightmaps, water, actors | src | M6.5 |
+| [x] 5cd6451 | M6.1 World loading: ground, attributes, models, lightmaps, water, actors | src | M6.5 |
 | [ ] | M6.2 Camera, picking, click-to-move; free-camera option | src | M6.1 |
 | [ ] | M6.3 Open recovery sites of game mode settled | src | M6.1 |
 | [ ] | M6.4 Control interface, third part: position, HP and SP, visible actors | native | M5.6 |
 | [x] a39806e | M6.5 Packet replay | src | M3.7 |
-| [ ] | M6.6 Unsupported map version returns to character selection | src | M6.1 |
+| [x] 835c758 | M6.6 Unsupported map version returns to character selection | src | M6.1 |
 | [ ] | M6 exit (verifier) | | M5 exit, M6.1–M6.6 |
 
 ## M7. Sound
