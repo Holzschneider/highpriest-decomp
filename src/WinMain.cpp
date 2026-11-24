@@ -32,6 +32,9 @@
 #include <shellapi.h>
 #include <tlhelp32.h>
 #include "GameMode.h"
+#if defined(BF_PORT)
+#include "LoginMode.h"
+#endif
 
 
 extern ServiceType   g_serviceType;
@@ -827,6 +830,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	g_resMgr().ReadResNameTable("resNameTable.txt");
 
+#if defined(BF_PORT)
+	if (bf_port_headless()) {
+		// --headless (M3.7): the start-up up to here, the login mode
+		// constructed, and no window, device or frame.
+		CMode* login = new CLoginMode;
+		// Under `file`, beside the lookups it sums up (the M3.7 check reads that category).
+		BF_TRACE(BFT_FILE, "headless: login mode constructed; stopping before the window and the first frame");
+		delete login;
+		return 0;
+	}
+#endif
 	if (!InitApp(hInstance, nCmdShow)) return 1;
 #if defined(BF_PORT)
 	if (!bf_port_start_graphics()) return 1;

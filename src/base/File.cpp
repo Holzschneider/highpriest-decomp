@@ -33,7 +33,15 @@ bool CFileMgr::AddPak(const char* name)
 {
 	typedef std::pair<CMemFile*, CGPak*> GDataPair;
 	m_pakList.push_front(GDataPair(new CMemMapFile(name), new CGPak));
+#if defined(BF_PORT)
+	bool opened = m_pakList.front().second->Open(m_pakList.front().first);
+	BF_TRACE(BFT_FILE, "archive %s: %s", name, opened ? "opened" : "NOT OPENED");
+	if (!opened)
+		bf_count("file.archive.not_opened", 1);
+	return opened;
+#else
 	return m_pakList.front().second->Open(m_pakList.front().first);
+#endif
 }
 
 #if defined(BF_PORT)

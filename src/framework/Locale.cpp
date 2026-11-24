@@ -111,6 +111,13 @@ void InitClientInfo(const char* clientInfo)
 							  (const char*)fp.GetBuf() + fp.GetLength());
 		fp.Close();
 	}
+#if defined(BF_PORT)
+	else
+	{
+		BF_TRACE(BFT_FILE, "clientinfo: %s not found; built-in defaults", clientInfo);
+		bf_count("file.missing.clientinfo", 1);
+	}
+#endif
 
 	InitDefaultServiceType();
 
@@ -142,6 +149,10 @@ void InitClientInfo(const char* clientInfo)
 		ErrorMsg("Unknown ServiceType !!!");
 		break;
 	}
+#if defined(BF_PORT)
+	BF_TRACE(BFT_FILE, "clientinfo: %s parsed: service type %d, server type %d, account server %s:%s, readfolder %d",
+			 clientInfo, (int)g_serviceType, (int)g_serverType, g_accountAddr, g_accountPort, (int)g_readFolderFirst);
+#endif
 
 	InitLanguage();
 

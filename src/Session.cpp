@@ -548,6 +548,9 @@ void	CSession :: InitTable()
 	m_initMapPos = 0;
 	m_maxNum = -1;
 	InitMapPosTable();
+#if defined(BF_PORT)
+	BF_TRACE(BFT_FILE, "session: name tables loaded (messages, items, cards, skills, maps, jobs, pets)");
+#endif
 }
 #endif
 
