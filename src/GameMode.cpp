@@ -727,12 +727,12 @@ void CGameMode::OnUpdate()
 	m_scheduler.OnRun();
 
 	if (m_loopCond) {
-		// BF_RECOVER_OPEN(onupdate-calls): the 2008 client (0x57BC90) calls five functions here where
-		// this source has ProcessInput and ProcessPlayWave: a lazily created singleton (0x57C060), a
-		// timed callback list like m_scheduler.OnRun (0x537140), ProcessInput (0x588CC0), a 10 s/1 s
-		// timer on one actor id (0x58D550) and ProcessPlayWave (0x58E460); its drawing part also calls
-		// more than this one. Which are missing here is not yet settled.
+		// As the 2008 client (0x57BC90): the scheduler (0x537140 on the
+		// singleton of 0x57C060; here m_scheduler.OnRun above), ProcessInput
+		// (0x588CC0), ProcessAutoFollow (0x58D550) and ProcessPlayWave
+		// (0x58E460); and ProcessInput once more after GetSkipFrameCount.
 		ProcessInput();
+		ProcessAutoFollow();
 		ProcessPlayWave();
 		if (g_isSkipFrame > 0) {
 			SynchronizeTimeWithServer(false);
@@ -741,6 +741,7 @@ void CGameMode::OnUpdate()
 		}
 		int skipCount = GetSkipFrameCount();
 		g_isSkipFrame = skipCount;
+		ProcessInput();
 		if (skipCount > 0) {
 			for (int i = skipCount; i > 0; --i) {
 				m_world->ProcessActors();
@@ -767,13 +768,24 @@ void CGameMode::OnUpdate()
 
 	if (!g_isAppActive && g_3dDevice.IsFullscreen()) return;
 
+	// The drawing part in the order of the 2008 client (0x57BE74-0x57C04A).
 	if (SkipSceneRendering()) {
 		g_renderer->ClearBackground();
 		g_actorPickNode.DeleteSubNode();
 		m_view->OnRender();
+		DrawMiniMap();
+		DrawIllustImage();
+		g_windowMgr.RenderWallPaper();
 		g_windowMgr.Render();
+		if (m_world->IsPKZone() || g_session.m_isPropertyCountPK) {
+			DrawPKRanking();
+			DrawPKZoneTime();
+		}
+		ShowTime();
 		DrawDragImage();
 		DrawMouseCursor();
+		DrawUseSkillLevelNumber();
+		ProcessFadeIn();
 		if (g_renderer->DrawScene()) {
 			g_renderer->ScreenEffect();
 			g_renderer->Flip(true);
@@ -781,6 +793,7 @@ void CGameMode::OnUpdate()
 	}
 
 	ScreenShot();
+	AutoStatusUp();
 }
 
 
