@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.20)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../name.cmake)
+project(bf_codec LANGUAGES C CXX OBJCXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_OBJCXX_STANDARD 17)
+if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
+endif()
+if(NOT CMAKE_OSX_ARCHITECTURES)
+  set(CMAKE_OSX_ARCHITECTURES arm64)
+endif()
+
+set(BF_INSTRUMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../instrument)
+
+add_library(bf_codec STATIC src/bf_codec_zlib.cpp src/bf_codec_jpeg.mm)
+target_include_directories(bf_codec PUBLIC include PRIVATE ${BF_INSTRUMENT_DIR})
+target_compile_definitions(bf_codec PRIVATE BF_APP_NAME="${BF_APP_NAME}")
+target_compile_options(bf_codec PRIVATE -Wall -Wextra $<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>)
+target_link_libraries(bf_codec PUBLIC z "-framework Foundation" "-framework ImageIO" "-framework CoreGraphics" "-framework CoreFoundation")
+
+add_executable(bifrost-codec-test test/codec_test.cpp ${BF_INSTRUMENT_DIR}/bf_trace.cpp)
+target_include_directories(bifrost-codec-test PRIVATE ${BF_INSTRUMENT_DIR})
+target_compile_definitions(bifrost-codec-test PRIVATE BF_APP_NAME="${BF_APP_NAME}")
+target_link_libraries(bifrost-codec-test PRIVATE bf_codec)
