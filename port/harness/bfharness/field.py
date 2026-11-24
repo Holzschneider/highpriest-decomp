@@ -48,12 +48,15 @@ def walk_into_portal(t, ctl, s, warp, slack=4):
     return ev
 
 
-def own_monster(t, ctl, s, mob, me):
+def own_monster(t, ctl, s, mob, me, n=1):
     """Spawn a monster by atcommand typed by the client (set-up, in
-    atcommandlog) and return the new one nearest the character."""
+    atcommandlog) and return the new one nearest the character. The n-th
+    call alternates `@monster <mob> 1` and `@monster <mob>` (the same
+    amount): the client refuses a line said the third time in a row
+    (CGameMode m_sameChatRepeatCnt)."""
     before = set(a["id"] for a in ctl.state("actors")["actors"])
     mark = t.logs.mark()
-    t.gm.run(t.gm.monster(mob, 1))
+    t.gm.run(t.gm.monster(mob, 1) if n % 2 else "@monster %s" % mob)
     s.rows("atcommandlog @monster", wait_rows(lambda: t.logs.atcommands(contains="@monster", after=mark), timeout=10))
     deadline = time.monotonic() + 10
     new = []
@@ -127,9 +130,9 @@ def kill_until_drop(t, ctl, mob, map, tries=4, what="Poring", on_death=None, eno
     picklog M rows)."""
     after, cell, drops = None, None, []
     for n in range(1, tries + 1):
-        with t.step("set-up: %s %d" % (what, n), "atcommand typed by the client: @monster %d 1" % mob) as s:
+        with t.step("set-up: %s %d" % (what, n), "atcommand typed by the client: @monster %d" % mob) as s:
             me = ctl.state("self")["self"]
-            target = own_monster(t, ctl, s, mob, me)
+            target = own_monster(t, ctl, s, mob, me, n)
             s.state("self", me)
             s.state("the %s" % what, target)
             ok(s, target is not None and target["screen"], "a %s on screen" % what)

@@ -145,7 +145,8 @@ def run(t):
         it = grabbed.pop("item", None)
         if not drops or not it:
             return False
-        rows = wait_rows(lambda: t.logs.picked_up(char_id, it["job"], after=mark), timeout=10)
+        # the character may finish an attack on a Poring that attacked it first
+        rows = wait_rows(lambda: t.logs.picked_up(char_id, it["job"], after=mark), timeout=20)
         if rows:
             grabbed.update(item=it, rows=rows, drops=drops)
         return bool(rows)
