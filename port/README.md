@@ -110,6 +110,8 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 | [`miles`](compat/miles/README.md) | the 46 `AIL_*` functions of Miles | `audio` |
 | [`input`](compat/input/README.md) | user32 window, message pump, keyboard state, clipboard; DirectInput 7 mouse; imm32 (no IME) | `app`, `view` |
 
+`port/compat/granny`: the 44 `Granny*` functions and 2 data names of granny2.dll on `port/native/formats/granny` (step M12.3a), so that `src/resource/Model.cpp`'s Granny resource classes build as in 2008. `bifrost-compat-granny-test` replays the client's load, animate and skin sequence on the game's 21 `.gr2` files (`skipped` without `data.grf`). In the client: `port/harness/scripts/granny.py` (guild flags, Emperium, guardians, corpses; `--param woe=0` leaves out the castle step, which runs War of Emperium on the test server for about 10 s).
+
 ## Test harness
 
 `port/harness/` drives the client through its control socket ([protocol](native/control/PROTOCOL.md)) and confirms each step in the test server's SQL logs; see [harness/README.md](harness/README.md). `python3 port/harness/run.py --self-test` checks the harness against its mock client; `BF_CLIENT=<binary> python3 port/harness/run.py <script>` runs a test script against the client and the test server, with the report under `build/harness/`.
