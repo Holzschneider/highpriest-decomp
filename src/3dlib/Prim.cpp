@@ -32,30 +32,42 @@ matrix _IdentityMatrix = {
 
 
 float	_sqrt(float input) {
+#ifdef BF_PORT
+	return (sqrtf)(input);	// parenthesised: common.h defines sqrtf as _sqrt
+#else
 	_asm {
 		fld		input
 		fsqrt
 		fstp	input
 	}
 	return input;
+#endif
 }
 
 float	_sin(float input) {
+#ifdef BF_PORT
+	return (sinf)(input);	// parenthesised: common.h defines sinf as _sin
+#else
 	_asm {
 		fld		input
 		fsin
 		fstp	input
 	}
 	return input;
+#endif
 }
 
 float	_cos(float input) {
+#ifdef BF_PORT
+	return (cosf)(input);	// parenthesised: common.h defines cosf as _cos
+#else
 	_asm {
 		fld		input
 		fcos
 		fstp	input
 	}
 	return input;
+#endif
 }
 
 void	matrix :: MakeTranslate(float x, float y, float z)

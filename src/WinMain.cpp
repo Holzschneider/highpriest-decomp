@@ -802,7 +802,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	ReadRegistry();
 
+#ifndef BF_PORT
 	_controlfp(0x20000, 0x30000);
+#endif
+	// _PC_24 under _MCW_PC: x87 precision control, which arm64 does not
+	// have. Floats are computed as floats there; doubles stay doubles where
+	// the x87 rounded them to 24 bits (only sprite extents and one line
+	// test use doubles).
 
 	UINT wTimerRes = 0;
 	TIMECAPS tc;
