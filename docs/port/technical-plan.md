@@ -109,7 +109,7 @@ The executable is dated 2008-11-05, but its packet table is older. `port/tools/p
 
 The client sends `CZ_ENTER` as 0x9b with 26 bytes and its table ends at 0x35b. From 2008-09-10 rAthena expects renumbered requests. A server for this client is built with a `PACKETVER` from 20080401 to 20080820; rAthena master compiles at 20080401 without changes.
 
-Four server-sent packets still differ in length (0x8b, 0x23d, 0x24d, 0x251: mail and auction). They matter only when those features are used.
+Two length entries differ (0x8b, 0x23d), and rAthena neither sends nor parses either; 0x24d and 0x251 were an artefact of the measuring tool. rAthena answers "end my auction" with a 4-byte 0x25d where the client's table has 6; the client reads 4 (M8.4).
 
 ### 2.5 The 2021 game data
 

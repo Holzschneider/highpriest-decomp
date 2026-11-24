@@ -40,6 +40,8 @@ build/port/bin/bifrost-netprobe                # logs in through to the zone ser
 port/tools/packetdiff.py --rathena <rathena checkout> 20080401 20080910
 ```
 
+`packetdiff.py` resolves the `HEADER_X, sizeof(PACKET_X)` entries of the client's table and, with `-v`, compares every rAthena `PACKET_X` structure that has a header with the client's table; the structure pass needs the checkout's `3rdparty/` (`docker cp bifrost-rathena-rathena-1:/rathena/src <dir>` and `.../3rdparty` give one). At 20080401: 2 length-only mismatches (0x8b, 0x23d), neither sent nor parsed by rAthena; 0 structure differences.
+
 The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp` from `src/` (`BF_SRC` or `-DBF_PROBE_SRC` names another tree, such as the shadow copy).
 
 `bifrost-netprobe` follows the steps of the game's login mode against a running server and reports the first packet whose header the client's length table does not know.
