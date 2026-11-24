@@ -40,8 +40,10 @@ const int lightmapPerTexture = lightmapWidthTexture * lightmapHeightTexture;
 #ifndef LMAPPF
 #define LMAPPF PF_A4R4G4B4
 #endif
+#ifndef BF_PORT
 inline FLOAT fmax(FLOAT a, FLOAT b) { return (a>b?a:b); }
 inline FLOAT fmin(FLOAT a, FLOAT b) { return (a<b?a:b); }
+#endif
 
 class C3dGroundHeightDispatch {
 public:

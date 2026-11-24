@@ -115,7 +115,7 @@ void* CFileMgr::GetFile(const char* name, unsigned int* size)
 							  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) {
 		*size = GetFileSize(hFile, NULL);
-		if (size > 0) {
+		if (size != NULL) {
 			void* data = VirtualAlloc(NULL, *size, MEM_COMMIT, PAGE_READWRITE);
 			if (data) {
 				ReadFile(hFile, data, *size, &RByte, NULL);

@@ -155,7 +155,7 @@ public:
 		return *this;
 	}
 	face3d& operator=(const face3d& rhs);
-	bool operator<(const face3d& face) { return meshMtlId < face.meshMtlId; }
+	bool operator<(const face3d& face) const { return meshMtlId < face.meshMtlId; }
 	unsigned short vertindex[3];
 	unsigned short tvertindex[3];
 	unsigned short meshMtlId;
@@ -270,7 +270,7 @@ struct w3d_quaternion {
 	w3d_quaternion() {}
 	w3d_quaternion(float w, float x, float y, float z) : qw(w), qx(x), qy(y), qz(z) {}
 
-	w3d_quaternion operator + (w3d_quaternion& q);
+	w3d_quaternion operator + (const w3d_quaternion& q);
 	w3d_quaternion operator * (float& c);
 
 	float qw, qx, qy, qz;
@@ -284,7 +284,7 @@ DOUBLE QUATERNION_DOT_PRODUCT(w3d_quaternion &p, w3d_quaternion &q);
 VOID QUATERNION_MULTIPLY(w3d_quaternion &q, w3d_quaternion &a, w3d_quaternion &b);
 w3d_quaternion INTERPOLATE_QUATERNION(DOUBLE t, w3d_quaternion &p, w3d_quaternion &q);
 
-inline w3d_quaternion w3d_quaternion :: operator + (w3d_quaternion &q)
+inline w3d_quaternion w3d_quaternion :: operator + (const w3d_quaternion &q)
 {
 	return w3d_quaternion (qw + q.qw, qx + q.qx, qy + q.qy, qz + q.qz);
 }

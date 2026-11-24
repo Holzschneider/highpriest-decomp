@@ -100,7 +100,7 @@ void	C3dNode :: Render(const matrix &ptm, int flipNormal, bool clip)
 	face3d *face = m_mesh->m_face;
 	face3d *faceEnd = face + m_mesh->m_numFace;
 	tlvertex3d *rpVertIter;
-	ColorInfo *colorInfo = m_colorInfo.begin();
+	ColorInfo *colorInfo = m_colorInfo.data();
 
 	while (face != faceEnd) {
 		WORD meshMtlId = face->meshMtlId;
@@ -174,7 +174,7 @@ void	C3dNode :: Render(const matrix &ptm, int flipNormal, bool clip)
 					rpVertIter[j].argb = color;
 				}
 			} else if (g_Weather.IsObjLight()) {
-				int index = colorInfo - m_colorInfo.begin(); m_numTexture = m_numTexture; m_opacity = m_opacity;
+				int index = colorInfo - m_colorInfo.data(); m_numTexture = m_numTexture; m_opacity = m_opacity;
 				for (int j = 0; j < 3; j++) {
 					COLOR color = colorInfo->argb[j];
 					color.a = fadeAlphaCnt;
@@ -388,8 +388,10 @@ void	C3dNode :: SetToAlpha()
 
 #include "rag_symbol_shift.h"
 
+#ifndef BF_PORT
 inline float fmax(float a, float b) { return a > b ? a : b; }
 inline float fmin(float a, float b) { return a < b ? a : b; }
+#endif
 
 
 
@@ -484,7 +486,7 @@ void	C3dNode :: UpdateVertexColor(const matrix &ptm, const vector3d &light, cons
 
 	face3d *	face = m_mesh->m_face;
 	face3d *	faceEnd = face + m_mesh->m_numFace;
-	ColorInfo *	colorInfo = m_colorInfo.begin();
+	ColorInfo *	colorInfo = m_colorInfo.data();
 	faceLight *	faceLight = m_faceLight;
 	tvertex3d *	tvert = m_mesh->m_tvert;
 

@@ -41,8 +41,8 @@ public:
 	void Create_Eot(short FT_style);
 	HFONT__* CreateEotFont(int fontSize, short FT_style);
 	const char* GetFontFace();
-	bool operator<(const FontInfo& fontInfo);
-	bool operator==(const FontInfo& fontInfo);
+	bool operator<(const FontInfo& fontInfo) const;
+	bool operator==(const FontInfo& fontInfo) const;
 	int fontType;
 	int fontHeight;
 	int fontCharset;

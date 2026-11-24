@@ -7486,7 +7486,7 @@ void CRagEffect :: EarthSpike(char F1)
 		CGameMode * gameMode = g_modeMgr.GetGameMode();
 		gameMode->SendMsg(MM_QUAKE, 1);
 		float side = 1.0f, front = 0.24f, latitude = 0.2f;
-		gameMode->SendMsg(MM_SETQUAKEINFO, int(&(float)side), int(&(float)front), int(&(float)latitude));
+		gameMode->SendMsg(MM_SETQUAKEINFO, (INT_PTR)&side, (INT_PTR)&front, (INT_PTR)&latitude);
 
 		int		angle;
 		float	sn, cs, length;

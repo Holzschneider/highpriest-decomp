@@ -243,7 +243,7 @@ public:
 	void PlaceEffect(vector3d* pos, int effectId, int lastTime, int F1 = 0);
 	void MakeBlowEffect(float cx, float cy, float cz);
 	void MakeArrowEffect(vector3d& sPos, unsigned int targetGid, float hideTime, int job);
-	void MakeArrowEffectPos(vector3d& sPos, vector3d& tPos, float hideTime);
+	void MakeArrowEffectPos(vector3d& sPos, const vector3d& tPos, float hideTime);
 	void MakeMandraAttackEffect(unsigned int targetGid, int job, float hideTime);
 	void MakeCorpse(float cx, float cy, float cz, const char* actName, const char* sprName, int action, int motion, float roty);
 	void MakeCorpse3d(float cx, float cy, float cz, const char* rmaName, int curFrame, float roty, vector3d pivot, float modelZoom);

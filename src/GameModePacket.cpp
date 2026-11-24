@@ -2395,7 +2395,7 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 	g_session.m_posY = packet->yPos;
 
 	in_addr addr;
-	addr.S_un.S_addr = packet->addr.ip;
+	addr.s_addr = packet->addr.ip;
 	strcpy(g_zoneServerAddr.ip, inet_ntoa(addr));
 	g_zoneServerAddr.port = packet->addr.port;
 

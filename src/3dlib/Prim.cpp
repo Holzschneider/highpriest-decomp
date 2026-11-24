@@ -10,7 +10,9 @@
 
 
 
+#ifndef BF_PORT
 inline float fmax(float a, float b) { return a > b ? a : b; }
+#endif
 
 
 

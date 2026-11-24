@@ -331,7 +331,7 @@ ThaiFunc::~ThaiFunc()
 
 bool ThaiFunc::IsThaiChar(unsigned short ch)
 {
-	return ((unsigned int(ch) >> 8) & 0x00ff) == 0x000e;
+	return (((unsigned int)(ch) >> 8) & 0x00ff) == 0x000e;
 }
 
 unsigned int ThaiFunc::ThaiCharType(unsigned short ch)

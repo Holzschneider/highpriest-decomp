@@ -297,7 +297,7 @@ HFONT FontInfo::CreateEotFont(int fontSize,short FT_style)
 	return retFont;
 }
 
-bool FontInfo :: operator < (const FontInfo& fontInfo) {
+bool FontInfo :: operator < (const FontInfo& fontInfo) const {
 	if(fontType < fontInfo.fontType) return true;
 	else if(fontType > fontInfo.fontType) return false;
 
@@ -307,7 +307,7 @@ bool FontInfo :: operator < (const FontInfo& fontInfo) {
 	return fontCharset < fontInfo.fontCharset;
 }
 
-bool FontInfo :: operator == (const FontInfo& fontInfo) {
+bool FontInfo :: operator == (const FontInfo& fontInfo) const {
 	return	fontType == fontInfo.fontType &&
 			fontHeight == fontInfo.fontHeight &&
 			fontCharset == fontInfo.fontCharset &&
@@ -560,11 +560,11 @@ inline void	DrawDC :: _textout(int x, int y, const char* buf, int bufLen, int ch
 
 	s_wideBuffer.resize(bufLen);
 
-	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, s_wideBuffer.begin(), s_wideBuffer.size());
+	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, (LPWSTR)s_wideBuffer.data(), s_wideBuffer.size());
 
 	::SelectObject(m_hdc, (HGDIOBJ)g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold));
 
-	::TextOutW(m_hdc, x, y, s_wideBuffer.begin(), wideBufferLen);
+	::TextOutW(m_hdc, x, y, (LPCWSTR)s_wideBuffer.data(), wideBufferLen);
 }
 
 inline void	DrawDC :: _gettextsize(const char* buf, int bufLen, LPSIZE size, int charset)
@@ -573,9 +573,9 @@ inline void	DrawDC :: _gettextsize(const char* buf, int bufLen, LPSIZE size, int
 
 	s_wideBuffer.resize(bufLen);
 
-	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, s_wideBuffer.begin(), s_wideBuffer.size());
+	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, (LPWSTR)s_wideBuffer.data(), s_wideBuffer.size());
 
 	::SelectObject(m_hdc, (HGDIOBJ)g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold));
 
-	::GetTextExtentPoint32W(m_hdc, s_wideBuffer.begin(), wideBufferLen, size);
+	::GetTextExtentPoint32W(m_hdc, (LPCWSTR)s_wideBuffer.data(), wideBufferLen, size);
 }

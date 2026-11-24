@@ -21,17 +21,18 @@ public:
 	};
 
 	struct tagSeedFactor {
+		struct tagBit {
+			unsigned int seed1 : 4;
+			unsigned int mask2 : 4;
+			unsigned int mask4 : 4;
+			unsigned int seed2 : 4;
+			unsigned int mask3 : 4;
+			unsigned int seed3 : 4;
+			unsigned int seed4 : 4;
+			unsigned int mask1 : 4;
+		};
 		union {
-			struct tagBit {
-				unsigned int seed1 : 4;
-				unsigned int mask2 : 4;
-				unsigned int mask4 : 4;
-				unsigned int seed2 : 4;
-				unsigned int mask3 : 4;
-				unsigned int seed3 : 4;
-				unsigned int seed4 : 4;
-				unsigned int mask1 : 4;
-			} bit;
+			tagBit bit;
 			unsigned int seedfactor;
 		};
 	};

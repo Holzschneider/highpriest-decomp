@@ -466,7 +466,7 @@ void CGameMode::Initialize()
 
 		char ip[16];
 		in_addr addr;
-		addr.S_un.S_addr = g_session.m_lastLoginIP;
+		addr.s_addr = g_session.m_lastLoginIP;
 		strcpy(ip, inet_ntoa(addr));
 	}
 
@@ -1975,7 +1975,7 @@ CMsgEffect* CGameMode::MakeMissEffect(vector3d &sPos, DWORD sprArgb, DWORD maste
 	return missEffect;
 }
 
-void	CGameMode :: MakeArrowEffectPos(vector3d &sPos, vector3d &tPos, float hideTime)
+void	CGameMode :: MakeArrowEffectPos(vector3d &sPos, const vector3d &tPos, float hideTime)
 {
 	CArrowEffect * arrowEffect = new CArrowEffect;
 	if (arrowEffect)
@@ -5396,15 +5396,17 @@ const char* CGameMode::GetDragItemName()
 	switch (m_dragInfo.m_dragType) {
 	case DT_FROM_ITEMWND:
 		{
-			ITEM_INFO& itemInfo = g_session.GetItemInfoByIndex(m_dragInfo.m_dragItemIndex);
-			if (itemInfo.IsValid()) return itemInfo.m_itemName.c_str();
+			ITEM_INFO itemInfo = g_session.GetItemInfoByIndex(m_dragInfo.m_dragItemIndex);
+			static std::string s_dragItemName;
+			if (itemInfo.IsValid()) { s_dragItemName = itemInfo.m_itemName; return s_dragItemName.c_str(); }
 			return NULL;
 		}
 		break;
 	case DT_FROM_EQUIPWND:
 		{
-			ITEM_INFO& itemInfo = g_session.GetEquipedItems(m_dragInfo.m_slotNum);
-			if (itemInfo.IsValid()) return itemInfo.m_itemName.c_str();
+			ITEM_INFO itemInfo = g_session.GetEquipedItems(m_dragInfo.m_slotNum);
+			static std::string s_dragItemName;
+			if (itemInfo.IsValid()) { s_dragItemName = itemInfo.m_itemName; return s_dragItemName.c_str(); }
 			return NULL;
 		}
 	default:
@@ -5530,7 +5532,7 @@ void	CGameMode :: ProcessTalkType(int val1, INT_PTR val2)
 
 #if defined (_UPDATE2005A)
 
-	TTPair2 *it = g_session.m_cmdOnOffSet.begin() ;
+	std::vector<TTPair2>::iterator it = g_session.m_cmdOnOffSet.begin() ;
 
 	while ( it != g_session.m_cmdOnOffSet.end ( ) )
 	{

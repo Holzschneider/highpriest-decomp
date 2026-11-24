@@ -20,7 +20,9 @@
 #include <stdio.h>
 
 extern "C" int __cdecl sprintf(char *, const char *, ...);
+#ifndef BF_PORT
 extern "C" void *__cdecl malloc(unsigned int);
+#endif
 extern "C" void __cdecl free(void *);
 extern "C" int __cdecl rand(void);
 
@@ -99,10 +101,10 @@ inline bool CRenderer::RPRawTexPrtLess::operator()(const RPRaw *left, const RPRa
 void	RPRaw :: DrawPri(IDirect3DDevice7* device)
 {
 	if (numVerts) {
-		D3DMATRIX d3dWorld(world.v11, world.v12, world.v13, 0,
+		D3DMATRIX d3dWorld; const float d3dWorldInit[16] = {world.v11, world.v12, world.v13, 0,
 						   world.v21, world.v22, world.v23, 0,
 						   world.v31, world.v32, world.v33, 0,
-						   world.v41, world.v42, world.v43, 1);
+						   world.v41, world.v42, world.v43, 1}; memcpy(&d3dWorld, d3dWorldInit, sizeof(d3dWorld));
 
 		device->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dWorld);
 		device->DrawPrimitiveVB(D3DPT_TRIANGLELIST, vb->GetInterface(), vertStart, numVerts, 0);
@@ -111,10 +113,10 @@ void	RPRaw :: DrawPri(IDirect3DDevice7* device)
 void	RPRaw :: DrawPriIndexed(IDirect3DDevice7* device)
 {
 	if (numIndices) {
-		D3DMATRIX d3dWorld(world.v11, world.v12, world.v13, 0,
+		D3DMATRIX d3dWorld; const float d3dWorldInit[16] = {world.v11, world.v12, world.v13, 0,
 						   world.v21, world.v22, world.v23, 0,
 						   world.v31, world.v32, world.v33, 0,
-						   world.v41, world.v42, world.v43, 1);
+						   world.v41, world.v42, world.v43, 1}; memcpy(&d3dWorld, d3dWorldInit, sizeof(d3dWorld));
 
 		device->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dWorld);
 		device->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, vb->GetInterface(), 0, numVerts, indices, numIndices, 0);
@@ -675,9 +677,9 @@ START:
 
 	for (surfaceIt = m_cacheSurfaces[sector].begin(); surfaceIt != m_cacheSurfaces[sector].end(); ++surfaceIt)
 	{
-		cacheInfo = surfaceIt->info.begin();
+		cacheInfo = surfaceIt->info.data();
 
-		for (; cacheInfo != surfaceIt->info.end(); ++cacheInfo)
+		for (; cacheInfo != surfaceIt->info.data() + surfaceIt->info.size(); ++cacheInfo)
 		{
 			if (cacheInfo->lastTime < expireTime) {
 				cacheInfo->id = (INT_PTR)&img;
@@ -2198,12 +2200,12 @@ tlvertex3d*	CRenderer :: BorrowVerts(UINT vertCount)
 {
 	if(m_vertBuffer.size() + vertCount > m_vertBuffer.capacity())
 	{
-		tlvertex3d* oldStart = m_vertBuffer.begin();
-		tlvertex3d* oldEnd = m_vertBuffer.end();
+		tlvertex3d* oldStart = m_vertBuffer.data();
+		tlvertex3d* oldEnd = m_vertBuffer.data() + m_vertBuffer.size();
 
 		m_vertBuffer.reserve(m_vertBuffer.capacity() * 2);
 
-		tlvertex3d* newStart = m_vertBuffer.begin();
+		tlvertex3d* newStart = m_vertBuffer.data();
 
 		for(std::list<RPFace>::iterator i = m_rpNullFaceList.begin(); i != m_rpNullFaceListIter; ++i)
 		{
@@ -2214,7 +2216,7 @@ tlvertex3d*	CRenderer :: BorrowVerts(UINT vertCount)
 		}
 	}
 
-	tlvertex3d* verts = m_vertBuffer.end();
+	tlvertex3d* verts = m_vertBuffer.data() + m_vertBuffer.size();
 
 	m_vertBuffer.resize(m_vertBuffer.size() + vertCount);
 

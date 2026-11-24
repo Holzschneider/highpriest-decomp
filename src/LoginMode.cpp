@@ -106,7 +106,7 @@ void SendUDPPacket(LPCSTR szURL, USHORT uPort, const char* p, int pLen)
 		if (h) {
 			sockaddr_in servAddr;
 			servAddr.sin_family = AF_INET;
-			memcpy(&servAddr.sin_addr.S_un.S_un_b, h->h_addr_list[0], 4);
+			memcpy(&servAddr.sin_addr, h->h_addr_list[0], 4);
 			servAddr.sin_port = htons(uPort);
 			sendto(s, p, pLen, 0, (sockaddr*)&servAddr, sizeof(servAddr));
 		}
@@ -1536,7 +1536,7 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buf)
 	strcpy(g_session.m_curMap, curMap.c_str());
 
 	in_addr addr;
-	addr.S_un.S_addr = p->addr.ip;
+	addr.s_addr = p->addr.ip;
 	strcpy(g_zoneServerAddr.ip, inet_ntoa(addr));
 	g_zoneServerAddr.port = p->addr.port;
 

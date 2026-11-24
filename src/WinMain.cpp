@@ -165,10 +165,10 @@ extern int           (__cdecl *MyStopEncryption)();
 extern UIWindowMgr   g_windowMgr;
 
 
-int FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	bool hooked;
-	int lResult = g_language->ProcessImeMessage(hWnd, message, wParam, lParam, &hooked);
+	LRESULT lResult = g_language->ProcessImeMessage(hWnd, message, wParam, lParam, &hooked);
 
 	if (hooked)
 	{

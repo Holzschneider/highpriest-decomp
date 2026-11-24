@@ -282,7 +282,7 @@ const char* CLanguage :: GetCandidateString(int nCandidate)
 		wchar_t*	candidateStrW = (wchar_t*)(&m_candidateBuffer[m_candidateList->dwOffset[nCandidate]]);
 
 		static char	candidateStr[256];
-		int			candidateStrLen = WideCharToMultiByte(m_codePage, 0, candidateStrW, -1, candidateStr, sizeof(candidateStr), NULL, NULL);
+		int			candidateStrLen = WideCharToMultiByte(m_codePage, 0, (LPCWSTR)candidateStrW, -1, candidateStr, sizeof(candidateStr), NULL, NULL);
 
 		candidateStr[min(candidateStrLen, sizeof(candidateStr)-1)] = 0;
 
@@ -449,7 +449,7 @@ void CLanguage :: GetImeCompStr()
 	int		compStrWLen = ImmGetCompositionStringW(himc, GCS_COMPSTR, compStrW, sizeof(compStrW))/sizeof(wchar_t);
 
 	char	compStr[256];
-	int		compStrLen = WideCharToMultiByte(m_codePage, 0, compStrW, compStrWLen, compStr, sizeof(compStr), NULL, NULL);
+	int		compStrLen = WideCharToMultiByte(m_codePage, 0, (LPCWSTR)compStrW, compStrWLen, compStr, sizeof(compStr), NULL, NULL);
 
 	ImmReleaseContext(g_hMainWnd, himc);
 
@@ -476,7 +476,7 @@ void CLanguage :: GetImeResultStr()
 	int resultStrLen = WideCharToMultiByte(
 		m_codePage,
 		0,
-		resultStrW,
+		(LPCWSTR)resultStrW,
 		resultStrWLen,
 		resultStr,
 		sizeof(resultStr),
@@ -514,7 +514,7 @@ void CLanguage :: GetImeCandidateList()
 		if(candidateListSize > 0) {
 
 			m_candidateBuffer.resize(candidateListSize);
-			m_candidateList = (CANDIDATELIST*)(m_candidateBuffer.begin());
+			m_candidateList = (CANDIDATELIST*)(m_candidateBuffer.data());
 
 			ImmGetCandidateListW(himc, 0, m_candidateList, candidateListSize);
 
