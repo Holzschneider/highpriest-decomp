@@ -1681,7 +1681,13 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buf)
 void CLoginMode::Zc_Accept_Enter(const char *buf)
 {
 	const unsigned char *p = (const unsigned char *)buf;
+#if defined(BF_PORT)
+	DWORD serverTime;
+	memcpy(&serverTime, buf + 2, sizeof(serverTime));   // offset 2: misaligned on arm64
+	g_session.SetServerTime(serverTime);
+#else
 	g_session.SetServerTime(*(DWORD *)(buf + 2));
+#endif
 
 	int dir = p[8] & 0xf;
 	int y = ((p[7] & 0x3f) << 4) | (p[8] >> 4);
@@ -1718,7 +1724,13 @@ void CLoginMode::Zc_Accept_Enter(const char *buf)
 void CLoginMode::Zc_Accept_Enter2(const char *buf)
 {
 	const unsigned char *p = (const unsigned char *)buf;
+#if defined(BF_PORT)
+	DWORD serverTime;
+	memcpy(&serverTime, buf + 2, sizeof(serverTime));   // offset 2: misaligned on arm64
+	g_session.SetServerTime(serverTime);
+#else
 	g_session.SetServerTime(*(DWORD *)(buf + 2));
+#endif
 
 	int dir = p[8] & 0xf;
 	int y = ((p[7] & 0x3f) << 4) | (p[8] >> 4);
