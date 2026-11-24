@@ -49,7 +49,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] b430822 | M3.8 Game folder `~/Games/Bifrost`: archives and music copied; script assembling the loose `data/` folder and `clientinfo.xml` | data | |
 | [x] a4901c1 | M3.9 Table checker | data | M3.8 |
 | [x] 509f590 | M3.10 `grfaudit.py` follows model references; list of enterable maps applied to the test server | data | M3.8 |
-| [ ] | M3 exit (verifier) | | M2 exit, M3.1–M3.10 |
+| [x] 4b98341 | M3 exit (verifier) | | M2 exit, M3.1–M3.10 |
 
 ## M4. First pixels
 
