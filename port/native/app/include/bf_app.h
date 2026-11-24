@@ -348,6 +348,20 @@ int bf_app_poll_event(bf_app_event *out);
  */
 int bf_app_post_event(const bf_app_event *event);
 
+/*
+ * As bf_app_post_event, and returns the seq the queue gave the event, or 0
+ * when the queue is full. Any thread.
+ */
+uint64_t bf_app_post_event_seq(const bf_app_event *event);
+
+/*
+ * The seq of the last event bf_app_poll_event has taken out of the queue,
+ * 0 before the first. Since the queue is first in, first out, an event
+ * posted with seq s has been taken once this is >= s: how the control
+ * socket knows the client has consumed what it injected. Any thread.
+ */
+uint64_t bf_app_consumed_seq(void);
+
 /* Number of events waiting. Any thread. */
 int bf_app_queue_size(void);
 

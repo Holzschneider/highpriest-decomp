@@ -23,6 +23,7 @@ const size_t kQueueMax = 4096;
 std::mutex g_lock;
 std::deque<bf_app_event> g_queue;
 uint64_t g_nextSeq = 1;
+std::atomic<uint64_t> g_consumedSeq{0};
 std::atomic<bf_app_clock_fn> g_clock{nullptr};
 std::atomic<double> g_scale{1.0};
 
@@ -171,6 +172,7 @@ void bf_app_queue_reset(void)
 	{
 		std::lock_guard<std::mutex> guard(g_lock);
 		g_queue.clear();
+		g_consumedSeq.store(g_nextSeq - 1);   // dropped events count as taken
 	}
 	memset(g_keys, 0, sizeof g_keys);
 	memset(g_macKeys, 0, sizeof g_macKeys);
@@ -179,15 +181,26 @@ void bf_app_queue_reset(void)
 	g_accDx = g_accDy = g_accWheel = 0;
 }
 
-extern "C" int bf_app_post_event(const bf_app_event *event)
+extern "C" uint64_t bf_app_post_event_seq(const bf_app_event *event)
 {
 	if (!event)
-		return BF_APP_ERROR;
-	if (!Enqueue(event, BF_APP_SOURCE_INJECTED))
-		return BF_APP_ERROR;
+		return 0;
+	uint64_t seq = Enqueue(event, BF_APP_SOURCE_INJECTED);
+	if (!seq)
+		return 0;
 	if (bf_app_wake_hook)
 		bf_app_wake_hook();
-	return BF_APP_OK;
+	return seq;
+}
+
+extern "C" int bf_app_post_event(const bf_app_event *event)
+{
+	return bf_app_post_event_seq(event) ? BF_APP_OK : BF_APP_ERROR;
+}
+
+extern "C" uint64_t bf_app_consumed_seq(void)
+{
+	return g_consumedSeq.load();
 }
 
 extern "C" int bf_app_poll_event(bf_app_event *out)
@@ -198,6 +211,7 @@ extern "C" int bf_app_poll_event(bf_app_event *out)
 			return 0;
 		*out = g_queue.front();
 		g_queue.pop_front();
+		g_consumedSeq.store(out->seq);
 	}
 	Apply(out);
 	return 1;

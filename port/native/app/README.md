@@ -110,6 +110,10 @@ On an unlocked screen those two checks run for real.
   - pointer points from pixels, the held-buttons mask, and the delta (the
     difference to the previous position) when the event does not carry
     `BF_APP_EVF_DELTA_VALID`.
+- **Consumption.** `bf_app_post_event_seq` returns the `seq` given to an
+  injected event and `bf_app_consumed_seq` the `seq` of the last event taken
+  out by `bf_app_poll_event`; the control socket compares the two to reply
+  once the client has taken what it injected (added for M4.6).
 - **Keys.**
   - `key.mac_keycode` is the macOS virtual key code; `key.key` is a
     portable `bf_key`, whose values are the USB HID usage IDs (page 7).
