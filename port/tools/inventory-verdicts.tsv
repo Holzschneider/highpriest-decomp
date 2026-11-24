@@ -1,0 +1,57 @@
+# Verdicts for the groups port/tools/inventory.py reports, keyed by "file enclosing-function".
+# Columns: key, verdict, note. Read by: inventory.py --markdown --verdicts port/tools/inventory-verdicts.tsv
+# added: delete (M1.2). replaced: restore (M1.3 to M1.5), the note gives the evidence. open: marked BF_RECOVER_OPEN in the source.
+HP_Battle.cpp (file)	added	The single-player battle, field and menu code.
+HP_BuySell.cpp (file)	added	The blacksmith shop and smithing mini-game.
+HP_RestTravell.cpp (file)	added	Resting, day count and the travel map.
+HP_SaveLoad.cpp (file)	added	Save slots and the ending.
+HP_Tetris.cpp (file)	added	The block-puzzle mini-game.
+HP_Tetris.h (file)	added	Its class.
+GameActor.cpp (file scope)	added; HP_ST_SLEEP replaced	Externs of single-player globals. `HP_ST_SLEEP = 10` duplicates the online state `ST_SLEEP = 10` (GameActor.h); the constant goes and its use takes `ST_SLEEP`.
+GameActor.cpp CGameActor::ProcessState	added	The `m_gid == 3` branch turns the single-player boy to face the field after a move; the `else` (`SetState(ST_STAND)`) is the online path and stays.
+GameActor.cpp CGameActor::SendMsg	replaced	`SetState(HP_ST_SLEEP)` becomes `SetState(ST_SLEEP)`: same value, the online name (code).
+GameMode.cpp (file scope)	added	Externs and definitions of single-player globals and the damage queue (`g_DM_List`, `g_DamageMoment`).
+GameMode.cpp CGameMode::Initialize	added; tail replaced	Lines 608-633 are the single-player set-up: player placed at cell 13,0, starter items, the two companions, story state, skill 0x107, screen 100, damage queue reset, two instruction lines. Online, the player is placed from `g_session.m_posX/Y` in `CWorld::OnEnterFrame` (GameWorld.cpp) and items, skills and status arrive by packet. `g_BackTexture` is set here and read nowhere. The function ends after the cloud/sakura weather set-up.
+GameMode.cpp CGameMode::OnUpdate	added; replaced	`ProcessDamageSituation()`, `RenderBackGround2D()` and `RenderMenu()` are single-player. `PollNetworkStatus()` is restored at the top, after `CheckSystemMessage()`, as in `CLoginMode::OnUpdate` (code: the function exists and nothing calls it).
+GameMode.cpp CGameMode::ProcessActorPick	added	The `m_lastPcGid == 1` block queues single-player skills on clicks on the acolyte; `ProcessPcPick` after it is the online path.
+GameMode.cpp CGameMode::ProcessWheel	replaced	The whole body steers the single-player battle (skill queue, field walk). Restored as camera zoom: the wheel changes the view distance with the clamps of the Ctrl+right-drag zoom in `ProcessRBtn`, unless the pointer is over a window (`processType == 1`) or a skill is being aimed (then `ProcessInput` uses the wheel for the skill level). `CView::AddDistance` exists and nothing calls it (code). Step size open.
+GameMode.cpp CGameMode::ProcessDamageSituation	added (whole function)	Plays the queue of damage the single-player battle computes locally; online, damage arrives as `ZC_NOTIFY_ACT` and is shown by the actor messages.
+GameMode.cpp CGameMode::GainExp	added (whole function)	Client-side experience and level-up of the single-player acolyte; online, `ZC_LONGPAR_CHANGE`/`ZC_PAR_CHANGE` carry them. `GetNextExpValue` and `GetWeaponPower` serve only it and the single-player status display and go with it.
+GameMode.cpp CGameMode::GetWeaponCost	added (whole function)	Used only by the shop of `HP_BuySell.cpp`.
+GameMode.cpp CGameMode::DeleteBroadcastBalloon	added (whole function)	Called only by the single-player code (closure rule); dead once it goes.
+GameMode.h CGameMode (declarations)	added	Declarations of the above.
+GameModePacket.cpp (file scope)	added	Externs of single-player globals.
+GameModePacket.cpp CGameMode::Zc_Notify_Entry_HP	added (whole function)	Spawns the single-player companions locally (no packet: an int id and two shorts); online actors enter with `ZC_NOTIFY_STANDENTRY` and friends.
+GameModePacket.cpp CGameMode::Zc_Notify_Entry_Mob	added (whole function)	Spawns the single-player monsters locally.
+GameModePacket.cpp CGameMode::Zc_BroadCast_HP	added (whole function)	A copy of the broadcast balloon fed with single-player text instead of a packet; `Zc_Broadcast` is the online handler.
+GameWorld.cpp CWorld::MakeSkill	added (whole function)	Used only by the single-player battle.
+GameWorld.cpp CWorld::RemoveSkillbyJT	added (whole function)	Used only by the single-player battle.
+GameWorld.h CWorld (declarations)	added	Declarations of the above.
+Mode.cpp CMode::DrawBackGround2D	added (whole function)	Draws the single-player 2D backgrounds; called only from `HP_Battle.cpp`/`HP_RestTravell.cpp`.
+Mode.h CMode (declarations)	added	Declaration of the above.
+Session.cpp (file scope)	added	Externs of single-player globals.
+Session.cpp CSession::MoveItemFromItemWndToEquipWnd	added	The block on actor 1 (weapon and headgear sprites, `SetStatusData`) dresses the single-player acolyte; online the server sends `ZC_SPRITE_CHANGE` and the status packets after the equip ack. `SetStatusData` serves only the single-player code and goes with it.
+Session.cpp CSession::MoveItemFromEquipWndToItemWnd	added	The same block for taking off.
+Session.cpp CSession::HP_AddItem	added (whole function)	Creates inventory items locally.
+Session.cpp CSession::HP_MakingItem	added (whole function)	The smithing reward.
+Session.cpp CSession::HP_GetLocation	added (whole function)	Equip location table for `HP_AddItem`.
+Session.cpp CSession::Mob_SkillReturn	added (whole function)	Monster skill choice of the single-player battle.
+Session.cpp CSession::HP_EquipItemById	added (whole function)	Local equip.
+Session.cpp CSession::DoPCHaveItem	added (whole function)	Used only by `GainExp`.
+Session.h CSession (declarations)	added	Declarations of the above and `m_DayCount`.
+Session2.cpp (file scope)	added	Extern of the damage queue.
+Session2.cpp CSession::SetDamageSituation	added (whole function)	Fills the damage queue.
+UIFrameWnd2.cpp UIStatusWnd::OnDraw	replaced, open	The single-player version draws only ATK (`Str*10 + weapon power`) and DEF (`Vit*5`) of actor 1. Restored: the sixteen values the window's own hover table (`UIStatusWnd::OnMouseHover`) names, from the session getters the status packets fill (ATK, MATK, HIT, CRI, status points, guild; DEF, MDEF, FLEE, ASPD), right-aligned where the single-player code drew ATK and DEF, and the stat costs. Exact text positions open (`status-layout`).
+UIWindowMgr.cpp (file scope)	added	Externs and definitions of single-player globals.
+UIWindowMgr.cpp UIWindowMgr::ProcessPushButton	added	Tetris moves and `g_menuSelect` in the arrow keys, `ExeMenu()` on A, `SetcurScreen` on D, the no-op `GetGameActorByAid(1)` on S. Also, found by reading: the key remapping at the top (Enter, scan codes 0x1e/0x20/0x11/0x2d, W, X turned into A/D/up/down) is single-player; it makes the online `VK_RETURN`, Alt+X and Alt+W cases unreachable, which shows it was put in front of them.
+WinMain.cpp SearchProcessIn9X	added	`HIGHPRIEST.EXE` added to the list of accepted process names.
+WinMain.cpp SearchProcessInNT	added	The same.
+WinMain.cpp WinMain	replaced	`data_hp.grf` and the `g_serviceType` test: the archive list is read from `DATA.INI` before the first file is opened (M1.3). `Setup_HP.exe` loop: built-in defaults (M1.5). `g_Aco_Name` and the HP/SP/level/zeny set-up: single-player session, deleted. `MT_GAME, "World_HP.rsw"`: `MT_LOGIN, "login.rsw"` (M1.3). The process-name check goes (M1.5).
+pdb_shared.h HP_Damage_Moment (declarations)	added	Type of the damage queue.
+pdb_shared.h HP_TRAVEL_AVAILABLE (declarations)	added	Type of the travel map.
+framework/Locale.cpp InitClientInfo	replaced	Registry key and window title name HighPriest; they become `Software\` + `BF_APP_NAME` and `BF_APP_NAME` (M1.5).
+window/UIFrameWnd.cpp (file scope)	added	Externs of single-player globals.
+window/UIFrameWnd.cpp UIMakeCharWnd::OnDraw	replaced, open	Draws `win_make_HP.bmp`, a second (blacksmith) preview and the difficulty marker. Restored: `win_make.bmp`, the one preview, the stat hexagon `DrawHexagon()` (defined and never called) and the six stat values. Layout open (`makechar-layout`).
+window/UIFrameWnd.cpp UIMakeCharWnd::SendMsg	replaced	OK sets up the single-player save, Cancel goes to a single-player screen. Restored from the login mode: OK stores the character in `g_charInfo` and sends `LMM_SENDCHARINFO` (handled in `CLoginMode::SendMsg`, sent by nobody, which then sends `CH_MAKE_CHAR`); Cancel sends `MM_COMMAND, LMM_SELECTCHARACTER`. The difficulty button and the second preview's head buttons go.
+window/UISys.h UIWindowMgr (declarations)	added	The 45 single-player methods of `UIWindowMgr`.
+sources.mk (build list)	added	The five units leave the list of game units (read by `census.sh` and by the Windows `Makefile`, which is left as it is; the branch gives up the byte-identical build).
