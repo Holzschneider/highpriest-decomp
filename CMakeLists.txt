@@ -123,7 +123,7 @@ set_target_properties(bf_instrument PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQU
 # ---------------------------------------------------------------- native modules
 # Each builds standalone and under add_subdirectory; each sets C++17 and ARC on
 # its own targets. A module whose CMakeLists.txt has not landed yet is skipped.
-set(BF_NATIVE_MODULES sys codec app gfx text audio prefs control formats/bink formats/granny)
+set(BF_NATIVE_MODULES sys codec app gfx text audio prefs view control formats/bink formats/granny)
 set(BF_NATIVE_LIBS)
 set(BF_NATIVE_TESTS)
 add_custom_target(native)
@@ -147,7 +147,7 @@ foreach(module IN LISTS BF_NATIVE_MODULES)
 	add_dependencies(native ${test})
 	# Labels: headless tests need no window and no sound output; fastcheck
 	# runs those. app opens a window, audio plays sound.
-	if(leaf STREQUAL "app" OR leaf STREQUAL "prefs")
+	if(leaf STREQUAL "app" OR leaf STREQUAL "prefs" OR leaf STREQUAL "view")
 		set(label window)
 	elseif(leaf STREQUAL "audio")
 		set(label sound)
