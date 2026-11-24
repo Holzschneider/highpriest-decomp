@@ -1073,6 +1073,78 @@ void UIWindowMgr::SetSize(int cx, int cy)
 	m_chatWndY = cy - m_chatWndHeight;
 }
 
+#if defined(BF_PORT)
+// The port's resize path (M4.3a). MakeWindow records which window it made,
+// so that a resize can move the windows it placed by the screen's size by
+// as much as that placement moves. The size is kept to tell a reused
+// address from the window that was recorded.
+struct BfMadeWindow { int id; int w; int h; };
+static std::map<UIWindow *, BfMadeWindow> g_bfMadeWindows;
+
+// Where MakeWindow puts a window on a screen of cx x cy, for the windows of
+// the login mode (the UIX, UIY and UICY of UISys.h at that size).
+static bool BfPlacement(int id, int cx, int cy, int *x, int *y)
+{
+	int uix = (cx - 640) / 2, uiy = (cy - 480) / 2;
+	switch (id) {
+	case WID_LOGINWND:
+	case WID_WAITWND:
+		*x = uix + 185; *y = cy * 300 / 480; return true;
+	case WID_SELECTSERVERWND:
+		*x = uix + 185; *y = cy * 300 / 480 - 80; return true;
+	case WID_NOTICEWND:
+		*x = uix + 33; *y = uiy + 40; return true;
+	case WID_MAKECHARWND:
+	case WID_SELECTCHARWND:
+		*x = uix + 33; *y = uiy + 65; return true;
+	case WID_LOADINGWND:
+		*x = cx / 2 - 100; *y = cy / 2 + 160; return true;
+	}
+	return false;
+}
+
+// The screen is now cx x cy logical pixels. A window of the login mode moves
+// with its placement (so the login window stays where the client puts it at
+// that size, and a window the player dragged keeps its offset); any other
+// window keeps the screen edge it touches, else its offset from the
+// centre horizontally and its share of the height vertically (as UIX and
+// UICY place most of them). Then every window is clamped back into view and
+// the UI is redrawn. The original fixed the size at start-up.
+void UIWindowMgr::BfOnResize(int cx, int cy)
+{
+	int oldW = m_w, oldH = m_h;
+	SetSize(cx, cy);
+	if (oldW <= 0 || oldH <= 0 || (oldW == cx && oldH == cy))
+		return;
+	for (std::list<UIWindow *>::iterator i = m_children.begin(); i != m_children.end(); ++i) {
+		UIWindow *window = *i;
+		int x = window->m_x, y = window->m_y, x0, y0, x1, y1;
+		std::map<UIWindow *, BfMadeWindow>::iterator made = g_bfMadeWindows.find(window);
+		if (made != g_bfMadeWindows.end() && made->second.w == window->m_w && made->second.h == window->m_h
+			&& BfPlacement(made->second.id, oldW, oldH, &x0, &y0) && BfPlacement(made->second.id, cx, cy, &x1, &y1)) {
+			x += x1 - x0;
+			y += y1 - y0;
+		} else {
+			if (x + window->m_w >= oldW && x > 0)
+				x += cx - oldW;
+			else if (x > 0)
+				x += (cx - oldW) / 2;
+			if (y + window->m_h >= oldH && y > 0)
+				y += cy - oldH;
+			else if (y > 0)
+				y = y * cy / oldH;
+		}
+		if (x > cx - window->m_w) x = cx - window->m_w;
+		if (y > cy - window->m_h) y = cy - window->m_h;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		if (x != window->m_x || y != window->m_y)
+			window->Move(x, y);
+	}
+	InvalidateAll();
+}
+#endif
+
 void UIWindowMgr::CreateDCA(int cx, int cy) {}
 
 void UIWindowMgr::DestroyDC()
@@ -4297,6 +4369,12 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 		break;
 	}
 
+#if defined(BF_PORT)
+	if (wnd) {
+		BfMadeWindow made = { (int)windowId, wnd->m_w, wnd->m_h };
+		g_bfMadeWindows[(UIWindow *)wnd] = made;
+	}
+#endif
 	return wnd;
 }
 

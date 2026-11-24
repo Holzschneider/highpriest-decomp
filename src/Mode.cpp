@@ -578,6 +578,10 @@ CGameMode * CModeMgr::GetGameMode()
 		return NULL;
 }
 
+#if defined(BF_PORT)
+int g_bfModeRunning = 0;
+#endif
+
 void CModeMgr::Run(int modeType, const char *worldName)
 {
 	m_nextModeType = m_curModeType = modeType;
@@ -598,7 +602,13 @@ void CModeMgr::Run(int modeType, const char *worldName)
 		BF_TRACE(BFT_MODE, "mode %s \"%s\"", m_curModeType == MT_LOGIN ? "login" : "game", m_curModeName);
 #endif
 		m_curMode->OnInit(m_curModeName);
+#if defined(BF_PORT)
+		g_bfModeRunning = 1;   // the port may draw a frame during a live resize (WinMain.cpp)
+#endif
 		m_curMode->OnRun();
+#if defined(BF_PORT)
+		g_bfModeRunning = 0;
+#endif
 		m_curMode->OnExit();
 		delete m_curMode;
 		m_curMode = NULL;

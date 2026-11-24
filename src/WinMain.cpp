@@ -110,10 +110,61 @@ short g_BOT_y = 0;
 char g_multiSTOP = 0;
 char g_EXE_way = 0;
 
+#if defined(BF_PORT)
+// The port's resize path (M4.3a). bf_main.cpp calls these from the view's
+// listener and from the modal frame (port/native/view).
+static int g_bfModalDepth = 0;
+extern int g_bfModeRunning;   // Mode.cpp: a mode is in OnRun
+extern UIWindowMgr g_windowMgr;
+
+// The window's logical size has changed and the graphics device has been
+// resized: the device's buffers, the renderer's size and projection (the
+// picking uses both) and the window manager's bounds follow, and the windows
+// are put back into view. 0 while the client has no renderer yet.
+extern "C" int bf_client_view_changed(int w, int h)
+{
+	if (!g_renderer)
+		return 0;
+	if (w == g_renderer->m_width && h == g_renderer->m_height)
+		return 1;
+	int oldW = g_renderer->m_width, oldH = g_renderer->m_height;
+	HRESULT hr = g_3dDevice.BfResize(w, h);
+	if (FAILED(hr)) {
+		bf_tracef(BFT_ERR, "resize: C3dDevice::BfResize(%d, %d) failed (0x%08x)", w, h, (unsigned)hr);
+		return 1;
+	}
+	g_renderer->SetSize(w, h);
+	if (g_renderer->m_guardBandLeft == -640) {   // CreateRenderer's defaults follow the size
+		g_renderer->m_guardBandRight = g_renderer->m_width + 640;
+		g_renderer->m_guardBandBottom = g_renderer->m_height + 480;
+	}
+	g_windowMgr.BfOnResize(w, h);
+	BF_TRACE(BFT_GFX, "resize: client %dx%d -> %dx%d", oldW, oldH, w, h);
+	return 1;
+}
+
+// One frame while AppKit runs a loop of its own (a live resize, an open
+// menu), from inside the message pump of the current mode's OnUpdate: the
+// mode's OnUpdate again, with the pump left out. Not during start-up or a
+// mode's OnInit (map loading pumps too), and not nested.
+extern "C" int bf_client_modal_frame(void)
+{
+	CMode *mode = g_modeMgr.GetCurMode();
+	if (g_bfModalDepth || !g_bfModeRunning || !mode || g_sysQuit)
+		return 0;
+	++g_bfModalDepth;
+	mode->OnUpdate();
+	--g_bfModalDepth;
+	return 1;
+}
+#endif
+
 void CheckSystemMessage()
 {
 #if defined(BF_PORT)
 	bf_port_frame();
+	if (g_bfModalDepth)
+		return;   // inside bf_client_modal_frame: AppKit holds the event loop
 #endif
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

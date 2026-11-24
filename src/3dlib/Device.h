@@ -106,6 +106,9 @@ public:
 	int GetBShiftL() { return m_pfBShiftL; }
 	void BackupFrame();
 	void RestoreFrame();
+#if defined(BF_PORT)
+	int BfResize(unsigned int w, unsigned int h);
+#endif
 	void SetMaterialDiffuse( float r, float g, float b ) { m_fMaterialDiffuseR = r, m_fMaterialDiffuseG = g, m_fMaterialDiffuseB = b; }
 	void SetMaterialAmbient( float r, float g, float b ) { m_fMaterialAmbientR = r, m_fMaterialAmbientG = g, m_fMaterialAmbientB = b; }
 	void GetMaterialDiffuse( float* r, float* g, float* b ) { *r = m_fMaterialDiffuseR, *g = m_fMaterialDiffuseG, *b = m_fMaterialDiffuseB; }

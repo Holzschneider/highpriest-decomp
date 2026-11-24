@@ -561,6 +561,83 @@ HRESULT C3dDevice :: RestoreSurfaces()
 	return m_pDD->RestoreAllSurfaces();
 }
 
+#if defined(BF_PORT)
+// The port's resize path (M4.3a): the window's logical size has changed and
+// the graphics device has been resized to it (port/native/view). The back
+// buffer, its z-buffer and the backup surface are made anew at the new size
+// and the viewport follows, as CreateBuffers, CreateZBuffer and
+// CreateDirect3D do at start-up. The original fixed the size at start-up.
+HRESULT C3dDevice :: BfResize(DWORD w, DWORD h)
+{
+	if (!m_pDD || !m_pd3dDevice || !m_pddsBackBuffer || m_bIsFullscreen)
+		return D3DFWERR_NOTINITIALIZED;
+	if (w == m_dwRenderWidth && h == m_dwRenderHeight)
+		return S_OK;
+
+	DDSURFACEDESC2 ddsd;
+	IDirectDrawSurface7 *back = NULL, *zbuffer = NULL, *backup = NULL;
+	HRESULT hr;
+
+	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
+	ddsd.dwWidth = w;
+	ddsd.dwHeight = h;
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
+	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &back, NULL)))
+		return hr;
+
+	if (m_pddsZBuffer) {
+		D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT, 0);
+		ddsd.ddsCaps.dwCaps = m_dwDeviceMemType | DDSCAPS_ZBUFFER;
+		ddsd.dwWidth = w;
+		ddsd.dwHeight = h;
+		ddsd.ddpfPixelFormat = m_ddpfZBuffer;
+		if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &zbuffer, NULL)) || FAILED(hr = back->AddAttachedSurface(zbuffer))) {
+			SAFE_RELEASE(zbuffer);
+			SAFE_RELEASE(back);
+			return hr;
+		}
+	}
+
+	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
+	ddsd.dwWidth = w;
+	ddsd.dwHeight = h;
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &backup, NULL))) {
+		SAFE_RELEASE(zbuffer);
+		SAFE_RELEASE(back);
+		return hr;
+	}
+
+	if (FAILED(hr = m_pd3dDevice->SetRenderTarget(back, 0))) {
+		SAFE_RELEASE(backup);
+		SAFE_RELEASE(zbuffer);
+		SAFE_RELEASE(back);
+		return hr;
+	}
+
+	SAFE_RELEASE(m_pddsZBuffer);
+	SAFE_RELEASE(m_pddsRenderTarget);
+	SAFE_RELEASE(m_pddsBackBuffer);
+	SAFE_RELEASE(m_pddsRenderBackup);
+	m_pddsBackBuffer = back;
+	m_pddsRenderTarget = back;
+	m_pddsRenderTarget->AddRef();
+	m_pddsZBuffer = zbuffer;
+	m_pddsRenderBackup = backup;
+
+	SetRect(&m_rcViewportRect, 0, 0, w, h);
+	GetClientRect(m_hWnd, &m_rcScreenRect);
+	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
+	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
+	m_dwRenderWidth = w;
+	m_dwRenderHeight = h;
+
+	D3DVIEWPORT7 vdData;
+	D3DUtil_InitViewport(vdData, m_dwRenderWidth, m_dwRenderHeight);
+	return m_pd3dDevice->SetViewport(&vdData);
+}
+#endif
+
 CDC *	C3dDevice :: CreateDCBuffer(DWORD w, DWORD h)
 {
 	CDC * surface;

@@ -1735,6 +1735,9 @@ public:
 	void EditFocusToChatWnd();
 	void FindFocusEditAndSetFocus();
 	void SetSize(int cx, int cy);
+#if defined(BF_PORT)
+	void BfOnResize(int cx, int cy);
+#endif
 	void UpdateSnapInfo(UIWindow* snapWindow);
 	void GetDeltaSnap(UIWindow* snapWindow, int& isConnected, int& rdx, int rdy);
 	void DeleteSnapInfo(UIWindow* snapWindow);

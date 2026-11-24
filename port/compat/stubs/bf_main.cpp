@@ -48,6 +48,8 @@
 #include "bf_view.h"
 
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
+extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
+extern "C" int bf_client_modal_frame(void);                  // WinMain.cpp
 
 namespace {
 
@@ -114,6 +116,111 @@ void PxToLogical(void *, float x_px, float y_px, double *x, double *y)
 		bf_view_px_to_logical(&m, x_px, y_px, x, y);
 }
 
+// `resize`: what a resize by the user does. The scale first (it can raise
+// the window's minimum size), then the content size in pixels, then one sync
+// so that the client follows at once; the reply waits for the next frame.
+int g_fullscreen_target = -1;   // while a fullscreen change asked for is under way
+
+int Resize(void *, const bf_control_resize_args *a, char *message, size_t message_size)
+{
+	if (!g_gfx) {
+		snprintf(message, message_size, "no window (headless or not started yet)");
+		return BF_CONTROL_E_UNSUPPORTED;
+	}
+	bf_view_metrics m;
+	bf_view_get(&m);
+	int fullscreen = bf_app_window_is_fullscreen();
+	bool to_fullscreen = a->has_fullscreen ? a->fullscreen != 0 : fullscreen != 0;
+	if ((a->has_width || a->has_height) && to_fullscreen) {
+		snprintf(message, message_size, "width and height cannot be set in fullscreen");
+		return BF_CONTROL_E_BAD_STATE;
+	}
+	if (a->has_fullscreen && (a->fullscreen != 0) != (fullscreen != 0)) {
+		g_fullscreen_target = a->fullscreen != 0;
+		bf_view_toggle_fullscreen();
+	}
+	if (a->has_scale && bf_view_set_scale_setting(a->scale) < 0) {   // 1: changed
+		snprintf(message, message_size, "bf_view_set_scale_setting(%d) failed", a->scale);
+		return BF_CONTROL_E_INTERNAL;
+	}
+	if (a->has_width || a->has_height) {
+		bf_view_get(&m);
+		double backing = m.backing_scale > 0 ? m.backing_scale : 1.0;
+		int w = a->has_width ? a->width : m.drawable_w;
+		int h = a->has_height ? a->height : m.drawable_h;
+		bf_app_window_set_content_size(w / backing, h / backing);
+	}
+	bf_view_sync();
+	bf_view_get(&m);
+	BF_TRACE(BFT_GFX, "control: resize to %dx%d px, UI scale %d (setting %d), logical %dx%d", m.drawable_w, m.drawable_h,
+	         m.ui_scale, m.scale_setting, m.logical_w, m.logical_h);
+	return BF_CONTROL_E_NONE;
+}
+
+int ResizeBusy(void *)
+{
+	if (g_fullscreen_target < 0)
+		return 0;
+	if ((bf_app_window_is_fullscreen() != 0) == (g_fullscreen_target != 0)) {
+		g_fullscreen_target = -1;
+		return 0;
+	}
+	return 1;
+}
+
+void WriteView(bf_control_writer *w, void *)
+{
+	bf_view_metrics m;
+	bf_view_get(&m);
+	bf_control_write_begin_object(w);
+	bf_control_write_key(w, "width");
+	bf_control_write_int(w, m.drawable_w);
+	bf_control_write_key(w, "height");
+	bf_control_write_int(w, m.drawable_h);
+	bf_control_write_key(w, "scale");
+	bf_control_write_int(w, m.ui_scale);
+	bf_control_write_key(w, "logical");
+	bf_control_write_begin_object(w);
+	bf_control_write_key(w, "w");
+	bf_control_write_int(w, m.logical_w);
+	bf_control_write_key(w, "h");
+	bf_control_write_int(w, m.logical_h);
+	bf_control_write_end_object(w);
+	bf_control_write_key(w, "fullscreen");
+	bf_control_write_bool(w, m.fullscreen);
+	bf_control_write_key(w, "focused");
+	bf_control_write_bool(w, bf_app_window_is_focused());
+	bf_control_write_end_object(w);
+}
+
+// ---- the client's resize path (M4.3a)
+
+void ViewChanged(const bf_view_metrics *now, const bf_view_metrics *, void *)
+{
+	bf_client_view_changed(now->logical_w, now->logical_h);
+}
+
+void ModalFrame(void *)
+{
+	bf_client_modal_frame();
+}
+
+// Installed at the first frame, once the client's device, renderer and
+// window manager exist; the view may have changed since the device was made.
+void InstallResizePath()
+{
+	static bool installed = false;
+	if (installed || !g_gfx)
+		return;
+	bf_view_metrics m;
+	bf_view_get(&m);
+	if (!bf_client_view_changed(m.logical_w, m.logical_h))
+		return;   // no renderer yet: the start-up's own frames
+	installed = true;
+	bf_view_set_listener(ViewChanged, nullptr);
+	bf_view_set_modal_frame(ModalFrame, nullptr);
+}
+
 void WriteMode(bf_control_writer *w, void *)
 {
 	bf_control_write_string(w, bf_port_mode(nullptr));
@@ -153,9 +260,12 @@ void OpenControl(const char *path)
 	hooks.capture = Capture;
 	hooks.logical_to_px = LogicalToPx;
 	hooks.px_to_logical = PxToLogical;
+	hooks.resize = Resize;
+	hooks.resize_busy = ResizeBusy;
 	bf_control_set_hooks(&hooks);
 	bf_control_register_state("mode", WriteMode, nullptr);
 	bf_control_register_state("detail", WriteDetail, nullptr);
+	bf_control_register_state("view", WriteView, nullptr);
 	bf_control_declare_event("mode");
 	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
 	if (bf_control_open(&config) != BF_CONTROL_OK)
@@ -241,16 +351,23 @@ extern "C" int bf_port_start_graphics(void)
 
 extern "C" void bf_port_frame(void)
 {
-	if (!bf_control_is_open())
-		return;
-	if (g_gfx) {
+	bool control = bf_control_is_open();
+	if (g_gfx && control) {
 		long long frames = 0;
 		bf_gfx_get_stats(g_gfx, nullptr, nullptr, nullptr, &frames);
 		if (frames > g_frames_reported) {
 			g_frames_reported = frames;
-			bf_control_frame_done((uint64_t)frames);
+			bf_control_frame_done((uint64_t)frames);   // before the sync: a capture reads the frame just drawn
 		}
 	}
+	if (g_gfx) {
+		// The view follows the window at the start of every frame; its
+		// listener resizes the client (InstallResizePath).
+		InstallResizePath();
+		bf_view_sync();
+	}
+	if (!control)
+		return;
 	ReportModeChange();
 	bf_control_poll();
 }
