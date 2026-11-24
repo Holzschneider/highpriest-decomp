@@ -209,6 +209,8 @@ class Test:
         finally:
             if self.client:
                 self.stop_client()
+            for bot in getattr(self, "bots", []):   # bfharness.bot: second players
+                bot.quit()
         return self.finish()
 
     def finish(self):
