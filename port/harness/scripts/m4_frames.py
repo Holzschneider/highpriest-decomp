@@ -10,9 +10,10 @@ and this script in the repository; UI pixels are clean blocks at every scale.
 
 Needs no server: the login screen is drawn before anything is sent. Frames go
 to <game folder>/test/frames/m4/ (game artwork: outside git); their
-checksums to port/harness/manifests/m4-frames.sha256. The cursor spins and
-the caret blinks, so a new run gives new checksums; the checks below are the
-criterion, the manifest names the frames that were looked at.
+checksums to port/harness/manifests/m4-frames.sha256. At a given commit the
+frames are reproducible (the M4 verifier got byte-identical frames from two
+runs), so a changed checksum means a changed picture; the checks below remain
+the criterion.
 
 Per frame, after `resize` (window content in device pixels, UI scale):
   - the reply's view and the capture have the size, scale and logical size asked;

@@ -65,7 +65,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 3b7143e | M4.6 Control interface, first part: socket, JSON lines, frame capture | native | M4.1 |
 | [x] b803974 | M4.7 Options to skip the licence and intro screens | src | M3.7 |
 | [x] a81ced5 | M4.8 Reference screenshots of 2008-era clients collected under `~/Games/Bifrost/test/reference/` | ref | |
-| [ ] | M4 exit (verifier) | | M3 exit, M4.1–M4.8 |
+| [p] 43e738d | M4 exit (verifier): closed with a parked criterion (pacing, needs an unlocked screen) | | M3 exit, M4.1–M4.8 |
 
 ## M5. Input and login
 
