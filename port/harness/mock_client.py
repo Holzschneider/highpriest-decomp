@@ -57,7 +57,8 @@ ITEMS = {501: ("Red Potion", 50), 502: ("Orange Potion", 200), 909: ("Jellopy", 
 # the item window (M8.1d): equipment by id -> (name, price, location bits, atk, def);
 # consumables heal (item id -> HP)
 EQUIPMENT = {1201: ("Knife", 50, 2, 17, 0), 1207: ("Main Gauche", 2400, 2, 43, 0),
-             2301: ("Cotton Shirt", 10, 16, 0, 1), 2305: ("Adventurer's Suit", 1000, 16, 0, 3)}
+             2301: ("Cotton Shirt", 10, 16, 0, 1), 2305: ("Adventurer's Suit", 1000, 16, 0, 3),
+             2220: ("Hat", 1000, 256, 0, 2), 2201: ("Sunglasses", 5000, 512, 0, 0)}
 for _n, _e in EQUIPMENT.items():
     ITEMS.setdefault(_n, _e[:2])
 HEAL = {501: 45, 502: 105}
@@ -595,8 +596,9 @@ class Mock:
         w = self.window("EQUIPWND")
         if w:
             x, y = w.rect[0], w.rect[1]
-            w.controls = [ctl("item:%d" % r["id"], "item", x + (6 if EQUIPMENT[r["nameid"]][2] == 2 else 251),
-                              y + 69, 24, 24, EQUIPMENT[r["nameid"]][0], row=r["id"])
+            slot = {2: (6, 69), 16: (251, 69), 256: (6, 17), 512: (251, 17)}
+            w.controls = [ctl("item:%d" % r["id"], "item", x + slot.get(r["equip"], (6, 121))[0],
+                              y + slot.get(r["equip"], (6, 121))[1], 24, 24, EQUIPMENT[r["nameid"]][0], row=r["id"])
                           for r in inv if r.get("equip") and r["nameid"] in EQUIPMENT]
         w = self.window("STATUSWND")
         if w:

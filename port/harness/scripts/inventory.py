@@ -12,7 +12,8 @@ status_point.
 Set-up: a fresh group-99 account and its male Novice (play.fresh_character),
 offline at prontera 150,150 with 10 HP (SQL); in game the client types
 `@item 501 5` (Red Potion), `@item 1207 1` (Main Gauche; the server's Sword
-needs base level 2), `@item 2305 1` (Adventurer's Suit) and
+needs base level 2), `@item 2305 1` (Adventurer's Suit), `@item 2220 1`
+(Hat), `@item 2201 1` (Sunglasses) and
 `@statuspoint 10` (set-up by atcommand, in atcommandlog). The Novice starts
 with a Knife and a Cotton Shirt worn (rAthena's start_items).
 
@@ -26,6 +27,10 @@ Played, all by pointer and keys through the control socket:
 - Alt+Q opens EQUIPWND, which shows both as `item:<index>`; Alt+A opens
   STATUSWND, whose `atk` and `def` texts ("24 + 0") change from before.
 - double-click on the Suit in EQUIPWND takes it off (CZ_REQ_TAKEOFF_EQUIP).
+- a Hat and Sunglasses (head top and middle) are worn too; after two map
+  changes (@warp, set-up) the equipment window still lists every worn item
+  and the trace has no assertion (the slots CSession::ClearEquipItem
+  cleared only partly on arm64).
 - the Red Potions are dragged from ITEMWND onto the ground; the count window
   (ITEMDROPCNTWND) takes the amount and Enter; the item lies on the ground.
 - the `str` button of STATUSWND raises Str (CZ_STATUS_CHANGE).
@@ -45,6 +50,7 @@ NEEDS_SERVER = True
 
 START = ("prontera", 150, 150)
 POTION, WEAPON, SUIT = 501, 1207, 2305
+HAT, GLASSES = 2220, 2201         # head top and head middle, the last two equipment slots
 KNIFE, SHIRT = 1201, 2301
 
 
@@ -93,8 +99,11 @@ def double_click_item(ctl, window, it):
     if c is None:
         raise AssertionError("%s shows no item:%d (%s); controls %s"
                              % (window, it["index"], it["name"], sorted(controls(ctl, window))))
+    # the previous double-click is past the double-click interval, so that
+    # an item moved into the cell just clicked is not opened by one click
+    time.sleep(0.6)
     ctl.move(*centre(c))
-    ctl.wait({"frames": 3}, timeout=10)
+    ctl.wait({"frames": 40}, timeout=10)
     ctl.double_click(*centre(c))
     return c
 
@@ -128,11 +137,13 @@ def run(t):
 
     with t.step("set-up: items and status points", "atcommands typed by the client") as s:
         mark = t.logs.mark()
-        for cmd in (t.gm.item(POTION, 5), t.gm.item(WEAPON, 1), t.gm.item(SUIT, 1), "@statuspoint 10"):
+        cmds = (t.gm.item(POTION, 5), t.gm.item(WEAPON, 1), t.gm.item(SUIT, 1), t.gm.item(HAT, 1),
+                t.gm.item(GLASSES, 1), "@statuspoint 10")
+        for cmd in cmds:
             t.gm.run(cmd)
-        s.rows("atcommandlog", wait_rows(lambda: at_least(4, t.logs.atcommands(char_id=char_id, after=mark)),
-                                         timeout=10), min_rows=4)
-        got = wait_until(ctl, lambda: all(item(ctl, i) for i in (POTION, WEAPON, SUIT)))
+        s.rows("atcommandlog", wait_rows(lambda: at_least(len(cmds), t.logs.atcommands(char_id=char_id, after=mark)),
+                                         timeout=10), min_rows=len(cmds))
+        got = wait_until(ctl, lambda: all(item(ctl, i) for i in (POTION, WEAPON, SUIT, HAT, GLASSES)))
         s.state("inventory", inv(ctl))
         ok(s, got, "the items part lists the Red Potions, the Main Gauche and the Suit")
 
@@ -164,12 +175,13 @@ def run(t):
     with t.step("equip weapon and armour", "M8.1d: double-click on equipment in the item window wears it") as s:
         tab(ctl, "equip")
         s.state("ITEMWND controls (equip tab)", controls(ctl, "ITEMWND"))
-        for nameid in (WEAPON, SUIT):
+        for nameid in (WEAPON, SUIT, HAT, GLASSES):
             double_click_item(ctl, "ITEMWND", item(ctl, nameid))
             wait_until(ctl, lambda: (item(ctl, nameid) or {}).get("equipped"))
         s.state("inventory", inv(ctl))
         worn = {i["id"]: i["equipped"] for i in inv(ctl) if i["equipped"]}
-        ok(s, worn.get(WEAPON) and worn.get(SUIT), "weapon and Suit worn: %r" % worn)
+        ok(s, all(worn.get(n) for n in (WEAPON, SUIT, HAT, GLASSES)),
+           "weapon, Suit, Hat and Sunglasses worn: %r" % worn)
         ok(s, not worn.get(KNIFE) and not worn.get(SHIRT), "Knife and Cotton Shirt taken off by the swap")
         s.frame("equipped-itemwnd")
         ctl.press("e", "alt")
@@ -178,7 +190,7 @@ def run(t):
     with t.step("equipment window", "M8.1d: Alt+Q opens EQUIPWND, which shows the Main Gauche and the Suit") as s:
         eq = toggle(ctl, "q", "EQUIPWND")
         s.state("EQUIPWND controls", eq)
-        for nameid in (WEAPON, SUIT):
+        for nameid in (WEAPON, SUIT, HAT, GLASSES):
             it = item(ctl, nameid)
             ok(s, ("item:%d" % it["index"]) in eq, "EQUIPWND shows %s" % it["name"])
         s.frame("equipwnd")
@@ -201,6 +213,25 @@ def run(t):
         ok(s, off, "the Suit is no longer worn")
         ok(s, ("item:%d" % item(ctl, SUIT)["index"]) not in controls(ctl, "EQUIPWND"), "EQUIPWND no longer shows it")
         ok(s, item(ctl, WEAPON)["equipped"], "the weapon is still worn")
+        toggle(ctl, "q", "EQUIPWND", open=False)
+
+    with t.step("equipment after a map change", "M8.1d: the worn items, head top and middle included, "
+                "are listed again after a map change (ZC_EQUIPMENT_ITEMLIST), with no assertion") as s:
+        mark = t.logs.mark()
+        worn = sorted(i["index"] for i in inv(ctl) if i["equipped"])
+        for cmd, m in ((t.gm.warp("izlude", 128, 110), "izlude"), (t.gm.warp(*START), START[0])):
+            t.gm.run(cmd)
+            ctl.wait_map(m, 60)
+            ctl.wait({"frames": 30}, timeout=20)
+        s.rows("atcommandlog @warp", t.logs.atcommands(char_id=char_id, contains="@warp", after=mark), min_rows=2)
+        eq = toggle(ctl, "q", "EQUIPWND")
+        s.state("EQUIPWND controls", sorted(eq))
+        now = sorted(i["index"] for i in inv(ctl) if i["equipped"])
+        s.equal(now, worn, "worn items (indices) after the map change")
+        ok(s, all(("item:%d" % i) in eq for i in worn), "EQUIPWND shows them all")
+        asserts = [] if t.mock else t.client.trace_lines("assertion failed")
+        s.trace("assertion lines", asserts)
+        ok(s, not asserts, "no assertion (CSession::AddEquipItem expects every slot cleared)")
         toggle(ctl, "q", "EQUIPWND", open=False)
 
     with t.step("drop an item", "M8.1d: drag from the item window onto the ground; picklog P with a negative amount") as s:
@@ -263,5 +294,6 @@ def run(t):
         ok(s, WEAPON in by and by[WEAPON][0]["equip"] != 0, "Main Gauche worn (equip %s)" % [r["equip"] for r in by.get(WEAPON, [])])
         ok(s, SUIT in by and by[SUIT][0]["equip"] == 0, "Suit not worn (equip %s)" % [r["equip"] for r in by.get(SUIT, [])])
         ok(s, all(r["equip"] == 0 for r in by.get(KNIFE, []) + by.get(SHIRT, [])), "Knife and Cotton Shirt not worn")
+        ok(s, all(by.get(n) and by[n][0]["equip"] != 0 for n in (HAT, GLASSES)), "Hat and Sunglasses worn")
         left = sum(r["amount"] for r in by.get(POTION, []))
         s.equal(left, 5 - 1 - dropped, "Red Potions left: 5 - 1 used - %d dropped" % dropped)
