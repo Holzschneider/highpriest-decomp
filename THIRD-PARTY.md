@@ -19,6 +19,7 @@ The CC0 dedication in [CC0-1.0.txt](CC0-1.0.txt) covers the build files, `tools/
 | Intel JPEG Library header | `src/ijl.h` | Intel | proprietary |
 | wibo, with `tools/wibo/fixed-time.patch` applied | `tools/bin/wibo` | Ash Wolf and Decompals | MIT, below |
 | Wine's C runtime DLLs (`crtdll`, `msvcrt`, `msvcirt`, `msvcrt20`, `msvcrt40`, `msvcr71`, `msvcr90`, `msvcr100`, `msvcr120`, `ucrtbase`) | embedded in `tools/bin/wibo` | the Wine project authors | LGPL 2.1 or later, below |
+| Wine 11.0 Windows headers, with those Wine's build generates from its `.idl` files | `port/compat/winheaders/` | the Wine project authors | LGPL 2.1 or later, below |
 | mimalloc | linked into `tools/bin/wibo` | Microsoft Corporation, Daan Leijen | MIT, below |
 | liburing 2.12 | linked into `tools/bin/wibo` | Jens Axboe | MIT, below |
 
@@ -309,6 +310,8 @@ SOFTWARE.
 ## Wine
 
 The DLLs are the files of release `2026-09-29` of [encounter/winedll](https://github.com/encounter/winedll), which holds their source; wibo's build embeds them unchanged.
+
+The headers in `port/compat/winheaders/` are those of tag `wine-11.0` (commit `db11d0fe6a16`), copied unchanged by `port/compat/winheaders/regenerate.sh`, which also generates the `.idl`-derived ones with that tag's `widl`; the directory holds Wine's `COPYING.LIB` and `AUTHORS`.
 
 ```
 Copyright (c) 1993-2026 the Wine project authors (see the file AUTHORS
