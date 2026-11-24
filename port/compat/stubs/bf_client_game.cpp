@@ -187,6 +187,7 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 	struct Entry {
 		bf_client_game_actor a;
 		const char *name;
+		bool cutSharp;   // shown without the part from '#' on, as the name balloon does
 	};
 	std::vector<Entry> entries;
 	std::vector<const void *> seen;
@@ -202,6 +203,9 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 		Cell(mode, a->m_pos, &e.a.x, &e.a.y);
 		Screen(mode, a->m_pos, &e.a);
 		e.name = BfClientGame::ActorName(mode, a->GetGID());
+		// CGameMode's name balloons cut the name at '#' for all but players
+		// (UINameBalloonText::SetNameText, cutSharp = !IsThisPC).
+		e.cutSharp = a->IsThisPC(a->GetJob()) == FALSE;
 		entries.push_back(e);
 		seen.push_back(a);
 	}
@@ -237,8 +241,12 @@ extern "C" int bf_client_game_actors(const bf_client_game_actor **actors)
 	}
 	// The names are copied, so that they outlive a change of the client's lists.
 	g_names.reserve(entries.size());
-	for (size_t k = 0; k < entries.size(); ++k)
+	for (size_t k = 0; k < entries.size(); ++k) {
 		g_names.push_back(entries[k].name ? entries[k].name : "");
+		std::string::size_type sharp = g_names.back().find('#');
+		if (entries[k].cutSharp && sharp != std::string::npos)
+			g_names.back().resize(sharp);
+	}
 	for (size_t k = 0; k < entries.size(); ++k) {
 		entries[k].a.name = entries[k].name ? g_names[k].c_str() : NULL;
 		g_actors.push_back(entries[k].a);

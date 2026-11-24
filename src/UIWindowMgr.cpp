@@ -1829,15 +1829,13 @@ void UIWindowMgr::FinishEdit()
 
 void UIWindowMgr::SetFocusEdit(UIWindow* wnd)
 {
+	// The 2008 client (0x4EBFC0) has no condition here; the reconstruction
+	// skipped the chat window's common line, which then never got the focus.
 	if (m_editWindow)
 		m_editWindow->OnFinishEdit();
-	// In login mode there is no chat window (the login window focuses its
-	// edit fields before any game window exists).
-	if (!m_chatWnd || wnd != (UIWindow*)m_chatWnd->m_commonChat) {
-		m_editWindow = wnd;
-		if (wnd)
-			wnd->OnBeginEdit();
-	}
+	m_editWindow = wnd;
+	if (wnd)
+		wnd->OnBeginEdit();
 }
 
 UIWindow* UIWindowMgr::GetFocusEdit() { return m_editWindow; }
