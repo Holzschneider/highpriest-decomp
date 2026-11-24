@@ -3,10 +3,19 @@
 # reports what clang rejects. The totals are the progress measure of the
 # first porting milestone.
 #
-#   port/tools/census.sh [--tree DIR] [--out DIR] [-- extra clang flags]
+#   port/tools/census.sh [--tree DIR] [--out DIR] [--warnings] [-- extra clang flags]
 #
-#   --tree  the source tree to check (default: src)
-#   --out   where the per-file logs go (default: build/port/census)
+#   --tree      the source tree to check (default: src)
+#   --out       where the per-file logs go (default: build/port/census)
+#   --warnings  the warnings mode (also BF_CENSUS_WARN=1): the project's flags
+#               hide every warning (-Wno-everything), so this mode turns
+#               -Wformat back on as an error (-Werror=format), and the totals
+#               then count format faults: a wrong length modifier, an object
+#               passed for %s, a sprintf that always overflows, arguments the
+#               format does not use. -Wformat-security (a format string that
+#               is not a literal) is left out; it is counted on its own line.
+#               The faults are listed by location at the end; the pass mark
+#               is "errors: 0".
 #
 # The units the build excludes (BF_CLIENT_EXCLUDE in the root CMakeLists.txt)
 # are skipped and counted on the "excluded" line; BF_CENSUS_ALL=1 checks them.
@@ -15,11 +24,12 @@
 # (default: port/compat/winheaders, the vendored Wine headers).
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-TREE=$ROOT/src; OUT=$ROOT/build/port/census
+TREE=$ROOT/src; OUT=$ROOT/build/port/census; WARN=${BF_CENSUS_WARN:-}
 while [ $# -gt 0 ]; do
   case "$1" in
     --tree) TREE=$(cd "$2" && pwd); shift 2;;
     --out) OUT=$2; shift 2;;
+    --warnings) WARN=1; shift;;
     --) shift; break;;
     *) echo "unknown argument: $1" >&2; exit 2;;
   esac
@@ -37,6 +47,7 @@ if [ -z "${BF_CENSUS_ALL:-}" ]; then
   GAME=$(echo $GAME | tr ' ' '\n' | grep -vxF -f <(echo $EXCLUDED | tr ' ' '\n'))
 fi
 
+[ -n "$WARN" ] && set -- -Wformat -Werror=format -Wno-format-security -Wformat-security "$@"
 FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE -isystem $WIN_HEADERS $*"
 export FLAGS TREE OUT
 
@@ -64,5 +75,11 @@ echo
 echo "most frequent messages (distinct locations, pointer casts left out):"
 errors all.txt | grep -v 'cast from pointer to smaller type' | sort -u -t: -k1,3 \
   | sed -E "s/^[^ ]+ (fatal )?error: //; s/'[^']*'/'X'/g; s/[0-9]+/N/g" | sort | uniq -c | sort -rn | head -${BF_CENSUS_TOP:-15}
+if [ -n "$WARN" ]; then
+  echo
+  echo "warnings mode: -Werror=format; non-literal format strings (-Wformat-security): $(grep 'Wformat-security' all.txt | cut -d: -f1-3 | sort -u | wc -l | tr -d ' ') locations"
+  echo "format faults by location:"
+  errors all.txt | sort -u -t: -k1,3 | sed -E "s|^$ROOT/||" | cut -c1-200
+fi
 echo
 echo "logs: $OUT"
