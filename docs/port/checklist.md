@@ -78,7 +78,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 38f4453 | M5.5 Launch arguments for server, account, character | src | M5.4 |
 | [x] c216a42 | M5.6 Control interface, second part: inject events, query mode and open windows | native | M4.6 |
 | [x] 9237814 | M5.7 Test harness in Python: server, client, socket, SQL logs | harness | |
-| [ ] | M5 exit (verifier) | | M4 exit, M5.1–M5.7 |
+| [x] 1d8155b | M5 exit (verifier): passed | | M4 exit, M5.1–M5.7 |
 
 ## M6. In the world
 
