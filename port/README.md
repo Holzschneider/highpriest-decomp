@@ -33,6 +33,14 @@ The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `de
 
 `bifrost-netprobe` follows the steps of the game's login mode against a running server and reports the first packet whose header the client's length table does not know.
 
+## Checking structure layouts
+
+```bash
+port/tools/layoutcheck.py [--tree DIR] [--ref-tree DIR]
+```
+
+Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. On the shadow tree eight records still differ, all through `time_t` fields in `packet.h`, which are 32 bits on Win32.
+
 ## Auditing game data
 
 ```bash
