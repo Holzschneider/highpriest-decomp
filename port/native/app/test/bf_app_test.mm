@@ -342,6 +342,25 @@ int RunChecks(const char *exe)
 	      "resize-event", "%s: %.0fx%.0f pt, %dx%d px; drawable %.0fx%.0f", got ? "received" : "not received",
 	      e.size.size.width_pt, e.size.size.height_pt, e.size.size.width_px, e.size.size.height_px, d.width, d.height);
 
+	// --- minimum content size and the screen
+	{
+		double mw = 0, mh = 0;
+		bf_app_window_get_min_content_size(&mw, &mh);
+		bool dflt = mw == 320 && mh == 240;
+		bf_app_window_set_min_content_size(500, 400);
+		double nw = 0, nh = 0;
+		bf_app_window_get_min_content_size(&nw, &nh);
+		bf_app_window_set_min_content_size(320, 240);
+		CHECK(dflt && nw == 500 && nh == 400 && w.contentMinSize.width == 320, "min-content-size",
+		      "default %.0fx%.0f, set 500x400 read back %.0fx%.0f, restored", mw, mh, nw, nh);
+		bf_app_screen sc;
+		int rc = bf_app_window_get_screen(&sc);
+		CHECK(rc == BF_APP_OK && sc.scale == s.scale && sc.visible_width_pt > 0 && sc.visible_width_pt <= sc.width_pt &&
+		      sc.visible_height_pt > 0 && sc.visible_height_pt < sc.height_pt, "screen",
+		      "%.0fx%.0f pt, visible content %.0fx%.0f pt, scale %.1f", sc.width_pt, sc.height_pt,
+		      sc.visible_width_pt, sc.visible_height_pt, sc.scale);
+	}
+
 	// --- events posted from another thread, read back in order
 	Drain(100);
 	const int kCount = 2000;

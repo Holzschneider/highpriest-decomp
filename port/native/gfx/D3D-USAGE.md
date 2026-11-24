@@ -163,7 +163,7 @@ Read-back happens only through `bf_gfx_read_pixels` and `bf_gfx_capture_png`; th
 
 ## 10. Sizes and resolution
 
-The client sees the logical resolution (`C3dDevice::GetWidth/GetHeight`, `CRenderer::SetSize`), which is the window's pixel size divided by the UI scale. The module rasterises at native resolution with the +0.5 native-pixel offset described in `bf_gfx.h`; quads on integer coordinates cover exact `scale × scale` blocks (checked at 1, 2, 3). `bf_gfx_resize` follows a window resize; the client's own resize path (projection, picking, window bounds) is M4.3.
+The client sees the logical resolution (`C3dDevice::GetWidth/GetHeight`, `CRenderer::SetSize`), which is the window's pixel size divided by the UI scale. The module rasterises at native resolution with the +0.5 native-pixel offset described in `bf_gfx.h`; quads on integer coordinates cover exact `scale × scale` blocks (checked at 1, 2, 3). `bf_gfx_resize` follows a window resize, driven by the view module (`port/native/view`, M4.3), which computes the logical size and scale in one place and sets the drawable to the window's pixel size; the client's own resize path (projection, picking, window bounds) is M4.3a.
 
 ## 11. What the module does not express
 

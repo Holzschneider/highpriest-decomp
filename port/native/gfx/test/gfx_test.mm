@@ -982,6 +982,18 @@ static void test_layer()
 	else check(rc == BF_GFX_OK, "present on the layer (%d)", rc);
 	bf_gfx_resize(d, 40, 20, 1);
 	check(layer.drawableSize.width == 40 && layer.drawableSize.height == 20, "resize: drawable size follows (40x20)");
+	// A drawable size of its own (the window's pixels), kept across resizes.
+	check(bf_gfx_set_drawable_size(d, 43, 22) == BF_GFX_OK && layer.drawableSize.width == 43 &&
+	      layer.drawableSize.height == 22, "set_drawable_size: layer drawable 43x22, target stays 40x20");
+	bf_gfx_resize(d, 21, 11, 2);
+	int dw = 0, dh = 0, nw = 0, nh = 0;
+	bf_gfx_get_drawable_size(d, &dw, &dh);
+	bf_gfx_get_size(d, nullptr, nullptr, nullptr, &nw, &nh);
+	check(dw == 43 && dh == 22 && nw == 42 && nh == 22 && layer.drawableSize.width == 43,
+	      "resize keeps the drawable size (43x22) apart from the native size (42x22)");
+	check(bf_gfx_set_drawable_size(d, 5, 0) == BF_GFX_E_ARG, "set_drawable_size rejects a half-zero size");
+	bf_gfx_set_drawable_size(d, 0, 0);
+	check(layer.drawableSize.width == 42 && layer.drawableSize.height == 22, "set_drawable_size 0x0: back to following the native size");
 	bf_gfx_destroy(d);
 }
 

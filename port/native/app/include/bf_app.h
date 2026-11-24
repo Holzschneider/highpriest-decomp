@@ -134,6 +134,24 @@ void bf_app_window_set_content_size(double width_pt, double height_pt);
 void bf_app_window_set_title(const char *title);
 
 /*
+ * The smallest content size the user can drag the window to, in points
+ * (default 320 x 240). Does not resize the window by itself. The view module
+ * (port/native/view) sets it from the UI scale.
+ */
+void bf_app_window_set_min_content_size(double width_pt, double height_pt);
+void bf_app_window_get_min_content_size(double *width_pt, double *height_pt);
+
+typedef struct bf_app_screen {
+	double width_pt, height_pt;                  /* the whole screen: the content size in fullscreen */
+	double visible_width_pt, visible_height_pt;  /* the largest content area of a titled window on it
+	                                                (without menu bar, Dock and title bar) */
+	double scale;                                /* the screen's backing scale */
+} bf_app_screen;
+
+/* The screen the window is on (the main screen without a window). BF_APP_OK or BF_APP_ERROR. */
+int bf_app_window_get_screen(bf_app_screen *out);
+
+/*
  * Native fullscreen (its own Space). Cmd+F and the View menu toggle it too.
  * The change is animated: a BF_APP_EVENT_FULLSCREEN event and a resize
  * event arrive when it is complete, some hundred milliseconds later.

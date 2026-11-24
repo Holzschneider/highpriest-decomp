@@ -20,6 +20,7 @@ port/native/<module>/
 | `app` | The window, the event queue, key and pointer state, the clipboard |
 | `control` | The control socket: JSON lines, command registry |
 | `gfx` | The Metal renderer for the client's pre-transformed vertices |
+| `view` | Logical resolution and UI scale from the window, the resize flow between `app` and `gfx`, pointer mapping |
 | `text` | CoreText drawing into bitmaps |
 | `audio` | AVAudioEngine voices and one music stream, decoding |
 | `formats/granny`, `formats/bink` | Readers for the two proprietary formats |

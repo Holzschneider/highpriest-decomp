@@ -47,7 +47,10 @@ On an unlocked screen those two checks run for real.
   by a `CAMetalLayer`: system default device, BGRA8. The module keeps the
   layer's `drawableSize` equal to the content size in pixels and its
   `contentsScale` equal to the backing scale. Size and scale changes become
-  `BF_APP_EVENT_RESIZE` events. Fullscreen (⌘F or
+  `BF_APP_EVENT_RESIZE` events. `bf_app_window_set_min_content_size`
+  changes the minimum (the view module sets it from the UI scale), and
+  `bf_app_window_get_screen` reports the window's screen: its size, its
+  largest content area and its backing scale. Fullscreen (⌘F or
   `bf_app_window_toggle_fullscreen`) is animated; `BF_APP_EVENT_FULLSCREEN`
   arrives when it completes.
 - **Single instance.** On start, the module takes `flock(LOCK_EX|LOCK_NB)`

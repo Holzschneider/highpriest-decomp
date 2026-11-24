@@ -886,6 +886,38 @@ extern "C" void bf_app_window_set_content_size(double width_pt, double height_pt
 		[g_window setContentSize:NSMakeSize(width_pt, height_pt)];
 }
 
+extern "C" void bf_app_window_set_min_content_size(double width_pt, double height_pt)
+{
+	if (g_window && width_pt > 0 && height_pt > 0)
+		g_window.contentMinSize = NSMakeSize(width_pt, height_pt);
+}
+
+extern "C" void bf_app_window_get_min_content_size(double *width_pt, double *height_pt)
+{
+	NSSize s = g_window ? g_window.contentMinSize : NSZeroSize;
+	if (width_pt) *width_pt = s.width;
+	if (height_pt) *height_pt = s.height;
+}
+
+extern "C" int bf_app_window_get_screen(bf_app_screen *out)
+{
+	if (!out)
+		return BF_APP_ERROR;
+	memset(out, 0, sizeof *out);
+	NSScreen *screen = (g_window && g_window.screen) ? g_window.screen : [NSScreen mainScreen];
+	if (!screen)
+		return BF_APP_ERROR;
+	NSWindowStyleMask mask = g_window ? (g_window.styleMask & ~NSWindowStyleMaskFullScreen)
+	                                  : (NSWindowStyleMaskTitled | NSWindowStyleMaskResizable);
+	NSRect content = [NSWindow contentRectForFrameRect:screen.visibleFrame styleMask:mask];
+	out->width_pt = screen.frame.size.width;
+	out->height_pt = screen.frame.size.height;
+	out->visible_width_pt = content.size.width;
+	out->visible_height_pt = content.size.height;
+	out->scale = screen.backingScaleFactor;
+	return BF_APP_OK;
+}
+
 extern "C" void bf_app_window_set_title(const char *title)
 {
 	if (g_window)

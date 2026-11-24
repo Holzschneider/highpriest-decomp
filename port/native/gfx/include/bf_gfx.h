@@ -99,9 +99,29 @@ void bf_gfx_destroy(bf_gfx_device *dev);
 /*
  * Changes the logical size and UI scale. The target is recreated and
  * cleared (contents are lost, as the client redraws every frame); textures
- * and state are kept. The layer's drawable size follows.
+ * and state are kept. The layer's drawable size follows, unless a drawable
+ * size has been set (bf_gfx_set_drawable_size).
  */
 int bf_gfx_resize(bf_gfx_device *dev, int logical_width, int logical_height, int ui_scale);
+
+/*
+ * The size of the layer's drawable, when it differs from the native size:
+ * the window's content size in pixels, of which the target covers the top
+ * left logical * ui_scale pixels (the view module, port/native/view, chooses
+ * the sizes). bf_gfx_present puts the target there unscaled, clears the rest
+ * of the drawable (at most ui_scale - 1 pixels at the right and bottom) to
+ * black, and cuts the target off where the drawable is smaller. 0, 0 (the
+ * default) makes the drawable follow the native size, as before. The setting
+ * survives bf_gfx_resize. On an offscreen device only the value is kept.
+ */
+int bf_gfx_set_drawable_size(bf_gfx_device *dev, int width, int height);
+/* The drawable size in effect (the native size when none is set). */
+void bf_gfx_get_drawable_size(const bf_gfx_device *dev, int *width, int *height);
+/*
+ * The pixel size of the drawable the last successful bf_gfx_present showed,
+ * 0 x 0 before the first: how a test proves no frame went out at a stale size.
+ */
+void bf_gfx_get_present_size(const bf_gfx_device *dev, int *width, int *height);
 
 /* Any pointer may be NULL. Native = logical * ui_scale. */
 void bf_gfx_get_size(const bf_gfx_device *dev, int *logical_width, int *logical_height,

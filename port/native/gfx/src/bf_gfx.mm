@@ -98,6 +98,8 @@ struct bf_gfx_device {
 	std::string name;
 
 	int lw = 0, lh = 0, scale = 1, nw = 0, nh = 0;
+	int dw = 0, dh = 0;          // layer drawable size set by the caller; 0: follow nw x nh
+	int pw = 0, ph = 0;          // size of the drawable last presented
 	id<MTLTexture> target, depth, backup;
 	bool backup_valid = false;
 	bool needs_clear = true;
@@ -507,7 +509,7 @@ static bool make_target(bf_gfx_device *d)
 		bf_tracef(BFT_ERR, "gfx: cannot create a %dx%d target\n", d->nw, d->nh);
 		return false;
 	}
-	if (d->layer) d->layer.drawableSize = CGSizeMake(d->nw, d->nh);
+	if (d->layer) d->layer.drawableSize = d->dw > 0 ? CGSizeMake(d->dw, d->dh) : CGSizeMake(d->nw, d->nh);
 	ensure_render(d);   // clears
 	return true;
 }
@@ -596,6 +598,29 @@ extern "C" int bf_gfx_resize(bf_gfx_device *d, int lw, int lh, int scale)
 		d->nw = lw * scale; d->nh = lh * scale;
 		return make_target(d) ? BF_GFX_OK : BF_GFX_E_MEMORY;
 	}
+}
+
+extern "C" int bf_gfx_set_drawable_size(bf_gfx_device *d, int w, int h)
+{
+	if (!d || w < 0 || h < 0 || (w == 0) != (h == 0) || w > 16384 || h > 16384) return BF_GFX_E_ARG;
+	d->dw = w;
+	d->dh = h;
+	if (d->layer) d->layer.drawableSize = w > 0 ? CGSizeMake(w, h) : CGSizeMake(d->nw, d->nh);
+	return BF_GFX_OK;
+}
+
+extern "C" void bf_gfx_get_drawable_size(const bf_gfx_device *d, int *w, int *h)
+{
+	if (!d) return;
+	if (w) *w = d->dw > 0 ? d->dw : d->nw;
+	if (h) *h = d->dh > 0 ? d->dh : d->nh;
+}
+
+extern "C" void bf_gfx_get_present_size(const bf_gfx_device *d, int *w, int *h)
+{
+	if (!d) return;
+	if (w) *w = d->pw;
+	if (h) *h = d->ph;
 }
 
 extern "C" void bf_gfx_get_size(const bf_gfx_device *d, int *lw, int *lh, int *scale, int *nw, int *nh)
@@ -1081,15 +1106,26 @@ extern "C" int bf_gfx_present(bf_gfx_device *d)
 		}
 		ensure_cb(d);
 		end_encoders(d);
+		// The target goes to the drawable's top left, native pixel for native
+		// pixel. Where the drawable is larger (the window's leftover pixels
+		// beyond logical * ui_scale) it is cleared to black; where it is
+		// smaller, the target is cut off at the right and bottom.
+		int tw = int(drawable.texture.width), th = int(drawable.texture.height);
+		d->pw = tw;
+		d->ph = th;
+		bool exact = tw == d->nw && th == d->nh;
 		MTLRenderPassDescriptor *rp = [MTLRenderPassDescriptor renderPassDescriptor];
 		rp.colorAttachments[0].texture = drawable.texture;
-		rp.colorAttachments[0].loadAction = MTLLoadActionDontCare;
+		rp.colorAttachments[0].loadAction = exact ? MTLLoadActionDontCare : MTLLoadActionClear;
+		rp.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
 		rp.colorAttachments[0].storeAction = MTLStoreActionStore;
 		id<MTLRenderCommandEncoder> e = [d->cb renderCommandEncoderWithDescriptor:rp];
 		[e setRenderPipelineState:d->present_pipe];
 		RectUniforms ru;
 		memset(&ru, 0, sizeof ru);
-		ru.ndc[0] = -1; ru.ndc[1] = 1; ru.ndc[2] = 1; ru.ndc[3] = -1;
+		ru.ndc[0] = -1; ru.ndc[1] = 1;
+		ru.ndc[2] = exact ? 1.0f : -1.0f + 2.0f * float(d->nw) / float(tw);
+		ru.ndc[3] = exact ? -1.0f : 1.0f - 2.0f * float(d->nh) / float(th);
 		ru.uv[0] = 0; ru.uv[1] = 0; ru.uv[2] = 1; ru.uv[3] = 1;
 		[e setVertexBytes:&ru length:sizeof ru atIndex:0];
 		[e setFragmentBytes:&ru length:sizeof ru atIndex:0];
