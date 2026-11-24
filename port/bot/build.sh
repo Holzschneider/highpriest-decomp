@@ -15,9 +15,11 @@ SRC=${BF_SRC:-$ROOT/build/port/shadow/src}
 . "$ROOT/port/tools/flags.sh"
 OUT=$ROOT/build/port; OBJ=$OUT/obj/bot; mkdir -p "$OUT/bin" "$OBJ"
 
-GAME="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
+# The bot opens no game files, so it keeps the C library's own file names
+# (port/compat/include/bf_win32_crt.h) and links no adapter.
+GAME="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_COMPAT_ADAPTER $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
 # The command channel uses the POSIX socket headers and none of the game's.
-PLAIN="clang++ -std=c++14 -O1 -g -target arm64-apple-macos13 -Wall -Wextra -Wno-unused-parameter"
+PLAIN="clang++ -std=c++14 -O1 -g -target arm64-apple-macos14 -Wall -Wextra -Wno-unused-parameter"
 
 "$ROOT/port/tools/gen_packet_names.py" "$SRC/packet.h" > "$OBJ/bf_packet_names.cpp"
 
@@ -33,7 +35,7 @@ compile "$ROOT/port/bot/bot.cpp" &
 $PLAIN -c "$ROOT/port/bot/bot_io.cpp" -o "$OBJ/bot_io.o" &
 for job in $(jobs -p); do wait "$job"; done
 
-clang++ -target arm64-apple-macos13 \
+clang++ -target arm64-apple-macos14 \
 	"$OBJ/bot.o" "$OBJ/bot_io.o" "$OBJ/Connection.o" "$OBJ/bf_replay.o" "$OBJ/PacketQueue.o" "$OBJ/packet.o" \
 	"$OBJ/bf_trace.o" "$OBJ/bf_packet_names.o" "$OBJ/probe_support.o" -o "$OUT/bin/bifrost-bot"
 file "$OUT/bin/bifrost-bot"

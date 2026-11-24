@@ -121,6 +121,8 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 | `BF_PKT_LOG=path` | append every packet as a line: time, direction, header, size, name, hex bytes |
 | `BF_ASSERT=abort` | stop in the debugger on a failed `sAssert` |
 
+`BF_PKT_REPLAY=log` replays a recorded log instead of the network (no socket opens; `BF_PKT_REPLAY_WAIT`, `_HOLD`, `_BYTES`; the rules are in `compat/include/bf_replay.h`). Capture lines carry the connection (`account/1`, `char/2`, `zone/3`) as a seventh field. Test: `BF_CLIENT=<absolute path> python3 port/harness/run.py replay [--param zone=1]`.
+
 Failed assertions and the first call of each unimplemented compatibility function (`BF_STUB()`) are printed without any setting.
 
 ## Test server
