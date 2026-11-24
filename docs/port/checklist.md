@@ -43,7 +43,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M3.3 File lookup: game folder, backslashes, case-insensitive, CP949 names; writes to the Mac locations | native | M3.1 |
 | [ ] | M3.4 Settings: defaults, property list behind the registry adapter, one settings object | native | M3.1 |
 | [ ] | M3.5 Missing files and table entries become placeholders with a counted trace line | src | M3.2 |
-| [ ] | M3.6 zlib and JPEG replacements | native | |
+| [x] d4cc27f | M3.6 zlib and JPEG replacements | native | |
 | [ ] | M3.7 `--headless` start | src | M3.2 |
 | [ ] | M3.8 Game folder `~/Games/Bifrost`: archives and music copied; script assembling the loose `data/` folder and `clientinfo.xml` | data | |
 | [ ] | M3.9 Table checker | data | M3.8 |
