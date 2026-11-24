@@ -1,0 +1,7 @@
+# frames under <game folder>/test/frames/options/; regenerate with port/harness/run.py
+159b0bee59d5a0c123bab20f3de95a0b785406084ab0abd3c955d6bdf5940fc2  2048x1536  login-typed.png
+3ec487d3d1dc5144562b94e379527286cf2bfd974c53d61c644e0b653b03af05  2048x1536  options-changed.png
+9922660c53f4f3ea9666550e232ddf2aade157b1998a707e6ae05e64f4a23f03  2048x1536  options-default.png
+dbe29ffde7ce08493f7a88537f9d21b082224ababc55a32c5b534e3d12916691  2048x1536  options-restarted.png
+411592b90e638ab450d868222ed826e03f617660f7a4216781e6d11da809aa1a  2048x1536  zoomed-out-2008.png
+62c85a2f8b40313fba86c2a467d5578000d0d2cb69554354231f424529cc9be3  2048x1536  zoomed-out-free.png
