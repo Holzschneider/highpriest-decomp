@@ -497,6 +497,22 @@ S32 AILCALL AIL_decompress_ASI(void const FAR *indata, U32 insize, char const FA
 	return decompress(indata, insize, wav, wavsize, "AIL_decompress_ASI");
 }
 
+// Not a Miles function: the client frees the PCM images it read itself with
+// delete (CWave::Reset, on every resource unload), so the sound made from
+// such an image is dropped here; otherwise it stayed decoded for good.
+extern "C" void bf_miles_forget_image(const void *image)
+{
+	if (!image)
+		return;
+	State &s = state();
+	std::lock_guard<std::mutex> lock(s.mutex);
+	auto it = s.images.find(image);
+	if (it != s.images.end()) {
+		forget_sound(it->second);
+		s.images.erase(it);
+	}
+}
+
 void AILCALL AIL_mem_free_lock(void FAR *ptr)
 {
 	if (!ptr)

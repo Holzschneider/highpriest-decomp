@@ -10,6 +10,9 @@ int g_isSoundOn = 1;
 // Names the voice PlayDigital may start with the file and its distance, for
 // the `sound` part of the control socket (port/native/audio, bf_audio.h).
 extern "C" void bf_audio_tag_next_voice(const char *label, float distance);
+// Drops the sound the Miles adapter decoded from an image the client frees
+// itself (port/compat/miles).
+extern "C" void bf_miles_forget_image(const void *image);
 #endif
 
 using std::string;
@@ -46,6 +49,12 @@ void	CWave :: Reset()
 		if (m_fileImage)
 			AIL_mem_free_lock(m_fileImage);
 	} else {
+#if defined(BF_PORT)
+		// not freed through Miles, so the adapter would keep the sound made
+		// from it: every unloaded wave stayed decoded (the soak's leak)
+		if (m_fileImage)
+			bf_miles_forget_image(m_fileImage);
+#endif
 		if (m_fileImage)
 			delete m_fileImage;
 	}
