@@ -2944,7 +2944,23 @@ bool UIWindowMgr::ShowWindow(WINDOWID windowId, int show)
 }
 
 
+#if defined(BF_PORT)
+// The control socket names a window by its WID (bf_client_state.cpp): every
+// window made here is recorded with the id it was made for.
+extern "C" void bf_client_window_made(UIWindow *wnd, int windowId);
+
 UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
+{
+	UIFrameWnd *wnd = BfMakeWindow(windowId);
+	if (wnd)
+		bf_client_window_made(wnd, windowId);
+	return wnd;
+}
+
+UIFrameWnd * UIWindowMgr::BfMakeWindow(WINDOWID windowId)
+#else
+UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
+#endif
 {
 	UIFrameWnd *wnd = NULL;
 	UIFrameWnd *window;

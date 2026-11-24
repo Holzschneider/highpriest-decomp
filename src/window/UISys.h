@@ -549,6 +549,9 @@ public:
 	friend class UIWindowMgr;
 	friend class SnapObject;
 	friend class CSnapMgr;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 protected:
 	UIWindow* m_parent;
 	std::list<UIWindow *> m_children;
@@ -885,6 +888,9 @@ protected:
 	int m_type;
 public:
 	std::string m_text;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIBitmapEditCtrl : public UIEditCtrl {
@@ -1017,6 +1023,9 @@ protected:
 	int m_isShorten;
 	std::string m_text;
 	std::string m_fullText;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIStaticBitmap : public UIWindow {
@@ -1060,6 +1069,9 @@ public:
 	virtual INT_PTR SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4);
 protected:
 	int m_nSlotID;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 enum RESIZERTYPE {
@@ -1340,6 +1352,9 @@ protected:
 	std::string m_text;
 	std::string m_toolTip;
 	int m_isDisabled;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UITextButton : public UIButton {
@@ -1737,6 +1752,7 @@ public:
 	void SetSize(int cx, int cy);
 #if defined(BF_PORT)
 	void BfOnResize(int cx, int cy);
+	UIFrameWnd* BfMakeWindow(WINDOWID windowId);   // MakeWindow's body; MakeWindow records the id
 #endif
 	void UpdateSnapInfo(UIWindow* snapWindow);
 	void GetDeltaSnap(UIWindow* snapWindow, int& isConnected, int& rdx, int rdy);
@@ -2082,6 +2098,9 @@ private:
 	SkillListWndInfo merSkillListWndInfo;
 	SubChatWndInfo subChatWndStInfo;
 	SubChatWndInfo subChatWndBtInfo;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 extern CRenderer* g_renderer;

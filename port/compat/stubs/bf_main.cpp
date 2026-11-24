@@ -33,6 +33,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <string>
+#include <vector>
 
 #include "bf_app.h"
 #include "bf_clock.h"
@@ -44,8 +45,10 @@
 #include "bf_port.h"
 #include "bf_prefs.h"
 #include "bf_settings.h"
+#include "bf_text.h"
 #include "bf_trace.h"
 #include "bf_view.h"
+#include "bf_client_ui.h"
 
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
 extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
@@ -233,6 +236,115 @@ void WriteDetail(bf_control_writer *w, void *)
 	bf_control_write_string(w, detail);
 }
 
+// ---- open windows (PROTOCOL.md section 3, `windows`; section 5, `window`)
+
+// The client's bytes are Windows-1252 (spec section 5).
+void WriteText(bf_control_writer *w, const char *text)
+{
+	int n = (int)strlen(text);
+	std::string utf8((size_t)n * 3 + 1, '\0');
+	int m = bf_text_to_utf8(1252, text, n, &utf8[0], (int)utf8.size());
+	bf_control_write_string_n(w, utf8.data(), m > 0 ? (size_t)m : 0);
+}
+
+void WriteRect(bf_control_writer *w, int x, int y, int cx, int cy)
+{
+	bf_control_write_begin_array(w);
+	bf_control_write_int(w, x);
+	bf_control_write_int(w, y);
+	bf_control_write_int(w, cx);
+	bf_control_write_int(w, cy);
+	bf_control_write_end_array(w);
+}
+
+void WriteWindows(bf_control_writer *w, void *)
+{
+	const bf_client_ui_window *wins = nullptr;
+	const bf_client_ui_control *ctls = nullptr;
+	int n = bf_client_ui_windows(&wins, &ctls);
+	bf_control_write_begin_array(w);
+	for (int i = 0; i < n; ++i) {
+		const bf_client_ui_window &win = wins[i];
+		bf_control_write_begin_object(w);
+		bf_control_write_key(w, "id");
+		bf_control_write_int(w, win.wid);
+		bf_control_write_key(w, "name");
+		bf_control_write_string(w, win.name);
+		bf_control_write_key(w, "rect");
+		WriteRect(w, win.x, win.y, win.w, win.h);
+		bf_control_write_key(w, "focus");
+		bf_control_write_bool(w, win.focus);
+		bf_control_write_key(w, "controls");
+		bf_control_write_begin_array(w);
+		for (int j = 0; j < win.control_count; ++j) {
+			const bf_client_ui_control &c = ctls[win.first_control + j];
+			bf_control_write_begin_object(w);
+			bf_control_write_key(w, "id");
+			bf_control_write_string(w, c.id);
+			bf_control_write_key(w, "kind");
+			bf_control_write_string(w, c.kind);
+			bf_control_write_key(w, "rect");
+			WriteRect(w, c.x, c.y, c.w, c.h);
+			bf_control_write_key(w, "text");
+			WriteText(w, c.text);
+			bf_control_write_key(w, "focus");
+			bf_control_write_bool(w, c.focus);
+			bf_control_write_end_object(w);
+		}
+		bf_control_write_end_array(w);
+		bf_control_write_end_object(w);
+	}
+	bf_control_write_end_array(w);
+}
+
+struct OpenWindow {
+	const void *key;
+	int wid;
+	std::string name;
+};
+std::vector<OpenWindow> g_open;   // as last reported
+
+void WindowEvent(const char *action, const OpenWindow &o)
+{
+	BF_TRACE(BFT_UI, "control: window %s %s (%d)", action, o.name.c_str(), o.wid);
+	if (bf_control_writer *w = bf_control_event_begin("window")) {
+		bf_control_write_key(w, "action");
+		bf_control_write_string(w, action);
+		bf_control_write_key(w, "wid");
+		bf_control_write_int(w, o.wid);
+		bf_control_write_key(w, "name");
+		bf_control_write_string(w, o.name.c_str());
+		bf_control_event_end(w);
+	}
+}
+
+// Once per frame: the windows closed since the last frame, then those opened.
+void ReportWindowChanges()
+{
+	const bf_client_ui_window *wins = nullptr;
+	const bf_client_ui_control *ctls = nullptr;
+	int n = bf_client_ui_windows(&wins, &ctls);
+	std::vector<OpenWindow> now;
+	for (int i = 0; i < n; ++i)
+		now.push_back(OpenWindow{wins[i].key, wins[i].wid, wins[i].name});
+	auto same = [](const OpenWindow &a, const OpenWindow &b) { return a.key == b.key && a.name == b.name; };
+	for (const OpenWindow &o : g_open) {
+		bool still = false;
+		for (const OpenWindow &k : now)
+			still = still || same(o, k);
+		if (!still)
+			WindowEvent("close", o);
+	}
+	for (const OpenWindow &k : now) {
+		bool before = false;
+		for (const OpenWindow &o : g_open)
+			before = before || same(o, k);
+		if (!before)
+			WindowEvent("open", k);
+	}
+	g_open.swap(now);
+}
+
 void ReportModeChange()
 {
 	const char *detail = nullptr;
@@ -266,7 +378,9 @@ void OpenControl(const char *path)
 	bf_control_register_state("mode", WriteMode, nullptr);
 	bf_control_register_state("detail", WriteDetail, nullptr);
 	bf_control_register_state("view", WriteView, nullptr);
+	bf_control_register_state("windows", WriteWindows, nullptr);
 	bf_control_declare_event("mode");
+	bf_control_declare_event("window");
 	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
 	if (bf_control_open(&config) != BF_CONTROL_OK)
 		bf_tracef(BFT_ERR, "control: cannot open %s; running without the socket", path);
@@ -369,6 +483,7 @@ extern "C" void bf_port_frame(void)
 	if (!control)
 		return;
 	ReportModeChange();
+	ReportWindowChanges();
 	bf_control_poll();
 }
 

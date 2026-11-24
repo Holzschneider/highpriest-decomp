@@ -32,12 +32,27 @@ def login(t, ctl, user, password, timeout=60):
             s.equal(texts.get("pw_edit"), "*" * len(password), "password field (masked)")
         s.frame("login-typed")
     with t.step("connect", "M5: reaches character selection") as s:
+        after = ctl.last_seq
         ctl.press("enter")
-        st = ctl.wait_mode("charselect", timeout)
+        st = through_server_list(ctl, after, timeout)
         s.state("mode", st)
         rows = wait_rows(lambda: t.logs.logins(user, after=mark), timeout=10)
         s.rows("loginlog 'login ok' for %s after %s" % (user, mark.time), rows)
     return rows
+
+
+def through_server_list(ctl, after, timeout=60):
+    """After the login request: the 2008 client shows the character servers
+    even when there is one; Enter takes the one selected. A client (or the
+    mock) that goes straight to character selection is fine too."""
+    ev = ctl.wait_event("mode", lambda e: e.get("mode") in ("servers", "charselect", "login"),
+                        after=after, timeout=timeout)
+    if ev["mode"] == "servers":
+        ctl.wait_window("SELECTSERVERWND", timeout=10)
+        ctl.press("enter")
+    elif ev["mode"] == "login":
+        raise AssertionError("back at the login screen (refused?): %r" % ev)
+    return ctl.wait_mode("charselect", timeout)
 
 
 def enter_game(t, ctl, slot=0, timeout=120):

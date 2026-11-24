@@ -5,6 +5,21 @@
 #include "common.h"
 #include "Mode.h"
 #include "LoginMode.h"
+#include "window/UISys.h"
+#include "window/UIFrameWnd.h"
+
+#include <cxxabi.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <map>
+#include <string>
+#include <typeinfo>
+#include <vector>
+
+#include "bf_client_ui.h"
+
+extern UIWindowMgr g_windowMgr;
 
 extern "C" const char *bf_port_mode(const char **detail);
 
@@ -70,4 +85,611 @@ extern "C" const char *bf_port_mode(const char **detail)
 	}
 	*detail = "LSM_?";
 	return "login";
+}
+
+// ---- the open UI windows (PROTOCOL.md section 3, `windows` and `controls`)
+
+namespace {
+
+const char *const kWindowNames[] = {
+	"BASICINFOWND",
+	"CHATWND",
+	"SELECTSERVERWND",
+	"LOGINWND",
+	"MAKECHARWND",
+	"SELECTCHARWND",
+	"WAITWND",
+	"LOADINGWND",
+	"ITEMWND",
+	"TOOLTIPWND",
+	"EQUIPWND",
+	"STATUSWND",
+	"ITEMCOLLECTIONWND",
+	"OPTIONWND",
+	"MINIMAPZOOMWND",
+	"ITEMDROPCNTWND",
+	"SAYDIALOGWND",
+	"CHOOSEWND",
+	"MENUWND",
+	"RESTARTWND",
+	"NOTICECONFIRMWND",
+	"NOTIFYLEVELUPWND",
+	"ITEMSHOPWND",
+	"ITEMPURCHASEWND",
+	"ITEMSELLWND",
+	"CHOOSESELLBUYWND",
+	"COMBOBOXWND",
+	"CHATROOMMAKEWND",
+	"CHATROOMWND",
+	"PASSWORDWND",
+	"CHATROOMCHANGEWND",
+	"EXCHANGEWND",
+	"EXCHANGEACCEPTWND",
+	"ITEMSTOREWND",
+	"MESSENGERGROUPWND",
+	"JOINPARTYACCEPTWND",
+	"SHORTCUTWND",
+	"SKILLLISTWND",
+	"TIPOFTHEDAYWND",
+	"CHOOSEWARPWND",
+	"MERCHANTITEMWND",
+	"MERCHANTSHOPMAKEWND",
+	"MERCHANTMIRRORITEMWND",
+	"MERCHANTITEMSHOPWND",
+	"MERCHANTITEMPURCHASEWND",
+	"MERCHANTITEMMYSHOPWND",
+	"SKILLDESCRIBEWND",
+	"CARDITEMILLUSTWND",
+	"QUITWND",
+	"NOTIFYJOBLEVELUPWND",
+	"ITEMPARAMCHANGEDISPLAYWND",
+	"CANDIDATEWND",
+	"COMPOSITIONWND",
+	"PARTYSETTINGWND",
+	"EMAILADDRESSWND",
+	"SKILLNAMECHANGEWND",
+	"NPCEDITDIALOGWND",
+	"DETAILLEVELWND",
+	"NOTIFYITEMOBTAINWND",
+	"GUILDWND",
+	"GUILDINFOMANAGEWND",
+	"GUILDMEMBERMANAGEWND",
+	"GUILDPOSITIONMANAGEWND",
+	"GUILDSKILLWND",
+	"GUILDBANISHEDMEMBERWND",
+	"GUILDNOTICEWND",
+	"GUILDTOTALINFOWND",
+	"WHISPERLISTWND",
+	"FRIENDOPTIONWND",
+	"MESSENGERWND",
+	"JOINGUILDACCEPTWND",
+	"WEBBROWSERWND",
+	"ALLYGUILDACCEPTWND",
+	"ITEMIDENTIFYWND",
+	"ITEMCOMPOSITIONWND",
+	"GUILDLEAVEREASONDESCWND",
+	"GUILDBANREASONDESCWND",
+	"MONSTERINFOWND",
+	"ILLUSTWND",
+	"MAKETARGETLISTWND",
+	"MAKETARGETPROCESSWND",
+	"MAKETARGETRESULTWND",
+	"COMBINEDCARDITEMCOLLECTIONWND",
+	"CALCULATORWND",
+	"TALKBOXTRAPINPUTWND",
+	"KEYSTROKEWND",
+	"EMOTIONWND",
+	"EMOTIONLISTWND",
+	"PETINFOWND",
+	"TOPRANKWND",
+	"SELECTPETEGGWND",
+	"PETTAMINGDECEIVEWND",
+	"CNTWND",
+	"NOTICEWND",
+	"MAKINGARROWLISTWND",
+	"SELECTCARTWND",
+	"MINIGAMEWND",
+	"SELECTMINIGAMEWND",
+	"MINIGAMESCOREWND",
+	"SPELLLISTWND",
+	"NPCTEXTEDITDIALOGWND",
+	"GRAFFISTRBOXWND",
+	"SHOWNEEDITEMLISTWND",
+	"PROHIBITLISTWND",
+	"COUPLEACCEPTWND",
+	"BABYACCEPTWND",
+	"BOOKWND",
+	"ITEMREPAIRWND",
+	"SYSCHECKWND",
+	"JOINFRIENDACCEPTWND",
+	"BABYACCEPTWND2",
+	"WEAPONREFINEWND",
+	"COMMANDLISTWND",
+	"HOMUNINFOWND",
+	"HOMUNSKILLLISTWND",
+	"STOREPASSWORDINPUTWND",
+	"AUTOMESSAGEWND",
+	"MAILLISTWND",
+	"MAILVIEWWND",
+	"STARPLACE_ACCEPTWND",
+	"AUCTIONWND",
+	"AUCTIONMSGWND",
+	"IMGMENUWND",
+	"GRON_MESSENGERWND",
+	"GRON_OPTIONWND",
+	"GRON_ALERTWND",
+	"GRON_MESSAGEWND",
+	"GRON_SETTINGWND",
+	"GRON_MEMOWND",
+	"GRON_BARWND",
+	"PTNUMWND",
+	"PTACINFOWND",
+	"MERINFOWND",
+	"MERSKILLLISTWND",
+	"SELCHARFORUSERVERWND",
+	"CHANGENAMEWND",
+	"REBIRTHWND",
+	"SUBCHATWND_ST",
+	"SUBCHATWND_BT",
+	"BATTLEMSG_OPTIONWND",
+	"SUBCHAT_MINIWND",
+	"QUESTWND",
+	"QUEST_DETAIL_WND",
+	"ROSHOPWND",
+	"MEMORIAL_DUN_WND",
+	"YOURITEMWND",
+	"OTHERUSER_EQUIPWND",
+	"ROMAPWND",
+	"ADMINTOOLWND",
+	"ADMINTOOL_MINIWND",
+	"NOTIFYQUESTWND",
+};
+
+struct IdName {
+	int id;
+	const char *name;
+};
+
+// The control ids of UISys.h, lower case without "ID_": a button is named by
+// what it does (ok, cancel, make, delete, buy, sell, ...).
+const IdName kControlNames[] = {
+	{ ID_NOTHING, "nothing" },
+	{ ID_OK, "ok" },
+	{ ID_CANCEL, "cancel" },
+	{ ID_LOGIN, "login" },
+	{ ID_YES, "yes" },
+	{ ID_NO, "no" },
+	{ ID_BUTTON1, "button1" },
+	{ ID_BUTTON2, "button2" },
+	{ ID_BUTTON3, "button3" },
+	{ ID_STATUS, "status" },
+	{ ID_OPTION, "option" },
+	{ ID_ITEMS, "items" },
+	{ ID_EQUIP, "equip" },
+	{ ID_SKILL, "skill" },
+	{ ID_DIALOG, "dialog" },
+	{ ID_JOB, "job" },
+	{ ID_FRIEND, "friend" },
+	{ ID_BASE, "base" },
+	{ ID_CLOSE, "close" },
+	{ ID_MINI, "mini" },
+	{ ID_MAKE, "make" },
+	{ ID_SLOT, "slot" },
+	{ ID_STR, "str" },
+	{ ID_AGI, "agi" },
+	{ ID_VIT, "vit" },
+	{ ID_INT, "int" },
+	{ ID_DEX, "dex" },
+	{ ID_LUK, "luk" },
+	{ ID_DELETE, "delete" },
+	{ ID_HIS, "his" },
+	{ ID_CHECK, "check" },
+	{ ID_COMM, "comm" },
+	{ ID_RADIOBTN, "radiobtn" },
+	{ ID_PLUS, "plus" },
+	{ ID_MINUS, "minus" },
+	{ ID_NEXT, "next" },
+	{ ID_MAP, "map" },
+	{ ID_RESTART, "restart" },
+	{ ID_EXIT, "exit" },
+	{ ID_CLOSEALL, "closeall" },
+	{ ID_SELL, "sell" },
+	{ ID_BUY, "buy" },
+	{ ID_WHISPERCOMBO, "whispercombo" },
+	{ ID_RIGHT, "right" },
+	{ ID_LEFT, "left" },
+	{ ID_NUMCOMBO, "numcombo" },
+	{ ID_CLASSCOMBO, "classcombo" },
+	{ ID_EXCHANGE, "exchange" },
+	{ ID_SENDMSG, "sendmsg" },
+	{ ID_TALK, "talk" },
+	{ ID_FRIEND_INFO, "friend_info" },
+	{ ID_PARTY_SETTING, "party_setting" },
+	{ ID_DELETE_FRIEND, "delete_friend" },
+	{ ID_LEAVE, "leave" },
+	{ ID_DELETE_FRIEND_NAME, "delete_friend_name" },
+	{ ID_TALKTOWHOCOMBO, "talktowhocombo" },
+	{ ID_LVLUP1, "lvlup1" },
+	{ ID_LVLUP2, "lvlup2" },
+	{ ID_LVLUP3, "lvlup3" },
+	{ ID_LVLUP4, "lvlup4" },
+	{ ID_LVLUP5, "lvlup5" },
+	{ ID_LVLUP6, "lvlup6" },
+	{ ID_LVLUP7, "lvlup7" },
+	{ ID_PREV, "prev" },
+	{ ID_MERCHANTITEMS, "merchantitems" },
+	{ ID_EQUIP_OPTION_OFF, "equip_option_off" },
+	{ ID_EQUIP_OPTION_OPEN, "equip_option_open" },
+	{ ID_CARDITEM, "carditem" },
+	{ ID_QUIT, "quit" },
+	{ ID_TO_CHARACTER_SELECT, "to_character_select" },
+	{ ID_LVLSELECTDN1, "lvlselectdn1" },
+	{ ID_LVLSELECTDN2, "lvlselectdn2" },
+	{ ID_LVLSELECTDN3, "lvlselectdn3" },
+	{ ID_LVLSELECTDN4, "lvlselectdn4" },
+	{ ID_LVLSELECTDN5, "lvlselectdn5" },
+	{ ID_LVLSELECTDN6, "lvlselectdn6" },
+	{ ID_LVLSELECTDN7, "lvlselectdn7" },
+	{ ID_LVLSELECTUP1, "lvlselectup1" },
+	{ ID_LVLSELECTUP2, "lvlselectup2" },
+	{ ID_LVLSELECTUP3, "lvlselectup3" },
+	{ ID_LVLSELECTUP4, "lvlselectup4" },
+	{ ID_LVLSELECTUP5, "lvlselectup5" },
+	{ ID_LVLSELECTUP6, "lvlselectup6" },
+	{ ID_LVLSELECTUP7, "lvlselectup7" },
+	{ ID_MAKEACCOUNT, "makeaccount" },
+	{ ID_SKINSELECTCOMBO, "skinselectcombo" },
+	{ ID_MODAL_PASSED, "modal_passed" },
+	{ ID_DETAILLEVEL, "detaillevel" },
+	{ ID_APPLY, "apply" },
+	{ ID_ACCU_EXP, "accu_exp" },
+	{ ID_OPEN_MEMBER_POS_COMBO, "open_member_pos_combo" },
+	{ ID_ADD_GUILD_POSITION, "add_guild_position" },
+	{ ID_POSNAME_EDIT, "posname_edit" },
+	{ ID_PAYRATE_EDIT, "payrate_edit" },
+	{ ID_SEND_GUILD_NOTICE, "send_guild_notice" },
+	{ ID_CHANGE_GUILE_EMBLEM, "change_guile_emblem" },
+	{ ID_UP, "up" },
+	{ ID_DOWN, "down" },
+	{ ID_NOTICE_TITLE_EDITED, "notice_title_edited" },
+	{ ID_NOTICE_EDITED, "notice_edited" },
+	{ ID_OPEN_EMOTIONLIST, "open_emotionlist" },
+	{ ID_CHARGE, "charge" },
+	{ ID_INTRO, "intro" },
+	{ ID_NOTICE, "notice" },
+	{ ID_BOOKITEM, "bookitem" },
+	{ ID_AUTOBOOKITEM, "autobookitem" },
+	{ ID_OPEN_HOMUNSKILLLIST, "open_homunskilllist" },
+	{ ID_FEED_TO_HOMUN, "feed_to_homun" },
+	{ ID_DELETE_HOMUN, "delete_homun" },
+	{ ID_CHANGE_STORE_PASSWORD, "change_store_password" },
+	{ ID_STORE_PASSWORD_NUM0, "store_password_num0" },
+	{ ID_STORE_PASSWORD_NUM1, "store_password_num1" },
+	{ ID_STORE_PASSWORD_NUM2, "store_password_num2" },
+	{ ID_STORE_PASSWORD_NUM3, "store_password_num3" },
+	{ ID_STORE_PASSWORD_NUM4, "store_password_num4" },
+	{ ID_STORE_PASSWORD_NUM5, "store_password_num5" },
+	{ ID_STORE_PASSWORD_NUM6, "store_password_num6" },
+	{ ID_STORE_PASSWORD_NUM7, "store_password_num7" },
+	{ ID_STORE_PASSWORD_NUM8, "store_password_num8" },
+	{ ID_STORE_PASSWORD_NUM9, "store_password_num9" },
+	{ ID_STORE_PASSWORD_NUM_RESET, "store_password_num_reset" },
+	{ ID_STORE_RETURN, "store_return" },
+	{ ID_SEND_MAIL, "send_mail" },
+	{ ID_DELETE_MAIL, "delete_mail" },
+	{ ID_CANCEL_MAIL, "cancel_mail" },
+	{ ID_INPUT_ZENY, "input_zeny" },
+	{ ID_SET_ZENY, "set_zeny" },
+	{ ID_RETURN_MAIL, "return_mail" },
+	{ ID_AUCTION_VIEW, "auction_view" },
+	{ ID_AUCTION_ADD, "auction_add" },
+	{ ID_AUCTION_SELL, "auction_sell" },
+	{ ID_AUCTION_BUY, "auction_buy" },
+	{ ID_ITEM_NAME, "item_name" },
+	{ ID_PREV_PAGE, "prev_page" },
+	{ ID_NEXT_PAGE, "next_page" },
+	{ ID_ADD_AUCTION, "add_auction" },
+	{ ID_FINISH_AUCTION, "finish_auction" },
+	{ ID_BUY_AUCTION, "buy_auction" },
+	{ ID_SEARCH, "search" },
+	{ ID_FROM_NAME, "from_name" },
+	{ ID_HEADER, "header" },
+	{ ID_SET_STATUS, "set_status" },
+	{ ID_VIEW_LETTER, "view_letter" },
+	{ ID_ADD_FRIEND, "add_friend" },
+	{ ID_ADD_GROUP, "add_group" },
+	{ ID_SEND_MSG, "send_msg" },
+	{ ID_STATUS_MENU, "status_menu" },
+	{ ID_GROUP_MENU, "group_menu" },
+	{ ID_FRIEND_MENU, "friend_menu" },
+	{ ID_FRIEND_MENU1, "friend_menu1" },
+	{ ID_GROUP, "group" },
+	{ ID_INVITE, "invite" },
+	{ ID_VIEW_CHAT_LIST, "view_chat_list" },
+	{ ID_SELECT_ITEM, "select_item" },
+	{ ID_INSERT_FRIEND, "insert_friend" },
+	{ ID_SET_NICK, "set_nick" },
+	{ ID_DELETE_SOCKET, "delete_socket" },
+	{ ID_SELECT_WND, "select_wnd" },
+	{ ID_SEARCH_FRIEND, "search_friend" },
+	{ ID_SETTING, "setting" },
+	{ ID_HELP, "help" },
+	{ ID_LOGOUT, "logout" },
+	{ ID_SEND, "send" },
+	{ ID_REPLY, "reply" },
+	{ ID_NAME, "name" },
+	{ ID_TYPING_MSG, "typing_msg" },
+	{ ID_OPEN_MERSKILLLIST, "open_merskilllist" },
+	{ ID_FIRE_MER, "fire_mer" },
+	{ ID_CHANGE_NAME, "change_name" },
+	{ ID_CHANGE_NAME_SUCCESS, "change_name_success" },
+	{ ID_REBIRTH, "rebirth" },
+	{ ID_PREVIEW, "preview" },
+	{ ID_NEXTVIEW, "nextview" },
+	{ ID_BOOKMARK, "bookmark" },
+	{ ID_STICK_ON, "stick_on" },
+	{ ID_STICK_OFF, "stick_off" },
+	{ ID_B_GRAVITY, "b_gravity" },
+	{ ID_B_HANGAME, "b_hangame" },
+	{ ID_QUEST, "quest" },
+	{ ID_PREMIUMSLOT, "premiumslot" },
+	{ ID_RESET, "reset" },
+};
+
+const char *ControlName(int id)
+{
+	for (size_t i = 0; i < sizeof(kControlNames) / sizeof(kControlNames[0]); ++i)
+		if (kControlNames[i].id == id)
+			return kControlNames[i].name;
+	return nullptr;
+}
+
+struct Made {
+	int wid;
+	const std::type_info *type;
+};
+
+// What UIWindowMgr::MakeWindow made, by object. A record whose object has
+// since been freed and reused by another class is told apart by its type.
+std::map<UIWindow *, Made> g_made;
+
+struct Control {
+	UIWindow *wnd;
+	std::string id;
+	const char *kind;
+	int x, y, w, h;
+	std::string text;
+	int focus;
+};
+
+struct Window {
+	UIWindow *wnd;
+	int wid;
+	std::string name;
+	int x, y, w, h;
+	int focus;
+	std::vector<Control> controls;
+};
+
+std::vector<Window> g_windows;
+std::vector<bf_client_ui_window> g_out_windows;
+std::vector<bf_client_ui_control> g_out_controls;
+
+std::string ClassName(UIWindow *w)
+{
+	int status = 0;
+	char *name = abi::__cxa_demangle(typeid(*w).name(), nullptr, nullptr, &status);
+	std::string s = status == 0 && name ? name : typeid(*w).name();
+	free(name);
+	if (s.compare(0, 2, "UI") == 0)
+		s.erase(0, 2);
+	for (size_t i = 0; i < s.size(); ++i)
+		s[i] = (char)toupper((unsigned char)s[i]);
+	return s;
+}
+
+}  // namespace
+
+// Reads what the window classes keep to themselves; a friend of each class
+// it looks into (UISys.h, UIFrameWnd.h, under BF_PORT).
+struct BfUiProbe {
+	static void Rect(UIWindow *w, Control &c)
+	{
+		int x = 0, y = 0;
+		w->GetGlobalCoor(x, y);
+		c.x = x;
+		c.y = y;
+		c.w = w->m_w;
+		c.h = w->m_h;
+	}
+
+	// Every control below w that can be clicked, typed into or read, with
+	// a name from its control id or its kind and position in the walk.
+	static void Collect(UIWindow *w, Window &out, int depth)
+	{
+		if (depth > 6)
+			return;
+		for (std::list<UIWindow *>::iterator it = w->m_children.begin(); it != w->m_children.end(); ++it) {
+			UIWindow *c = *it;
+			if (!c->m_show)
+				continue;
+			Control k;
+			k.wnd = c;
+			k.kind = nullptr;
+			k.focus = c == g_windowMgr.m_editWindow;
+			if (UIEditCtrl *e = dynamic_cast<UIEditCtrl *>(c)) {
+				k.kind = "edit";
+				k.text = e->m_maskchar ? std::string(e->m_text.size(), '*') : e->m_text;
+			} else if (UIButton *b = dynamic_cast<UIButton *>(c)) {
+				k.kind = "button";
+				k.text = b->m_text;
+			} else if (UICheckBox *x = dynamic_cast<UICheckBox *>(c)) {
+				k.kind = "check";
+				k.text = x->GetCheck() ? "on" : "off";
+			} else if (dynamic_cast<UISlotBitmap *>(c)) {
+				k.kind = "item";
+			} else if (UIListBox *l = dynamic_cast<UIListBox *>(c)) {
+				k.kind = "list";
+				int sel = l->GetSelected();
+				if (sel >= 0 && sel < l->GetNumItem())
+					k.text = l->GetItem(sel);
+			} else if (UIStaticText *t = dynamic_cast<UIStaticText *>(c)) {
+				k.kind = "text";
+				k.text = t->m_fullText.empty() ? t->m_text : t->m_fullText;
+			}
+			if (k.kind) {
+				const char *name = strcmp(k.kind, "button") == 0 ? ControlName(c->m_id) : nullptr;
+				int n = 0;
+				for (size_t i = 0; i < out.controls.size(); ++i)
+					if (strcmp(out.controls[i].kind, k.kind) == 0)
+						++n;
+				char id[64];
+				if (name)
+					snprintf(id, sizeof id, "%s", name);
+				else
+					snprintf(id, sizeof id, "%s:%d", k.kind, n);
+				for (size_t i = 0; i < out.controls.size(); ++i)
+					if (out.controls[i].id == id) {   // a second button with the same id
+						snprintf(id, sizeof id, "%s:%d", name ? name : k.kind, n);
+						break;
+					}
+				k.id = id;
+				Rect(c, k);
+				out.controls.push_back(k);
+			}
+			if (!dynamic_cast<UIListBox *>(c))   // a list's scroll bars are part of it
+				Collect(c, out, depth + 1);
+		}
+	}
+
+	static Control *Find(Window &w, UIWindow *c)
+	{
+		for (size_t i = 0; i < w.controls.size(); ++i)
+			if (w.controls[i].wnd == c)
+				return &w.controls[i];
+		return nullptr;
+	}
+
+	static void Rename(Window &w, UIWindow *c, const char *id)
+	{
+		if (Control *k = c ? Find(w, c) : nullptr)
+			k->id = id;
+	}
+
+	static void RenameId(Window &w, const char *from, const char *to)
+	{
+		for (size_t i = 0; i < w.controls.size(); ++i)
+			if (w.controls[i].id == from)
+				w.controls[i].id = to;
+	}
+
+	// The names port/harness/README.md lists for the windows of the login.
+	static void Specific(Window &w)
+	{
+		static const char *const kStats[12] = {"name", "job", "level", "exp", "hp", "sp",
+		                                       "str", "agi", "vit", "int", "dex", "luk"};
+		if (UILoginWnd *l = dynamic_cast<UILoginWnd *>(w.wnd)) {
+			Rename(w, l->m_login, "id_edit");
+			Rename(w, l->m_password, "pw_edit");
+			RenameId(w, "login", "ok");
+			RenameId(w, "check:0", "save");
+		} else if (UISelectCharWnd *s = dynamic_cast<UISelectCharWnd *>(w.wnd)) {
+			for (int i = 0; i < 3; ++i) {
+				int slot = s->m_curPage * 3 + i;
+				Control *k = s->m_slots[i] ? Find(w, s->m_slots[i]) : nullptr;
+				if (!k)
+					continue;
+				char id[16];
+				snprintf(id, sizeof id, "slot:%d", slot);
+				k->id = id;
+				k->focus = i == s->m_curSlot;
+				CMode *mode = g_modeMgr.GetCurMode();
+				CHARACTER_INFO *info = mode ? (CHARACTER_INFO *)mode->SendMsg(MM_QUERYCHARICTORINFO, slot, 0, 0) : nullptr;
+				if (info && !s->m_isEmpty[slot]) {
+					char name[25];
+					memcpy(name, info->name, 24);
+					name[24] = 0;
+					k->text = name;
+				} else {
+					k->text = "";
+				}
+			}
+			for (int t = 0; t < 12; ++t)
+				Rename(w, s->m_text[t], kStats[t]);
+		} else if (UIMakeCharWnd *m = dynamic_cast<UIMakeCharWnd *>(w.wnd)) {
+			Rename(w, m->m_nameEditCtrl, "name_edit");
+			for (int t = 0; t < 6; ++t)
+				Rename(w, m->m_text[t], kStats[6 + t]);
+		}
+	}
+
+	static void Describe()
+	{
+		g_windows.clear();
+		UIWindowMgr &mgr = g_windowMgr;
+		for (std::list<UIWindow *>::reverse_iterator it = mgr.m_children.rbegin(); it != mgr.m_children.rend(); ++it) {
+			UIWindow *wnd = *it;
+			if (!wnd->m_show)
+				continue;
+			bool quitting = false;
+			for (std::list<UIWindow *>::iterator q = mgr.m_quitWindow.begin(); q != mgr.m_quitWindow.end(); ++q)
+				if (*q == wnd)
+					quitting = true;
+			if (quitting)
+				continue;
+			Window w;
+			w.wnd = wnd;
+			w.wid = -1;
+			std::map<UIWindow *, Made>::iterator made = g_made.find(wnd);
+			if (made != g_made.end() && *made->second.type == typeid(*wnd))
+				w.wid = made->second.wid;
+			if (w.wid >= 0 && w.wid < (int)(sizeof(kWindowNames) / sizeof(kWindowNames[0])))
+				w.name = kWindowNames[w.wid];
+			else
+				w.name = ClassName(wnd);
+			w.x = wnd->m_x;
+			w.y = wnd->m_y;
+			w.w = wnd->m_w;
+			w.h = wnd->m_h;
+			w.focus = 0;
+			for (UIWindow *e = mgr.m_editWindow; e; e = e->m_parent)
+				if (e == wnd)
+					w.focus = 1;
+			Collect(wnd, w, 0);
+			Specific(w);
+			g_windows.push_back(w);
+		}
+	}
+};
+
+extern "C" void bf_client_window_made(UIWindow *wnd, int wid)
+{
+	Made m = {wid, &typeid(*wnd)};
+	g_made[wnd] = m;
+}
+
+extern "C" int bf_client_ui_windows(const bf_client_ui_window **windows, const bf_client_ui_control **controls)
+{
+	if (bf_port_headless()) {
+		*windows = nullptr;
+		*controls = nullptr;
+		return 0;
+	}
+	BfUiProbe::Describe();
+	g_out_windows.clear();
+	g_out_controls.clear();
+	for (size_t i = 0; i < g_windows.size(); ++i) {
+		const Window &w = g_windows[i];
+		bf_client_ui_window o = {w.wnd, w.wid, w.name.c_str(), w.x, w.y, w.w, w.h, w.focus,
+		                         (int)g_out_controls.size(), (int)w.controls.size()};
+		g_out_windows.push_back(o);
+		for (size_t j = 0; j < w.controls.size(); ++j) {
+			const Control &c = w.controls[j];
+			bf_client_ui_control k = {c.id.c_str(), c.kind, c.x, c.y, c.w, c.h, c.text.c_str(), c.focus};
+			g_out_controls.push_back(k);
+		}
+	}
+	*windows = g_out_windows.empty() ? nullptr : &g_out_windows[0];
+	*controls = g_out_controls.empty() ? nullptr : &g_out_controls[0];
+	return (int)g_out_windows.size();
 }

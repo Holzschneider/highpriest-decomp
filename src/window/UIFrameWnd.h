@@ -1229,6 +1229,9 @@ public:
 private:
 	viewSprite m_viewChar;
 	UIStaticText* m_text[6];
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UIChatWnd : public UIFrameWnd {
@@ -1408,6 +1411,9 @@ private:
 	UIStaticText* m_text[22];
 	UISlotBitmap* m_slots[13];
 	UIBitmapButton* m_changeNameBtn;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UILoginWnd : public UIFrameWnd {
