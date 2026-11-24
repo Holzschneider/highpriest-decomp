@@ -11,8 +11,13 @@
 #include "../pdb_enums.h"
 #include "Sound.h"
 #include "../3dlib/Prim.h"
+#include <mutex>
 
 void CloseStream();
+
+// The fade thread (FadeBgm in Mode.cpp) and the main thread both use the
+// stream and its volume. Recursive: PlayStream calls CloseStream.
+static std::recursive_mutex g_streamLock;
 
 
 inline CMssVariables::CMssVariables()
@@ -182,6 +187,7 @@ void UnInitMSS()
 
 void CloseStream()
 {
+	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	memset(g_mssVar.streamFileName, 0, sizeof(g_mssVar.streamFileName));
 	if (g_mssVar.hDigitalStream) {
 		AIL_close_stream(g_mssVar.hDigitalStream);
@@ -191,11 +197,13 @@ void CloseStream()
 
 int GetStreamVolume()
 {
+	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	return g_mssVar.streamVolume;
 }
 
 void SetStreamVolume(int volume)
 {
+	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	if (volume > 127)
 		volume = 127;
 	if (volume < 0)
@@ -235,6 +243,7 @@ void Set3DVolume(int volume)
 
 void PauseStream(int bgmIsPaused)
 {
+	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	if (g_mssVar.hDigitalStream)
 		AIL_pause_stream(g_mssVar.hDigitalStream, bgmIsPaused);
 	AIL_stream_volume(g_mssVar.hDigitalStream);
@@ -244,6 +253,7 @@ void PlayStream(const char* streamFileName)
 {
 	if (!g_soundMode)
 		return;
+	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	if (strcmp(streamFileName, g_mssVar.streamFileName) == 0)
 		return;
 

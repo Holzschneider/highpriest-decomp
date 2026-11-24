@@ -9,6 +9,7 @@
 
 int g_mustPumpOutReceiveQueue = 0;
 #include <process.h>
+#include <atomic>
 #include "Mode.h"
 #include "GameMode.h"
 #include "LoginMode.h"
@@ -31,7 +32,7 @@ extern CMouse g_mouse;
 
 
 DWORD dwFadeStart;
-int FadeCnt = 0;
+std::atomic<int> FadeCnt(0);
 
 
 inline BOOL CheckKeyPressed(int vkcode)
