@@ -5422,7 +5422,7 @@ void	CGameMode :: Zc_Ack_Req_Join_Group(const char *buf)
 		break;
 	}
 
-	switch (*(int *)(buf + 0x1a))
+	switch (p->answer)	// was *(int *)(buf + 0x1a), the same field, read unaligned
 	{
 	case 5:
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_JOINMSG_REFUSE)), 0x0000ff, 0, 0);
