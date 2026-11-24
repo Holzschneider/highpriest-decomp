@@ -26,7 +26,7 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 | `bfharness/play.py` | shared steps: log in (through the character server list, which the 2008 client shows even for one server), enter the game, walk to a clicked cell, say a line and find it in chatlog; for M5: wait for `CZ_ENTER` in the packet log, compare the login with `bifrost-netprobe`'s, record the exit after zone entry |
 | `bfharness/pktlog.py` | reads `BF_PKT_LOG` files; the login sequence (account and character connections, up to the first zone packet sent) and its comparison: same packets sent in the same order, same packets received per connection (the character server's `HC_BLOCK_CHARACTER` comes before or after `CH_SELECT_CHAR` by timing). Also a command: `pktlog.py <client log> <netprobe log>` |
 | `mock_client.py` | serves PROTOCOL.md with a fake game, and writes what the server would log to a JSON-lines file in the shape of rAthena's tables |
-| `scripts/` | `login.py`, `create_char.py` (M5), `walk.py` (M6), `gate.py` (M8): the shapes the real tests take; all pass against the mock |
+| `scripts/` | `login.py`, `create_char.py` (M5), `walk.py` (M6), `gate.py` (M8): the shapes the real tests take; all pass against the mock. Real client only (they note that and pass with `--mock`): `login_edit.py` (M5.3: typing, Backspace, Tab, Cmd+V, masking, "save" with the account in the settings and the password in the Keychain), `charselect.py` (M5.4: select by click or `--param via=enter`, `CZ_ENTER`, packets equal to `bifrost-netprobe`'s), `autologin.py` (M5.5: the same from launch arguments, `--param via=env` for the environment), `m4_frames.py`, `replay.py` |
 | `tests/` | the self-tests |
 
 ## Rules the harness keeps
@@ -56,8 +56,9 @@ The client also receives `BF_TRACE_FILE`, `BF_PKT_LOG` (both in the run director
 |---|---|
 | M5 login reaches character selection | `loginlog` row `user`=account, `rcode`=100 after the marker; mode `charselect`; slots equal `char` rows of the account |
 | M5 a script creates a character | `charlog` `char_msg`='make new char' with the name; `char` row on the account |
-| M5 same login from launch arguments | as the login script, launched with the arguments and no typing |
-| M5 packet log matches `bifrost-netprobe` | `client-packets.txt` of the run (not SQL) |
+| M5 same login from launch arguments | `autologin.py`: `loginlog` 'login ok' and `charlog` 'char select' after the marker, `CZ_ENTER` in `client-packets.txt`, no `key` or `pointer` request in the transcript |
+| M5 packet log matches `bifrost-netprobe` | `charselect.py`, `autologin.py`: `client-packets.txt` against `netprobe-packets.txt` of the same run (`bfharness/pktlog.py`; not SQL) |
+| M5 selection enters the zone | `charselect.py`: `CZ_ENTER` (0x009b) on the zone connection; `charlog` 'char select' |
 | M6 walk: client and server agree | `chatlog` row of a line said on arrival: `src_map`, `src_map_x`, `src_map_y` are the map server's position, compared with `state.self`; after quitting, `char.last_map/last_x/last_y` |
 | M6 resize keeps picking correct | the same, after `resize`, for the cell `state.pointer.cell` named before the click |
 | M6 map change by warp portal | `map` event and `state.map`; `chatlog.src_map` of a line said after it; `char.last_map` after quitting |
@@ -74,6 +75,9 @@ The client also receives `BF_TRACE_FILE`, `BF_PKT_LOG` (both in the run director
 The scripts use only what PROTOCOL.md specifies. Where they click a control they use these `controls` ids, which the control module has to report (or the scripts change with it): `LOGINWND` `id_edit`, `pw_edit`, `ok`; `SELECTCHARWND` `slot:<n>` (text = character name), `ok`, `make`; `MAKECHARWND` `name_edit`, `ok`; `CHOOSESELLBUYWND` `buy`, `sell`; `ITEMSHOPWND` and `ITEMSELLWND` `item:<item id>`, `ok`; `CHOOSEWND` `choice:<label>`; `RESTARTWND` `charselect`, `exit`. Login, character selection and creation go by keyboard only (Tab, Enter, arrows), so the M5 scripts work even while `controls` is empty. The real client reports these and more (all controls of a window, named after their control ids; the list is in [compat/stubs/README.md](../compat/stubs/README.md), `bf_client_state.cpp`).
 
 ## Open
+
+- The map load after `CZ_ENTER` belongs to M6.1; `charselect.py` and `autologin.py` record the client's exit after zone entry instead of judging it (`stop_after_zone_entry`); `--param strict_exit=1` judges it again.
+- "Save" with the Keychain is untested while the login keychain is locked (unattended run): the client then stores the account only and traces `sys: keychain not available`.
 
 - The gate test's Job Master is rAthena's `npc/custom/jobmaster.txt`, which the stock configuration does not load: `port/server/import/map_conf.txt` needs `npc: npc/custom/jobmaster.txt`.
 - The map server saves a character on logout, map-server change and every `autosave_time` (300 s in `map_athena.conf`); the scripts read positions from `chatlog` while playing and from `char` only after quitting.

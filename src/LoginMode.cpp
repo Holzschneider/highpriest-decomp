@@ -58,6 +58,19 @@ extern const char* g_accountPort;
 
 #include <Nb30.h>
 
+#if defined(BF_PORT)
+// Launch arguments (spec section 2): bf_main.cpp hands over --server,
+// --account, --password and --character (or BF_SERVER, ...), NULL when not
+// given or when the option LaunchArguments is off. The login, the choice of
+// the character server and the character selection each happen once without
+// input; after a refusal, or back from the game, the windows work as usual.
+extern "C" const char *bf_port_launch(const char *key);
+static bool g_bfLaunchLoginDone = false;   // the account and password were sent once
+static bool g_bfLaunchActive = false;      // this session was logged in from the arguments
+static bool g_bfLaunchServerDone = false;
+static bool g_bfLaunchCharDone = false;
+#endif
+
 typedef struct _ASTAT_
 {
 	ADAPTER_STATUS adapt;
@@ -452,7 +465,28 @@ void CLoginMode::OnChangeState(int state)
 		WinMainNpKeyStartEncryption();
 		m_wallPaperBmpName = TITLE_FILE;
 		g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
+#if defined(BF_PORT)
+		g_bfLaunchActive = false;
+		if (!g_bfLaunchLoginDone && bf_port_launch("account") && bf_port_launch("password")) {
+			// As UILoginWnd's ID_LOGIN does, without the window (whose
+			// StoreInfo would overwrite the saved account with empty fields).
+			g_bfLaunchLoginDone = true;
+			g_bfLaunchActive = true;
+			BF_TRACE(BFT_MODE, "login: account %s from the launch arguments", bf_port_launch("account"));
+			SendMsg(LMM_PASSWORD, (INT_PTR)bf_port_launch("password"), 0, 0);
+			SendMsg(LMM_ID, (INT_PTR)bf_port_launch("account"), 0, 0);
+			SendMsg(LMM_CONNECT_TO_ACSVR, 0, 0, 0);
+			break;
+		}
+#endif
 		UIFrameWnd *wnd = g_windowMgr.MakeWindow(WID_LOGINWND);
+#if defined(BF_PORT)
+		if (wnd && !g_bfLaunchLoginDone && bf_port_launch("account")) {
+			// An account without a password: filled in, the password to type.
+			((UILoginWnd *)wnd)->m_login->SetText(bf_port_launch("account"));
+			g_windowMgr.SetFocusEdit(((UILoginWnd *)wnd)->m_password);
+		}
+#endif
 		if (!g_hideAccountList) {
 			if (wnd)
 				wnd->SendMsg(NULL, UM_ENABLE_CANCEL, 0, 0, 0, 0);
@@ -461,6 +495,15 @@ void CLoginMode::OnChangeState(int state)
 	}
 	case LSM_SELECTSVR:
 	{
+#if defined(BF_PORT)
+		if (g_bfLaunchActive && !g_bfLaunchServerDone && m_numServer > 0) {
+			g_bfLaunchServerDone = true;
+			BF_TRACE(BFT_MODE, "login: character server %d of %d (%s) from the launch arguments", 1, m_numServer,
+			         (const char *)m_serverInfo[0].name);
+			SendMsg(LMM_SELECTSVR, 0, 0, 0);
+			break;
+		}
+#endif
 		m_wallPaperBmpName = TITLE_FILE;
 		g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
 		UISelectServerWnd *selectServerWnd = (UISelectServerWnd *)g_windowMgr.MakeWindow(WID_SELECTSERVERWND);
@@ -524,6 +567,34 @@ void CLoginMode::OnChangeState(int state)
 		g_session.ClearQuestList();
 		m_wallPaperBmpName = TITLE_FILE;
 		g_windowMgr.SetWallpaper((CBitmapRes *)g_resMgr().Get(UIBmp(m_wallPaperBmpName.c_str()), false));
+#if defined(BF_PORT)
+		if (g_bfLaunchActive && !g_bfLaunchCharDone && bf_port_launch("character")) {
+			g_bfLaunchCharDone = true;
+			const char *want = bf_port_launch("character");
+			char *end = NULL;
+			long slot = strtol(want, &end, 10);
+			bool bySlot = *want && end && *end == 0;
+			int found = -1;
+			for (int i = 0; i < m_numChar && found < 0; ++i) {
+				char name[25];
+				memcpy(name, m_charInfo[i].name, 24);
+				name[24] = 0;
+				if (bySlot ? m_charInfo[i].CharNum == slot : strcmp(name, want) == 0)
+					found = i;
+			}
+			if (found >= 0) {
+				// As UISelectCharWnd's ID_OK does, without the window.
+				BF_TRACE(BFT_MODE, "login: character %s in slot %d from the launch arguments", want,
+				         (int)m_charInfo[found].CharNum);
+				g_charInfo.CharNum = m_charInfo[found].CharNum;
+				g_session.SetCharName((const char *)m_charInfo[found].name);
+				SendMsg(MM_COMMAND, LMM_TRANSFERCHARACTER, 0, 0);
+				SendMsg(LMM_SELECT_CHARACTER, m_charInfo[found].CharNum, 0, 0);
+				break;
+			}
+			BF_TRACE(BFT_MODE, "login: no character %s on the account (launch arguments); selection shown", want);
+		}
+#endif
 		g_windowMgr.MakeWindow(WID_SELECTCHARWND);
 		break;
 	case LSM_MAKECHAR:
@@ -538,6 +609,20 @@ void CLoginMode::OnChangeState(int state)
 		ServerAddress addr;
 		strcpy(addr.ip, g_accountAddr);
 		addr.port = atoi(g_accountPort);
+#if defined(BF_PORT)
+		if (const char *server = bf_port_launch("server")) {
+			// host or host:port; the port of the client info stays when none is given
+			const char *colon = strrchr(server, ':');
+			size_t n = colon ? (size_t)(colon - server) : strlen(server);
+			if (n > 0 && n < sizeof(addr.ip)) {
+				memcpy(addr.ip, server, n);
+				addr.ip[n] = 0;
+			}
+			if (colon && atoi(colon + 1) > 0)
+				addr.port = atoi(colon + 1);
+			BF_TRACE(BFT_NET, "login: account server %s:%d from the launch arguments", addr.ip, addr.port);
+		}
+#endif
 		m_isConnected = CRagConnection::instanceR().Connect(&addr);
 		if (m_isConnected) {
 			if (g_bUseCommand) {

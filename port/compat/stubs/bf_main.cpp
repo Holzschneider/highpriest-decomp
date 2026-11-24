@@ -8,6 +8,13 @@
 //                         the first frame and returns 0 (bf_port_headless)
 //   --control <path>      the control socket (or --control=<path>, or the
 //                         environment variable BF_CONTROL)
+//   --server <host[:port]>, --account <name>, --password <text>,
+//   --character <name or slot>
+//                         launch arguments (or --flag=value, or BF_SERVER,
+//                         BF_ACCOUNT, BF_PASSWORD, BF_CHARACTER): the login
+//                         mode logs in, takes the first character server and
+//                         enters with the character, without input, once
+//                         (bf_port_launch; option LaunchArguments)
 // Every other argument is passed on, joined by spaces, as the Windows
 // command line was (WinMain parses it with strstr).
 //
@@ -406,10 +413,53 @@ void EndProcess()
 	_exit(g_exit_status);
 }
 
+// ---- launch arguments (spec section 2, option LaunchArguments, default on)
+
+struct LaunchArg {
+	const char *flag;   // --server, --account, ...
+	const char *env;    // BF_SERVER, BF_ACCOUNT, ...
+	const char *key;    // what bf_port_launch is asked for
+	std::string value;
+	bool given;
+};
+
+LaunchArg g_launch[] = {
+	{"--server", "BF_SERVER", "server", "", false},          // host[:port] of the account server
+	{"--account", "BF_ACCOUNT", "account", "", false},
+	{"--password", "BF_PASSWORD", "password", "", false},
+	{"--character", "BF_CHARACTER", "character", "", false},  // a name, or a slot number
+};
+
+// The value of a flag that takes one (--flag value or --flag=value), or NULL.
+LaunchArg *LaunchFlag(const char *arg, const char **inline_value)
+{
+	for (LaunchArg &a : g_launch) {
+		size_t n = strlen(a.flag);
+		if (strncmp(arg, a.flag, n) == 0 && (arg[n] == 0 || arg[n] == '=')) {
+			*inline_value = arg[n] == '=' ? arg + n + 1 : nullptr;
+			return &a;
+		}
+	}
+	return nullptr;
+}
+
+void LaunchFromEnvironment()
+{
+	for (LaunchArg &a : g_launch) {
+		const char *v = getenv(a.env);
+		if (!a.given && v && *v) {
+			a.value = v;
+			a.given = true;
+		}
+	}
+}
+
 bool IsPortFlag(const char *arg)
 {
+	const char *unused;
 	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
-	       || strncmp(arg, "-psn_", 5) == 0;   // Finder's process serial number
+	       || strncmp(arg, "-psn_", 5) == 0   // Finder's process serial number
+	       || LaunchFlag(arg, &unused);
 }
 
 }  // namespace
@@ -437,6 +487,19 @@ extern "C" void bf_port_missing(unsigned category, const char *counter, const ch
 extern "C" int bf_port_option(const char *option)
 {
 	return bf_settings_option(bf_settings_shared(), option);
+}
+
+// A launch argument (`server`, `account`, `password`, `character`) given on
+// the command line or in the environment, or NULL: not given, or the option
+// LaunchArguments is off. Called by the login mode (LoginMode.cpp).
+extern "C" const char *bf_port_launch(const char *key)
+{
+	if (!bf_settings_option(bf_settings_shared(), BF_OPT_LAUNCH_ARGUMENTS))
+		return nullptr;
+	for (const LaunchArg &a : g_launch)
+		if (a.given && strcmp(a.key, key) == 0)
+			return a.value.c_str();
+	return nullptr;
 }
 
 extern "C" int bf_port_start_graphics(void)
@@ -498,7 +561,13 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "--headless") == 0)
 			g_headless = true;
 		if (IsPortFlag(argv[i])) {
-			if (strcmp(argv[i], "--control") == 0 && i + 1 < argc)
+			const char *value = nullptr;
+			if (LaunchArg *a = LaunchFlag(argv[i], &value)) {
+				if (!value && i + 1 < argc)
+					value = argv[++i];
+				a->value = value ? value : "";
+				a->given = value != nullptr;
+			} else if (strcmp(argv[i], "--control") == 0 && i + 1 < argc)
 				++i;
 			continue;
 		}
@@ -508,6 +577,11 @@ int main(int argc, char **argv)
 	}
 	BF_TRACE(BFT_MODE, "start: %s%s, command line \"%s\", game folder %s", argv[0], g_headless ? " --headless" : "",
 	         command_line.c_str(), bf_file_location(BF_LOCATION_GAME));
+	LaunchFromEnvironment();
+	for (const LaunchArg &a : g_launch)
+		if (a.given)
+			BF_TRACE(BFT_MODE, "start: launch argument %s %s", a.key,
+			         strcmp(a.key, "password") == 0 ? "(given)" : a.value.c_str());
 
 	if (!g_headless) {
 		// The application first: the game-folder chooser and the window need NSApp.
