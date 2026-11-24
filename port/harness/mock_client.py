@@ -44,7 +44,7 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "WAITWND": 6, "LOADINGWND": 7, "SAYDIALOGWND": 16, "CHOOSEWND": 17, "RESTARTWND": 19,
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
-       "PARTYSETTINGWND": 53, "WHISPERWND": -1,
+       "PARTYSETTINGWND": 53, "WHISPERWND": -1, "MESSENGERGROUPWND": 34,
        "MAILLISTWND": 98, "MAILVIEWWND": 99, "ITEMDROPCNTWND": 15,
        "ITEMPURCHASEWND": 23, "ITEMSTOREWND": 33, "NPCEDITDIALOGWND": 56,
        "QUITWND": 48}
@@ -52,6 +52,7 @@ COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "qu
 # char columns the mock saves on logout when the character row has them
 SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
 EVENTS = ["mode", "map", "chat", "window", "sound", "damage", "movie", "bye", "error"]
+EMPTY_COVERAGE = {"entries": 0, "untranslated": 0, "placeholder": 0, "korean": 0, "foreign": 0, "list": []}
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
 DETAIL = {"login": "LSM_IDENTRY", "connecting": "LSM_WAITRESP_FROM_ACSVR",
           "charselect": "LSM_SELECTCHAR", "makechar": "LSM_MAKECHAR",
@@ -923,6 +924,8 @@ class Mock(SkillsOptionsMixin):
                         self.on_control(w, c, dbl)
                 elif w.name == "MAILLISTWND" and x - wx < 20 and 77 <= y - wy < 137:
                     self.mail_write()     # UIMailListWnd::OnLBtnDown: the write tab
+                elif w.name == "MESSENGERGROUPWND" and x - wx >= ww - 14 and y - wy < 15:
+                    self.close_window(w.name)   # its close button (UIMessengerGroupWnd::OnCreate)
                 return
         if self.mode == "game":
             self.on_world_click(x, y)
@@ -1878,6 +1881,14 @@ class Mock(SkillsOptionsMixin):
                     leader_char=s["char_id"])
         s["party_id"] = pid
         self.system("Party has successfully been organized.")
+        # ZC_ACK_MAKE_GROUP opens the party window (M9.5)
+        if not self.window("MESSENGERGROUPWND"):
+            # top right, clear of the actors the scripts click; behind the
+            # chat line, which keeps the typing (it has no edit field)
+            L = self.logical()
+            w = Window("MESSENGERGROUPWND", [L[0] - 150, 40, 140, 180])
+            self.windows.append(w)
+            self.emit("window", action="open", wid=w.id, name=w.name)
 
     def make_guild(self, name):
         s = self.self_
@@ -1916,6 +1927,8 @@ class Mock(SkillsOptionsMixin):
                     self.add_actor("monster", "Poring", 1002, s["x"] + 2 + i, s["y"] + 2, hp=3)
             elif cmd == "statuspoint":
                 s["status_point"] = s.get("status_point", 0) + int(args[0])
+            elif cmd == "allskill":
+                s["skills"] = dict(s.get("skills") or {}); s["skills"][1] = 9   # Basic Skill 9
             elif cmd == "heal":
                 s["hp"], s["sp"] = s["max_hp"], s["max_sp"]
             else:
@@ -2293,6 +2306,8 @@ class Mock(SkillsOptionsMixin):
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
         put("sound", self.sound_state())
         put("movie", dict(self.movie))
+        # M9.5: the mock draws English only, so its coverage report is empty
+        put("coverage", dict(EMPTY_COVERAGE, list=[]))
         return out
 
     def cmd_state(self, c, rid, msg):
@@ -2419,6 +2434,11 @@ def main():
         m.running = False
     signal.signal(signal.SIGTERM, on_term)
     m.run()
+    report = os.environ.get("BF_COVERAGE")
+    if report:   # the coverage report at exit (M9.5); the mock's is empty
+        with open(report, "w") as f:
+            json.dump(dict(EMPTY_COVERAGE, strings={"lookups": 0, "hits": 0, "fallbacks": 0, "entries": 0,
+                                                    "translated": 0}), f, indent=2)
     return 0
 
 

@@ -64,6 +64,10 @@ class ScriptsAgainstMock(unittest.TestCase):
         self.assertIn("A: the movie ends and the login screen follows", names)
         self.assertIn("E: Esc stops the movie and the login screen follows", names)
 
+    def test_english_session(self):
+        rep = self.run_script("english_session")
+        self.assertIn("coverage report", [s["name"] for s in rep["steps"]])
+
     def test_failure_is_reported(self):
         """A step that fails stops the script and the report says FAIL."""
         import types
