@@ -467,10 +467,25 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 	LONG lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, KEY_QUERY_VALUE, &hKey);
 	if (lResult == ERROR_SUCCESS)
 	{
+#if defined(BF_PORT)
+		// the value is a DWORD; win_left and win_top are shorts (a 4-byte read overruns them)
+		DWORD stored;
+		DATALENGTH = sizeof(stored);
+		if (RegQueryValueExA(hKey, "window_left", 0, &REG_TYPE, (LPBYTE)&stored, &DATALENGTH) != ERROR_SUCCESS)
+			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
+		else
+			win_left = (short)stored;
+		DATALENGTH = sizeof(stored);
+		if (RegQueryValueExA(hKey, "window_top", 0, &REG_TYPE, (LPBYTE)&stored, &DATALENGTH) != ERROR_SUCCESS)
+			win_top = 0;
+		else
+			win_top = (short)stored;
+#else
 		if (RegQueryValueExA(hKey, "window_left", 0, &REG_TYPE, (LPBYTE)&win_left, &DATALENGTH) != ERROR_SUCCESS)
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 		if (RegQueryValueExA(hKey, "window_top", 0, &REG_TYPE, (LPBYTE)&win_top, &DATALENGTH) != ERROR_SUCCESS)
 			win_top = 0;
+#endif
 		if ((short)win_left > GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH)
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 		if ((short)win_left < 0)
