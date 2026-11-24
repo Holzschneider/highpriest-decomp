@@ -3712,9 +3712,18 @@ bool	CSession :: MoveItemFromEquipWndToItemWnd(int wearLocation)
 
 void	CSession :: ClearEquipItem()
 {
+#if defined(BF_PORT)
+	// 190 DWORDs are the 10 slots at the 2008 build's 76 bytes per
+	// ITEM_INFO; on arm64 the record is larger, so the last slots (head top
+	// and middle) kept their item and the next equipment list tripped the
+	// assertion in AddEquipItem. Clear each slot as Reset does.
+	for (int i=0; i<10; i++)
+		m_equipedItems[i].Reset();
+#else
 	int *	p = (int *)m_equipedItems;
 	for (int i=0; i<190; i++)
 		p[i] = 0;
+#endif
 	g_windowMgr.InvalidateUpdateNeededUI();
 }
 
@@ -3757,9 +3766,18 @@ bool	CSession :: AddEquipItem(ITEM_INFO *itemInfo)
 
 void	CSession :: ClearOtherUserEquipItem()
 {
+#if defined(BF_PORT)
+	// 190 DWORDs are the 10 slots at the 2008 build's 76 bytes per
+	// ITEM_INFO; on arm64 the record is larger, so the last slots (head top
+	// and middle) kept their item and the next equipment list tripped the
+	// assertion in AddEquipItem. Clear each slot as Reset does.
+	for (int i=0; i<10; i++)
+		m_otherUserEquipedItems[i].Reset();
+#else
 	int *	p = (int *)m_otherUserEquipedItems;
 	for (int i=0; i<190; i++)
 		p[i] = 0;
+#endif
 }
 
 bool	CSession :: AddOtherUserEquipItem(ITEM_INFO *itemInfo)
