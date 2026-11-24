@@ -107,7 +107,10 @@ bf_audio_voice handle_of(int slot, uint32_t gen) { return (gen << 6) | (uint32_t
 AVAudioFramePosition played(Voice &v)
 {
 	AVAudioTime *t = v.node.lastRenderTime;
-	if (!t) return 0;
+	// Before the first render (offline: before the first bf_audio_render)
+	// the node time is neither sample- nor host-valid, and
+	// playerTimeForNodeTime throws on it.
+	if (!t || !(t.sampleTimeValid || t.hostTimeValid)) return 0;
 	AVAudioTime *p = [v.node playerTimeForNodeTime:t];
 	if (!p || !p.sampleTimeValid) return 0;
 	return p.sampleTime;
@@ -220,7 +223,7 @@ void stream_update()
 	if (s.stream_status != BF_AUDIO_STREAM_PLAYING && s.stream_status != BF_AUDIO_STREAM_PAUSED) return;
 	int passes = s.stream_completions.load();
 	AVAudioTime *t = s.stream_node.lastRenderTime;
-	AVAudioTime *p = t ? [s.stream_node playerTimeForNodeTime:t] : nil;
+	AVAudioTime *p = t && (t.sampleTimeValid || t.hostTimeValid) ? [s.stream_node playerTimeForNodeTime:t] : nil;
 	if (p && p.sampleTimeValid && s.stream_pass > 0) {
 		int byclock = (int)((p.sampleTime + 0.5) / s.stream_pass);
 		if (byclock > passes) passes = byclock;
