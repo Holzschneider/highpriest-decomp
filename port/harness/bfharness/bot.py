@@ -118,10 +118,21 @@ class Bot:
 
     def warp(self, map, x, y, timeout=20.0):
         """@warp the bot (a group-99 account) and wait until it stands there."""
-        since = self.mark()
-        self.gm("@warp %s %d %d" % (map, x, y))
-        return self.wait(lambda e: e.get("event") == "position" and e.get("map", "").startswith(map)
-                         and (e.get("warped") or e.get("arrived")), timeout, since)
+        # Only a position at the cell counts: the bot's first position after
+        # entering the map is also reported as warped, and the server may
+        # drop an @warp sent before the bot's map has loaded (it is then not
+        # in atcommandlog), so the command is sent again.
+        for attempt in range(3):
+            since = self.mark()
+            self.gm("@warp %s %d %d" % (map, x, y))
+            try:
+                return self.wait(lambda e: e.get("event") == "position" and e.get("map", "").startswith(map)
+                                 and (e.get("warped") or e.get("arrived"))
+                                 and abs(e.get("x", -9) - x) <= 1 and abs(e.get("y", -9) - y) <= 1,
+                                 timeout / 3, since)
+            except BotError:
+                if attempt == 2:
+                    raise
 
     def quit(self, timeout=10.0):
         if self.proc.poll() is None:

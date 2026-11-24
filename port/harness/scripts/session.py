@@ -4,7 +4,9 @@ header and no failed assertion in the trace.
 Done when (implementation plan, M6): a five-minute scripted session leaves
 no unknown packet header and no failed assertion in the trace.
 
-Set-up: the character at prontera 155,183 (SQL, offline); a second player
+Set-up: the script's own character (account bfhsession, BfhSessioner,
+made in SQL on first use; `--param user= password= char=` for another) at
+prontera 155,183 (SQL, offline); a second player
 (bifrost-bot, group 99) beside it, which says a line now and then and
 walks between two cells, so the client receives other players' chat and
 movement; a Poring spawned beside the bot (@monster).
@@ -16,6 +18,12 @@ walk to a picked cell, say a line, open and close the item, equipment,
 skill, status and option windows with their Alt shortcuts, turn the camera
 by right-drag and zoom with the wheel, rest the pointer on NPCs (the client
 asks for their names), walk back towards the start.
+The camera's drags start and end off actors: the 2008 client talks to an
+NPC on a right-button press as on a left one, and a walk clicked within
+225 ms of a click on the dialog's buttons is dropped (both as in the
+reference executable). Together they once kept the character on one spot
+for the rest of the session (the M6 verifier's stuck walk): each round the
+drag talked to the same NPC and the walk after the dialog came too soon.
 Checked: each action's direct effect (arrival on the picked cell, the own
 line as a chat event, the window open and closed, the bot's lines arriving);
 then in the client's trace no "unknown packet header" line (the port's
@@ -27,7 +35,7 @@ in the client's packet table; the client exits cleanly.
 import time
 
 from bfharness.bot import Bot
-from bfharness.play import enter_game, login, own_home, token
+from bfharness.play import enter_game, login, own_home, own_character, token
 from bfharness.sql import wait_rows
 from bfharness import pktlog
 
@@ -105,6 +113,11 @@ def close_dialogs(ctl, tries=8):
             return
         ctl.click_control(w["name"], target)
         ctl.wait({"frames": 10}, timeout=10)
+        # The 2008 client takes a ground click as a walk only 225 ms after
+        # the last left-button press, on a window or not (ProcessGroundPick
+        # 0x588510, m_leftBtnClickTick), so a walk clicked right after the
+        # dialog's last button would be dropped.
+        time.sleep(0.3)
 
 
 def say(ctl, tally, text):
@@ -136,13 +149,36 @@ def window(ctl, tally, key, label):
         tally.record("window", False, "alt+%s (%s) did not close %s: %s" % (key, label, ev.get("name"), e))
 
 
+def over_actor(ctl, x, y, actors):
+    """True when (x, y) is on an actor's sprite (feet at `screen`, body above)
+    or the client shows a name balloon there."""
+    if any(a["screen"] and abs(a["screen"]["x"] - x) < 40 and -120 < y - a["screen"]["y"] < 25
+           for a in actors if a["type"] != "item"):
+        return True
+    ctl.move(x, y)
+    ctl.wait({"frames": 3}, timeout=10)
+    return any(w["name"] == "NAMEBALLOONTEXT" for w in ctl.state("windows")["windows"])
+
+
 def camera(ctl, tally, k):
     """Turn by right-drag and zoom with the wheel, then back, so that the
-    walks of the next round go the same way."""
+    walks of the next round go the same way. Both ends of the drag are kept
+    off actors: the right button pressed on an NPC talks to it, as in the
+    2008 client (CGameMode::ProcessObjClick 0x584E70 takes either button)."""
     v = ctl.state("view")["view"]
-    cx, cy = v["logical"]["w"] // 2, v["logical"]["h"] // 2 - 120
+    actors = ctl.state("actors")["actors"]
     turn = 60 if k % 2 else -60
     notch = 1 if k % 2 else -1
+    for dx, dy in ((0, -120), (0, -180), (0, -60), (0, 120), (0, 180), (-200, -120), (200, -120),
+                   (-200, 120), (200, 120), (-300, 0), (300, 0)):
+        cx, cy = v["logical"]["w"] // 2 + dx, v["logical"]["h"] // 2 + dy
+        if not over_actor(ctl, cx, cy, actors) and not over_actor(ctl, cx + turn, cy, actors):
+            break
+    else:
+        # Players and monsters crowding the view (the shared server's other
+        # tests) leave no line: this round goes without a turn.
+        tally.record("camera skipped", True)
+        return
     ctl.drag(cx, cy, cx + turn, cy, button="right")
     for _ in range(3):
         ctl.wheel(notch, cx, cy)
@@ -151,7 +187,10 @@ def camera(ctl, tally, k):
     for _ in range(3):
         ctl.wheel(-notch, cx, cy)
     ctl.wait({"frames": 20}, timeout=10)
-    tally.record("camera", True)
+    opened = [w["name"] for w in ctl.state("windows")["windows"] if w["name"] in ("SAYDIALOGWND", "CHOOSEWND")]
+    tally.record("camera", not opened, "the drag talked to an NPC: %s" % opened if opened else None)
+    if opened:
+        close_dialogs(ctl)
 
 
 def hover(ctl, tally):
@@ -163,9 +202,7 @@ def hover(ctl, tally):
 
 
 def run(t):
-    user = t.param("user", "bftest")
-    password = t.param("password", "bftest")
-    name = t.param("char", "BFProbe")
+    user, password, name = own_character(t, "bfhsession", "BfhSessioner")
     seconds = float(t.param("seconds", "20" if t.mock else "300"))
 
     with t.step("set-up: place character", "SQL, offline: prontera %d,%d" % START) as s:
