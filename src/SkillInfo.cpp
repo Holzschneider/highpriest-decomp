@@ -23,14 +23,14 @@ using std::pair;
 
 
 template<class T>
-typename T::referent_type& GetMapObject(typename T::key_type itemName, T& table)
+typename T::mapped_type& GetMapObject(typename T::key_type itemName, T& table)
 {
-	T::iterator iter = table.find(itemName);
+	typename T::iterator iter = table.find(itemName);
 
 	if(iter != table.end()) return iter->second;
 
-	pair<T::iterator, bool>& result =
-		table.insert(T::value_type(itemName, T::referent_type()));
+	pair<typename T::iterator, bool> result =
+		table.insert(typename T::value_type(itemName, typename T::mapped_type()));
 
 	sAssert(result.second == true);
 

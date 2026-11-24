@@ -160,9 +160,9 @@ public:
 
 
 template<class T>
-typename T::referent_type& GetDesc(typename T::key_type itemName, T& table)
+typename T::mapped_type& GetDesc(typename T::key_type itemName, T& table)
 {
-	static typename T::referent_type nullDesc;
+	static typename T::mapped_type nullDesc;
 
 	typename T::iterator iter = table.find(itemName);
 
