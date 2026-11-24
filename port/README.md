@@ -49,6 +49,25 @@ port/tools/grfaudit.py rdata.grf data.grf [--maps maps.txt] [--list-unsupported]
 
 Reads the format version of every world, ground, attribute, model, sprite and action file and compares it with what the client's loaders accept; reports which maps are readable and which of the client's text tables are present. Archives are given in search order. It needs Python 3.6 and nothing else, so it can run on the machine that holds the data. On the kRO data of June 2021, 818 of 897 maps are readable and 12 of 29 text tables are absent.
 
+## Game folder
+
+`port/data/` fills and checks `~/Games/Bifrost`: `fetch.sh` copies the archives, music and ROenglishRE from a machine named in the environment, `assemble.py` builds the loose `data/` folder (the missing text tables, `sclientinfo.xml`, the pre-renewal layouts of eight maps the server walks), `port/tools/tablecheck.py` checks the tables against the client's parsers, and `server-maps.sh` writes the server's list of enterable maps. Details in [data/README.md](data/README.md).
+
+## Native modules
+
+The modules that stay, each with its own test program (conventions in [native/README.md](native/README.md)). Build and run one with
+
+```bash
+cmake -S port/native/<module> -B build/native/<module> -G Ninja && cmake --build build/native/<module> && build/native/<module>/bifrost-<module>-test
+```
+
+| Module | Offers | Test needs |
+|---|---|---|
+| [`sys`](native/sys/README.md) | clock, threads, game folder and file lookup, write locations, settings, Keychain, alerts | game folder optional (`BF_HOME` redirects writes) |
+| [`codec`](native/codec/README.md) | zlib, JPEG through ImageIO | game folder optional |
+| [`app`](native/app/README.md) | window, Metal layer, event queue, input state, clipboard, single instance | opens a window; `--interactive` logs real input |
+| [`text`](native/text/README.md) | CoreText fonts, metrics, unsmoothed drawing into bitmaps, code pages | nothing |
+
 ## Instrumentation
 
 `instrument/bf_trace.h` is compiled into the port and into the probes. The game sources call it where `BF_PORT` is defined: the game's own `Trace()` calls, `ErrorMsg`, assertions, connection events, every packet in both directions, file lookups, and mode changes.

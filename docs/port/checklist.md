@@ -37,17 +37,17 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M3.1 Native modules for files, settings, time, threads, shell functions (`port/native`), with test programs | native | |
+| [x] aef1fdb | M3.1 Native modules for files, settings, time, threads, shell functions (`port/native`), with test programs | native | |
 | [ ] | M3.1a Their adapters in `port/compat` | compat | M3.1, M2.4 |
 | [ ] | M3.2 Every other imported function as a reporting stub; the binary links | compat | M2.4, M2.7 |
-| [ ] | M3.3 File lookup: game folder, backslashes, case-insensitive, CP949 names; writes to the Mac locations | native | M3.1 |
-| [ ] | M3.4 Settings: defaults, property list behind the registry adapter, one settings object | native | M3.1 |
+| [x] ce92fc1 | M3.3 File lookup: game folder, backslashes, case-insensitive, CP949 names; writes to the Mac locations | native | M3.1 |
+| [x] d8b18e0 | M3.4 Settings: defaults, property list behind the registry adapter, one settings object | native | M3.1 |
 | [ ] | M3.5 Missing files and table entries become placeholders with a counted trace line | src | M3.2 |
 | [x] d4cc27f | M3.6 zlib and JPEG replacements | native | |
 | [ ] | M3.7 `--headless` start | src | M3.2 |
-| [ ] | M3.8 Game folder `~/Games/Bifrost`: archives and music copied; script assembling the loose `data/` folder and `clientinfo.xml` | data | |
-| [ ] | M3.9 Table checker | data | M3.8 |
-| [ ] | M3.10 `grfaudit.py` follows model references; list of enterable maps applied to the test server | data | M3.8 |
+| [x] b430822 | M3.8 Game folder `~/Games/Bifrost`: archives and music copied; script assembling the loose `data/` folder and `clientinfo.xml` | data | |
+| [x] a4901c1 | M3.9 Table checker | data | M3.8 |
+| [x] 509f590 | M3.10 `grfaudit.py` follows model references; list of enterable maps applied to the test server | data | M3.8 |
 | [ ] | M3 exit (verifier) | | M2 exit, M3.1–M3.10 |
 
 ## M4. First pixels
@@ -58,7 +58,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M4.2 Graphics module on Metal, with test draws for the 16 multitexture presets and the blend modes | native | |
 | [ ] | M4.3 Logical resolution, UI scale 1×/2×/3×, resize path | native | M4.1, M4.2 |
 | [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2, M3.2 |
-| [ ] | M4.5 Text module on CoreText, unsmoothed, with a metrics test | native | |
+| [x] 2a6bf9d | M4.5 Text module on CoreText, unsmoothed, with a metrics test | native | |
 | [ ] | M4.5a GDI adapter | compat | M4.5, M3.2 |
 | [ ] | M4.6 Control interface, first part: socket, JSON lines, frame capture | native | M4.1 |
 | [ ] | M4.7 Options to skip the licence and intro screens | src | M3.7 |

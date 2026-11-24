@@ -29,3 +29,14 @@ Entries are added at every milestone exit, for every parked item, for every devi
   - The control protocol is specified by the `harness` package (`port/native/control/PROTOCOL.md`) together with a mock client, so the harness is built before the client can run; the control module (M4.6, M5.6, M6.4) implements that document.
   - Workers do not restart the shared test server. Server configuration that a package produces (the enterable-map list of M3.10) is applied by the lead at integration.
 - Found while briefing: the intro movie `openning.bik` that `CBink.cpp` opens is not in the 2021 data; the archive holds one other Bink file (`data\video\ad\01.bik`). The Bink package looks for the intro elsewhere and decodes what exists.
+
+## 2026-11-24: round 2, first integrations
+
+- Integrated: M2.1 (Wine 11.0 headers vendored, with their C runtime headers after one send-back), M2.8 (layout check), M3.1, M3.3, M3.4 (`sys`), M3.6 (`codec`), M3.8 to M3.10 (game folder, table checker, enterable maps), M4.1 (`app`), M4.5 (`text`).
+- Census on `src/` with the vendored headers: 60 of 152 units clean, 3,215 distinct error locations (3,226 with the old headers).
+- Deviations:
+  - M2.2 also narrows the `time_t` fields of `packet.h` to 32 bits. The layout check found that eight packet records still differ on the rewritten tree only through them (Visual C++ 6.0 had a 32-bit `time_t`).
+  - The loose `data/` folder holds, besides the missing tables, the pre-renewal `.rsw`/`.gnd`/`.gat` of eight maps (prontera, prt_fild05, prt_fild08, prt_in, prt_church, izlude, alberta, morocc), copied unchanged from ROenglishRE. The 2021 archive has their renewal layout, which differs from the pre-renewal map cache the server walks by thousands of cells. This follows the rule that the client adapts to the server; the files stay outside git.
+  - `msgstringtable.txt` comes from ROenglishRE's renewal folder, which is the only one with that table; its first 1,387 entries match the client's message ids one to one.
+  - Maps removed from the test server: 294 of 1,265 (77 with world files too new, 193 with no world file, 24 PvP rooms whose aliases point at the replaced cities). Applied by the lead at the next server restart.
+- Untested so far, to be retried in a logged-in desktop session: the Keychain round trip (the login keychain is locked to this session), native fullscreen and visibility events (the screen is locked).
