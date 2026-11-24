@@ -9,7 +9,8 @@ The key: the 2008 client takes VK_SNAPSHOT (Print Screen) and VK_SCROLL
 (Scroll Lock) (UIWindowMgr::ProcessPushButton; CMode::ScreenShot). A Mac
 has neither; a PC keyboard's Print Screen arrives as F13, which the input
 adapter turns into VK_SNAPSHOT (port/compat/input README, "Keys"), and the
-control socket names it `f13`.
+control socket names it `f13`. Apple keyboards without F13 have the
+adapter's substitute, Cmd+Shift+S, played here as well.
 
 The client runs with BF_HOME in the run directory (play.own_home), which
 the files module puts in front of every write location: the pictures land in
@@ -117,7 +118,7 @@ def png_brightness(t, png):
     return brightness(out)
 
 
-def take(t, s, ctl, label, mods, suffix):
+def take(t, s, ctl, label, mods, suffix, key=("f13",)):
     folder = pictures(t)
     before = listing(folder)
     after_seq = ctl.last_seq
@@ -125,7 +126,7 @@ def take(t, s, ctl, label, mods, suffix):
     # the key: Ctrl is held down across it, as a player's finger would be
     for m in mods:
         ctl.key("down", m)
-    ctl.press("f13")
+    ctl.press(key[0], *key[1:])
     ev = ctl.wait_event("chat", lambda e: "is Saved" in (e.get("text") or ""), after=after_seq, timeout=15)
     for m in mods:
         ctl.key("up", m)
@@ -188,6 +189,8 @@ def run(t):
         take(t, s, ctl, "screenshot-jpeg", (), ".jpg")
     with t.step("Ctrl + screenshot key", "Ctrl+F13: a BMP in Pictures/<name>/") as s:
         take(t, s, ctl, "screenshot-bmp", ("ctrl",), ".bmp")
+    with t.step("Cmd+Shift+S", "the Print Screen substitute for Apple keyboards: a JPEG in Pictures/<name>/") as s:
+        take(t, s, ctl, "screenshot-cmd-shift-s", (), ".jpg", key=("s", "cmd", "shift"))
     with t.step("the user's own folder", "nothing written to ~/Pictures/<name>/ by this run") as s:
         real = Path(os.path.expanduser("~/Pictures")) / app_name()
         s.state("pictures folder of this run", str(pictures(t)))

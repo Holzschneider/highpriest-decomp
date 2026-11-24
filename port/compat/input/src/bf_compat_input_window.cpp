@@ -293,6 +293,13 @@ void OnKeyDown(const bf_app_event &e)
 			// The Insert substitute (sit): Cmd+I, Cmd+Option+I for Alt+Insert.
 			SendKeyDown(key, BF_KEY_INSERT, repeat, alt, ctrl);
 			return;
+		case BF_KEY_S:
+			// The Print Screen substitute (the game's screenshot key) for
+			// Apple keyboards without F13: Cmd+Shift+S; with Ctrl, as
+			// Ctrl+Print Screen, a BMP. Cmd+S alone stays the system's.
+			if (e.mods & BF_APP_MOD_SHIFT)
+				SendKeyDown(key, BF_KEY_PRINTSCREEN, repeat, alt, ctrl);
+			return;
 		default:
 			return;   // Cmd+H, Cmd+M, ...: the system's
 		}

@@ -371,8 +371,8 @@ class SkillsOptionsMixin:
         if key in MODS:
             (self.held.add if down else self.held.discard)(key)
             return True
-        if key == "f13":
-            if not down:     # Print Screen: WM_KEYUP only
+        if key == "f13" or (key == "s" and "cmd" in mods and "shift" in mods):
+            if not down:     # Print Screen (Cmd+Shift+S on an Apple keyboard): WM_KEYUP only
                 self.screenshot("ctrl" in self.held or "ctrl" in mods)
             return True
         if not down or self.mode != "game":

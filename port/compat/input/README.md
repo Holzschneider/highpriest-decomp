@@ -94,6 +94,7 @@ start-up glue adds:
 | F1–F12 (as function keys, see the app README) | `VK_F1`…`VK_F12`, scan 0x3B–0x44, 0x57, 0x58; F10 as `WM_SYSKEYDOWN` |
 | **Cmd+I** | **`VK_INSERT`**, scan 0x52, extended: **the Insert substitute** (sit); Cmd+Option+I is Alt+Insert (compass), Cmd+Shift+I is Shift+Insert |
 | Help (kVK 0x72, the Insert of a PC keyboard) | `VK_INSERT` |
+| **Cmd+Shift+S** (Cmd+Ctrl+Shift+S) | **`VK_SNAPSHOT`** as `WM_KEYUP` only: **the Print Screen substitute** (the game's screenshot key; with Ctrl a BMP) for Apple keyboards, which have no F13 |
 | F13, F14, F15 (Print Screen, Scroll Lock, Pause of a PC keyboard) | `VK_SNAPSHOT` (extended), `VK_SCROLL`, `VK_PAUSE`: the game's screenshot keys. `VK_SNAPSHOT` comes as `WM_KEYUP` only, as Windows sends it (the client takes the picture there; a key-down too would take two) |
 | F16–F20 | `VK_F16`…`VK_F20` |
 | Keypad digits, `. / * - + =`, Enter, Clear | `VK_NUMPAD0`…`9` (a Mac keypad has no Num Lock state), `VK_DECIMAL`, `VK_DIVIDE` (ext), `VK_MULTIPLY`, `VK_SUBTRACT`, `VK_ADD`, 0x92, `VK_RETURN` (ext), `VK_NUMLOCK` (ext) |
@@ -120,8 +121,15 @@ start-up glue adds:
   | Cmd+V | the clipboard is typed as `WM_CHAR`s into the focused field: CP1252, control characters (line breaks, tabs) dropped, no key message |
   | Cmd+X, Cmd+C | `WM_KEYDOWN 'X'`/`'C'` while `GetKeyState(VK_CONTROL)` reads down, until the key or Cmd is let go: the cut and copy of `CLanguage::OnKeyDown` |
   | Cmd+I | Insert (above) |
+  | Cmd+Shift+S | Print Screen (above); Cmd+S alone does nothing |
   | any other Cmd combination (Cmd+H, Cmd+M, ...) | the system's; nothing reaches the client |
 
+- **Why Cmd+Shift+S for Print Screen.** The game takes screenshots with
+  Print Screen (and Scroll Lock), which an Apple keyboard lacks; F13 is there
+  only on full-size ones. macOS keeps Cmd+Shift+3, 4 and 5 for its own
+  screenshots, the menus do not use Cmd+Shift+S, and "S" reads as "shot". The
+  game itself has no use for Cmd. Ctrl, which makes the client save a BMP
+  instead of a JPEG, can be held as well.
 - **Why Cmd+I for Insert.** Every Apple keyboard has it, it is not a system
   shortcut, and the menus do not take it. It keeps Insert's own modifier
   combinations (Option for Alt, Shift). A single key without a modifier was

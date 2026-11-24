@@ -323,6 +323,28 @@ void Keyboard()
 	      "Cmd+I up: WM_KEYUP VK_INSERT; Cmd+Option+I: WM_SYSKEYDOWN VK_INSERT (Alt+Insert)", Describe(v));
 	Check(!HIBYTE(GetAsyncKeyState(VK_INSERT)) && !HIBYTE(GetAsyncKeyState(VK_LWIN)), "after Cmd+I: VK_INSERT and Cmd read up");
 
+	// Cmd+Shift+S: the Print Screen substitute, WM_KEYUP VK_SNAPSHOT only;
+	// Cmd+S without Shift sends nothing.
+	Down(BF_KEY_LCMD);
+	Down(BF_KEY_LSHIFT);
+	s = Down(BF_KEY_S);
+	Text("S", s);
+	Up(BF_KEY_S);
+	Up(BF_KEY_LSHIFT);
+	Down(BF_KEY_S);
+	Up(BF_KEY_S);
+	Up(BF_KEY_LCMD);
+	v = Run();
+	{
+		int snaps = 0, snapDowns = 0;
+		for (const auto &m : v) {
+			if (m.w == VK_SNAPSHOT && m.msg == WM_KEYUP) snaps++;
+			if (m.w == VK_SNAPSHOT && m.msg == WM_KEYDOWN) snapDowns++;
+		}
+		Check(snaps == 1 && snapDowns == 0 && Count(v, WM_CHAR) == 0 && !(Find(v, WM_KEYDOWN) && Find(v, WM_KEYDOWN)->w == 'S'),
+		      "Cmd+Shift+S (the Print Screen substitute): one WM_KEYUP VK_SNAPSHOT, no 'S'; Cmd+S: nothing", Describe(v));
+	}
+
 	// Cmd+Q: the quit path; the QUIT event (menu, close button) likewise.
 	Down(BF_KEY_LCMD);
 	Down(BF_KEY_Q);
