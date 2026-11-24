@@ -71,6 +71,7 @@ cmake -S port/native/<module> -B build/native/<module> -G Ninja && cmake --build
 | [`codec`](native/codec/README.md) | zlib, JPEG through ImageIO | game folder optional |
 | [`app`](native/app/README.md) | window, Metal layer, event queue, input state, clipboard, single instance | opens a window; `--interactive` logs real input |
 | [`text`](native/text/README.md) | CoreText fonts, metrics, unsmoothed drawing into bitmaps, code pages | nothing |
+| [`prefs`](native/prefs/README.md) | game-folder chooser, settings window (UI scale, the four options, volumes, account) | opens an offscreen window; `--interactive` shows the real panel |
 | [`gfx`](native/gfx/README.md) | Metal renderer for the client's pre-transformed vertices: textures, the 16 multitexture presets, blend, alpha test, depth, UI scale, lazy read-back, PNG capture; `D3D-USAGE.md` is the adapter's specification | nothing (draws offscreen) |
 | [`audio`](native/audio/README.md) | AVAudioEngine voices, one music stream, WAV/MP3 decoding | plays sound; game folder optional (`BF_AUDIO_TEST_ALL=1` surveys every readable `.wav`) |
 | [`formats/granny`](native/formats/granny/README.md) | Granny 2 model reader: sections (Oodle0), type tree, skeleton, meshes, materials, curves | game folder |
