@@ -98,6 +98,11 @@ def mp3_table(t):
     raise AssertionError("no mp3nametable.txt in %s" % game)
 
 
+def ok(s, cond, message):
+    """A check that is kept in the report whether it passes or not."""
+    s.check(cond, message, passed=bool(cond))
+
+
 def sound(ctl):
     return ctl.state("sound")["sound"]
 
@@ -119,7 +124,7 @@ def login_music(t, ctl):
         s.note("audio mode: %s" % st["mode"])
         s.equal(base(st["stream"]["file"]), "01.mp3", "stream file")
         s.equal(st["stream"]["status"], "playing", "stream status")
-        s.check(st["stream"]["duration"] > 0, "the stream has a duration")
+        ok(s, st["stream"]["duration"] > 0, "the stream has a duration")
     with t.step("login music loops", "M7: the login music loops (stream_loops past one pass)") as s:
         st = sound(ctl)
         dur = st["stream"]["duration"]
@@ -138,19 +143,19 @@ def login_music(t, ctl):
         s.state("sound after the wait", st)
         if st["mode"] == "silent":
             s.note("SILENT mode: the module renders nothing, so it counts no pass")
-        s.check(st["stream"]["loops"] >= 1, "loops %d after %.0f s (one pass is %.1f s, %.1f s of it played at the start)"
+        ok(s, st["stream"]["loops"] >= 1, "loops %d after %.0f s (one pass is %.1f s, %.1f s of it played at the start)"
                 % (st["stream"]["loops"], waited, dur, first))
         s.equal(base(st["stream"]["file"]), "01.mp3", "still the same file")
         s.equal(st["stream"]["status"], "playing", "still playing after the end of the file (loop count 0: forever)")
-        s.check(waited >= (dur - first) - 3, "the pass ended no earlier than the file's length allows (waited %.1f s, %.1f s left at the start)"
+        ok(s, waited >= (dur - first) - 3, "the pass ended no earlier than the file's length allows (waited %.1f s, %.1f s left at the start)"
                 % (waited, dur - first))
-        s.check(st["stream"]["position"] < dur, "playing the next pass: %.1f s into it" % st["stream"]["position"])
+        ok(s, st["stream"]["position"] < dur, "playing the next pass: %.1f s into it" % st["stream"]["position"])
 
 
 def button_sounds(t, s, ctl, after):
     vs = voices(ctl, after, lambda e: base(e.get("file")) == BUTTON)
     s.state("button sounds", vs)
-    s.check(vs and all(v["started"] for v in vs), "the button sound started (%d)" % len(vs))
+    ok(s, vs and all(v["started"] for v in vs), "the button sound started (%d)" % len(vs))
     if vs:
         v = vs[0]
         s.equal(v["distance"], 0, "distance (a UI sound is at the listener)")
@@ -171,7 +176,7 @@ def through_portal(t, ctl, table, char_id):
                    and abs(a["x"] - wx) <= sx + 4 and abs(a["y"] - wy) <= sy + 4]
         portals.sort(key=lambda a: abs(a["x"] - wx) + abs(a["y"] - wy))
         s.state("portal", portals[:1])
-        s.check(portals, "the portal %s on screen" % name)
+        ok(s, portals, "the portal %s on screen" % name)
         p = portals[0]
         after = ctl.last_seq
         ctl.move(p["screen"]["x"], p["screen"]["y"])
@@ -181,7 +186,7 @@ def through_portal(t, ctl, table, char_id):
         s.state("map event", ev)
         ctl.wait({"map": dm, "moving": False}, timeout=30)
     with t.step("map music in %s" % dm, "M7: map music changes on map change (%s.rsw)" % dm) as s:
-        s.check(base(table[dm]) != base(table[mp]), "the two maps have different music: %s, %s" % (table[mp], table[dm]))
+        ok(s, base(table[dm]) != base(table[mp]), "the two maps have different music: %s, %s" % (table[mp], table[dm]))
         ctl.wait({"frames": 30}, timeout=20)
         st = sound(ctl)
         s.state("sound", st)
@@ -212,7 +217,7 @@ def attack(t, ctl, bot):
         mons = sorted([a for a in ctl.state("actors")["actors"] if a["type"] == "monster" and a["job"] == PORING
                        and a["screen"]], key=near)
         s.state("Porings on screen, nearest first", mons[:6])
-        s.check(mons, "a Poring on screen")
+        ok(s, mons, "a Poring on screen")
         target = mons[0]
         after = ctl.last_seq
         before = sound(ctl)["voices_started"]
@@ -237,12 +242,12 @@ def attack(t, ctl, bot):
         s.state("voices since the first click: (file, volume 0..127, distance, started)",
                 [(v["file"], miles(v["volume"]), v["distance"], v["started"]) for v in vs][-60:])
         s.note("%d clicks; the Poring %s" % (clicks, "died" if gone else "was still there after 90 s"))
-        s.check(st["voices_started"] > before, "voices_started %d -> %d" % (before, st["voices_started"]))
+        ok(s, st["voices_started"] > before, "voices_started %d -> %d" % (before, st["voices_started"]))
         hit_v = [v for v in vs if v["started"] and re.match(r"(_hit_|attack_)", base(v["file"]))]
         mon_v = [v for v in vs if v["started"] and re.match(r"poring_(damage|die)", base(v["file"]))]
-        s.check(hit_v, "the attack's sound started: %s" % sorted(set(base(v["file"]) for v in hit_v)))
-        s.check(mon_v, "the Poring's damage or die sound started: %s" % sorted(set(base(v["file"]) for v in mon_v)))
-        s.check(gone, "the Poring died")
+        ok(s, hit_v, "the attack's sound started: %s" % sorted(set(base(v["file"]) for v in hit_v)))
+        ok(s, mon_v, "the Poring's damage or die sound started: %s" % sorted(set(base(v["file"]) for v in mon_v)))
+        ok(s, gone, "the Poring died")
         s.frame("attacked")
         return after
 
@@ -263,11 +268,11 @@ def distance(t, ctl, after):
             time.sleep(2.0)
         s.state("Poring voices: (file, volume 0..127, distance)",
                 [(base(v["file"]), miles(v["volume"]), round(v["distance"], 1)) for v in vs][-60:])
-        s.check(pair, "one Poring sound heard both within 40 units and between 40 and 250")
+        ok(s, pair, "one Poring sound heard both within 40 units and between 40 and 250")
         n, f = pair
         full = miles(n["volume"])
         s.state("the pair", {"near": n, "far": f})
-        s.check(miles(f["volume"]) < full, "%s: far %d (at %.1f) < near %d (at %.1f)"
+        ok(s, miles(f["volume"]) < full, "%s: far %d (at %.1f) < near %d (at %.1f)"
                 % (base(f["file"]), miles(f["volume"]), f["distance"], full, n["distance"]))
         # every Poring voice against the rule, with the near volume as the full volume
         wrong = []
@@ -276,7 +281,7 @@ def distance(t, ctl, after):
             expect = full if d <= 40 else int(full * 40.0 / d)
             if abs(miles(v["volume"]) - expect) > 1:
                 wrong.append((base(v["file"]), miles(v["volume"]), expect, round(d, 1)))
-        s.check(not wrong, "all %d Poring voices: volume = %d within 40 units, trunc(%d * 40 / d) beyond "
+        ok(s, not wrong, "all %d Poring voices: volume = %d within 40 units, trunc(%d * 40 / d) beyond "
                 "(within 1: the client computes in float); off: %s" % (len(vs), full, full, wrong[:5]))
 
 
@@ -314,7 +319,11 @@ def run(t):
     with t.step("counters at the end", "the module's counters") as s:
         st = sound(ctl)
         s.state("sound", st)
-        s.check(st["voices_rejected"] == 0 or st["voices_rejected"] < st["voices_started"], "few voices refused")
+        s.note("audio mode %s: %d voices started, %d refused (a sound that cannot be decoded is refused), "
+               "%d decode failures; %d streams opened, %d failed"
+               % (st["mode"], st["voices_started"], st["voices_rejected"], st["decode_failures"],
+                  st["stream"]["opened"], st["stream"]["failures"]))
+        ok(s, st["stream"]["failures"] == 0, "no stream failed to open")
     if bot is not None:
         bot.gm("@killmonster2")
     t.stop_client()
