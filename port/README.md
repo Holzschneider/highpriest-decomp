@@ -109,6 +109,7 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 | [`gdi`](compat/gdi/README.md) | gdi32: memory DCs, DIB sections, fonts, text, the triangle fill | `text` |
 | [`miles`](compat/miles/README.md) | the 46 `AIL_*` functions of Miles | `audio` |
 | [`input`](compat/input/README.md) | user32 window, message pump, keyboard state, clipboard; DirectInput 7 mouse; imm32 (no IME) | `app`, `view` |
+| [bink](compat/bink/README.md) | the Bink SDK names src/movie/CBink.cpp calls (BinkOpen … BinkClose, BinkDDSurfaceType, the sound system); the intro movie with its sound | formats/bink, audio |
 
 `port/compat/granny`: the 44 `Granny*` functions and 2 data names of granny2.dll on `port/native/formats/granny` (step M12.3a), so that `src/resource/Model.cpp`'s Granny resource classes build as in 2008. `bifrost-compat-granny-test` replays the client's load, animate and skin sequence on the game's 21 `.gr2` files (`skipped` without `data.grf`). In the client: `port/harness/scripts/granny.py` (guild flags, Emperium, guardians, corpses; `--param woe=0` leaves out the castle step, which runs War of Emperium on the test server for about 10 s).
 
