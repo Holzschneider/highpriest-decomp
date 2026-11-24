@@ -1,0 +1,8 @@
+# frames under <game folder>/test/frames/npc/; regenerate with port/harness/run.py
+2e69214c420c9741239f84d4f215834bd620057c4a046d6cc264cb3c42691fe4  2048x1536  jobmaster-dialogue.png
+ad943c97d03cb785cdd8f104d9150d52cd9755817b816ccefc76476244a7e2b7  2048x1536  jobmaster-menu.png
+6d81d645bed5b78f439ebba08c5b0230a81a07e041743391e70e96e7e9af671d  2048x1536  login-typed.png
+6b29c315e5c17478c5640776521837dbc894c45edaba23d76835efeb6991553f  2048x1536  merchant-dialogue.png
+5c6eb0b4d6e3976a7ad3e3e5dbfbd8f6a604a505deb7497718551b6fb9f87975  2048x1536  merchant-done.png
+a24fe6bcb6e68376229e83c2abaa06e76b94c96ad2906720535a378b19b0ce3b  2048x1536  merchant-input.png
+cbbdc5316c6eb06c894ca347a211642bc896642bc5c40db300e8b84e4e960cbf  2048x1536  swordman.png

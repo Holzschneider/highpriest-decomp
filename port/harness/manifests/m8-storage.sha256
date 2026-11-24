@@ -1,0 +1,5 @@
+# frames under <game folder>/test/frames/storage/; regenerate with port/harness/run.py
+81e7f5a249f38f7c34de5658021ec30af61724eb9dbed50483b51087f62827bd  2048x1536  kafra.png
+5ec484db4c1ded0917ad5cb796abfb8ea7880948db3c640bf9f9a6c173e7c60f  2048x1536  login-typed.png
+0bf2f277eba4edaccd30235108ede0d170f576a08f2e4f41bcaa3bba46edb101  2048x1536  put-amount.png
+9ce5dbe07446a168c612f9873d37ab3497309042f56f316c71104038a7a4415e  2048x1536  stored.png

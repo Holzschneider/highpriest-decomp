@@ -42,6 +42,16 @@ class ScriptsAgainstMock(unittest.TestCase):
     def test_chat(self):
         self.run_script("chat")
 
+    def test_npc(self):
+        rep = self.run_script("npc")
+        self.assertIn("Merchant: next, menus, number input, close", [s["name"] for s in rep["steps"]])
+
+    def test_shop(self):
+        self.run_script("shop")
+
+    def test_storage(self):
+        self.run_script("storage")
+
     def test_sound(self):
         rep = self.run_script("sound")
         names = [s["name"] for s in rep["steps"]]
