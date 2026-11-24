@@ -16,6 +16,8 @@ add_library(bf_granny STATIC
 	src/bf_granny.cpp
 	src/bf_granny_file.cpp
 	src/bf_granny_oodle0.cpp
+	src/bf_granny_pose.cpp
+	src/bf_granny_texture.cpp
 )
 target_include_directories(bf_granny
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include

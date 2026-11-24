@@ -5,10 +5,11 @@
  *
  * It replaces the parts of granny2.dll the client loads files with: the
  * container (sections, Oodle0 decompression, pointer fix-ups, the type
- * tree) and the object tree below granny_file_info. What it hands out is
- * plain data: meshes with their vertices in the rest pose, skeletons,
- * materials, textures as stored, and the animation curves as stored.
- * Posing, deforming and curve evaluation are the caller's (M12.3a).
+ * tree), the object tree below granny_file_info, and the runtime the client
+ * calls: texture decoding, curve evaluation, posing and CPU skinning. What
+ * it hands out is plain data: meshes with their vertices in the rest pose,
+ * skeletons, materials, textures (stored and decoded), animation curves,
+ * and matrices. Clocks, looping and blending animations are the caller's.
  *
  * Everything returned points into the file object and stays valid until
  * bf_granny_close(). Strings are the bytes stored in the file (ASCII in the
@@ -243,6 +244,94 @@ typedef struct bf_granny_animation {
 
 const bf_granny_track_group *bf_granny_get_track_group(const bf_granny_file *file, int index);
 const bf_granny_animation *bf_granny_get_animation(const bf_granny_file *file, int index);
+
+/* --- Texture pixels (M12.3b) ---------------------------------------------- */
+
+/*
+ * Decodes texture index (image 0, MIP 0) into bgra: width * height pixels of
+ * B, G, R, A bytes, rows from the top (the same bytes the client builds from
+ * GrannyCopyTextureImage's RGBA8888 by swapping red and blue). bgra must hold
+ * width * height * 4 bytes. *has_alpha (may be NULL) is set as
+ * GrannyTextureHasAlpha would: 1 when the layout has alpha bits and the
+ * picture carries alpha. Decodes on every call: the caller keeps the result.
+ * Returns 1, or 0 with a trace line (unknown encoding, damaged data).
+ */
+int bf_granny_texture_pixels(const bf_granny_file *file, int index, uint8_t *bgra, int *has_alpha);
+
+/* --- Posing and skinning (M12.3b) ----------------------------------------- */
+
+/*
+ * Matrices are 4x4 floats, row-major, for row vectors (v' = v * M, the
+ * translation in elements 12..14), as GrannyGetWorldPoseComposite4x4 hands
+ * them to the client.
+ */
+
+/* Evaluates a curve at t seconds into dimension floats (orientation results
+ * are normalised). Returns 0, leaving out alone, when the curve is absent. */
+int bf_granny_evaluate_curve(const bf_granny_curve *curve, float t, float *out);
+
+/* The matrix of a transform: scale/shear, then rotation, then translation. */
+void bf_granny_transform_matrix(const bf_granny_transform *transform, float *matrix);
+
+/*
+ * An animation bound to a model's skeleton: each bone gets the transform
+ * track of the same name, if the animation has one (what
+ * GrannyPlayControlledAnimation does). The animation may come from another
+ * file (the 3dmob_bone files); both files must outlive the binding. With
+ * anim_file NULL every bone keeps its rest transform.
+ */
+typedef struct bf_granny_binding bf_granny_binding;
+bf_granny_binding *bf_granny_bind_animation(const bf_granny_file *model_file, int model,
+	const bf_granny_file *anim_file, int animation);
+void bf_granny_free_binding(bf_granny_binding *binding);
+int bf_granny_binding_info(const bf_granny_binding *binding, int *bone_count, int *matched_tracks, float *duration);
+
+/*
+ * The local pose at t seconds (clamped to 0..duration; looping is the
+ * caller's): bone_count transforms, a bone without a track or a curve
+ * keeping its rest value (GrannySampleModelAnimations). Returns bone_count.
+ */
+int bf_granny_sample_local(const bf_granny_binding *binding, float t, bf_granny_transform *local);
+
+/*
+ * World matrices from a local pose (GrannyBuildWorldPose): world[b] =
+ * local[b] * world[parent], and offset (may be NULL: identity) after the
+ * roots. composite (may be NULL) gets inverse_world[b] * world[b], what
+ * skinning multiplies rest-pose vertices by
+ * (GrannyGetWorldPoseComposite4x4Array). 16 floats per bone each. Returns
+ * bone_count.
+ *
+ * The stored inverse_world matrices include the model's initial_placement.
+ * Without it as offset, as the client calls Granny, the rest pose's
+ * composite is the inverse of the placement, not identity: the treasure box
+ * lies rotated by -90 degrees about X and the knight guardian is shifted by
+ * 7.25 units, which the client's own draw matrices account for (see
+ * FORMAT.md, "Animations").
+ */
+int bf_granny_build_world(const bf_granny_skeleton *skeleton, const bf_granny_transform *local, const float *offset,
+	float *world, float *composite);
+
+/* bf_granny_sample_local + bf_granny_build_world without offset. */
+int bf_granny_sample(const bf_granny_binding *binding, float t, float *world, float *composite);
+
+/* granny_pnt332_vertex. */
+typedef struct bf_granny_pnt332 {
+	float position[3];
+	float normal[3];
+	float uv[2];
+} bf_granny_pnt332;
+
+/*
+ * Skins a mesh on the CPU (GrannyDeformVertices, position and normal): each
+ * vertex is the weighted sum of its bones' composites applied to its rest
+ * position; normals are not renormalised. bones maps the mesh's bone
+ * bindings to skeleton bones (GrannyGetMeshBindingToBoneIndices); NULL uses
+ * the bindings resolved at open against the model's own skeleton. Rigid
+ * meshes follow their one bone. out holds vertex_count vertices. Returns
+ * vertex_count.
+ */
+int bf_granny_deform(const bf_granny_file *file, int mesh, const int *bones, const float *composite,
+	bf_granny_pnt332 *out);
 
 #ifdef __cplusplus
 }

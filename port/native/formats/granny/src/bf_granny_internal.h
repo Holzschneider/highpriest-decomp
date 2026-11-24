@@ -13,6 +13,11 @@
 
 namespace bf_granny {
 
+// Texture encoding 3 to BGRA rows from the top; alphaPlane tells whether the
+// data carried alpha (plain pictures always do).
+bool DecodeBinkTexture(const uint8_t *data, size_t size, int width, int height, std::vector<uint8_t> &bgra,
+	bool &alphaPlane, std::string &error);
+
 bool DecompressOodle0(const uint8_t *in, size_t inSize, size_t outSize, uint32_t stop16, uint32_t stop8,
 	std::vector<uint8_t> &out, std::string &error);
 

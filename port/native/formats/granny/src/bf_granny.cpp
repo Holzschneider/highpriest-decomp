@@ -644,3 +644,42 @@ extern "C" const bf_granny_animation *bf_granny_get_animation(const bf_granny_fi
 {
 	return file ? At(file->animations, index) : nullptr;
 }
+
+extern "C" int bf_granny_texture_pixels(const bf_granny_file *file, int index, uint8_t *bgra, int *has_alpha)
+{
+	const bf_granny_texture *t = bf_granny_get_texture(file, index);
+	if (has_alpha)
+		*has_alpha = 0;
+	if (!t || !bgra)
+		return 0;
+	size_t bytes = (size_t)t->width * t->height * 4;
+	if (t->encoding == BF_GRANNY_ENCODING_RAW && t->bytes_per_pixel == 4 && t->pixels && t->pixel_size >= bytes) {
+		// Raw 8-bit components at the layout's shifts (not used by the RO files).
+		for (size_t i = 0; i < bytes / 4; ++i) {
+			uint32_t v = t->pixels[4 * i] | (t->pixels[4 * i + 1] << 8) | (t->pixels[4 * i + 2] << 16)
+				| ((uint32_t)t->pixels[4 * i + 3] << 24);
+			for (int c = 0; c < 4; ++c) {
+				int out = c == 0 ? 2 : c == 2 ? 0 : c;   // RGBA component to BGRA byte
+				bgra[4 * i + out] = t->bits_for_component[c] ? (uint8_t)(v >> t->shift_for_component[c]) : 255;
+			}
+		}
+		if (has_alpha)
+			*has_alpha = t->bits_for_component[3] > 0;
+		return 1;
+	}
+	if (t->encoding != BF_GRANNY_ENCODING_BINK || !t->pixels) {
+		BF_TRACE(BFT_ERR, "granny: texture %s: encoding %d is not decoded", t->file_name, t->encoding);
+		return 0;
+	}
+	std::vector<uint8_t> out;
+	bool alphaPlane = false;
+	std::string error;
+	if (!DecodeBinkTexture(t->pixels, t->pixel_size, t->width, t->height, out, alphaPlane, error)) {
+		BF_TRACE(BFT_ERR, "granny: texture %s: %s", t->file_name, error.c_str());
+		return 0;
+	}
+	memcpy(bgra, out.data(), bytes);
+	if (has_alpha)
+		*has_alpha = alphaPlane && t->bits_for_component[3] > 0;
+	return 1;
+}
