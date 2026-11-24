@@ -138,6 +138,26 @@ void SetListenerOrient(float roty);
 float CLOSE_DIST = 230.0f;
 float FAR_DIST = 400.0f;
 float AVG_DIST = 300.0f;
+#if defined(BF_PORT)
+// The free camera (spec section 2, the settings option FreeCamera, on by
+// default): no 2008 limits on the zoom distance and the vertical rotation.
+// What is left keeps the picture valid: the character stays beyond the near
+// plane and well inside the far plane (FARPLANE 1500), and the camera stays
+// between looking straight down and looking level (View.cpp divides by the
+// sine and the cosine of the latitude). The controls are the 2008 ones
+// (wheel and Ctrl+right-drag zoom, Shift+wheel and Shift+right-drag tilt,
+// right-drag turns); maps with a view point of their own keep its limits.
+static const float BF_FREE_CLOSE_DIST = 50.0f;
+static const float BF_FREE_FAR_DIST = 1000.0f;
+static const float BF_FREE_LOW_LATITUDE = -89.0f;
+static const float BF_FREE_HIGH_LATITUDE = -1.0f;
+static bool BfFreeCamera() { return bf_port_option(BF_OPT_FREE_CAMERA) != 0; }
+static void BfClampFree(float &value, float low, float high)
+{
+	if (value < low) value = low;
+	if (value > high) value = high;
+}
+#endif
 float g_viewLatitude = -45.0f;
 float g_viewDistance = 500.0f;
 float g_indoorViewLatitude = -45.0f;
@@ -905,6 +925,8 @@ void CGameMode::SetCamera()
 		g_viewDistance = g_indoorViewDistance;
 	}
 
+	// A map is entered with the 2008 camera (the saved one within the 2008
+	// limits), also with the free camera, whose limits apply from there on.
 	if (g_viewLatitude < -45 - deltaLatitude)
 		g_viewLatitude = -45 - deltaLatitude;
 	if (g_viewLatitude > -45 + deltaLatitude)
@@ -4973,6 +4995,12 @@ void CGameMode::ProcessWheel(int processType)
 		}
 		if (g_viewLatitude > maxLatitude)
 			g_viewLatitude = maxLatitude;
+#if defined(BF_PORT)
+		if (BfFreeCamera() && !m_hasViewPoint) {
+			g_viewLatitude = m_view->GetDestLatitude() - deltaLatitude;
+			BfClampFree(g_viewLatitude, BF_FREE_LOW_LATITUDE, BF_FREE_HIGH_LATITUDE);
+		}
+#endif
 		m_view->SetDestLatitude(g_viewLatitude);
 		return;
 	}
@@ -5012,6 +5040,12 @@ void CGameMode::ProcessWheel(int processType)
 			g_viewDistance = CLOSE_DIST;
 		if (g_viewDistance > farDist)
 			g_viewDistance = farDist;
+#if defined(BF_PORT)
+		if (BfFreeCamera()) {
+			g_viewDistance = m_view->GetDestDistance() - (g_mouse.GetWheel() > 0 ? -24.3f : 24.3f);
+			BfClampFree(g_viewDistance, BF_FREE_CLOSE_DIST, BF_FREE_FAR_DIST);
+		}
+#endif
 	}
 	m_view->SetDestDistance(g_viewDistance);
 }
@@ -5023,7 +5057,32 @@ void CGameMode::ProcessRBtn()
 
 	switch (rBtn) {
 	case BTN_PRESSED:
+		// Turning the camera by right-drag, as the 2008 client does
+		// (ProcessRBtn 0x588030): freely where the map lets the view rotate,
+		// else within 20 degrees of the map's fixed longitude, and within the
+		// view point's range on maps that have one.
 		if (!CheckKeyPressed(VK_MENU) && !CheckKeyPressed(VK_SHIFT)) {
+			SetCursorAction(CURSOR_ROTATE);
+			if (!m_hasViewPoint) {
+				if (!m_canRotateView && !g_session.IsMasterAid(6)) {
+					float longitude = m_view->GetDestLongitude() + g_mouse.GetXPos() - m_oldMouseX;
+					if (longitude < m_fixedLongitude - 20.0f)
+						longitude = m_fixedLongitude - 20.0f;
+					if (longitude > m_fixedLongitude + 20.0f)
+						longitude = m_fixedLongitude + 20.0f;
+					m_view->SetDestLongitude(longitude);
+				} else {
+					m_view->AddLongitude(float(g_mouse.GetXPos() - m_oldMouseX));
+				}
+			} else {
+				float longitude = m_view->GetDestLongitude() + g_mouse.GetXPos() - m_oldMouseX;
+				if (longitude < ViewPointData[3])
+					longitude = ViewPointData[3];
+				if (longitude > ViewPointData[4])
+					longitude = ViewPointData[4];
+				m_view->SetDestLongitude(longitude);
+			}
+			SetListenerOrient(m_view->GetDestLongitude());
 		}
 
 		if (!CheckKeyPressed(VK_MENU) && CheckKeyPressed(VK_SHIFT)) {
@@ -5048,6 +5107,12 @@ void CGameMode::ProcessRBtn()
 					if (g_viewLatitude > -70.0f + deltaLatitude)
 						g_viewLatitude = -70.0f + deltaLatitude;
 				}
+#if defined(BF_PORT)
+				if (BfFreeCamera()) {
+					g_viewLatitude = m_view->GetDestLatitude() - deltaMouseY;
+					BfClampFree(g_viewLatitude, BF_FREE_LOW_LATITUDE, BF_FREE_HIGH_LATITUDE);
+				}
+#endif
 			}
 			m_view->SetDestLatitude(g_viewLatitude);
 		}
@@ -5070,6 +5135,12 @@ void CGameMode::ProcessRBtn()
 					if (g_viewDistance > farDist)
 						g_viewDistance = farDist;
 				}
+#if defined(BF_PORT)
+				if (BfFreeCamera()) {
+					g_viewDistance = m_view->GetDestDistance() - (g_mouse.GetYPos() - m_oldMouseY) / 2;
+					BfClampFree(g_viewDistance, BF_FREE_CLOSE_DIST, BF_FREE_FAR_DIST);
+				}
+#endif
 			}
 			m_view->SetDestDistance(g_viewDistance);
 		}

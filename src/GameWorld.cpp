@@ -743,6 +743,10 @@ int CRayPicker::CheckAABBIntersect(SceneGraphNode *node)
 	return	TRUE;
 }
 
+// A ray parallel to a slab passes when its origin lies within the slab. The
+// 2008 client (0x507FD0) tests against 0.7 of the half size, which drops the
+// rays near a node's edge: at a camera longitude of 0 the pointer in the
+// window's centre column then picked no cell. The port tests the whole slab.
 int CRayPicker::CheckAABBIntersect(const C3dAABB &aabb) const
 {
 	float	tMin = -infinity;
@@ -783,7 +787,7 @@ int CRayPicker::CheckAABBIntersect(const C3dAABB &aabb) const
 			return FALSE;
 		}
 	}
-	else if (-e-halfSize.x*0.7f > 0 || -e+halfSize.x*0.7f < 0)
+	else if (-e-halfSize.x > 0 || -e+halfSize.x < 0)
 	{
 		return FALSE;
 	}
@@ -816,7 +820,7 @@ int CRayPicker::CheckAABBIntersect(const C3dAABB &aabb) const
 			return FALSE;
 		}
 	}
-	else if (-e-halfSize.y*0.7f > 0 || -e+halfSize.y*0.7f < 0)
+	else if (-e-halfSize.y > 0 || -e+halfSize.y < 0)
 	{
 		return FALSE;
 	}
@@ -849,7 +853,7 @@ int CRayPicker::CheckAABBIntersect(const C3dAABB &aabb) const
 			return FALSE;
 		}
 	}
-	else if (-e-halfSize.z*0.7f > 0 || -e+halfSize.z*0.7f < 0)
+	else if (-e-halfSize.z > 0 || -e+halfSize.z < 0)
 	{
 		return FALSE;
 	}
