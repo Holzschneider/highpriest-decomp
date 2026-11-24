@@ -57,6 +57,7 @@
 #include "bf_view.h"
 #include "bf_client_ui.h"
 #include "bf_control_game.h"
+#include "bf_control_sound.h"
 
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
 extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
@@ -387,6 +388,7 @@ void OpenControl(const char *path)
 	bf_control_declare_event("mode");
 	bf_control_declare_event("window");
 	bf_control_game_install();   // map, self, actors, pointer; events map, chat
+	bf_control_sound_install();  // sound; event sound
 	bf_control_config config = {path, BF_APP_NAME " " __DATE__};
 	if (bf_control_open(&config) != BF_CONTROL_OK)
 		bf_tracef(BFT_ERR, "control: cannot open %s; running without the socket", path);
@@ -547,6 +549,7 @@ extern "C" void bf_port_frame(void)
 	ReportModeChange();
 	ReportWindowChanges();
 	bf_control_game_frame();
+	bf_control_sound_frame();
 	bf_control_poll();
 }
 

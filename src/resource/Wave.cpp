@@ -6,6 +6,12 @@
 
 int g_isSoundOn = 1;
 
+#if defined(BF_PORT)
+// Names the voice PlayDigital may start with the file and its distance, for
+// the `sound` part of the control socket (port/native/audio, bf_audio.h).
+extern "C" void bf_audio_tag_next_voice(const char *label, float distance);
+#endif
+
 using std::string;
 
 
@@ -16,7 +22,13 @@ void	PlayWave(const char *waveFileName, float x, float y, float z, int volumeMax
 	if (!g_isSoundOn)
 		return;
 	CWave *	wave = (CWave *) (g_resMgr().Get(waveFileName, false));
+#if defined(BF_PORT)
+	bf_audio_tag_next_voice(waveFileName, _sqrt(x * x + y * y + z * z));
+#endif
 	wave->Play(x, y, z, volumeMaxDist, volumeMinDist, vFactor);
+#if defined(BF_PORT)
+	bf_audio_tag_next_voice(NULL, 0);	// out of range or no free handle: no voice took it
+#endif
 }
 
 
