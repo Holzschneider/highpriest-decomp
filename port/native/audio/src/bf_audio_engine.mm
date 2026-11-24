@@ -1,16 +1,25 @@
-// The AVAudioEngine half: a fixed pool of player nodes for sound effects
-// feeding an effects mixer, one player node for the music stream feeding a
-// music mixer, both into the main mixer.
+// The AVAudioEngine half: a fixed pool of voice slots for sound effects, each
+// an AVAudioSourceNode that renders its sound itself, feeding an effects
+// mixer; one player node for the music stream feeding a music mixer; both
+// into the main mixer.
 //
 // Every node is wired once, at the engine's rate, before the engine starts.
 // A player wired (or re-wired) at another rate while the engine runs starts
 // late, by an amount that grows with the time the engine has run (measured:
 // 0.4 s after 5 s, offline); so sounds are converted to the engine rate once
-// and cached, each voice slot has a mono and a stereo player, and the stream
-// player lets AVAudioPlayerNode convert the file's rate. One recursive lock serialises every
-// public call; AVFoundation's completion handlers only touch atomics or hand
-// work to a private serial queue, so stopping a node while holding the lock
-// cannot deadlock.
+// and cached, and the stream player lets AVAudioPlayerNode convert the file's
+// rate. One recursive lock serialises every public call; AVFoundation's
+// completion handlers only touch atomics or hand work to a private serial
+// queue, so stopping a node while holding the lock cannot deadlock.
+//
+// A voice applies its volume and pan to the samples itself. The mixer
+// (AUMultiChannelMixer) smooths every change of an input's volume and pan
+// over about 15 ms, counted only while that input renders: a reused player
+// therefore started at its previous sound's volume and pan, whatever was set
+// before scheduling. A voice's mixer input stays at volume 1, pan 0, and the
+// effects mixer's output volume at 1 (it smooths over about 95 ms); the voice
+// starts at its own volume and pan times the effects volume from the first
+// sample and ramps later changes of any of them linearly over 5 ms.
 
 #include "bf_audio.h"
 #include "bf_audio_internal.h"
@@ -19,6 +28,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -37,15 +47,45 @@ struct bf_audio_sound {
 
 namespace {
 
+// A sound started on a voice, handed to the render thread. Made and deleted
+// on the calling thread; the render thread only reads it and, when done with
+// it, pushes it onto the voice's retired list.
+struct Play {
+	AVAudioPCMBuffer *buf = nil;   // keeps the samples alive while the render thread may read them
+	const float *ch[2] = { nullptr, nullptr };
+	int64_t frames = 0;
+	int channels = 1;
+	bool loop = false;
+	uint32_t gen = 0;
+	float volume = 1, pan = 0;
+	Play *next = nullptr;          // on the retired list
+};
+
+Play g_stop;   // the command that silences a voice
+
 struct Voice {
-	AVAudioPlayerNode *mono = nil, *stereo = nil;
-	AVAudioPlayerNode *node = nil;   // the one in use: mono or stereo
+	AVAudioSourceNode *node = nil;
 	uint32_t gen = 0;             // bumped on every play; part of the handle
 	bool active = false;
 	bool loop = false;
 	uint64_t seq = 0;             // start order, for the stealing rule
-	AVAudioFramePosition length = 0;
-	std::atomic<uint32_t> finished{0};   // the highest generation whose buffer has been rendered or stopped
+
+	// Shared with the render thread.
+	std::atomic<Play *> pending{nullptr};    // the next command: a Play or &g_stop
+	std::atomic<uint64_t> volume{0};         // (generation << 32) | float bits: a change while playing
+	std::atomic<uint64_t> pan{0};
+	std::atomic<Play *> retired{nullptr};    // pushed by the render thread, taken by the caller
+	std::atomic<uint32_t> finished{0};       // the highest generation rendered to its end
+	std::atomic<uint32_t> renders{0};        // stored (release) at the end of every render call
+
+	// The render thread's own.
+	Play *cur = nullptr;
+	int64_t pos = 0;
+	float gl = 0, gr = 0;          // the gains applied now
+	float il = 0, ir = 0;          // per-frame steps while ramping
+	int ramp = 0;                  // frames of the ramp left
+	uint64_t seen_volume = 0, seen_pan = 0;
+	float seen_fx = 1;
 };
 
 struct Counters {
@@ -68,6 +108,7 @@ struct State {
 	AVAudioPCMBuffer *render_buf = nil;
 
 	float fx_volume = 1, music_volume = 1;
+	std::atomic<float> fx_gain{1};   // fx_volume, for the voices' render blocks
 
 	AVAudioPlayerNode *stream_node = nil;
 	AVAudioFile *stream_file = nil;
@@ -104,26 +145,152 @@ void mark_finished(std::atomic<uint32_t> &a, uint32_t gen)
 
 bf_audio_voice handle_of(int slot, uint32_t gen) { return (gen << 6) | (uint32_t)slot; }
 
-AVAudioFramePosition played(Voice &v)
+uint64_t tagged(uint32_t gen, float value)
 {
-	AVAudioTime *t = v.node.lastRenderTime;
-	// Before the first render (offline: before the first bf_audio_render)
-	// the node time is neither sample- nor host-valid, and
-	// playerTimeForNodeTime throws on it.
-	if (!t || !(t.sampleTimeValid || t.hostTimeValid)) return 0;
-	AVAudioTime *p = [v.node playerTimeForNodeTime:t];
-	if (!p || !p.sampleTimeValid) return 0;
-	return p.sampleTime;
+	uint32_t bits;
+	memcpy(&bits, &value, 4);
+	return ((uint64_t)gen << 32) | bits;
+}
+
+float untag(uint64_t t)
+{
+	uint32_t bits = (uint32_t)t;
+	float f;
+	memcpy(&f, &bits, 4);
+	return f;
+}
+
+// The mixer's pan laws, measured on AUMultiChannelMixer: equal power for a
+// mono input, balance for a stereo one.
+void gains(int channels, float volume, float pan, float &l, float &r)
+{
+	if (channels == 1) {
+		double a = (pan + 1) * M_PI / 4;
+		l = volume * (float)cos(a);
+		r = volume * (float)sin(a);
+	} else {
+		l = volume * (pan > 0 ? 1 - pan : 1);
+		r = volume * (pan < 0 ? 1 + pan : 1);
+	}
+}
+
+// Render thread: done with p; the caller deletes it later.
+void retire(Voice &v, Play *p)
+{
+	if (!p) return;
+	p->next = v.retired.load(std::memory_order_relaxed);
+	while (!v.retired.compare_exchange_weak(p->next, p, std::memory_order_release, std::memory_order_relaxed)) {}
+}
+
+// Caller: deletes what the render thread is done with.
+void collect(Voice &v)
+{
+	Play *p = v.retired.exchange(nullptr, std::memory_order_acquire);
+	while (p) {
+		Play *n = p->next;
+		delete p;
+		p = n;
+	}
+}
+
+// Caller: hands a command (a new Play or &g_stop) to the render thread. A
+// command it has not taken yet is replaced.
+void send(Voice &v, Play *cmd)
+{
+	Play *old = v.pending.exchange(cmd, std::memory_order_acq_rel);
+	if (old && old != &g_stop) delete old;
+}
+
+// The render block of voice slot v, on the render thread (offline: inside
+// bf_audio_render). No locks, no allocation, no Objective-C messages.
+OSStatus render_voice(Voice &v, const std::atomic<float> &fx_gain, int ramp_frames, BOOL *silence, AVAudioFrameCount frames,
+                      AudioBufferList *out)
+{
+	float fx = fx_gain.load(std::memory_order_relaxed);
+	float *dl = (float *)out->mBuffers[0].mData;
+	float *dr = out->mNumberBuffers > 1 ? (float *)out->mBuffers[1].mData : nullptr;
+	if (Play *cmd = v.pending.exchange(nullptr, std::memory_order_acquire)) {
+		retire(v, v.cur);
+		v.cur = cmd == &g_stop ? nullptr : cmd;
+		v.pos = 0;
+		v.ramp = 0;
+		if (v.cur) {
+			v.seen_fx = fx;
+			gains(v.cur->channels, v.cur->volume * fx, v.cur->pan, v.gl, v.gr);
+			v.seen_volume = tagged(v.cur->gen, v.cur->volume);
+			v.seen_pan = tagged(v.cur->gen, v.cur->pan);
+		}
+	}
+	Play *p = v.cur;
+	if (p) {
+		uint64_t tv = v.volume.load(std::memory_order_relaxed), tp = v.pan.load(std::memory_order_relaxed);
+		bool vnew = (uint32_t)(tv >> 32) == p->gen && tv != v.seen_volume;
+		bool pnew = (uint32_t)(tp >> 32) == p->gen && tp != v.seen_pan;
+		if (vnew || pnew || fx != v.seen_fx) {
+			if (vnew) v.seen_volume = tv;
+			if (pnew) v.seen_pan = tp;
+			v.seen_fx = fx;
+			float tl, tr;
+			gains(p->channels, untag(v.seen_volume) * fx, untag(v.seen_pan), tl, tr);
+			v.ramp = ramp_frames;
+			v.il = (tl - v.gl) / ramp_frames;
+			v.ir = (tr - v.gr) / ramp_frames;
+		}
+	}
+	AVAudioFrameCount i = 0;
+	while (p && i < frames) {
+		const float *a = p->ch[0], *b = p->ch[p->channels > 1 ? 1 : 0];
+		for (; i < frames && v.pos < p->frames && v.ramp > 0; ++i, ++v.pos) {
+			v.gl += v.il;
+			v.gr += v.ir;
+			if (--v.ramp == 0) gains(p->channels, untag(v.seen_volume) * fx, untag(v.seen_pan), v.gl, v.gr);
+			dl[i] = a[v.pos] * v.gl;
+			if (dr) dr[i] = b[v.pos] * v.gr;
+		}
+		int64_t run = frames - i < p->frames - v.pos ? frames - i : p->frames - v.pos;
+		if (run > 0) {
+			const float gl = v.gl, gr = v.gr;
+			const float *as = a + v.pos, *bs = b + v.pos;
+			float *ol = dl + i, *orr = dr ? dr + i : nullptr;
+			for (int64_t k = 0; k < run; ++k) ol[k] = as[k] * gl;
+			if (orr) for (int64_t k = 0; k < run; ++k) orr[k] = bs[k] * gr;
+			i += (AVAudioFrameCount)run;
+			v.pos += run;
+		}
+		if (v.pos >= p->frames) {
+			if (p->loop) {
+				v.pos = 0;
+			} else {
+				mark_finished(v.finished, p->gen);
+				retire(v, p);
+				v.cur = p = nullptr;
+			}
+		}
+	}
+	if (i == 0) *silence = YES;
+	for (; i < frames; ++i) {
+		dl[i] = 0;
+		if (dr) dr[i] = 0;
+	}
+	v.renders.store(v.renders.load(std::memory_order_relaxed) + 1, std::memory_order_release);
+	return noErr;
 }
 
 bool voice_done(Voice &v)
 {
 	if (!v.active) return true;
-	if (v.finished.load() >= v.gen || (!v.loop && played(v) >= v.length)) {
+	if (v.finished.load() >= v.gen) {
 		v.active = false;
 		return true;
 	}
 	return false;
+}
+
+// Silences the voice; its mixer input keeps rendering.
+void voice_silence(Voice &v)
+{
+	if (v.node) send(v, &g_stop);
+	v.active = false;
 }
 
 // The voice a handle names, if it is still that voice.
@@ -275,13 +442,20 @@ void teardown()
 	s.stream_gen++;
 	s.stream_gen_now = s.stream_gen;
 	if (s.engine) {
-		for (int i = 0; i < s.max_voices; ++i) { [s.voices[i].mono stop]; [s.voices[i].stereo stop]; }
 		[s.stream_node stop];
-		[s.engine stop];
+		[s.engine stop];   // the voices' render blocks do not run after this
 	}
 	for (int i = 0; i < BF_AUDIO_MAX_VOICES; ++i) {
 		Voice &v = s.voices[i];
-		v.node = v.mono = v.stereo = nil;
+		// The render thread has stopped; this orders its last call before
+		// what follows also for the thread sanitizer, which does not see
+		// CoreAudio's own synchronisation.
+		(void)v.renders.load(std::memory_order_acquire);
+		send(v, nullptr);
+		collect(v);
+		delete v.cur;
+		v.cur = nullptr;
+		v.node = nil;
 		v.active = false;
 	}
 	s.stream_node = nil;
@@ -303,18 +477,17 @@ bool build_graph()
 	AVAudioFormat *stereo = standard(s.rate, 2);
 	[e connect:s.fx to:main fromBus:0 toBus:0 format:stereo];
 	[e connect:s.music to:main fromBus:0 toBus:1 format:stereo];
-	s.fx.outputVolume = s.fx_volume;
 	s.music.outputVolume = s.music_volume;
-	AVAudioFormat *mono = standard(s.rate, 1);
+	int ramp = (int)(s.rate / 200);   // 5 ms
+	std::atomic<float> *fxg = &s.fx_gain;   // the effects volume is applied by the voices, like their own
 	for (int i = 0; i < s.max_voices; ++i) {
-		Voice &v = s.voices[i];
-		v.mono = [AVAudioPlayerNode new];
-		v.stereo = [AVAudioPlayerNode new];
-		v.node = v.mono;
-		[e attachNode:v.mono];
-		[e attachNode:v.stereo];
-		[e connect:v.mono to:s.fx fromBus:0 toBus:(AVAudioNodeBus)(2 * i) format:mono];
-		[e connect:v.stereo to:s.fx fromBus:0 toBus:(AVAudioNodeBus)(2 * i + 1) format:stereo];
+		Voice *v = &s.voices[i];
+		v->node = [[AVAudioSourceNode alloc] initWithFormat:stereo
+		        renderBlock:^OSStatus(BOOL *silence, const AudioTimeStamp *, AVAudioFrameCount frames, AudioBufferList *out) {
+			return render_voice(*v, *fxg, ramp, silence, frames, out);
+		}];
+		[e attachNode:v->node];
+		[e connect:v->node to:s.fx fromBus:0 toBus:(AVAudioNodeBus)i format:stereo];
 	}
 	s.stream_node = [AVAudioPlayerNode new];
 	[e attachNode:s.stream_node];
@@ -351,7 +524,7 @@ void restart_after_change()
 	if (s.mode != BF_AUDIO_MODE_DEVICE || !s.engine) return;
 	s.c.engine_restarts++;
 	bf_count("audio.engine_restarts", 1);
-	for (int i = 0; i < s.max_voices; ++i) s.voices[i].active = false;
+	for (int i = 0; i < s.max_voices; ++i) voice_silence(s.voices[i]);
 	AVAudioFormat *out = [s.engine.outputNode outputFormatForBus:0];
 	if (out.sampleRate <= 0 || out.channelCount == 0) { go_silent("the output device went away"); return; }
 	if (out.sampleRate != s.rate)
@@ -464,7 +637,7 @@ void bf_audio_set_effects_volume(float volume)
 	State &s = S();
 	Guard g(s.lock);
 	s.fx_volume = clamp(volume, 0, 1);
-	if (s.fx) s.fx.outputVolume = s.fx_volume;
+	s.fx_gain.store(s.fx_volume);
 }
 
 float bf_audio_effects_volume(void)
@@ -512,6 +685,7 @@ int64_t bf_audio_render(float *dst, int64_t frames)
 				dst[2 * (done + i) + 1] = r[i];
 			}
 			done += got;
+			for (int i = 0; i < s.max_voices; ++i) collect(s.voices[i]);
 			stream_update();
 			if (got == 0) break;
 		}
@@ -569,7 +743,7 @@ void bf_audio_sound_destroy(bf_audio_sound *sound)
 	State &s = S();
 	Guard g(s.lock);
 	@autoreleasepool {
-		sound->buf = nil;   // a player node that still has it queued keeps its own reference
+		sound->buf = nil;   // a voice that still plays it keeps its own reference
 		sound->cached = nil;
 	}
 	delete sound;
@@ -604,6 +778,7 @@ bf_audio_voice bf_audio_play(bf_audio_sound *sound, float volume, float pan, int
 		return handle_of(i, v.gen);
 	}
 	int slot = -1, oldest = -1;
+	for (int i = 0; i < s.max_voices; ++i) collect(s.voices[i]);
 	for (int i = 0; i < s.max_voices; ++i) {
 		Voice &v = s.voices[i];
 		if (voice_done(v)) { slot = i; break; }
@@ -627,24 +802,23 @@ bf_audio_voice bf_audio_play(bf_audio_sound *sound, float volume, float pan, int
 			s.c.voices_rejected++;
 			return 0;
 		}
-		[v.node stop];   // also resets the player's timeline, which voice_done reads
-		v.node = sound->channels == 1 ? v.mono : v.stereo;
-		[v.node stop];
 		v.gen++;
 		if (v.gen >= (1u << 26)) v.gen = 1;   // the handle keeps 26 bits of it
 		v.finished.store(0);
 		v.active = true;
 		v.loop = loop != 0;
 		v.seq = ++s.seq;
-		v.length = buf.frameLength;
-		v.node.volume = clamp(volume, 0, 1);
-		v.node.pan = clamp(pan, -1, 1);
-		uint32_t gen = v.gen;
-		std::atomic<uint32_t> *fin = &v.finished;
-		[v.node scheduleBuffer:buf atTime:nil options:(loop ? AVAudioPlayerNodeBufferLoops : 0)
-		completionCallbackType:AVAudioPlayerNodeCompletionDataRendered
-		     completionHandler:^(AVAudioPlayerNodeCompletionCallbackType) { mark_finished(*fin, gen); }];
-		[v.node play];
+		Play *p = new Play;
+		p->buf = buf;
+		p->channels = (int)buf.format.channelCount;
+		p->ch[0] = buf.floatChannelData[0];
+		p->ch[1] = buf.floatChannelData[p->channels > 1 ? 1 : 0];
+		p->frames = buf.frameLength;
+		p->loop = v.loop;
+		p->gen = v.gen;
+		p->volume = clamp(volume, 0, 1);
+		p->pan = clamp(pan, -1, 1);
+		send(v, p);   // replaces what the slot played, from the next rendered frame
 	}
 	s.c.voices_started++;
 	bf_count("audio.voices_started", 1);
@@ -661,8 +835,7 @@ void bf_audio_voice_stop(bf_audio_voice voice)
 	Guard g(s.lock);
 	Voice *v = voice_of(voice);
 	if (!v) return;
-	[v->node stop];
-	v->active = false;
+	voice_silence(*v);
 }
 
 int bf_audio_voice_playing(bf_audio_voice voice)
@@ -676,14 +849,14 @@ void bf_audio_voice_set_volume(bf_audio_voice voice, float volume)
 {
 	State &s = S();
 	Guard g(s.lock);
-	if (Voice *v = voice_of(voice)) v->node.volume = clamp(volume, 0, 1);
+	if (Voice *v = voice_of(voice)) v->volume.store(tagged(v->gen, clamp(volume, 0, 1)));
 }
 
 void bf_audio_voice_set_pan(bf_audio_voice voice, float pan)
 {
 	State &s = S();
 	Guard g(s.lock);
-	if (Voice *v = voice_of(voice)) v->node.pan = clamp(pan, -1, 1);
+	if (Voice *v = voice_of(voice)) v->pan.store(tagged(v->gen, clamp(pan, -1, 1)));
 }
 
 void bf_audio_stop_all_voices(void)
@@ -693,8 +866,7 @@ void bf_audio_stop_all_voices(void)
 	if (s.mode < 0) return;
 	for (int i = 0; i < s.max_voices; ++i) {
 		Voice &v = s.voices[i];
-		if (v.active) [v.node stop];
-		v.active = false;
+		if (v.active) voice_silence(v);
 	}
 }
 

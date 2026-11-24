@@ -63,7 +63,7 @@ No name is a `BF_STUB`. A 3D function is never reached, because `WinMain` forces
 
 ## Open
 
-- **Volume ramp at the start of a sound:** the module reuses `AVAudioPlayerNode`s, and the mixer ramps a reused player from its previous volume to the new one over about 15 ms. Measured offline at volume 32 after a sound at 127, in 5 ms windows: peaks 0.31, 0.20, 0.11, then 0.089. A quiet distant sound that follows a loud one therefore starts loud for about 15 ms. The fix belongs in `port/native/audio`, for example by setting a player's volume to 0 when its voice ends. The test measures levels after 20 ms.
+- **Volume ramp at the start of a sound (fixed in `port/native/audio`):** the module reused `AVAudioPlayerNode`s, and the mixer ramped a reused player from its previous volume to the new one over about 15 ms (measured at volume 32 after a sound at 127, in 5 ms windows: peaks 0.31, 0.20, 0.11, then 0.089). The voices now apply volume and pan to the samples themselves and start at their own volume from the first sample; the test measures the level over the first 5 ms. A volume change while playing ramps over 5 ms.
 - **Loudness:** a mono sound at volume 127 peaks at 0.707 of its amplitude on each side, the module's centred pan. Miles mixed mono to a mono device at full level. The owner's play test judges.
 - **Module fix in this package:** `bf_audio_voice_playing` called right after `bf_audio_play`, before the first offline render, threw an Objective-C exception (`playerTimeForNodeTime:` on a node time that is neither sample- nor host-valid). `port/native/audio/src/bf_audio_engine.mm` now checks the node time first, in the voice and in the stream code. `bifrost-audio-test` still passes.
 - **MS ADPCM** is untested here too; the IMA path is tested.

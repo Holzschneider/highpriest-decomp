@@ -367,13 +367,12 @@ int main()
 	render(0.3);
 	check(AIL_sample_status(g_samples[0]) == SMP_DONE, "AIL_sample_status: SMP_DONE once its 0.25 s are rendered");
 	check(play_digital(img_pcm, 32), "PlayDigital again, volume 32");
-	// The mixer ramps a reused player's volume from its last value over about
-	// 15 ms (measured: 0.31, 0.20, 0.11, then 0.089 in 5 ms windows), so the
-	// level is measured after 20 ms. See README.md, "Open".
-	render(0.02);
-	float peak32 = render(0.08);
-	check(fabsf(peak32 / peak127 - 32.0f / 127) < 0.02f, "volume 32 against 127: peak ratio %.3f (expected %.3f)",
+	// The reused voice starts at its own volume: the level is measured over
+	// its first 5 ms (a 440 Hz tone reaches its peak in them).
+	float peak32 = render(0.005);
+	check(fabsf(peak32 / peak127 - 32.0f / 127) < 0.02f, "volume 32 against 127, first 5 ms: peak ratio %.3f (expected %.3f)",
 	      peak32 / peak127, 32.0f / 127);
+	render(0.075);
 	render(0.3);
 	check(counters().decodes == decodes0 + 1, "the image was decoded once for two plays (the sound cache)");
 	{
@@ -381,7 +380,7 @@ int main()
 		play_digital(img_pcm, 127);
 		render(0.05);
 		AIL_set_sample_volume(g_samples[0], 16);
-		render(0.02);
+		render(0.005);   // a change while playing ramps over 5 ms
 		float p = render(0.05);
 		check(fabsf(p / peak127 - 16.0f / 127) < 0.02f, "AIL_set_sample_volume while playing: ratio %.3f (expected %.3f)",
 		      p / peak127, 16.0f / 127);

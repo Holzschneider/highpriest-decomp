@@ -449,6 +449,103 @@ static void test_offline()
 	check(bf_audio_mode() == -1, "offline engine stops");
 }
 
+// A voice starts at the volume and pan given to bf_audio_play from its first
+// sample, also on a slot whose last sound was loud, panned elsewhere or had
+// its volume changed while playing (AUMultiChannelMixer smooths its inputs'
+// volume and pan, so a reused player used to start at the old values for
+// about 15 ms). The sounds are at the engine rate, so output frame i is the
+// sound's frame i times a gain: for a mono sound the mixer's equal-power pan
+// law, cos and sin of (pan + 1) pi / 4; for a stereo one its balance law.
+static void test_start_volume()
+{
+	bf_audio_config cfg = { BF_AUDIO_MODE_OFFLINE, 1, 44100 };   // one voice: every play reuses it
+	if (!check(bf_audio_start(&cfg) == BF_AUDIO_MODE_OFFLINE, "start volume: offline engine with one voice starts"))
+		return;
+	const int rate = 44100, win = rate / 200;   // 5 ms
+	const int64_t n = rate / 5;                 // 0.2 s
+	std::vector<int16_t> m((size_t)n), st((size_t)n * 2);
+	for (int64_t i = 0; i < n; ++i) {
+		m[i] = (int16_t)(16000 * sin(2 * M_PI * 1000 * i / rate));
+		st[2 * i] = st[2 * i + 1] = m[i];
+	}
+	bf_audio_sound *mono = bf_audio_sound_create(m.data(), n, 1, rate);
+	bf_audio_sound *stereo = bf_audio_sound_create(st.data(), n, 2, rate);
+	// The gain of channel c in frames [from, from + count).
+	auto gain = [&](const std::vector<float> &b, int c, int64_t from, int64_t count) {
+		double o = 0, in = 0;
+		for (int64_t i = from; i < from + count; ++i) {
+			double x = m[i] / 32768.0;
+			o += b[2 * i + c] * b[2 * i + c];
+			in += x * x;
+		}
+		return in > 0 ? sqrt(o / in) : 0.0;
+	};
+	struct Case {
+		const char *what;
+		bf_audio_sound *first; float v1, p1, vmid; bool ends;   // vmid >= 0: set while the first one plays
+		bf_audio_sound *second; float v2, p2;
+	};
+	const Case cases[] = {
+		{ "loud then quiet, stopped", mono, 1, 0, -1, false, mono, 0.25f, 0 },
+		{ "loud then quiet, the loud one ended", mono, 1, 0, -1, true, mono, 0.1f, 0 },
+		{ "quiet then loud", mono, 0.1f, 0, -1, false, mono, 1, 0 },
+		{ "loud left then quiet right", mono, 1, -1, -1, false, mono, 0.5f, 1 },
+		{ "loud right then quiet at -0.5", mono, 1, 1, -1, false, mono, 0.3f, -0.5f },
+		{ "loud stereo then quiet stereo at 0.5", stereo, 1, 0, -1, false, stereo, 0.25f, 0.5f },
+		{ "loud mono then quiet stereo", mono, 1, 0, -1, false, stereo, 0.2f, 0 },
+		{ "volume lowered while playing, then a louder sound", mono, 1, 0, 0.05f, false, mono, 0.5f, 0 },
+	};
+	for (const Case &k : cases) {
+		bf_audio_voice v = bf_audio_play(k.first, k.v1, k.p1, 0);
+		render(0.05);
+		if (k.vmid >= 0) { bf_audio_voice_set_volume(v, k.vmid); render(0.05); }
+		if (k.ends) render(0.3);
+		else bf_audio_voice_stop(v);
+		bf_audio_play(k.second, k.v2, k.p2, 0);
+		std::vector<float> b = render(0.05);
+		double want[2];
+		if (k.second == mono) {
+			want[0] = k.v2 * cos((k.p2 + 1) * M_PI / 4);
+			want[1] = k.v2 * sin((k.p2 + 1) * M_PI / 4);
+		} else {
+			want[0] = k.v2 * (k.p2 > 0 ? 1 - k.p2 : 1);
+			want[1] = k.v2 * (k.p2 < 0 ? 1 + k.p2 : 1);
+		}
+		double first[2] = { gain(b, 0, 0, win), gain(b, 1, 0, win) };
+		double later[2] = { gain(b, 0, 1000, 1000), gain(b, 1, 1000, 1000) };
+		bool ok = true;
+		for (int c = 0; c < 2; ++c) {
+			if (want[c] < 1e-6) ok = ok && first[c] < 1e-4 && later[c] < 1e-4;
+			else ok = ok && fabs(first[c] / want[c] - 1) < 0.01 && fabs(later[c] / want[c] - 1) < 0.01;
+		}
+		check(ok, "start volume: %s: first 5 ms L %.4f R %.4f, later L %.4f R %.4f, expected L %.4f R %.4f",
+		      k.what, first[0], first[1], later[0], later[1], want[0], want[1]);
+		bf_audio_stop_all_voices();
+	}
+	// A change while playing is a 5 ms ramp, not a step.
+	bf_audio_voice v = bf_audio_play(mono, 1, 0, 0);
+	render(0.05);
+	bf_audio_voice_set_volume(v, 0.2f);
+	std::vector<float> r = render(0.02);
+	double g = cos(M_PI / 4), w1 = gain(r, 0, 0, win / 2) / g, w2 = gain(r, 0, win / 2, win / 2) / g, w3 = gain(r, 0, win, win) / g;
+	check(w1 < 0.95 && w1 > w2 && w2 > 0.21 && fabs(w3 - 0.2) < 0.002,
+	      "start volume: volume 1 -> 0.2 while playing ramps: %.3f, %.3f in the first 5 ms, then %.3f", w1, w2, w3);
+	bf_audio_stop_all_voices();
+	// The effects volume also applies from a sound's first sample.
+	bf_audio_play(mono, 1, 0, 0);
+	render(0.05);
+	bf_audio_stop_all_voices();
+	bf_audio_set_effects_volume(0.2f);
+	bf_audio_play(mono, 0.5f, 0, 0);
+	std::vector<float> b = render(0.05);
+	double first = gain(b, 0, 0, win), want = 0.1 * cos(M_PI / 4);
+	check(fabs(first / want - 1) < 0.01, "start volume: effects volume 0.2, voice 0.5: first 5 ms %.4f, expected %.4f", first, want);
+	bf_audio_set_effects_volume(1);
+	bf_audio_stop();
+	bf_audio_sound_destroy(mono);
+	bf_audio_sound_destroy(stereo);
+}
+
 static void test_silent()
 {
 	bf_audio_config cfg = { BF_AUDIO_MODE_SILENT, 0, 0 };
@@ -643,6 +740,7 @@ int main(int argc, char **argv)
 
 	test_decode();
 	test_offline();
+	test_start_volume();
 	test_silent();
 	test_device();
 	test_grf(false);
