@@ -360,10 +360,14 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	case WM_KEYDOWN:
 		if (!g_Bink.Break(wParam)) return 0;
 		if (g_windowMgr.ProcessPushButton(wParam, (~(UINT)lParam >> 30) & 1, lParam)) return 0;
-		if (g_windowMgr.isFocusChatWnd())
+		if (g_windowMgr.isFocusChatWnd() && g_serviceType != 0xf)
 		{
 			if (g_windowMgr.ExcuteMsgInBattleMode(wParam, lParam)) return 0;
 		}
+		if (!g_windowMgr.GetFocusEdit() || g_windowMgr.GetFocusEdit()->SendMsg(NULL, WM_KEYDOWN, wParam, lParam, 0, 0) != 3)
+			g_language->OnKeyDown(wParam, lParam);
+		if (g_session.m_isBattle && !g_session.m_isBmChat)
+			g_windowMgr.SetTextAtBattleMode();
 		return 0;
 
 	case WM_CHAR:
