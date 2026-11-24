@@ -2917,7 +2917,7 @@ void CGameMode::Zc_Notify_Vanish(char const *buf)
 	PACKET_ZC_NOTIFY_VANISH *p = (PACKET_ZC_NOTIFY_VANISH *)buf;
 
 	{
-		std::map<DWORD, NamePair>::iterator it = m_actorNameList.find(p->GID);
+		std::map<DWORD, NamePair>::iterator it = m_actorNameList.find((DWORD)p->GID);	// a copy: the packed field is misaligned for find's reference
 		if (it != m_actorNameList.end())
 			m_actorNameList.erase(it);
 	}
