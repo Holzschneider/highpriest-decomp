@@ -41,7 +41,8 @@ KEYS = set("abcdefghijklmnopqrstuvwxyz0123456789") | {"f%d" % i for i in range(1
 MODS = {"shift", "ctrl", "alt", "cmd"}
 WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECTCHARWND": 5,
        "WAITWND": 6, "LOADINGWND": 7, "SAYDIALOGWND": 16, "CHOOSEWND": 17, "RESTARTWND": 19,
-       "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25}
+       "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
+       "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 EVENTS = ["mode", "map", "chat", "window", "bye", "error"]
 RESERVED = {"step", "pause", "resume", "render", "subscribe", "trace", "config", "act"}
@@ -58,7 +59,9 @@ NPCS = [  # map, x, y, name, sprite, role
     ("prt_in", 126, 76, "Tool Dealer", 53, "shop"),
 ]
 PORINGS = [("prt_fild08", 170, 370), ("prt_fild08", 176, 366), ("prt_fild08", 165, 362)]
-PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22)]
+PORTALS = [("prontera", 156, 18, "prt_fild08", 170, 375), ("prt_fild08", 170, 378, "prontera", 156, 22),
+           ("prontera", 179, 184, "prt_in", 60, 73), ("prt_in", 60, 77, "prontera", 175, 188)]
+ALT_WINDOWS = {"e": "ITEMWND", "q": "EQUIPWND", "s": "SKILLLISTWND", "a": "STATUSWND", "o": "OPTIONWND"}
 
 
 class ProtocolError(Exception):
@@ -355,6 +358,11 @@ class Mock:
             self.on_escape()
         elif key in ("left", "right") and self.mode == "charselect":
             self.selected_slot = (self.selected_slot + (1 if key == "right" else -1)) % 3
+        elif "alt" in mods and self.mode == "game" and key in ALT_WINDOWS:
+            # The basic window's shortcuts toggle a window (UIWindowMgr::ProcessPushButton).
+            name = ALT_WINDOWS[key]
+            if not self.close_window(name):
+                self.open_window(Window(name, [300, 100, 280, 200]))
 
     def on_enter(self):
         if self.mode == "login":

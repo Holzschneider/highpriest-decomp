@@ -161,3 +161,15 @@ def stop_after_zone_entry(t):
         s.note("exit status %s%s" % (code, " (killed)" if c.killed else ""))
         s.trace("assertions and crash lines in trace", c.trace_lines("assert", "crash:")[:6])
     t.client = None
+
+
+def own_home(t):
+    """Environment for t.launch: the client keeps its settings (window
+    positions, camera, the registry) under the run directory (BF_HOME), so a
+    script starts from the defaults and leaves the user's profile alone. The
+    game folder stays BF_CLIENT_DIR, which the harness always passes."""
+    if t.mock:
+        return {}
+    home = t.run_dir / "home"
+    home.mkdir(exist_ok=True)
+    return {"BF_HOME": str(home)}

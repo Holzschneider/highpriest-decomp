@@ -19,7 +19,7 @@ Frames under <game folder>/test/frames/walk/, checksums in the manifest.
 """
 
 from bfharness.bot import Bot
-from bfharness.play import enter_game, login, say_and_confirm, token, walk_click
+from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home
 from bfharness.sql import wait_rows
 
 NAME = "walk"
@@ -54,7 +54,7 @@ def run(t):
             s.rows("atcommandlog: @warp and @monster of the bot",
                    t.logs.atcommands(account_id=bot.entered.get("aid"), after=mark))
 
-    ctl = t.launch()
+    ctl = t.launch(env=own_home(t))
     login(t, ctl, user, password)
     st = enter_game(t, ctl)
     with t.step("in Prontera", "M6: map, character, NPCs and other actors drawn") as s:

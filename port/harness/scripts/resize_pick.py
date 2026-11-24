@@ -23,7 +23,7 @@ Frames: the pointer over the cell before each click (the ground cursor is
 drawn on the picked cell), under <game folder>/test/frames/resize_pick/.
 """
 
-from bfharness.play import enter_game, login, say_and_confirm, token, walk_click
+from bfharness.play import enter_game, login, say_and_confirm, token, walk_click, own_home
 from bfharness.sql import wait_rows
 
 NAME = "resize_pick"
@@ -66,7 +66,7 @@ def run(t):
         s.state("char row", {k: c[k] for k in ("char_id", "last_map", "last_x", "last_y", "online")})
         char_id = c["char_id"]
 
-    ctl = t.launch()
+    ctl = t.launch(env=own_home(t))
     login(t, ctl, user, password)
     enter_game(t, ctl)
     ctl.wait({"frames": 60}, timeout=20)
