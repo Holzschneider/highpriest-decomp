@@ -123,7 +123,7 @@ set_target_properties(bf_instrument PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQU
 # ---------------------------------------------------------------- native modules
 # Each builds standalone and under add_subdirectory; each sets C++17 and ARC on
 # its own targets. A module whose CMakeLists.txt has not landed yet is skipped.
-set(BF_NATIVE_MODULES sys codec app gfx text audio control formats/bink formats/granny)
+set(BF_NATIVE_MODULES sys codec app gfx text audio prefs control formats/bink formats/granny)
 set(BF_NATIVE_LIBS)
 set(BF_NATIVE_TESTS)
 add_custom_target(native)
@@ -147,7 +147,7 @@ foreach(module IN LISTS BF_NATIVE_MODULES)
 	add_dependencies(native ${test})
 	# Labels: headless tests need no window and no sound output; fastcheck
 	# runs those. app opens a window, audio plays sound.
-	if(leaf STREQUAL "app")
+	if(leaf STREQUAL "app" OR leaf STREQUAL "prefs")
 		set(label window)
 	elseif(leaf STREQUAL "audio")
 		set(label sound)
@@ -185,6 +185,57 @@ function(bf_client_flags target tree)
 		CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS ON
 		C_STANDARD 90 C_STANDARD_REQUIRED ON C_EXTENSIONS ON)
 endfunction()
+
+# ---------------------------------------------------------------- adapters
+# port/compat/<area>: the Win32-shaped adapters of stage A, which M11 deletes.
+# Each area's CMakeLists.txt defines a static library bf_compat_<area> and a
+# test program bifrost-compat-<area>-test, and calls bf_compat_flags on its
+# targets so that it compiles against exactly the declarations the client
+# sees (the prefix header, the port's includes, the Windows headers), but as
+# C++17 and without the game's tree. Areas own disjoint sets of Win32 names:
+#   win32  kernel32, advapi32, winmm, shell32, MessageBox (on port/native/sys)
+#   d3d    DirectDraw 7, Direct3D 7 (on port/native/gfx)
+#   gdi    gdi32 (on port/native/text)
+#   miles  mss32 (on port/native/audio)
+#   input  user32 windows, messages, keyboard, clipboard; DirectInput; imm32
+#          (on port/native/app)
+function(bf_compat_flags target)
+	target_compile_definitions(${target} PRIVATE ${BF_CLIENT_DEFINES})
+	target_compile_options(${target} PRIVATE ${BF_CLIENT_OPTIONS}
+		"SHELL:-include ${BF_CLIENT_PREFIX}")
+	target_include_directories(${target} BEFORE PRIVATE ${BF_CLIENT_INCLUDES})
+	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
+	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+endfunction()
+set(BF_COMPAT_AREAS win32 d3d gdi miles input)
+set(BF_COMPAT_LIBS)
+add_custom_target(compat)
+foreach(area IN LISTS BF_COMPAT_AREAS)
+	if(NOT EXISTS ${BF_ROOT}/port/compat/${area}/CMakeLists.txt)
+		message(STATUS "adapter ${area}: not in this tree, skipped")
+		continue()
+	endif()
+	add_subdirectory(port/compat/${area} compat/${area})
+	list(APPEND BF_COMPAT_LIBS bf_compat_${area})
+	add_dependencies(compat bf_compat_${area})
+	set(test ${BF_EXE}-compat-${area}-test)
+	if(TARGET ${test})
+		add_dependencies(compat ${test})
+		get_target_property(test_dir ${test} BINARY_DIR)
+		add_test(NAME compat-${area} COMMAND ${test} WORKING_DIRECTORY ${test_dir})
+		set(label headless)
+		if(area STREQUAL "input")
+			set(label window)
+		elseif(area STREQUAL "miles")
+			set(label sound)
+		endif()
+		set_tests_properties(compat-${area} PROPERTIES LABELS "${label}" TIMEOUT 300
+			ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${test_dir}")
+	endif()
+endforeach()
+
+add_dependencies(check compat)
+add_dependencies(check-headless compat)
 
 # ---------------------------------------------------------------- the client
 # The units of sources.mk's GAME list, in link order, minus the exclusions.
@@ -273,7 +324,7 @@ bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # only (LINK_ONLY): their usage requirements (C++17, their include paths)
 # must not reach the game's units, which stay gnu++14 with the census's paths.
 set(bf_link)
-foreach(lib IN LISTS BF_NATIVE_LIBS)
+foreach(lib IN LISTS BF_COMPAT_LIBS BF_NATIVE_LIBS)
 	list(APPEND bf_link $<LINK_ONLY:${lib}>)
 endforeach()
 target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_instrument> ${bf_link} z)

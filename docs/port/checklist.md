@@ -38,8 +38,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [x] aef1fdb | M3.1 Native modules for files, settings, time, threads, shell functions (`port/native`), with test programs | native | |
-| [ ] | M3.1a Their adapters in `port/compat` | compat | M3.1, M2.4 |
-| [ ] | M3.2 Every other imported function as a reporting stub; the binary links | compat | M2.4, M2.7 |
+| [ ] | M3.1a Their adapters in `port/compat` | compat | M3.1 |
+| [ ] | M3.2 Every other imported function as a reporting stub; the binary links | compat | M2.4, M2.7, M3.1a, M4.4, M4.5a, M7.2a |
 | [x] ce92fc1 | M3.3 File lookup: game folder, backslashes, case-insensitive, CP949 names; writes to the Mac locations | native | M3.1 |
 | [x] d8b18e0 | M3.4 Settings: defaults, property list behind the registry adapter, one settings object | native | M3.1 |
 | [ ] | M3.5 Missing files and table entries become placeholders with a counted trace line | src | M3.2 |
@@ -58,9 +58,9 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 9c857f6 | M4.2 Graphics module on Metal, with test draws for the 16 multitexture presets and the blend modes | native | |
 | [ ] | M4.3 Logical resolution, UI scale 1×/2×/3×, resize path: the native half (app and gfx follow the window, logical size and scale computed in one place, a resize test) | native | M4.1, M4.2 |
 | [ ] | M4.3a Resize path in the client: renderer size, projection, picking, window-manager bounds, saved window positions clamped | src | M4.3, M4.4 |
-| [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2, M3.2 |
+| [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2 |
 | [x] 2a6bf9d | M4.5 Text module on CoreText, unsmoothed, with a metrics test | native | |
-| [ ] | M4.5a GDI adapter | compat | M4.5, M3.2 |
+| [ ] | M4.5a GDI adapter | compat | M4.5 |
 | [ ] | M4.6 Control interface, first part: socket, JSON lines, frame capture | native | M4.1 |
 | [ ] | M4.7 Options to skip the licence and intro screens | src | M3.7 |
 | [x] a81ced5 | M4.8 Reference screenshots of 2008-era clients collected under `~/Games/Bifrost/test/reference/` | ref | |
@@ -97,7 +97,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 |---|---|---|---|
 | [x] d9c523f | M7.1 Sound module on AVAudioEngine with a test program | native | |
 | [x] 63cf204 | M7.2 WAV and MP3 decoding through AudioToolbox | native | |
-| [ ] | M7.2a Miles adapter | compat | M7.1, M7.2, M3.2 |
+| [ ] | M7.2a Miles adapter | compat | M7.1, M7.2 |
 | [ ] | M7.3 Music fades with a lock around the shared volume | src | M7.2a |
 | [ ] | M7 exit (verifier) | | M6 exit, M7.1–M7.3 |
 

@@ -42,7 +42,7 @@ else
 fi
 
 # build: the native modules and their tests, the probes, the client if asked
-TARGETS="native probes"; [ $CLIENT = build ] && TARGETS="$TARGETS $(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake | tr '[:upper:]' '[:lower:]')"
+TARGETS="native compat probes"; [ $CLIENT = build ] && TARGETS="$TARGETS $(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake | tr '[:upper:]' '[:lower:]')"
 t=$SECONDS
 if cmake --build --preset debug --target $TARGETS -- -k 0 > "$LOGS/build.log" 2>&1; then
   warnings=$(grep -c ' warning: ' "$LOGS/build.log")
