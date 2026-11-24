@@ -5,7 +5,8 @@
 //   actors   the actors the client holds, other than self; [] outside a map
 //   pointer  {x, y, buttons, cell}: the pointer as the app module has it,
 //            in logical pixels, and the map cell the client's picking finds
-// The events: `map` when game mode enters a map, `chat` per chat line.
+// The events: `map` when game mode enters a map, `chat` per chat line,
+// `damage` per number drawn over an actor.
 #include <windows.h>
 
 #include <math.h>
@@ -197,6 +198,21 @@ void ReportChat()
 	}
 }
 
+void ReportDamage()
+{
+	const bf_client_game_damage *d = nullptr;
+	int n = bf_client_game_take_damage(&d);
+	for (int i = 0; i < n; ++i) {
+		if (bf_control_writer *w = bf_control_event_begin("damage")) {
+			WriteIntKey(w, "target", d[i].target);
+			WriteIntKey(w, "number", d[i].number);
+			bf_control_write_key(w, "kind");
+			bf_control_write_string(w, d[i].kind);
+			bf_control_event_end(w);
+		}
+	}
+}
+
 }  // namespace
 
 void bf_control_game_write_text(bf_control_writer *w, const char *text)
@@ -219,10 +235,12 @@ void bf_control_game_install(void)
 	bf_control_register_state("pointer", WritePointer, nullptr);
 	bf_control_declare_event("map");
 	bf_control_declare_event("chat");
+	bf_control_declare_event("damage");
 }
 
 void bf_control_game_frame(void)
 {
 	ReportMap();
 	ReportChat();
+	ReportDamage();
 }

@@ -83,6 +83,20 @@ void bf_client_chat_line(int second, const char *text, int type, const char *tal
 // into the chat window when it opens such windows (the default).
 void bf_client_whisper_window_line(const char *partner, const char *text);
 
+typedef struct bf_client_game_damage {
+	unsigned int target;    // the server's id of the actor the number is drawn over
+	int number;             // the number as given (the client clamps it to 0..999999 to draw it)
+	const char *kind;       // normal, critical, heal, half, total, other (from the MSGEFFECTTYPE)
+} bf_client_game_damage;
+
+// The numbers drawn since the previous call (CGameActor::Am_Make_Number),
+// oldest first. Returns their number; *numbers stays valid until the next call.
+int bf_client_game_take_damage(const bf_client_game_damage **numbers);
+
+// Called by CGameActor::Am_Make_Number: the actor's id, the number and the
+// MSGEFFECTTYPE it is drawn with.
+void bf_client_damage_number(unsigned int gid, int number, int type);
+
 #ifdef __cplusplus
 }
 #endif

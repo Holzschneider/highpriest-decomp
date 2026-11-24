@@ -892,11 +892,19 @@ void	CGameActor :: Am_Groundskill(CGameObject *sender, INT_PTR arg1, INT_PTR arg
 	}
 }
 
+#if defined(BF_PORT)
+// The control socket's `damage` event (bf_client_game.cpp): every number drawn.
+extern "C" void bf_client_damage_number(unsigned int gid, int number, int type);
+#endif
+
 void	CGameActor :: Am_Make_Number(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT_PTR arg3)
 {
 	int				number = arg1;
 	DWORD		sprArgb = arg2;
 	int				msgEffectType = arg3;
+#if defined(BF_PORT)
+	bf_client_damage_number(m_gid, number, msgEffectType);
+#endif
 
 	if (number > 999999)		number = 999999;
 	if (number<0)			number=0;

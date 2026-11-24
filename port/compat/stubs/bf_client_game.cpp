@@ -372,3 +372,39 @@ extern "C" int bf_client_game_take_chat(const bf_client_game_chat **lines)
 	*lines = g_chatOut.empty() ? NULL : &g_chatOut[0];
 	return (int)g_chatOut.size();
 }
+
+// ---- damage numbers
+
+namespace {
+std::vector<bf_client_game_damage> g_damagePending;
+std::vector<bf_client_game_damage> g_damageTaken;
+}
+
+// MSGEFFECTTYPE (GameMode.h) of the numbers CGameActor::Am_Make_Number draws;
+// a recovered amount (healing) is MET_NUMBER + 100 (CGameActor::SendMsg,
+// AM_ATTACKED).
+extern "C" void bf_client_damage_number(unsigned int gid, int number, int type)
+{
+	bf_client_game_damage d;
+	d.target = gid;
+	d.number = number;
+	switch (type) {
+	case MET_NUMBER: d.kind = "normal"; break;
+	case MET_NUMBER_CRITICAL: d.kind = "critical"; break;
+	case MET_NUMBER + 100: d.kind = "heal"; break;
+	case MET_NUMBER_HALF: d.kind = "half"; break;
+	case MET_NUMBER_TOTAL: d.kind = "total"; break;
+	default: d.kind = "other"; break;
+	}
+	if (g_damagePending.size() >= 256)   // nobody takes them (no control socket)
+		g_damagePending.erase(g_damagePending.begin());
+	g_damagePending.push_back(d);
+}
+
+extern "C" int bf_client_game_take_damage(const bf_client_game_damage **numbers)
+{
+	g_damageTaken.swap(g_damagePending);
+	g_damagePending.clear();
+	*numbers = g_damageTaken.empty() ? NULL : &g_damageTaken[0];
+	return (int)g_damageTaken.size();
+}
