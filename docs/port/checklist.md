@@ -11,11 +11,11 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | | Step | Track | Needs |
 |---|---|---|---|
 | [x] | M1.0 Rename the port's prefix from `HP`/`hp` to `BF`/`bf` (switches, environment variables, files, programs, docker project) | src | |
-| [ ] | M1.1 Inventory tool and committed inventory with a verdict per site | src | M1.0 |
-| [ ] | M1.2 Remove the `HP_*` files, declarations, globals and the sites classed as added | src | M1.1 |
-| [ ] | M1.3 Restore start-up: `MT_LOGIN` with `login.rsw`, `PollNetworkStatus`, `CGameMode::Initialize` tail, archive list from configuration | src | M1.2 |
-| [ ] | M1.4 Restore the remaining replaced sites; mark the unsettled ones | src | M1.3 |
-| [ ] | M1.5 General client: name constant, no process-name check, no `Setup_HP.exe` loop, settings independent of the HighPriest key | src | M1.3 |
+| [x] d02c541 | M1.1 Inventory tool and committed inventory with a verdict per site | src | M1.0 |
+| [x] de9d589 | M1.2 Remove the `HP_*` files, declarations, globals and the sites classed as added | src | M1.1 |
+| [x] 930c2bf | M1.3 Restore start-up: `MT_LOGIN` with `login.rsw`, `PollNetworkStatus`, `CGameMode::Initialize` tail, archive list from configuration | src | M1.2 |
+| [x] 2d8cee7 | M1.4 Restore the remaining replaced sites; mark the unsettled ones | src | M1.3 |
+| [x] 3c3c2b6 | M1.5 General client: name constant, no process-name check, no `Setup_HP.exe` loop, settings independent of the HighPriest key | src | M1.3 |
 | [x] 174f7f0 | M1.6 Reference executable downloaded, checksummed, loaded in a disassembler | ref | |
 | [ ] | M1 exit (verifier) | | M1.0–M1.6 |
 
