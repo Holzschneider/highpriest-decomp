@@ -21,7 +21,7 @@ GAME := \
   lmathlib lmem loadlib lobject lopcodes lparser lstate lstring lstrlib ltable ltablib ltests \
   ltm lundump lvm lzio cKeyProtector cSecureGamePack LanguageKeyProcess telexInputMode \
   VietnamLanguage VniInputMode GameActor GameActor3d GameActorMsgHandler GameMode GameMode2 \
-  GameModePacket GronModePacket HP_Battle HP_BuySell HP_RestTravell HP_SaveLoad HP_Tetris Item \
+  GameModePacket GronModePacket Item \
   LoginMode MercenaryAI Npc Pc Player RagEffect RagEffect2 RagEffectPrim Session Session2 Skill \
   WinMain
 

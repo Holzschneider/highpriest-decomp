@@ -42,18 +42,6 @@ extern ServiceType g_serviceType;
 extern ServerType g_serverType;
 extern bool g_extended_slot;
 extern char g_isGravityID;
-extern char g_curHardness;
-extern char g_curSave;
-extern char g_curEXPmode;
-extern char g_TIME_hr;
-extern char g_TIME_min;
-extern unsigned long g_TimeStorage;
-extern bool game_ItemRentEvent;
-extern char g_Aco_Name[];
-extern char g_Aco_Hair;
-extern char g_BS_Hair;
-extern char g_Aco_Hair_Color;
-extern char g_BS_Hair_Color;
 extern CHARACTER_INFO g_charInfo;
 
 
@@ -2660,19 +2648,6 @@ void UIMakeCharWnd::OnDraw()
 			(int)(info.tu * 256.0f), (int)(info.tv * 256.0f),
 			img->width, img->height, clip->flags, img->isHalfW + 1, img->isHalfH + 1);
 	}
-
-	sprintf(text1, "\xb5\xb7\xb9\xfa\xb1\xe2 \xb3\xad\xc0\xcc\xb5\xb5  =");
-	TextOutA(211, 159, text1, 0, 0, 12, 0xf5cdcd);
-	TextOutA(210, 158, text1, 0, 0, 12, 0xcd6969);
-
-	short y = (short)(int)(g_sinTable[m_stateCnt % 360] * 5.0f + 158.0f);
-	if (g_curHardness == 1)
-		sprintf(text1, "\xf1\xe9");
-	else
-		sprintf(text1, "\xf9\xbb");
-
-	TextOutA(310, y + 1, text1, 0, 0, 16, 0xf5cdcd);
-	TextOutA(309, y, text1, 0, 0, 16, 0xcd6969);
 }
 
 void UIMakeCharWnd::OnDestroy() {}
@@ -2813,9 +2788,6 @@ void UIMakeCharWnd::InitTextControls() {}
 
 int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
 {
-	CGameActor* AcoActor = g_session.GetGameActorByAid(1);
-	CGameActor* BS_Actor = g_session.GetGameActorByAid(2);
-
 	switch (message) {
 	case UM_COMMAND:
 		switch (val1) {
@@ -2837,32 +2809,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					strcpy(tmpName, m_nameEditCtrl->GetText());
 					memcpy(m_charInfo.name, tmpName, sizeof(m_charInfo.name));
 					g_charInfo = m_charInfo;
-					sprintf(g_Aco_Name, "%s", tmpName);
-					g_session.SetCharName(g_Aco_Name);
-
-					g_Aco_Hair = (char)m_charInfo.head;
-					g_Aco_Hair_Color = (char)m_charInfo.headpalette;
-					AcoActor->SetSprHead(g_Aco_Hair);
-					AcoActor->SetHeadPalette(g_Aco_Hair_Color);
-					g_session.m_head = g_Aco_Hair;
-					g_session.m_headPalette = g_Aco_Hair_Color;
-
-					g_BS_Hair = (char)m_charInfo2.head;
-					g_BS_Hair_Color = (char)m_charInfo2.headpalette;
-					BS_Actor->SetSprHead(g_BS_Hair);
-					BS_Actor->SetHeadPalette(g_BS_Hair_Color);
-					g_session.SetJob(m_charInfo.job);
-
-					g_session.InvalidateBasicWnd();
 					g_windowMgr.PostQuit(this);
-					g_windowMgr.SetcurScreen(1);
-					g_TIME_hr = 0;
-					g_TIME_min = 0;
-					g_TimeStorage = timeGetTime();
-					if (g_windowMgr.MakeSaveFileName_IN(g_curSave, 0x63) == 1) {
-						game_ItemRentEvent = true;
-						g_curEXPmode = 5;
-					}
 				} else {
 					if (!isGood)
 						g_windowMgr.ErrorMsg(MsgStr(MSI_BAD_NAME), ME_OK, 1, 0, 0);
@@ -2881,7 +2828,6 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 
 		case ID_CANCEL:
 			g_windowMgr.PostQuit(this);
-			g_windowMgr.SetcurScreen(0x6e);
 			break;
 
 		case ID_STR:
@@ -3055,13 +3001,6 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 			}
 			break;
 		}
-
-		case ID_HARDNESS:
-			if (g_curHardness == 1)
-				g_curHardness = 0;
-			else
-				g_curHardness = 1;
-			break;
 		}
 		break;
 

@@ -20,7 +20,6 @@
 
 extern UIWindowMgr g_windowMgr;
 extern CSession g_session;
-extern std::list<HP_Damage_Moment> g_DM_List;
 extern ServiceType g_serviceType;
 extern char* DataTxtDecode(char* str);
 
@@ -5573,14 +5572,4 @@ void	CSession :: SetShortCutItemInfo ( char isSkill, int ID, int count, int slot
 
 	CGameMode * gameMode = g_modeMgr.GetGameMode();
 	gameMode->SendMsg(MM_SHORTCUT_KEY_CHANGE, slot, 0, 0);
-}
-
-void	CSession :: SetDamageSituation(int Time, int GID, int Num, bool Disp)
-{
-	HP_Damage_Moment temp_HP;
-	temp_HP.DamageEnd = (Disp == 1) ? 1 : 2;
-	temp_HP.DamageChar = GID;
-	temp_HP.DamageTime = Time;
-	temp_HP.DamageNum = Num;
-	g_DM_List.push_back(temp_HP);
 }

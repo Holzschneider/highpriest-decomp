@@ -112,8 +112,6 @@ extern int g_isBlackWorld;
 extern int g_showTipsAtStartup;
 extern int g_BackTexture;
 extern int g_isGoodSkillHanging;
-extern short game_TetrisPlayed;
-extern HP_Damage_Moment g_DamageMoment[];
 extern CSnapMgr g_snapMgr;
 extern tagRECT g_drawRect;
 extern CFile saveChatFp;
@@ -129,25 +127,8 @@ enum {
 };
 
 extern const char* MsgStr(MSGSTRINGID id);
-extern int g_NextSkill;
-extern short g_SpellSeek;
-extern DWORD g_SpellSeekTime;
 extern BOOL g_shiftKeyPressed;
 extern char g_checkBOT;
-extern int g_used_Skill;
-extern unsigned long g_used_Skill_Time;
-extern unsigned long g_BoyAttackedTime;
-extern int g_curScreen;
-extern int g_curStance;
-extern short map_Number;
-extern short g_curStory;
-extern char g_curEXPmode;
-extern char g_curEnding;
-extern short g_Aco_Job;
-extern short g_FieldConv_Alpha;
-extern short g_AcoPosition;
-extern unsigned long g_MainNextActTime;
-extern unsigned long g_MobNextOutTime;
 extern float AVG_DIST;
 extern float FAR_DIST;
 extern float CLOSE_DIST;
@@ -171,12 +152,10 @@ int oldshowImageType = -1;
 char endchar[2] = { '\r', '\n' };
 
 
-std::list<HP_Damage_Moment> g_DM_List;
 CPathFinder g_pathFinder;
 GroundAttrPosInfo g_groundAttrPosInfo;
 std::list<DWORD> g_pingLogList;
 unsigned long g_pingLogStart;
-HP_Damage_Moment g_DamageMoment[10];
 int g_BackTexture = 0;
 int g_isFixedCamera = FALSE;
 unsigned long CGameMode::m_lastLockOnPcGid = 0L;
@@ -232,9 +211,6 @@ extern char autosaveFileName[];
 extern "C" int __cdecl access(const char *, int);
 extern "C" int __cdecl _mkdir(const char *);
 
-extern short bat_STUN_turn;
-extern short g_PrevMob;
-extern int g_BattleEvent;
 
 CGameMode::CGameMode()
 {
@@ -610,22 +586,6 @@ void CGameMode::Initialize()
 	if (!g_BackTexture)
 		g_BackTexture = 1;
 
-	g_session.HP_AddItem(0x5f0, false);
-	g_session.HP_AddItem(0x1505, false);
-	g_session.HP_AddItem(0x8ee, false);
-	g_session.HP_AddItem(0x8dd, false);
-	Zc_Notify_Entry_HP(1, 100, 100);
-	Zc_Notify_Entry_HP(2, 100, 100);
-
-	game_TetrisPlayed = 0;
-	g_curStory = 0;
-	g_session.GainSkill(0x107, 1, false);
-	g_windowMgr.SetcurScreen(100);
-
-	int j;
-	for (j = 0; j < 10; j++)
-		g_DamageMoment[j].DamageEnd = 0;
-
 	char msg[256];
 	sprintf(msg, "\xb0\xd4\xc0\xd3\xc1\xb6\xc0\xdb\xc0\xba \xb8\xb6\xbf\xec\xbd\xba\xbf\xcd \xc5\xb0\xba\xb8\xb5\xe5\xb7\xce \xc7\xd5\xb4\xcf\xb4\xd9");
 	g_windowMgr.SendMsg(WID_CHATWND, int(msg), int(RGB(250,250,250)), 0, 0);
@@ -689,16 +649,13 @@ void CGameMode::OnUpdate()
 	}
 
 	g_Weather.Process();
-	ProcessDamageSituation();
 
 	if (!g_isAppActive && g_3dDevice.IsFullscreen()) return;
 
 	if (SkipSceneRendering()) {
 		g_renderer->ClearBackground();
 		g_actorPickNode.DeleteSubNode();
-		g_windowMgr.RenderBackGround2D();
 		m_view->OnRender();
-		g_windowMgr.RenderMenu();
 		g_windowMgr.Render();
 		DrawDragImage();
 		DrawMouseCursor();
@@ -3581,31 +3538,6 @@ int		CGameMode :: ProcessActorPick(int processType, CActorPickInfo * actorInfo)
 
 		if (pc)
 		{
-			if (m_lastPcGid == 1)
-			{
-				if (g_mouse.GetLBtn() == BTN_DBLCLK)
-				{
-					if (g_session.HaveThisSkill(0x1c) >= 1)
-						g_NextSkill = 0x1c;
-				}
-				else if (g_mouse.GetLBtn() == BTN_DOWN)
-				{
-					g_SpellSeek = 1;
-					g_SpellSeekTime = timeGetTime();
-				}
-
-				if (g_mouse.GetRBtn() == BTN_DBLCLK)
-				{
-					if (g_session.HaveThisSkill(0x35) >= 1)
-						g_NextSkill = 0x35;
-				}
-				else if (g_mouse.GetRBtn() == BTN_DOWN)
-				{
-					g_SpellSeek = 2;
-					g_SpellSeekTime = timeGetTime();
-				}
-			}
-
 			if (m_isCtrlLock && pc->m_stateId == ST_DEAD)
 				m_isCtrlLock = FALSE;
 
@@ -4873,84 +4805,6 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 
 void CGameMode::ProcessWheel(int processType)
 {
-	CGameActor *actor = g_session.GetGameActorByAid(1);
-	CGameActor *boy = g_session.GetGameActorByAid(100);
-
-	if (g_mouse.GetWheel() > 0) {
-		if (g_session.HaveThisSkill(0x111) >= 1) {
-			if (g_used_Skill == 0x107) {
-				if (g_used_Skill_Time + 1000 >= timeGetTime()) {
-					if (actor) {
-						g_NextSkill = actor->IsEffectExist(EF_ASURABODY) ? 0x10f : 0x111;
-					}
-				}
-			}
-		}
-	} else if (g_mouse.GetWheel() < 0) {
-		if (g_session.HaveThisSkill(0x19d) >= 1) {
-			if (boy) {
-				if (boy->m_isSprArgbFixed == 1) {
-					g_NextSkill = 0x19d;
-				}
-			}
-			if (g_session.HaveThisSkill(0x19d) >= 2) {
-				if (g_BoyAttackedTime > timeGetTime()) {
-					g_NextSkill = 0x19d;
-				}
-			}
-		}
-	}
-
-	if (g_mouse.GetWBtn() == BTN_DOWN) {
-		if (g_session.HaveThisSkill(0x10e) >= 1) {
-			g_NextSkill = 0x10e;
-		}
-	}
-
-	if (g_curScreen == 12 && g_curStance == 5) {
-		char moveType = 0;
-
-		if (g_mouse.GetWheel() > 0) {
-			moveType = 1;
-			actor->SendMsg(NULL, AM_CHAT,
-				(int)"\xb3\xd7\x7e\x20\xb0\xa1\xb4\xf8\xb1\xe6\xb7\xce\x20\xb0\xa5\xb2\xb2\xbf\xe4\x20\x5e\x5f\x5e\x2a",
-				0, 0);
-			actor->SendMsg(NULL, AM_EMOTION, 0, 0, 0);
-			g_curStance = 6;
-		}
-
-		if (g_mouse.GetWheel() < 0) {
-			if ((map_Number == 10 && g_curStory < 20)
-				|| (map_Number == 11 && g_curStory < 30)) {
-				actor->SendMsg(NULL, AM_CHAT,
-					(int)"\xc1\xf6\xb1\xdd\xc0\xba\x20\xb1\xd7\xb1\xe6\xb7\xce\x20\xb0\xa1\xb8\xe9\x20\xc0\xa7\xc7\xe8\xc7\xd2\xb0\xc5\x20\xb0\xb0\xbe\xc6\xbf\xe4\x2e\x20\xb4\xd9\xc0\xbd\xbf\xa1\x20\xb0\xa5\xb2\xb2\xbf\xe4\x20\xa4\xd0\x5f\xa4\xd0",
-					0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 0x1c, 0, 0);
-				g_AcoPosition += 2;
-				g_curStance = 6;
-			} else {
-				actor->SendMsg(NULL, AM_CHAT,
-					(int)"\xb3\xd7\x7e\x20\xbf\xb7\xb1\xe6\xb7\xce\x20\xb0\xa5\xb2\xb2\xbf\xe4\x7e\x20\x5e\x5e\x3b",
-					0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 0, 0, 0);
-				g_curStance = 7;
-				g_FieldConv_Alpha = 1;
-				g_AcoPosition += 1000;
-			}
-		} else if (g_curStance >= 6) {
-			if (moveType == 1) {
-				g_AcoPosition += 2;
-			} else if (moveType == 2) {
-				g_AcoPosition += 1000;
-			}
-		}
-
-		if (g_curStance >= 6) {
-			g_MainNextActTime = timeGetTime() + 500;
-			int nextOutTime = rand() % 7000;
-			g_MobNextOutTime = timeGetTime() + nextOutTime + 7000;
-		}
-	}
 }
 
 void CGameMode::ProcessRBtn()
@@ -7760,474 +7614,3 @@ bool CGameMode::HaveBookItem(int itemId)
 }
 
 void CGameMode::InsertScheduler() {}
-void CGameMode::ProcessDamageSituation()
-{
-	char msg[100];
-	std::list<HP_Damage_Moment>::iterator it = g_DM_List.begin();
-	while (it != g_DM_List.end())
-	{
-		if (!(it->DamageTime > timeGetTime())) {
-			CGameActor* actor = g_session.GetGameActorByAid(it->DamageChar);
-
-			if (it->DamageChar == 0) {
-				CGameActor* mainActor = g_session.GetGameActorByAid(1);
-				if (mainActor) {
-					if (it->DamageNum == -10) {
-						bat_STUN_turn = 0;
-						if (mainActor->GetBodyState() != 3) {
-							mainActor->SetAttrState(3, mainActor->GetEffectState(), mainActor->GetHealthState(), true);
-						}
-					} else {
-						vector3d v(0.0f, 0.0f, 0.0f);
-						mainActor->LaunchEffect(it->DamageNum, v, 0.0f);
-					}
-				}
-			} else if (it->DamageChar == 0x65) {
-				CGameActor* a = g_session.GetGameActorByAid(0x64);
-				if (a) {
-					vector3d v(0.0f, 0.0f, 0.0f);
-					a->LaunchEffect(it->DamageNum, v, 0.0f);
-				}
-			} else if (actor) {
-				if (it->DamageNum < 0) {
-					if (it->DamageNum == (int)0xffffdd48) {
-						vector3d v(0.0f, 0.0f, 0.0f);
-						actor->LaunchEffect(0xd0, v, 0.0f);
-						actor->SendMsg(NULL, AM_MAKE_NUMBER, 0x190, 0xff0000ff, 'r');
-						actor->m_Sp += 0x190;
-						if (actor->m_Sp > actor->m_MaxSp) {
-							actor->m_Sp = actor->m_MaxSp;
-						}
-					} else {
-						if (-it->DamageNum >= 0xfa0) {
-							vector3d v(0.0f, 0.0f, 0.0f);
-							actor->LaunchEffect(0x145, v, 0.0f);
-						} else if (-it->DamageNum >= 0x7d0) {
-							vector3d v(0.0f, 0.0f, 0.0f);
-							actor->LaunchEffect(0x139, v, 0.0f);
-						} else if (-it->DamageNum >= 0xc8) {
-							vector3d v(0.0f, 0.0f, 0.0f);
-							actor->LaunchEffect(0x138, v, 0.0f);
-						} else {
-							vector3d v(0.0f, 0.0f, 0.0f);
-							actor->LaunchEffect(7, v, 0.0f);
-						}
-						actor->SendMsg(NULL, AM_MAKE_NUMBER, -it->DamageNum, 0xff00ff00, 'r');
-						if ((int)(short)actor->m_Hp - it->DamageNum > (int)(short)actor->m_MaxHp) {
-							actor->m_Hp = actor->m_MaxHp;
-						} else {
-							actor->m_Hp = (short)((short)actor->m_Hp - (short)it->DamageNum);
-						}
-					}
-					if (actor->m_Hp > actor->m_MaxHp)
-						actor->m_Hp = actor->m_MaxHp;
-					if (actor->m_Hp < 0)
-						actor->m_Hp = actor->m_MaxHp;
-					if (actor->GetGID() == 1) {
-						g_session.SetStatusData(actor);
-					}
-				} else {
-					int healAmt = (int)(short)actor->m_Hp - it->DamageNum;
-					if (healAmt > 0) {
-						if (actor->GetGID() != 3) {
-							actor->m_Hp -= (short)it->DamageNum;
-						}
-						actor->SetState(4);
-						if (actor->IsThisPC(actor->GetJob()) == 0 && g_used_Skill == 0) {
-							const char* wn = g_session.GetWeaponHitWaveName(-1);
-							PlayWave(wn, 0, 0, 0, 250, 40, 1.0f);
-						}
-						if ((int)(short)actor->m_Hp < ((int)(short)actor->m_MaxHp / 2)) {
-							if (actor->GetJob() == 0x4da) {
-								g_BattleEvent = 0;
-								actor->SetJob(0x64d);
-								actor->m_Hp = actor->m_MaxHp;
-								vector3d v1(0.0f, 0.0f, 0.0f);
-								actor->LaunchEffect(0x9e, v1, 0.0f);
-								actor->SendMsg(NULL, AM_REMOVEGAGE);
-							} else if (actor->GetJob() == 0x64d) {
-								g_BattleEvent = 0;
-								actor->SetJob(0x62e);
-								g_PrevMob = (short)actor->GetJob();
-								actor->m_Hp = actor->m_MaxHp;
-								vector3d v2(0.0f, 0.0f, 0.0f);
-								actor->LaunchEffect(0x9e, v2, 0.0f);
-								actor->SendMsg(NULL, AM_REMOVEGAGE);
-							} else if (actor->GetJob() == 0x62e) {
-								g_BattleEvent = 0;
-								actor->SetJob(0x56c);
-								actor->m_MaxHp = 0x3a98;
-								actor->m_Hp = 0x3a98;
-								vector3d v3(0.0f, 0.0f, 0.0f);
-								actor->LaunchEffect(0x9e, v3, 0.0f);
-								actor->SendMsg(NULL, AM_REMOVEGAGE);
-							}
-						}
-					} else {
-						if (actor->GetGID() == 3) {
-							actor->SetState(4);
-						} else {
-							actor->m_Hp = 0;
-							actor->SetState(3);
-							if (actor->GetGID() == 1) {
-								g_curStance = 4;
-								g_MainNextActTime = timeGetTime() + 0xfa0;
-								if (actor->m_clevel <= 6) {
-									sprintf(msg, "\xbe\xc6\xb9\xf6\xc1\xf6\xbf\xcd \xb5\xfe\xc0\xc7 \xc7\xe0\xb5\xbf\xc0\xcc \xb8\xf0\xb5\xce \xb3\xa1\xb3\xaa\xb8\xe9 \xc7\xcf\xb7\xe7\xb0\xa1 \xb3\xa1\xb3\xaa\xb0\xd4\xb5\xcb\xb4\xcf\xb4\xd9!");
-									g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0xc8c8c8, 0, 0);
-								}
-								g_windowMgr.BS_StartFasterTetris();
-							} else if (actor->GetGID() >= 0x64) {
-								GainExp((short)actor->m_Exp, actor->GetJob());
-							}
-							g_windowMgr.EndFight_Status();
-						}
-					}
-				}
-
-				short hp = (short)actor->m_Hp;
-				short maxHp = (short)actor->m_MaxHp;
-				actor->SendMsg(NULL, AM_UPDATEGAGE_HP, hp, maxHp, 0);
-
-				if (it->DamageEnd == 1) {
-					actor->SendMsg(NULL, AM_MAKE_NUMBER, it->DamageNum, 0xffffffff, 0x0e);
-				}
-
-				if (actor->GetGID() == 3) {
-					CGameMode* gameMode = g_modeMgr.GetGameMode();
-					float halfZoom = (float)gameMode->m_world->m_attr->m_zoom * 0.5f;
-					actor->m_pos.x = (19.0f - (float)gameMode->m_world->m_attr->m_width * 0.5f) * (float)gameMode->m_world->m_attr->m_zoom + halfZoom;
-					actor->m_pos.z = ((float)gameMode->m_world->m_attr->m_height * -0.5f) * (float)gameMode->m_world->m_attr->m_zoom + halfZoom;
-				}
-
-				if (actor->GetGID() == 1) {
-					g_session.SetStatusData(actor);
-				}
-			} else {
-				char msg[256];
-				sprintf(msg, "[ DEAD ]");
-				g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (int)msg, 0xc8c8c8, 0, 0);
-			}
-
-			g_DM_List.erase(it);
-			it = g_DM_List.begin();
-			continue;
-		}
-		++it;
-	}
-}
-
-
-void CGameMode::GainExp(short ExpValue, int JT_Opp)
-{
-	CGameActor *actor = g_session.GetGameActorByAid(1);
-	if (!actor)
-		return;
-
-	short level = actor->m_clevel;
-	if (level < 120)
-		actor->m_Exp += g_curEXPmode * ExpValue;
-	else
-		actor->m_Exp += ExpValue;
-
-	if (actor->m_Exp >= GetNextExpValue(level)) {
-		vector3d v(0.0f, 0.0f, 0.0f);
-		actor->LaunchEffect(0x152, v, 0.0f);
-
-		actor->m_clevel++;
-		level = actor->m_clevel;
-		actor->m_Str++;
-		int levelMod = level % 5;
-		actor->m_Agi++;
-		actor->m_Int++;
-		if (levelMod == 0) {
-			actor->m_Vit++;
-			actor->m_Luk++;
-			actor->m_Dex++;
-		}
-
-		if (g_Aco_Job == 0xfa9) {
-			actor->m_MaxHp += 200;
-			actor->m_MaxSp += 20;
-		} else if (g_Aco_Job == 8) {
-			actor->m_MaxHp += 130;
-			actor->m_MaxSp += 13;
-		} else {
-			actor->m_MaxHp += 100;
-			actor->m_MaxSp += 10;
-		}
-
-		if (actor->m_MaxHp > 0x7d00)
-			actor->m_MaxHp = 0x7d00;
-		if (actor->m_MaxSp > 0x7d00)
-			actor->m_MaxSp = 0x7d00;
-
-		g_session.SetNextexp(GetNextExpValue(actor->m_clevel) - GetNextExpValue(actor->m_clevel - 1));
-
-		level = actor->m_clevel;
-		if (level == 2) {
-			g_session.GainSkill(0x1c, 1, true);
-			actor->SendMsg(NULL, AM_CHAT, (int)"\310\372 \271\350\277\374\276\356\277\344~ \300\314\273\332\301\322? *^_^*  \300\372\270\246 \264\365\272\355\305\254\270\257\307\317\270\351 \275\341\301\256\277\344~", 0, 0);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		} else if (level == 3) {
-			g_session.GainSkill(0x111, 1, true);
-			actor->SendMsg(NULL, AM_CHAT, (int)"\300\314\301\246\272\316\305\315 \276\306\304\332\275\272\270\305\275\254 \276\262\270\351 \270\266\277\354\275\272 \310\331\300\273 \300\247\267\316 \261\274\267\301\301\340\277\344~", 0, 0);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		} else if (level == 4) {
-			actor->SendMsg(NULL, AM_CHAT, (int)"\275\272\305\263\303\242\300\273 \277\255\260\355 \270\266\277\354\275\272 \277\354\305\254\270\257 \307\330\274\255 \274\263\270\355\300\273 \300\337 \300\320\276\356\301\340\277\344 \244\320_\244\320", 0, 0);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		} else {
-			if (map_Number == 11 && !g_session.HaveThisSkill(0x1b) && g_curStory >= 10) {
-				g_session.GainSkill(0x1b, 1, true);
-				actor->SendMsg(NULL, AM_CHAT, (int)"\300\314\301\246 \277\366\307\301\306\367\305\273\267\316 \264\331\304\241\261\342\300\374\277\241 \301\375\277\241 \265\271\276\306\260\245\267\241\277\344 ^_^", 0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-			} else if (map_Number == 10 && !g_session.HaveThisSkill(0x35) && g_curStory >= 20) {
-				g_session.GainSkill(0x35, 1, true);
-				actor->SendMsg(NULL, AM_CHAT, (int)"\300\314\301\250 \265\266\277\241 \260\311\267\301\265\265 \260\306\301\244 \263\241\300\314\277\271\277\344 ^^*", 0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-			} else if (map_Number == 11 && !g_session.HaveThisSkill(0x21) && g_curStory >= 30) {
-				g_session.GainSkill(0x21, 1, true);
-				actor->SendMsg(NULL, AM_CHAT, (int)"\276\310\301\251\267\347\275\272 \271\350\277\374\276\356\277\251~ \300\314\273\332\301\322? ^^*", 0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-			} else if (map_Number == 12 && !g_session.HaveThisSkill(0x49) && g_curStory >= 40) {
-				g_session.GainSkill(0x49, 1, true);
-				actor->SendMsg(NULL, AM_CHAT, (int)"\261\342\270\256\277\241\270\246 \271\350\277\374\264\344\264\317\264\331 \307\354\307\354~", 0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-			} else if (map_Number == 13 && !g_session.HaveThisSkill(0x19d) && g_curStory >= 50) {
-				g_session.GainSkill(0x19d, 1, true);
-				actor->SendMsg(NULL, AM_CHAT, (int)"\276\306\304\332\310\270\277\300\270\256 \271\350\277\374\276\356\277\344~ ^^;", 0, 0);
-				actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-			}
-		}
-	}
-
-	if (JT_Opp == 0x6f9) {
-		if (g_session.HaveThisSkill(0x111) == 1) {
-			g_session.GainSkill(0x111, 2, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 10) {
-			g_curStory = 10;
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x6c5) {
-		if (!g_session.HaveThisSkill(0x104)) {
-			g_session.GainSkill(0x104, 1, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 20) {
-			char msg[100];
-			g_curStory = 20;
-			sprintf(msg, "\260\324\306\346\307\312\265\345\300\307 \264\331\270\245\301\366\277\252\300\270\267\316 \260\245\274\366\300\326\264\302 \277\353\261\342\260\241 \273\375\260\345\275\300\264\317\264\331~!");
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffffff, 0, 0);
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x75d) {
-		if (g_session.HaveThisSkill(0x107) <= 1) {
-			g_session.GainSkill(0x107, 2, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 30) {
-			char msg[100];
-			g_curStory = 30;
-			sprintf(msg, "\306\344\300\314\277\346 \264\370\301\257\300\307 \264\331\270\245\301\366\277\252\300\270\267\316 \260\245\274\366\300\326\264\302 \277\353\261\342\260\241 \273\375\260\345\275\300\264\317\264\331~!");
-			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(msg), 0xffffff, 0, 0);
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x55d) {
-		if (g_session.HaveThisSkill(0x111) <= 2) {
-			g_session.GainSkill(0x111, 3, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 40) {
-			g_curStory = 40;
-		}
-	} else if (JT_Opp == 0x55e) {
-		if (g_curStory <= 44) {
-			g_curStory = 45;
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x6d7) {
-		if (g_session.HaveThisSkill(0x1c) <= 1) {
-			g_session.GainSkill(0x1c, 2, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 50) {
-			g_curStory = 50;
-		}
-	} else if (JT_Opp == 0x5d9) {
-		if (g_curStory <= 54) {
-			g_curStory = 55;
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x56c) {
-		if (g_session.HaveThisSkill(0x19d) <= 1) {
-			g_session.GainSkill(0x19d, 2, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 60) {
-			g_curStory = 60;
-		}
-	} else if (JT_Opp == 0x503) {
-		if (g_session.HaveThisSkill(0x22) <= 0) {
-			g_session.GainSkill(0x22, 1, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 70) {
-			g_curStory = 70;
-		}
-	} else if (JT_Opp == 0x77c) {
-		if (g_session.HaveThisSkill(0x22) <= 1) {
-			g_session.GainSkill(0x22, 2, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 80) {
-			g_curStory = 80;
-		}
-	} else if (JT_Opp == 0x509) {
-		if (g_session.HaveThisSkill(0x22) <= 2) {
-			g_session.GainSkill(0x22, 3, true);
-			actor->SendMsg(NULL, AM_EMOTION, 5, 0, 0);
-		}
-		if (g_curStory < 90) {
-			g_curStory = 90;
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x6ac) {
-		if (g_curStory < 100) {
-			g_curEnding = 1;
-			g_session.SetStatusData(actor);
-			return;
-		}
-	} else if (JT_Opp == 0x52c) {
-		if (g_session.DoPCHaveItem(0x13f6))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x13f6, true);
-	} else if (JT_Opp == 0x52d) {
-		if (g_session.DoPCHaveItem(0x13f9))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x13f9, true);
-	} else if (JT_Opp == 0x52e) {
-		if (g_session.DoPCHaveItem(0x8de))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x8de, true);
-	} else if (JT_Opp == 0x52f) {
-		if (g_session.DoPCHaveItem(0x8db))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x8db, true);
-	} else if (JT_Opp == 0x530) {
-		if (g_session.DoPCHaveItem(0x13f3))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x13f3, true);
-	} else if (JT_Opp == 0x531) {
-		if (g_session.DoPCHaveItem(0x8da))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x8da, true);
-	} else if (JT_Opp == 0x532) {
-		if (g_session.DoPCHaveItem(0x1456))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x1456, true);
-	} else if (JT_Opp == 0x533) {
-		if (g_session.DoPCHaveItem(0x8dd))
-			g_session.HP_AddItem(0x5f0, true);
-		else
-			g_session.HP_AddItem(0x8dd, true);
-	}
-
-	g_session.SetStatusData(actor);
-}
-
-int CGameMode::GetNextExpValue(short Level)
-{
-	if ( Level == 1 )
-		return 9;
-	if ( Level == 2 )
-		return 25;
-	if ( Level >= 105 )
-		return 2 * (Level + 55) * Level - 10400;
-	return 2 * (Level + 5) * Level;
-}
-
-short CGameMode::GetWeaponPower(int ItemID)
-{
-	if ( ItemID == 1520 )
-		return 50;
-	if ( ItemID == 1610 )
-		return 60;
-	if ( ItemID == 1504 )
-		return 70;
-	if ( ItemID == 1614 )
-		return 80;
-	if ( ItemID == 1516 )
-		return 90;
-	if ( ItemID == 1615 )
-		return 100;
-	if ( ItemID == 1519 )
-		return 120;
-	if ( ItemID == 1524 )
-		return 140;
-	if ( ItemID == 1529 )
-		return 160;
-	if ( ItemID == 1613 )
-		return 200;
-	return 10;
-}
-
-int CGameMode::GetWeaponCost(int ItemID)
-{
-	if ( ItemID == 1520 )
-		return 1000;
-	if ( ItemID == 1610 )
-		return 2000;
-	if ( ItemID == 1504 )
-		return 4000;
-	if ( ItemID == 1614 )
-		return 8000;
-	if ( ItemID == 1516 )
-		return 16000;
-	if ( ItemID == 1615 )
-		return 32000;
-	if ( ItemID == 1519 )
-		return 64000;
-	if ( ItemID == 1524 )
-		return 100000;
-	if ( ItemID == 1529 )
-		return 150000;
-	if ( ItemID == 1613 )
-		return 200000;
-	if ( ItemID == 5173 || ItemID == 5300 || ItemID == 5212 || ItemID == 5263 )
-		return 5000;
-	if ( ItemID == 5214 || ItemID == 5137 || ItemID == 5128 )
-		return 25000;
-	if ( ItemID == 5210 || ItemID == 5380 || ItemID == 5381 )
-		return 98000;
-	if ( ItemID == 2242 || ItemID == 2276 || ItemID == 5175 || ItemID == 5135 )
-		return 5000;
-	if ( ItemID == 5223 || ItemID == 5357 || ItemID == 2286 || ItemID == 5315 )
-		return 25000;
-	if ( ItemID == 5325 || ItemID == 5102 )
-		return 99800;
-	return 1000;
-}
-
-void CGameMode::DeleteBroadcastBalloon()
-{
-	if ( m_broadcastBalloon )
-	{
-		g_windowMgr.PostQuit( m_broadcastBalloon );
-		m_broadcastBalloon = NULL;
-	}
-}

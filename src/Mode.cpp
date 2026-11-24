@@ -211,53 +211,6 @@ void CMode::DrawTexture(RECT *rect, int angle, float oow, DWORD argb, CTexture *
 		g_renderer->AddRP(&rpFace, RF_UI);
 }
 
-void CMode::DrawBackGround2D(RECT *rect, int angle, float oow, DWORD argb, CTexture *tex, UVRECT uvRect)
-{
-	RPQuadFace& rpFace = g_renderer->BorrowQuadRP();
-	rpFace.tex = tex;
-	tlvertex3d *verts = rpFace.verts;
-	float z  = GetZFromOow(oow);
-	float z1 = GetZFromOow(oow);
-	if (angle) {
-		float cs = GetCos(angle);
-		float sn = GetSin(angle);
-		float w = (rect->right - rect->left);
-		float h = (rect->bottom - rect->top);
-		float x = rect->left + w / 2;
-		float y = rect->top  + h / 2;
-		float x1 = -w / 2, y1 = -h / 2;
-		float x2 =  w / 2, y2 =  h / 2;
-		verts[0].x = x + (x1 * cs - y1 * sn);
-		verts[0].y = y + (x1 * sn + y1 * cs);
-		verts[1].x = x + (x2 * cs - y1 * sn);
-		verts[1].y = y + (x2 * sn + y1 * cs);
-		verts[2].x = x + (x1 * cs - y2 * sn);
-		verts[2].y = y + (x1 * sn + y2 * cs);
-		verts[3].x = x + (x2 * cs - y2 * sn);
-		verts[3].y = y + (x2 * sn + y2 * cs);
-	} else {
-		verts[0].x = rect->left;  verts[0].y = rect->top;
-		verts[1].x = rect->right; verts[1].y = rect->top;
-		verts[2].x = rect->left;  verts[2].y = rect->bottom;
-		verts[3].x = rect->right; verts[3].y = rect->bottom;
-	}
-	float uAdjust = tex->GetUAdjust();
-	float vAdjust = tex->GetVAdjust();
-	verts[0].z = z1; verts[0].oow = oow;
-	verts[0].tu = uvRect.u1 * uAdjust; verts[0].tv = uvRect.v1 * vAdjust;
-	verts[0].color = argb;
-	verts[1].z = z1; verts[1].oow = oow;
-	verts[1].tu = uvRect.u2 * uAdjust; verts[1].tv = uvRect.v1 * vAdjust;
-	verts[1].color = argb;
-	verts[2].z = z;  verts[2].oow = oow;
-	verts[2].tu = uvRect.u1 * uAdjust; verts[2].tv = uvRect.v2 * vAdjust;
-	verts[2].color = argb;
-	verts[3].z = z;  verts[3].oow = oow;
-	verts[3].tu = uvRect.u2 * uAdjust; verts[3].tv = uvRect.v2 * vAdjust;
-	verts[3].color = argb;
-	g_renderer->AddRP(&rpFace, 0x101);
-}
-
 void CMode::DrawBattleMode()
 {
 	if (g_session.m_isBattle == TRUE) {

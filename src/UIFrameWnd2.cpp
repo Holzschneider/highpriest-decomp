@@ -1799,16 +1799,6 @@ void UIStatusWnd::OnDraw()
 			TextOutA(74, posY[i] + 16, text, 0, 1, 14, 0);
 		}
 	}
-
-	CGameActor* actor = g_session.GetGameActorByAid(1);
-	if (actor) {
-		int textLen = sprintf(text, "%d + %d", actor->m_Str * 10,
-			g_modeMgr.GetGameMode()->GetWeaponPower(actor->GetWeapon()));
-		TextOutWithRightAlign(192, 21, text, textLen, 1, 14, 0);
-
-		textLen = sprintf(text, "%d + %d", actor->m_Vit * 5, 0);
-		TextOutWithRightAlign(273, 21, text, textLen, 1, 14, 0);
-	}
 }
 
 int UIStatusWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)

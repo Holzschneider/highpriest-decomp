@@ -30,7 +30,6 @@
 #include "Mode.h"
 #include "GameWorld.h"
 #include "MercenaryAI.h"
-#include "HP_Tetris.h"
 #include "GuildInfo.h"
 #include "base/Res.h"
 #include "pdb_enums.h"
@@ -52,10 +51,6 @@ extern CSnapMgr g_snapMgr;
 extern UIWindowMgr g_windowMgr;
 extern short g_mouse_L;
 extern bool g_mouseMoved;
-extern short g_menuSelect;
-extern int g_curScreen;
-extern int g_curStance_B;
-extern Tetris* TT;
 extern const char* MsgStr(MSGSTRINGID id);
 extern void CutString(const char* msg, std::vector<std::string>& strings, int maxNumCharLine);
 extern const char* whisperWindowOpenSound;
@@ -69,27 +64,6 @@ static void ClearChatHistory(std::list<StringAndColor>& history)
 }
 
 char* g_uiPath = "\\UIRectInfo";
-short g_menuSelect = 1;
-int g_curRectTop = 210;
-short g_AcoPosition = 1000;
-short g_PrevMob = 1002;
-short map_Number = 10;
-short map_firstway = 10;
-short map_secondstart = -1;
-short map_secondway = 4;
-short map_thirdstart = -1;
-short map_thirdway = 7;
-short map_BNPC_ID = 3;
-short Boy_Job = 1;
-short g_Aco_Job = 4;
-short g_Aco_Head = 1;
-short g_BS_Job = 10;
-char g_Aco_Name[32] = { '\xb5', '\xfe', '\xb7', '\xa1', '\xb9', '\xcc' };
-char g_Aco_Hair = 1;
-char g_BS_Hair = 3;
-char g_curSave = 1;
-char g_curHardness = 1;
-char g_curEXPmode = 1;
 char* g_shortItemPath = "\\ShortcutItem";
 char* g_suPath = "\\SkillUseLevelInfo";
 int guildWndWidth = 400;
@@ -103,66 +77,8 @@ UIWindowMgr g_windowMgr;
 std::vector<int> stateId;
 
 
-char g_savedata[3][256];
-HP_TRAVEL_AVAILABLE HP_TravelMap[5] = {0};
-short g_PoringCurX = 0;
-short g_PoringCurY = 0;
-short g_PoringTarY = 0;
-short g_PoringTarX = 0;
-int g_curScreen = 0;
-short g_curStory = 0;
-int g_curStance = 0;
-int g_curStance_B = 0;
-short g_BS_phase = 0;
-unsigned long g_BS_NextActTime = 0;
-bool g_WordDisplay = 0;
 short g_mouse_L = 0;
-short g_menuFreeze = 0;
 bool g_mouseMoved = 0;
-short g_ScreenConv_Alpha = 0;
-short g_FieldConv_Alpha = 0;
-unsigned long g_MainNextActTime = 0;
-unsigned long g_MobNextOutTime = 0;
-unsigned long g_HelpNextActTime = 0;
-unsigned long g_BoyAttackedTime = 0;
-int g_Frame = 0;
-bool g_MobNextTimeFixed = 0;
-short g_scroll_Y = 0;
-short bat_STUN_turn = 0;
-short bat_mouse_pos = 0;
-char bat_ChookGi = 0;
-short bat_mobskill_turn = 0;
-bool map_BOSS_done = 0;
-short map_Heal_Used = 0;
-short map_ComboF_Used = 0;
-short map_BNPC_Pos = 0;
-bool map_BNPC_done = 0;
-bool map_BNPC_event = 0;
-short game_TetrisPlayed = 0;
-short game_ShopOpenNumber = 0;
-bool game_ItemRentEvent = 0;
-short g_selected_item = 0;
-short g_selected_item_ID = 0;
-int g_used_Skill = 0;
-unsigned long g_used_Skill_Time = 0;
-int g_Mob_used_Skill = 0;
-int g_BattleEvent = 0;
-int g_NextSkill = 0;
-short g_SpellSeek = 0;
-unsigned long g_SpellSeekTime = 0;
-char g_TravelMap_Count = 0;
-short Boy_friendly = 0;
-short Boy_talked = 0;
-bool Boy_frame = 0;
-short g_Aco_HeadPal = 0;
-short g_Aco_BodyPal = 0;
-char g_TIME_hr = 0;
-char g_TIME_min = 0;
-char g_Aco_Hair_Color = 0;
-char g_BS_Hair_Color = 0;
-char g_curEnding = 0;
-char g_ClearedGame = 0;
-unsigned long g_TimeStorage = 0;
 
 
 
@@ -4557,17 +4473,6 @@ bool UIWindowMgr::isFocusChatWnd()
 
 bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, int accurateKey)
 {
-	if (accurateKey == 0x1e0001)
-		virtualKey = 'A';
-	else if (accurateKey == 0x200001)
-		virtualKey = 'D';
-	else if (virtualKey == VK_RETURN)
-		virtualKey = 'A';
-	else if (virtualKey == 0x110001 || virtualKey == 'W')
-		virtualKey = VK_UP;
-	else if (virtualKey == 0x2d0001 || virtualKey == 'X')
-		virtualKey = VK_DOWN;
-
 	switch (virtualKey) {
 	case VK_ESCAPE:
 		if (newKeydown) {
@@ -4722,17 +4627,6 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 	}
 
 	case VK_UP: {
-		g_menuSelect--;
-		if (g_menuSelect < 1)
-			g_menuSelect = 1;
-		if (g_curStance_B == 1) {
-			TT->Block_rot++;
-			if (TT->Block_rot > 3)
-				TT->Block_rot -= 4;
-			TT->BlockSetting(TT->Block_type, TT->Block_rot, true);
-			if (TT->Block_rot < 0)
-				TT->Block_rot += 4;
-		}
 		CMode *curMode = g_modeMgr.GetCurMode();
 		if (curMode) {
 			int useType = curMode->SendMsg(MM_GET_SKILL_USE_TYPE, 0, 0, 0);
@@ -4746,24 +4640,6 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 	}
 
 	case VK_DOWN: {
-		g_menuSelect++;
-		if (g_menuSelect > 3)
-			g_menuSelect = 3;
-		if (g_curStance_B == 1) {
-			char PASS = 0;
-			for (int ix = 0; ix < 4; ix++) {
-				for (int iy = 0; iy < 4; iy++) {
-					if (TT->Block[ix][iy] > 0) {
-						if (TT->Area[TT->Block_X + ix][TT->Block_Y + iy + 1] > 0)
-							PASS = 1;
-					}
-				}
-			}
-			if (!PASS)
-				TT->Block_Y++;
-			else
-				TT->Block_movetime = 0;
-		}
 		CMode *curMode = g_modeMgr.GetCurMode();
 		if (curMode) {
 			int useType = curMode->SendMsg(MM_GET_SKILL_USE_TYPE, 0, 0, 0);
@@ -4777,36 +4653,10 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 	}
 
 	case VK_LEFT:
-		if (g_curStance_B == 1) {
-			char PASS = 0;
-			for (int ix = 0; ix < 4; ix++) {
-				for (int iy = 0; iy < 4; iy++) {
-					if (TT->Block[ix][iy] > 0) {
-						if (TT->Area[TT->Block_X + ix - 1][TT->Block_Y + iy] > 0)
-							PASS = 1;
-					}
-				}
-			}
-			if (!PASS)
-				TT->Block_X--;
-		}
 		LeftButton();
 		break;
 
 	case VK_RIGHT:
-		if (g_curStance_B == 1) {
-			char PASS = 0;
-			for (int ix = 0; ix < 4; ix++) {
-				for (int iy = 0; iy < 4; iy++) {
-					if (TT->Block[ix][iy] > 0) {
-						if (TT->Area[TT->Block_X + ix + 1][TT->Block_Y + iy] > 0)
-							PASS = 1;
-					}
-				}
-			}
-			if (!PASS)
-				TT->Block_X++;
-		}
 		RightButton();
 		break;
 
@@ -4858,8 +4708,6 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 			if (m_statusWnd)
 				m_statusWnd->SendMsg(NULL, UM_COMMAND, 0x88, 0, 0, 0);
 		}
-		else
-			ExeMenu();
 		break;
 
 	case 'S':
@@ -4869,17 +4717,6 @@ bool UIWindowMgr::ProcessPushButton(unsigned long virtualKey, int newKeydown, in
 				return true;
 			}
 		}
-		else
-			g_session.GetGameActorByAid(1);
-		break;
-
-	case 'D':
-		if (g_curScreen == 110)
-			SetcurScreen(100);
-		else if (g_curScreen == 120)
-			SetcurScreen(100);
-		else if (g_curScreen == 2)
-			SetcurScreen(1);
 		break;
 
 	case 'O':

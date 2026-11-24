@@ -3466,8 +3466,6 @@ void	CGameActor :: SetVanish()
 }
 
 
-extern int g_curStance;
-extern int g_curScreen;
 bool	CGameActor :: ProcessState()
 {
 	if (m_freezeEndTick)
@@ -3611,12 +3609,7 @@ bool	CGameActor :: ProcessState()
 						m_pos.z = nBY;
 
 						posChanged = TRUE;
-						if (m_gid == 3 && g_curStance == 2 && g_curScreen == 12) {
-							m_roty = 450.0f;
-							SetState(ST_ATTACKWAIT);
-						} else {
-							SetState(ST_STAND);
-						}
+						SetState(ST_STAND);
 						m_isNeverAnimation = false;
 						m_isMotionFreezed = false;
 	#ifdef	SECONDJOB_SKILL2

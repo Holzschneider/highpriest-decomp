@@ -7,22 +7,6 @@
 
 
 
-struct HP_Damage_Moment {
-public:
-	unsigned long DamageTime;
-	int DamageChar;
-	int DamageNum;
-	char DamageEnd;
-};
-
-
-struct HP_TRAVEL_AVAILABLE {
-public:
-	short X;
-	short Y;
-	char Map;
-};
-
 struct Registry {
 public:
 	_GUID guidDevice;

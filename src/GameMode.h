@@ -238,7 +238,6 @@ public:
 	void MakeActorNameBalloon(CGameActor* theActor);
 	void MakeAttackedActorNameBalloon(CGameActor* theActor);
 	void ProcessNameBalloon();
-	void DeleteBroadcastBalloon();
 	CGameActor* MakeGameActor(int job);
 	CGameActor* NewNpc(int job);
 	void PlaceEffect(vector3d* pos, int effectId, int lastTime, int F1 = 0);
@@ -284,11 +283,6 @@ public:
 	unsigned long GetAid(const char* cName);
 	void ProcessTalkType(int val1, int val2);
 	void ProcessLockOnMouse();
-	void ProcessDamageSituation();
-	void GainExp(short ExpValue, int JT_Opp);
-	int GetNextExpValue(short Level);
-	short GetWeaponPower(int ItemID);
-	int GetWeaponCost(int processType);
 	void ProcessAssignAID();
 	int ProcessActorPick(int processType, CActorPickInfo* actorInfo);
 	void ProcessPcPick(int& processType, CActorPickInfo* actorInfo, CGameActor* pc);
@@ -327,7 +321,6 @@ public:
 	void Zc_Accept_Enter2(const char* modeName);
 	void Zc_Ack_Reqname(const char* modeName);
 	void Zc_Broadcast(const char* modeName);
-	void Zc_BroadCast_HP(int time);
 	void Zc_Whisper(const char* modeName);
 	void Zc_Ack_Whisper(const char* modeName);
 	void Zc_Change_Direction(const char* modeName);
@@ -587,8 +580,6 @@ public:
 	void Zc_Notify_Moveentry2(const char* modeName);
 	void Zc_Notify_Standentry3(const char* modeName);
 	void Zc_Notify_Standentry4(const char* modeName);
-	void Zc_Notify_Entry_HP(int JT_ID, short CX, short CY);
-	void Zc_Notify_Entry_Mob(int JT_Num, int F2, short CX, short CY);
 	void Zc_Notify_Newentry3(const char* modeName);
 	void Zc_Notify_Newentry4(const char* modeName);
 	void Zc_Notify_Moveentry3(const char* modeName);

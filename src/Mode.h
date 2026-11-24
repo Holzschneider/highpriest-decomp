@@ -332,7 +332,6 @@ public:
 	void RunFadeOut(int state);
 	void DrawSprite(int x, int y, CActRes* act, CSprRes* spr, int actId, int motId, float zoom, float angle, unsigned long color);
 	void DrawTexture(tagRECT* rect, int angle, float oow, unsigned long argb, CTexture* tex, UVRECT uvRect = UVRECT(0,0,1,1));
-	void DrawBackGround2D(tagRECT* rect, int angle, float oow, unsigned long argb, CTexture* tex, UVRECT uvRect);
 	void DrawMouseCursor();
 	void DrawBattleMode();
 	void MakeHelpBalloon(const char* helpMsg, int x, int y, unsigned long fntColor);

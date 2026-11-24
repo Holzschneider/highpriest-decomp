@@ -914,8 +914,6 @@ public:
 	ITEM_INFO GetItemInfoById(int __$ReturnUdt);
 	ITEM_INFO GetItemInfoByIndex(int __$ReturnUdt);
 	ITEM_INFO GetItemInfoBySequence(int __$ReturnUdt);
-	bool DoPCHaveItem(int index);
-	void HP_EquipItemById(int money);
 	char* GetJobActName(int job, int sex, char* buf);
 	char* GetJobSprName(int job, int sex, char* buf);
 	char* GetJobDyeActName(int job, int sex, char* buf);
@@ -1086,9 +1084,6 @@ public:
 	void SetGid(unsigned long gid) { m_gid = gid; }
 	unsigned long GetAid() { return m_aid; }
 	unsigned long GetGid() { return m_gid; }
-	void HP_AddItem(int itemID, bool F1);
-	short HP_GetLocation(int itemID);
-	void HP_MakingItem();
 	int GetJob();
 	int IsThisPC(int index);
 	int GetExp() { return m_exp; }
@@ -1176,10 +1171,6 @@ public:
 	int GetMaxsp() { return Decode(m_maxsp[m_maxspIndex], m_xorValue[m_xorIndex]); }
 	int GetHp() { return Decode(m_hp[m_hpIndex], m_xorValue[m_xorIndex]); }
 	int GetSp() { return Decode(m_sp[m_spIndex], m_xorValue[m_xorIndex]); }
-	void SetStatusData(CGameActor* TheActor);
-	int Mob_SkillReturn(CGameActor* MobActor);
-	void GainSkill(int skillID, short LV, bool F1);
-	short HaveThisSkill(int itemID);
 	int GetHomunHP() { return m_homunHP; }
 	int GetHomunSP() { return m_homunSP; }
 	int GetHomunMaxHP() { return m_homunMaxHP; }
@@ -1339,7 +1330,6 @@ public:
 	int GetPetTalkNumber(int job, int act, int hungry);
 	int GetPetEmotion(int Hunger, int Friendly, int act) { return m_petEmotionTable[Hunger][Friendly][act]; }
 	CGameActor* GetGameActorByAid(unsigned long aid);
-	void SetDamageSituation(int Time, int GID, int Num, bool Disp);
 	char* GetStateName(int hunger);
 	unsigned long GetForceAnimEndTick(unsigned long AID);
 	void SetForceAnimEndTick(unsigned long AID, unsigned long tick);
@@ -1413,7 +1403,6 @@ public:
 	int m_camp_A;
 	int m_camp_B;
 	char m_charfont;
-	short m_DayCount;
 	int m_cartCurCount;
 	int m_cartMaxCount;
 	int m_cartCurWeight;

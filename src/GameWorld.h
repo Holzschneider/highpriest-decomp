@@ -81,8 +81,6 @@ public:
 	bool RemoveGameActor(unsigned long gameActor);
 	bool RemoveItem(unsigned long gameActor);
 	void RemoveGameActorAll();
-	CSkill* MakeSkill(int val_JT, int val_X, int val_Y);
-	bool RemoveSkillbyJT(int val_JT);
 private:
 	void BuildSceneGraph();
 	void FreeSceneGraph();

@@ -184,7 +184,6 @@ bool SearchProcessIn9X()
 					if (strcmp(szProcessName, "RAGEXE.EXE")     == 0 ||
 						strcmp(szProcessName, "SAKEXE.EXE")     == 0 ||
 						strcmp(szProcessName, "RAGEXEAD.EXE")   == 0 ||
-						strcmp(szProcessName, "HIGHPRIEST.EXE") == 0 ||
 						strcmp(szProcessName, "SAKTESTEXE.EXE") == 0 ||
 						strcmp(szProcessName, "ADTESTEXE.EXE")  == 0 ||
 						strcmp(szProcessName, "RAGEXE_M.EXE")   == 0 ||
@@ -259,7 +258,6 @@ bool SearchProcessInNT()
 					if (strcmp(szProcessName, "RAGEXE.EXE")     == 0 ||
 						strcmp(szProcessName, "SAKEXE.EXE")     == 0 ||
 						strcmp(szProcessName, "RAGEXEAD.EXE")   == 0 ||
-						strcmp(szProcessName, "HIGHPRIEST.EXE") == 0 ||
 						strcmp(szProcessName, "SAKTESTEXE.EXE") == 0 ||
 						strcmp(szProcessName, "ADTESTEXE.EXE")  == 0 ||
 						strcmp(szProcessName, "RAGEXE_M.EXE")   == 0 ||
@@ -996,9 +994,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		g_loginStartMode = 0;
 	else
 		g_loginStartMode = g_serviceType ? 2 : 0;
-
-	extern char g_Aco_Name[];
-	g_session.SetCharName(g_Aco_Name);
 
 
 

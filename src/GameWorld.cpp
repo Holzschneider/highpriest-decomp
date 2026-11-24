@@ -1375,45 +1375,6 @@ CSkill * CWorld :: GetSkillByAID(DWORD AID)
 	return NULL;
 }
 
-CSkill * CWorld::MakeSkill(int val_JT, int val_X, int val_Y)
-{
-	unsigned long AID = 199;
-	std::list<CSkill *>::iterator i = m_skillList.begin();
-	while (i != m_skillList.end()) {
-		if ((*i)->GetAID() > AID)
-			AID = (*i)->GetAID();
-		i++;
-	}
-
-	SKILLSTANDENTRYSTRUCT ss;
-	ss.job = val_JT;
-	ss.AID = AID + 1;
-	ss.xPos = val_X;
-	ss.yPos = val_Y;
-	ss.isVisible = 1;
-	ss.creatorAID = 1;
-
-	CSkill* skill = new CSkill;
-	m_gameObjectList.push_back(skill);
-	m_skillList.push_back(skill);
-	skill->SendMsg(NULL, AM_SKILLSTANDENTRY, (int)&ss, 0, 0);
-	return skill;
-}
-
-bool CWorld::RemoveSkillbyJT(int val_JT)
-{
-	std::list<CSkill *>::iterator i = m_skillList.begin();
-	while (i != m_skillList.end()) {
-		if ((*i)->GetJob() == val_JT) {
-			RemoveGameObject(*i);
-			m_skillList.erase(i);
-			return true;
-		} else
-			++i;
-	}
-	return false;
-}
-
 float	CWorld :: CalcShadowHeight(vector3d &pos)
 {
 	float	groundHeight = m_attr->GetHeight(pos.x, pos.z);
