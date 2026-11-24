@@ -115,8 +115,18 @@ void    CActRes :: ReCalcClipXY(CSprClip *	clip, int cx, int cy, int isHalfW, in
 	if (isHalfH)
 		cy *= 2;
 
+#if defined(BF_PORT)
+	// A layer scaled to 0 (the emotion act has some) divides by zero: the 2008
+	// client's conversion of the infinity gave 0x80000000 for a layer drawn at
+	// no size; the port leaves such a coordinate as read.
+	if (clip->zoomx != 0)
+		clip->x = (clip->x - (cx / 2 + cx % 2) * clip->zoomx) / clip->zoomx;
+	if (clip->zoomy != 0)
+		clip->y = (clip->y - (cy / 2 + cy % 2) * clip->zoomy) / clip->zoomy;
+#else
 	clip->x = (clip->x - (cx / 2 + cx % 2) * clip->zoomx) / clip->zoomx;
 	clip->y = (clip->y - (cy / 2 + cy % 2) * clip->zoomy) / clip->zoomy;
+#endif
 
 }
 
