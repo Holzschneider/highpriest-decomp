@@ -361,7 +361,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT
 			g_session.LaunchSkillSpecialEffect(skillId, count, this, tActor);
 
 			CalcDir(tPos.x, tPos.z);
-			DWORD	delayTime = m_attackMotion * m_motionSpeed * 24.0f;
+			DWORD	delayTime = (int)(m_attackMotion * m_motionSpeed * 24.0f);	// through int, as the 2008 build's __ftol: a negative product wraps
 
 			if (delayTime < 0)
 				delayTime = 0;
