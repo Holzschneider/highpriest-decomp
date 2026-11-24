@@ -30,7 +30,8 @@ Three shapes, told apart by their keys.
 - **Order.** Requests on a connection are carried out one after another, in the order received; replies come in the same order. A `wait` holds back the requests behind it until it completes. Events are sent whenever they happen, also between a request and its reply.
 - **`seq`** numbers the events of a connection, from 1. A reply's `seq` is the number of the last event sent before it, so a script knows exactly which events came before and after a command (see `wait`, `after`).
 - **`t`** is the client's clock in milliseconds since the client started, read from the one clock of the `sys` module.
-- **Errors.** A failed request is answered with `"ok": false` and `"error": {"code": "...", "message": "..."}`; `message` is for people and may change. A line that is not a JSON object, or has no `cmd`, is answered with `"id": null` (or its `id` if one could be read) and the code `bad_request`.
+- **Errors.** A failed request is answered with `"ok": false` and `"error": {"code": "...", "message": "..."}`; `message` is for people and may change. A line that is not a JSON object, or has no `cmd`, is answered with `"id": null` (or its `id` if one could be read) and the code `bad_request`; so is an `id` that is neither an integer nor a string.
+- **Shutdown.** A request the client has not finished when it shuts down (a `key` `press` of `cmd`+`q`, a `wait`) gets no reply: `bye` is the last line before the socket closes.
 
 | Code | Meaning |
 |---|---|
@@ -66,7 +67,7 @@ Arguments: `action` and, per action:
 | `press` | `key`, `mods` (optional) | down, then up in the next logic step |
 | `text` | `text` | each character is delivered as a typed character, as the system's text input would deliver it, one per logic step |
 
-`key` is a name from section 4. `mods` is a list of `shift`, `ctrl`, `alt`, `cmd`; the modifiers are held for the duration of the event, as if pressed before it and released after. Option is `alt` (spec section 4). Key events from the socket go through the same handling as keyboard events from AppKit: `cmd`+`q` quits, `cmd`+`f` toggles fullscreen, `cmd`+`v` pastes. `text` takes any string whose characters Windows-1252 can represent; others are refused as a whole with `bad_text`. It does not press Enter.
+`key` is a name from section 4. `mods` is a list of `shift`, `ctrl`, `alt`, `cmd`; the modifiers are held for the duration of the event, as if pressed before it and released after: they go down in the logic step of the key's event, before it, and up after the key's last event (`press`: in the step of the key-up; `down`, `up`: in the next step). A modifier already held (by an earlier `down`) is left as it is. Option is `alt` (spec section 4). Key events from the socket go through the same handling as keyboard events from AppKit: `cmd`+`q` quits, `cmd`+`f` toggles fullscreen, `cmd`+`v` pastes. `text` takes any string whose characters are printable Windows-1252 characters; others, control characters included, are refused as a whole with `bad_text`. It does not press Enter (Enter, Tab and Backspace are keys).
 
 Result: nothing beyond `ok`. The reply is sent once the client has taken the last of the events from its queue, so a following `state` sees their direct effect (a character in an edit field, a window opened by a key).
 
@@ -78,7 +79,7 @@ Arguments: `action`, and `x`, `y` (optional: without them the pointer stays wher
 |---|---|
 | `move` | the pointer moves to `x`, `y` |
 | `down`, `up` | moves to `x`, `y` if given, then the button goes down or up |
-| `click` | moves, then down and up in consecutive logic steps |
+| `click` | moves, then down and up in consecutive logic steps (with `x`, `y`, the move is a logic step of its own before the button, for `down`, `up`, `doubleclick` and `wheel` too) |
 | `doubleclick` | two clicks within the double-click interval |
 | `wheel` | moves, then the wheel turns by `dy` notches; positive is away from the user (the Windows sign) |
 
@@ -90,15 +91,15 @@ Result: `x`, `y`, the pointer's logical position after the action. The reply is 
 
 Arguments: `path` (absolute path of the PNG to write; its directory must exist).
 
-The next completed frame is written as an 8-bit RGBA PNG at the size of the drawable, in device pixels (the logical size times the UI scale, on a Retina display times the backing factor as well). The client writes the file and nothing else.
+The next completed frame (the first frame finished after the request) is written as an 8-bit RGBA PNG at the size of the drawable, in device pixels (the logical size times the UI scale, on a Retina display times the backing factor as well). The client writes the file and nothing else.
 
-Result: `path`, `width`, `height` (device pixels), `scale` (UI scale), `logical` (`{"w": ..., "h": ...}`), `frame` (the number of the frame captured), `sha256` (hex digest of the file's bytes).
+Result: `path`, `width`, `height` (device pixels), `scale` (UI scale), `logical` (`{"w": ..., "h": ...}`), `frame` (the number of the frame captured), `sha256` (hex digest of the file's bytes). A relative `path` is `bad_request`, a missing directory `io`; when no frame is completed within 20 seconds the answer is `bad_state`.
 
 ### `state`
 
 Arguments: `fields` (optional list naming the parts wanted; default all).
 
-Result: the parts below. A part that does not apply in the current mode is `null` (`self` and `map` outside game mode). Lists are empty, never absent.
+Result: the parts below. A part that does not apply in the current mode is `null` (`self` and `map` outside game mode). Lists are empty, never absent. A part the client does not provide (yet) is left out of the reply, as are names in `fields` that are not parts; a `wait` whose condition needs such a part answers `unsupported`.
 
 | Part | Content |
 |---|---|
@@ -135,7 +136,7 @@ Result: `met` (the condition), `event` (the matching event, for event conditions
 
 ### `resize`
 
-Arguments, each optional: `width`, `height` (window content in device pixels), `scale` (UI scale 1, 2 or 3), `fullscreen` (boolean).
+Arguments, each optional: `width` (320–8192), `height` (240–8192) (window content in device pixels), `scale` (UI scale 1, 2 or 3), `fullscreen` (boolean); out of range is `bad_request`.
 
 The window and the logical resolution change as a resize by the user does: renderer, projection, picking and window bounds are updated and saved window positions are clamped (spec section 3). The reply is sent when the next frame has been drawn at the new size. Result: `view` as in `state`.
 
@@ -173,7 +174,7 @@ Physical keys, named after the US layout regardless of the keyboard's layout. Ch
 
 ## 6. Reserved
 
-These names are kept for later versions, for first-class agent use (spec section 6). A client of version 0 answers them with `unsupported`; nobody uses them for anything else.
+These names are kept for later versions, for first-class agent use (spec section 6). A client of version 0 answers the commands with `unsupported`, leaves the `state` parts out of its replies and never sends the events; nobody uses them for anything else.
 
 - Commands: `step` (advance a fixed number of logic steps), `pause`, `resume`, `render` (draw without a visible window), `subscribe` (choose events), `trace` (stream trace lines), `config` (read or change a setting), `act` (high-level actions).
 - `state` parts: `inventory`, `equipment`, `skills`, `party`, `guild`, `status`.
