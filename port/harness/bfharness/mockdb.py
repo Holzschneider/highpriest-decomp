@@ -15,6 +15,7 @@ import threading
 from .sql import LOG_TABLES
 
 KEYED = {"login": "account_id", "char": "char_id", "inventory": "id", "mail": "id", "storage": "id"}
+KEYED.update({"auction": "auction_id", "mail_attachments": "id"})   # M8.4 auction
 
 
 def utcnow():

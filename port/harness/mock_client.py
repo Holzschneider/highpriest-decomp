@@ -655,6 +655,225 @@ class AltKeysMixin:
 
 
 
+
+
+# The auction windows (M8.4): rAthena's auction with feature.auction on, as the
+# 2008 client shows it (UIAuctionWnd 550x300 at UIX(200), UICY(100); its
+# controls where InitAllBtnPos and OnDraw put them), the bid menu and the
+# confirmation window; the item reaches the buyer in a letter.
+WID.update({"AUCTIONWND": 120, "AUCTIONMSGWND": 121, "IMGMENUWND": 122})
+ITEMS.setdefault(4001, ("Poring Card", 20))
+AUCTION_FEE_PER_HOUR = 12000
+AUCTION_DEFAULTS = {"now_money": "10,000,000", "max_money": "10,000,001", "delete_hour": "", "search_edit": ""}
+
+
+class AuctionMixin:
+    """Hooked into Mock by its base list and a line each in atcommand,
+    on_control and drop."""
+
+    def auction_state(self):
+        if not hasattr(self, "auc"):
+            self.auc = {"type": 0, "item": None, "list": [], "sel": None, "by": 0, "edits": dict(AUCTION_DEFAULTS)}
+        return self.auc
+
+    def auction_rows(self, **where):
+        return [r for r in self.db.rows("auction") if all(r.get(k) == v for k, v in where.items())]
+
+    def auction_open(self):
+        a = self.auction_state()
+        a.update(type=0, item=None, sel=None, list=[])
+        if not self.window("AUCTIONWND"):
+            self.open_window(Window("AUCTIONWND", [392, 160, 550, 300]))
+        self.pkt("R", "0x025f", struct.pack("<I", 0))
+        self.auction_refresh()
+
+    def auction_refresh(self):
+        w = self.window("AUCTIONWND")
+        if not w:
+            return
+        a = self.auction_state()
+        for c in w.controls:                          # keep what was typed
+            if c["kind"] == "edit":
+                a["edits"][c["id"]] = c["text"]
+        x, y = w.rect[0], w.rect[1]
+        cs = [ctl("close", "button", x + 535, y + 2, 13, 13)]
+        cs += [ctl("auction_" + n, "button", x + bx, y + 264, 68, 30)
+               for n, bx in (("view", 6), ("add", 77), ("sell", 148), ("buy", 218))]
+        t = a["type"]
+        if t == 0:
+            cs += [ctl("order:" + n, "check", x + (10 if i == 0 else i * 50 + 23), y + 242, 60, 12, "on" if i == 0 else "off")
+                   for i, n in enumerate(("armor", "weapon", "card", "etc"))]
+            cs += [ctl("search_by:" + n, "check", x + 292 + 70 * i, y + 272, 70, 12, "on" if a["by"] == i else "off")
+                   for i, n in enumerate(("name", "number"))]
+            cs += [ctl("search_edit", "edit", x + 427, y + 270, 80, 16, a["edits"]["search_edit"], limit=246),
+                   ctl("search", "button", x + 515, y + 265, 30, 30)]
+        elif t == 1:
+            cs += [ctl("now_money", "edit", x + 162, y + 80, 65, 16, a["edits"]["now_money"], limit=11),
+                   ctl("max_money", "edit", x + 240, y + 80, 65, 16, a["edits"]["max_money"], limit=11),
+                   ctl("delete_hour", "edit", x + 420, y + 80, 28, 16, a["edits"]["delete_hour"], limit=2),
+                   ctl("add_seller", "button", x + 310, y + 80, 83, 14, self.self_["name"]),
+                   ctl("add_auction", "button", x + 438, y + 265, 55, 25),
+                   ctl("cancel", "button", x + 496, y + 265, 50, 25)]
+            if a["item"]:
+                cs.append(ctl("add_item", "button", x + 63, y + 80, 94, 14, ITEMS.get(a["item"], ("?item",))[0]))
+        else:
+            if t == 2 and a["sel"]:
+                cs += [ctl("finish_auction", "button", x + 438, y + 265, 55, 25),
+                       ctl("cancel", "button", x + 496, y + 265, 50, 25)]
+            if t == 3:
+                cs.append(ctl("buy_auction", "button", x + 465, y + 265, 55, 25))
+        for i, r in enumerate(a["list"][:5]):
+            ry = y + (70 + 34 * i if t == 0 else 72 + 38 * i)
+            cs.append(ctl("auction:%d" % r["auction_id"], "button", x + 68, ry, 86, 14, r["item_name"]))
+            if r["seller_name"] and t in (0, 3):
+                cs.append(ctl("seller:%d" % r["auction_id"], "button", x + (309 if t == 0 else 344), ry, 72, 14,
+                              r["seller_name"]))
+            if r["buyer_name"] and t in (0, 2):
+                cs.append(ctl("buyer:%d" % r["auction_id"], "button", x + (384 if t == 0 else 344), ry, 72, 14,
+                              r["buyer_name"]))
+        focus = w.focus_control
+        w.controls = cs
+        edits = [c["id"] for c in cs if c["kind"] == "edit"]
+        w.focus_control = focus if focus in edits else (edits[0] if edits else None)
+
+    def auction_search(self, text):
+        self.pkt("S", "0x0251", struct.pack("<hI24sH", 4, 0, text.encode("cp1252")[:24], 1))
+        rows = [r for r in self.auction_rows() if text in r["item_name"]]
+        self.pkt("R", "0x0252", struct.pack("<HII", 12 + 83 * len(rows[:5]), 1, len(rows[:5])) + b"\0" * 83 * len(rows[:5]))
+        return rows
+
+    def auction_control(self, w, c):
+        a = self.auction_state()
+        cid = c["id"]
+        s = self.self_
+        if w.name == "AUCTIONWND":
+            if cid == "close":
+                self.close_window(w.name)
+                return
+            if cid.startswith("auction_"):
+                a["type"] = ("view", "add", "sell", "buy").index(cid[8:])
+                a["sel"], a["item"] = None, None
+                a["edits"] = dict(AUCTION_DEFAULTS)
+                if a["type"] == 2:
+                    a["list"] = self.auction_rows(seller_id=s["char_id"])
+                elif a["type"] == 3:
+                    a["list"] = self.auction_rows(buyer_id=s["char_id"])
+                else:
+                    a["list"] = []
+                if a["type"] in (2, 3):
+                    self.pkt("S", "0x025c", struct.pack("<H", a["type"] - 2))
+            elif cid.startswith("search_by:"):
+                a["by"] = 0 if cid.endswith("name") else 1
+            elif cid == "search":
+                self.auction_refresh()
+                a["list"] = self.auction_search(w.control("search_edit")["text"])
+            elif cid.startswith("auction:") and a["type"] in (2, 3):
+                a["sel"] = int(cid.split(":")[1])
+            elif cid == "add_auction" and a["item"]:
+                self.auction_refresh()
+                now, top = (int(a["edits"][k].replace(",", "") or 0) for k in ("now_money", "max_money"))
+                hours = int(a["edits"]["delete_hour"] or 0)
+                self.pkt("S", "0x024d", struct.pack("<IIH", now, top, hours))
+                aid = max([r["auction_id"] for r in self.db.rows("auction")] or [0]) + 1
+                self.db.put("auction", auction_id=aid, seller_id=s["char_id"], seller_name=s["name"], buyer_id=0,
+                            buyer_name="", price=now, buynow=top, hours=hours, nameid=a["item"],
+                            item_name=ITEMS.get(a["item"], ("?item",))[0], type=6)
+                self.add_zeny(-hours * AUCTION_FEE_PER_HOUR, "I")
+                a["item"] = None
+                self.pkt("R", "0x0250", b"\x01")
+                self.system("You have successfully started a new auction.")
+            elif cid == "finish_auction" and a["sel"]:
+                self.auction_message(2, a["sel"])
+            self.auction_refresh()
+        elif w.name == "IMGMENUWND":
+            self.close_window(w.name)
+            self.auction_message(int(cid.split(":")[1]), w.data["auction_id"])
+        elif w.name == "AUCTIONMSGWND":
+            self.close_window(w.name)
+            if cid != "ok":
+                return
+            aid, t = w.data["auction_id"], w.data["type"]
+            r = next((r for r in self.auction_rows(auction_id=aid)), None)
+            if not r:
+                return
+            if t == 2:
+                self.pkt("S", "0x025d", struct.pack("<I", aid))
+                self.auction_close(r)
+                self.pkt("R", "0x025d", struct.pack("<H", 0))
+                self.system("You have ended the auction.")
+            else:
+                money = r["buynow"] if t == 1 else int(w.control("money")["text"].replace(",", "") or 0)
+                self.pkt("S", "0x024f", struct.pack("<II", aid, money))
+                self.add_zeny(-money, "I")
+                self.db.put("auction", **dict(r, buyer_id=s["char_id"], buyer_name=s["name"], price=money))
+                self.pkt("R", "0x0250", b"\x01")
+                self.system("You have successfully bid in the auction.")
+            self.auction_refresh()
+
+    def auction_message(self, t, aid):
+        """UIAuctionMsgWnd: 0 bid, 1 buy now, 2 end the auction."""
+        L = self.logical()
+        x, y = L[0] // 2 - 118, L[1] // 2 - 80
+        cs = [ctl("close", "button", x + 221, y + 4, 13, 13), ctl("ok", "button", x + 122, y + 129, 42, 20),
+              ctl("cancel", "button", x + 180, y + 129, 42, 20)]
+        if t == 0:
+            cs.insert(0, ctl("money", "edit", x + 100, y + 88, 65, 16, "", limit=11))
+        self.open_window(Window("AUCTIONMSGWND", [x, y, 236, 161], cs, data={"type": t, "auction_id": aid}))
+
+    def auction_close(self, r):
+        """rAthena's mapif_parse_Auction_close: the bid to the seller, the item to the buyer."""
+        mid = max([m["id"] for m in self.db.rows("mail")] or [0]) + 1
+        now = int(time.time())
+        self.db.put("mail", id=mid, send_name="Auction Manager", send_id=0, dest_name=r["seller_name"],
+                    dest_id=r["seller_id"], title="Auction", message="Auction closed.", time=now, status=0,
+                    zeny=r["price"], type=0)
+        self.db.put("mail", id=mid + 1, send_name="Auction Manager", send_id=0, dest_name=r["buyer_name"],
+                    dest_id=r["buyer_id"], title="Auction", message="Auction winner.", time=now, status=0,
+                    zeny=0, type=0)
+        self.db.put("mail_attachments", id=mid + 1, index=0, nameid=r["nameid"], amount=1, identify=1)
+        self.db.put("auction", auction_id=r["auction_id"], _deleted=True)
+
+    def auction_drop(self, src, key):
+        """An item from the item window into the register tab (CZ_AUCTION_ADD_ITEM)."""
+        a = self.auction_state()
+        r = next((r for r in self.inventory() if r["id"] == key), None) if src == "ITEMWND" else None
+        if a["type"] != 1 or not r:
+            return
+        self.pkt("S", "0x024c", struct.pack("<HI", r["id"], 1))
+        self.pkt("R", "0x0256", struct.pack("<HB", r["id"], 0))
+        a["item"] = r["nameid"]
+        self.add_item(r["nameid"], -1, "I")     # the server takes it at Add; the client hides it at once
+        self.auction_refresh()
+
+    def key_extra(self, key, down, mods):
+        w = self.windows[0] if self.windows else None
+        if down and key == "backspace" and w and w.name in ("AUCTIONWND", "AUCTIONMSGWND") and w.focus_control:
+            c = w.control(w.focus_control)
+            c["text"] = c["text"][:-1]
+            return True
+        return super().key_extra(key, down, mods)
+
+    def button_extra(self, button, down, x, y):
+        if self.mode == "game" and button == "right" and down:
+            w = self.window("AUCTIONWND")
+            c = w.hit(x, y) if w and self.window_at(x, y) is w else None
+            if c and c["id"].startswith("auction:") and self.auction_state()["type"] == 0:
+                self.close_window("IMGMENUWND")
+                self.open_window(Window("IMGMENUWND", [x, y, 58, 43], [
+                    ctl("menu:0", "button", x, y, 55, 20), ctl("menu:1", "button", x, y + 20, 55, 20)],
+                    data={"auction_id": int(c["id"].split(":")[1])}))
+                return True
+        if self.mode == "game" and button == "left" and not down:
+            v = self.window("MAILVIEWWND")
+            if v and self.window_at(x, y) is v and 144 < x - v.rect[0] < 279 and 327 < y - v.rect[1] < 363:
+                mid = v.data.get("mail_id")
+                for att in [r for r in self.db.rows("mail_attachments") if r["id"] == mid]:
+                    self.add_item(att["nameid"], att["amount"], "E")     # CZ_MAIL_GET_ITEM
+                    self.db.put("mail_attachments", id=mid, _deleted=True)
+                return True
+        return super().button_extra(button, down, x, y)
+
+
 class Conn:
     def __init__(self, sock):
         self.sock = sock
@@ -667,7 +886,7 @@ class Conn:
         self.out = b""
 
 
-class Mock(AltKeysMixin, SkillsOptionsMixin):
+class Mock(AltKeysMixin, AuctionMixin, SkillsOptionsMixin):
     def __init__(self, path, db, trace):
         self.path = path
         self.db = db
@@ -1132,6 +1351,8 @@ class Mock(AltKeysMixin, SkillsOptionsMixin):
                 self.mail_send()
         elif w.name == "MAILVIEWWND" and cid == "close":
             self.close_window(w.name)
+        elif w.name in ("AUCTIONWND", "AUCTIONMSGWND", "IMGMENUWND"):
+            self.auction_control(w, c)
 
         elif w.name in ("ITEMWND", "EQUIPWND", "STATUSWND", "ITEMDROPCNTWND"):
             self.on_item_control(w, c, dbl)
@@ -1630,7 +1851,7 @@ class Mock(AltKeysMixin, SkillsOptionsMixin):
             ctl("list:0", "list", x + 13, y + 96, 258, 216, items=[m["message"]]),
             ctl("return_mail", "button", x + 127, y + 370, 43, 21),
             ctl("send_mail", "button", x + 175, y + 370, 43, 21),
-            ctl("delete_mail", "button", x + 223, y + 370, 43, 21)]))
+            ctl("delete_mail", "button", x + 223, y + 370, 43, 21)], data={"mail_id": mid}))
 
     def mail_send(self):
         w = self.window("MAILLISTWND")
@@ -1905,6 +2126,9 @@ class Mock(AltKeysMixin, SkillsOptionsMixin):
             nameid = r["nameid"]
         else:
             nameid = key
+        if target.name == "AUCTIONWND":
+            self.auction_drop(src, key)
+            return
         moves = {("ITEMSHOPWND", "ITEMPURCHASEWND"), ("ITEMSHOPWND", "ITEMSELLWND"),
                  ("ITEMWND", "ITEMSTOREWND"), ("ITEMSTOREWND", "ITEMWND")}
         if (src, target.name) not in moves:
@@ -2044,6 +2268,9 @@ class Mock(AltKeysMixin, SkillsOptionsMixin):
                 s["skills"] = dict(s.get("skills") or {}); s["skills"][1] = 9   # Basic Skill 9
             elif cmd == "heal":
                 s["hp"], s["sp"] = s["max_hp"], s["max_sp"]
+            elif cmd == "auction":
+                self.auction_open()
+                return
             else:
                 self.system("Unknown command.")
                 return
