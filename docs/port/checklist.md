@@ -155,7 +155,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M12.1 `.app` bundle, ad-hoc signed | build | M11 exit |
 | [x] 37667cf | M12.2 Game-folder chooser and settings window | native | M4.1, M3.4 |
 | [x] 18c1f99 | M12.3 Granny reader: format study on the game's `.gr2` files, loader, test program that dumps a model | formats | M3.8 |
-| [ ] | M12.3b Granny textures (RAD's Bink texture encoding) decoded and animation curves evaluated, with the test program drawing textured, posed models | formats | M12.3 |
+| [x] 888c4ff | M12.3b Granny textures (RAD's Bink texture encoding) decoded and animation curves evaluated, with the test program drawing textured, posed models | formats | M12.3 |
 | [ ] | M12.3a Granny models drawn in the client (guild flags, Emperium, guardians) | src | M12.3, M12.3b, M6 exit |
 | [x] c08899a | M12.4 Bink reader: format study on the game's `.bik` files, decoder, test program that writes frames | formats | M3.8 |
 | [ ] | M12.4a Intro movie played in the client | src | M12.4, M7 exit |
