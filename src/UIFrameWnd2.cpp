@@ -498,7 +498,7 @@ INT_PTR UILoadingWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 {
 	if (message == 0x11) {
 		char msg[100];
-		sprintf(msg, "Loading %d %s", val1, "%");
+		sprintf(msg, "Loading %d %s", (int)val1, "%");
 		m_barGraph->SetAmount((float)val1);
 	}
 	return 0;
@@ -3550,7 +3550,7 @@ INT_PTR UIItemCollectionWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 
 			int fontHeight = 32;
 			if (g_multiLang) {
-				sprintf(buff, "%s%s", MsgStr(MSI_NOTICE_TO_DELETE_TIME), g_language->GetLanguageCharset(true), buf);
+				sprintf(buff, "%s%s", MsgStr(MSI_NOTICE_TO_DELETE_TIME), g_language->GetLanguageCharset(true));
 			} else {
 				sprintf(buff, MsgStr(MSI_NOTICE_TO_DELETE_TIME), buf);
 				if (g_serviceType == ServiceIndonesia)
@@ -5149,7 +5149,7 @@ INT_PTR UIExchangeAcceptWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1
 
 			char msg2[10];
 			memset(msg2, 0, sizeof(msg2));
-			sprintf(msg2, "%d", val3);
+			sprintf(msg2, "%d", (int)val3);
 			RAG_BUDGET_SITES(1)
 			msg += msg2;
 			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)msg.c_str(), 0x8a, 0, 0);

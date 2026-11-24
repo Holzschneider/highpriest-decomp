@@ -627,7 +627,7 @@ void CALLBACK KeyData(void* pParam, unsigned char* pbBuff, DWORD dwBuffSize)
 	TCHAR buff[1024];
 	TCHAR passwd[256];
 
-	sprintf(passwd, "%x", hWnd);
+	sprintf(passwd, "%x", (unsigned int)(UINT_PTR)hWnd);
 	Decrypt((unsigned char*)passwd, strlen(passwd), pbBuff, (unsigned char*)buff, dwBuffSize);
 
 	sAssert(NULL == pbBuff[dwBuffSize] && dwBuffSize > 1);
@@ -801,7 +801,7 @@ void CALLBACK ModuleEnum(HINSTANCE hModule, void* pUserData)
 	else
 		pszFile += 1;
 
-	_snprintf(szMsg, sizeof(szMsg), "%08X %s\r\n", hModule, pszFile);
+	_snprintf(szMsg, sizeof(szMsg), "%08X %s\r\n", (unsigned int)(UINT_PTR)hModule, pszFile);
 	strcat(szBuffer, szMsg);
 }
 

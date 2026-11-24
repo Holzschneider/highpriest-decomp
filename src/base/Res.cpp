@@ -430,7 +430,7 @@ void	CResMgr :: PrintRes(const char* fileName)
 		res_map_iter i = res_file_list.begin();
 
 		for(; i!=res_file_list.end(); ++i) {
-			fprintf(file, "%s\n", i->second->m_fName);
+			fprintf(file, "%s\n", i->second->m_fName.c_str());
 		}
 	}
 

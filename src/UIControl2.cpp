@@ -96,7 +96,7 @@ void UIBarGraph2::OnDraw()
 	}
 
 	char tmpStr[10];
-	sprintf(tmpStr, "%3ld%%", (int)m_percent);
+	sprintf(tmpStr, "%3d%%", (int)m_percent);
 	TextOutA((m_w >> 1) - 20, (m_h >> 1) - 7, tmpStr, 0, 1, 16, 0xffff);
 }
 

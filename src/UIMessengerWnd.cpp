@@ -91,7 +91,7 @@ void UIMessengerGroupWnd::OnCreate(int cx, int cy)
 			else
 				sprintf(buf, "%s", titleText[1]);
 		} else {
-			sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], m_itemList.size(), 40);
+			sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], (int)m_itemList.size(), 40);
 		}
 
 		m_titleText = new UIStaticText;
@@ -497,7 +497,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 			else
 				sprintf(buf, "%s", titleText[1]);
 		} else {
-			sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], m_itemList.size(), 40);
+			sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], (int)m_itemList.size(), 40);
 		}
 		m_titleText->SetTextWithShorten(buf);
 
@@ -849,7 +849,7 @@ INT_PTR UIMessengerGroupWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1
 				else
 					sprintf(buf, "%s", titleText[1]);
 			} else {
-				sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], m_itemList.size(), 40);
+				sprintf(buf, "%s(%d/%d)", titleText[m_curRadioBtn], (int)m_itemList.size(), 40);
 			}
 
 			m_titleText->Resize(m_w - 32, 12);

@@ -5004,7 +5004,7 @@ void UIHomunInfoWnd::OnDraw()
 	TextOutA(135, 47, stLevel, 0, 0, 12, 0);
 
 	if (g_session.m_homunJob != -1) {
-		char text[24];
+		char text[128];
 		textLen = sprintf(text, "%d / %d", g_session.m_homunHP, g_session.m_homunMaxHP);
 		TextOutA(218, 70, text, textLen, 1, 14, 0);
 

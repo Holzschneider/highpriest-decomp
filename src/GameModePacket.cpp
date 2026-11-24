@@ -2505,7 +2505,7 @@ void CGameMode::Zc_Broadcast(char const *buf)
 		temp[6] = 0;
 
 		unsigned int value;
-		sscanf(temp, "%lx", &value);
+		sscanf(temp, "%x", &value);
 
 		unsigned int colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
 
@@ -2530,7 +2530,7 @@ void CGameMode::Zc_Broadcast(char const *buf)
 		temp[6] = 0;
 
 		unsigned int value;
-		sscanf(temp, "%lx", &value);
+		sscanf(temp, "%x", &value);
 
 		unsigned int colorRef = RGB(GetBValue(value), GetGValue(value), GetRValue(value));
 
@@ -6016,7 +6016,7 @@ void CGameMode::Zc_Mvp_Getting_Item(char const *buf)
 
 	char removedItemName[64];
 	dummyItemInfo.GetItemName(removedItemName);
-	sprintf(msg, "%s%s", MsgStr(MSI_YOU_RECEIVE_MVP_ITEM), removedItemName, MsgStr(MSI_YOU_RECEIVE_MVP_ITEM2));
+	sprintf(msg, "%s%s", MsgStr(MSI_YOU_RECEIVE_MVP_ITEM), removedItemName);
 	g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(msg), int(RGB(0, 255, 255)), 0, 0);
 }
@@ -7519,7 +7519,7 @@ void	CGameMode :: Zc_groupinfo_change(const char *buf)
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)text, 0xffff, 0xb, 0);
 		break;
 	case 2:
-		sprintf(text, "%s", MsgStr(MSI_PARTYSETTING_CHANGE_IMPOSSIBLE), MsgStr(MSI_HOWEXPDIV), MsgStr(MSI_EXPDIV2));
+		sprintf(text, "%s", MsgStr(MSI_PARTYSETTING_CHANGE_IMPOSSIBLE));
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)text, 0xffff, 0xb, 0);
 		break;
 	}

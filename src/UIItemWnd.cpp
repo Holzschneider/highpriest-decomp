@@ -5328,7 +5328,7 @@ INT_PTR UIItemStoreWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 	switch (message) {
 	case UM_SETCOUNTINFO: {
 		char buf[64];
-		sprintf(buf, "%d/%d", val1, val2);
+		sprintf(buf, "%d/%d", (int)val1, (int)val2);
 		m_countInfoText = buf;
 		Invalidate();
 		break;
