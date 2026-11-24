@@ -2211,7 +2211,14 @@ void UIShortCutWnd::OnDraw()
 
 				if (skillInfo.m_isValid) {
 					g_session.GetSkillBitmapFileName(skillInfo.skillName, text);
+#if defined(BF_PORT)
+					// not refreshed: a refresh loads a new copy on every
+					// draw, which the resource map (its name taken) never
+					// takes or frees (the soak's leak of skill icons)
+					CBitmapRes* skillBmp = (CBitmapRes*)g_resMgr().Get(text, false);
+#else
 					CBitmapRes* skillBmp = (CBitmapRes*)g_resMgr().Get(text, true);
+#endif
 					DrawBitmap(x, 4, skillBmp, true);
 
 					if (m_shortCutList[slot].count) {
