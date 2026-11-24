@@ -6661,7 +6661,57 @@ void UIPartySettingWnd::OnCreate(int cx, int cy)
 	}
 }
 
-void UIPartySettingWnd::OnDraw() {}
+// Restored from the reference (FUN_0048ca50): title bar, frame, button bar
+// and the three captions; the recovery had left it empty.
+void UIPartySettingWnd::OnDraw()
+{
+	unsigned int rr;
+	unsigned int gg;
+	unsigned int bb;
+	int i;
+
+	CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(
+		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_left.bmp"), false);
+	DrawBitmap(0, 0, bmp, false);
+
+	bmp = (CBitmapRes*)g_resMgr().Get(
+		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_right.bmp"), false);
+	DrawBitmap(m_w - bmp->m_width, 0, bmp, false);
+
+	int titleMidCount = (m_w - 24) / 12 + (((m_w - 24) % 12) ? 1 : 0);
+	for (i = 0; i < titleMidCount; i++) {
+		bmp = (CBitmapRes*)g_resMgr().Get(
+			UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\titlebar_mid.bmp"), false);
+		DrawBitmap((i + 1) * 12, 0, bmp, false);
+	}
+
+	g_skinMgr.GetColorChipColor(14, 6, rr, gg, bb);
+	DrawBox(0, 17, m_w, m_h - 17, RGB(rr, gg, bb));
+	g_skinMgr.GetColorChipColor(2, 2, rr, gg, bb);
+	DrawBox(1, 17, m_w - 2, m_h - 17, RGB(rr, gg, bb));
+
+	bmp = (CBitmapRes*)g_resMgr().Get(
+		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\btnbar_left2.bmp"), false);
+	DrawBitmap(0, m_h - bmp->m_height, bmp, false);
+
+	bmp = (CBitmapRes*)g_resMgr().Get(
+		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\btnbar_right2.bmp"), false);
+	DrawBitmap(m_w - bmp->m_width, m_h - bmp->m_height, bmp, false);
+
+	int btnMidCount = (m_w - 42) / 21 + (((m_w - 42) % 21) ? 1 : 0);
+	for (i = 0; i < btnMidCount; i++) {
+		bmp = (CBitmapRes*)g_resMgr().Get(
+			UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\btnbar_mid2.bmp"), false);
+		DrawBitmap((i + 1) * 21, m_h - bmp->m_height, bmp, false);
+	}
+
+	TextOutA(17, 4, MsgStr(MSI_PARTYSETTING), 0, 0, 12, 0xffffff);
+	TextOutA(16, 3, MsgStr(MSI_PARTYSETTING), 0, 0, 12, 0);
+	if (m_nYOffset == 70)
+		TextOutA(10, 22, MsgStr(MSI_HOWEXPDIV), 0, 0, 12, 0);
+	TextOutA(10, m_nYOffset + 82, MsgStr(MSI_HOWITEMDIV), 0, 0, 12, 0);
+	TextOutA(10, m_nYOffset + 17, MsgStr(MSI_HOWITEMCOLLECT), 0, 0, 12, 0);
+}
 
 void UIPartySettingWnd::OnLBtnDown(int x, int y)
 {
