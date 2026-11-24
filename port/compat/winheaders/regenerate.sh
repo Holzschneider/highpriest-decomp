@@ -58,6 +58,10 @@ find "$DEST" -mindepth 1 ! -name README.md ! -name regenerate.sh -delete
 mkdir -p "$DEST/ddk"
 cp "$SRC"/include/*.h "$SRC"/include/*.inl "$SRC"/include/*.rh "$SRC"/include/*.x "$DEST/"
 cp "$SRC"/include/ddk/*.h "$DEST/ddk/"
+# Wine's C runtime headers, installed as include/wine/msvcrt, for the 32-bit
+# Windows compile of port/tools/layoutcheck.py. They sit in a subdirectory so
+# that no <stdio.h> of the macOS build can find them.
+cp -R "$SRC/include/msvcrt" "$DEST/msvcrt"
 cp "$OBJ"/include/*.h "$DEST/"
 rm -f "$DEST/config.h"
 find "$DEST" -maxdepth 1 -name 'windows.*.h' ! -name windows.h -delete

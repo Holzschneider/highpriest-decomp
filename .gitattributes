@@ -4,3 +4,4 @@
 src/device/Mss.h -whitespace
 src/DbgHelp.h -whitespace
 src/ijl.h -whitespace
+port/compat/winheaders/** -whitespace
