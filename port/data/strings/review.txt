@@ -4,228 +4,220 @@ classes the first examples of each group show the call site the rule looked at.
 
 === displayed: 69 literals, 64 distinct ===
 
--- text built with sprintf() for display  [25]
-   src/GameModePacket.cpp:10138  CGameMode::Zc_Reply_RemainTime
-      sprintf ( buffer , "..." , expirationTime -> tm_year + 1900 , expirationTime -> tm_mon + 1 , expirationTime -> tm_mday , p -> RemainTime / ( 60 * 60 ) , ( p ...
-      귀하는 혼합요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d , 남은시간 : %d 시간 %d 분 %d 초)
-   src/GameModePacket.cpp:10146  CGameMode::Zc_Reply_RemainTime
-      sprintf ( buffer , "..." , expirationTime -> tm_year + 1900 , expirationTime -> tm_mon + 1 , expirationTime -> tm_mday ) ;
-      귀하는 정액요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d )
-   src/GameModePacket.cpp:10151  CGameMode::Zc_Reply_RemainTime
-      sprintf ( buffer , "..." , p -> RemainTime / ( 60 * 60 ) , ( p -> RemainTime / 60 ) % 60 , p -> RemainTime % 60 ) ;
-      귀하는 정량요금제 사용자 입니다. (남은시간 : %d 시간 %d 분 %d 초)
-   src/GameModePacket.cpp:10156  CGameMode::Zc_Reply_RemainTime
-      else if ( p -> ExpirationDate <= currentTime && p -> RemainTime == 0 ) sprintf ( buffer , "..." ) ;
-      귀하는 무료요금제 사용자 입니다.
-   src/GameModePacket.cpp:10159  CGameMode::Zc_Reply_RemainTime
-      case 1000 : sprintf ( buffer , "..." ) ;
-      PC방의 요금제 정보는 요청할 수 없습니다.
-   src/GameModePacket.cpp:10162  CGameMode::Zc_Reply_RemainTime
-      case 10000 : sprintf ( buffer , "..." ) ;
-      귀하는 사크라이 2시간 무료요금제 사용자 입니다.
-   src/GameModePacket.cpp:10165  CGameMode::Zc_Reply_RemainTime
-      default : sprintf ( buffer , "..." ) ;
-      과금정보 요청에 실패 했습니다.
-   src/GameModePacket.cpp:10191  CGameMode::Zc_Info_RemainTime
-      case 100 : sprintf ( buffer , "..." , p -> RemainTime / 60 , p -> RemainTime % 60 ) ;
-      개인 정액제 시간이 %d분 %d초 남았습니다.
-   src/GameModePacket.cpp:10194  CGameMode::Zc_Info_RemainTime
-      case 200 : sprintf ( buffer , "..." , p -> RemainTime / 60 , p -> RemainTime % 60 ) ;
-      개인 정량제 시간이 %d분 %d초 남았습니다.
-   src/GameModePacket.cpp:12674  CGameMode::ZC_KILLER_RANK
-      sprintf ( msg , "..." ) ;
-      =========== 학살자 RANK ==============
-   src/LoginMode.cpp:456  CLoginMode::OnChangeState
-      if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , "..." ) ;
-      리디아+펜릴
-   src/LoginMode.cpp:458  CLoginMode::OnChangeState
-      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , "......
-      아이리스+토르
-   src/LoginMode.cpp:460  CLoginMode::OnChangeState
-      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , "......
-      로키+발두르
-   src/LoginMode.cpp:462  CLoginMode::OnChangeState
-      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , "......
-      케이아스+오딘
-   src/Session.cpp:186  CSession::Init
-      sprintf ( m_merName , "..." ) ;
-      용병
-   src/UIControl.cpp:868  UINameBalloonText::SetNameText
-      if ( g_serviceType == ServiceKorea ) sprintf ( temp , "..." , cName . c_str ( ) , namePair . pName . c_str ( ) ) ;
-      %s『%s』
-   src/UIControl.cpp:878  UINameBalloonText::SetNameText
-      if ( g_serviceType == ServiceKorea ) sprintf ( temp , "..." , namePair . gName . c_str ( ) , namePair . rName . c_str ( ) ) ;
-      %s『%s』
-   src/UIFrameWnd2.cpp:8308  UIProhibitListWnd::OnDraw
-      sprintf ( msg , "..." , g_session . m_chatProhibitLog [ c ] . prohibitTime , ( logDate >> 16 ) & 0xffff , ( logDate >> 8 ) & 0xff , logDate & 0xff , ( g_sess...
-      ProhibitTime : %d분   LogTime : %d년 %d월 %d일   %d시 %d분 %d초
-   src/UIItemWnd.cpp:887  UIItemShopWnd::OnMouseHover
-      if ( g_isGravityID ) sprintf ( tmp , "..." ) ;
-      한코인
-   src/UIItemWnd.cpp:2028  UIItemPurchaseWnd::OnMouseHover
-      if ( g_isGravityID ) sprintf ( tmp , "..." ) ;
-      한코인
-   src/UIItemWnd.cpp:2222  UIItemPurchaseWnd::OnDraw
-      if ( g_isGravityID ) sprintf ( tmp , "..." ) ;
-      한코인
-   src/UIItemWnd.cpp:2273  UIItemPurchaseWnd::SendMsg
-      if ( g_isGravityID ) sprintf ( text , "..." , 0 ) ;
-      Total : %d 한코인
-   src/UIItemWnd.cpp:2275  UIItemPurchaseWnd::SendMsg
-      else sprintf ( text , "..." , 0 ) ;
-      Total : %d 캐시
-   src/UIItemWnd.cpp:2513  UIItemPurchaseWnd::SendMsg
-      if ( g_isGravityID ) sprintf ( text , "..." , GetNumberText ( totalPrice , moneyTxt ) ) ;
-      Total : %s 한코인
-   src/UIItemWnd.cpp:2515  UIItemPurchaseWnd::SendMsg
-      else sprintf ( text , "..." , GetNumberText ( totalPrice , moneyTxt ) ) ;
-      Total : %s 캐시
-
--- error box: text of a MessageBox (ErrorMsg) the player reads  [21]
+-- default: not a path, not a diagnostic (review)  [54]
    src/3dlib/Texture.cpp:486  CTexture::Create
-      if ( g_texPixelFormat [ pf ] . dwSize != sizeof ( DDPIXELFORMAT ) ) ErrorMsg ( "..." "..." ) ;
+      if ( g_texPixelFormat [ pf ] . dwSize != sizeof ( DDPIXELFORMAT ) ) ErrorMsg ( bf_tr ( "..." "..." ) ) ;
       GFC 를 구동할 수 없는 비디오시스템입니다
    src/GameModePacket.cpp:3075  CGameMode::Sc_Notify_Ban
-      default : g_windowMgr . ErrorMsg ( "..." , ME_OK , TRUE , TRUE , 0 ) ;
+      default : g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , TRUE , TRUE , 0 ) ;
       매치되는 에러코드 없음.
+   src/GameModePacket.cpp:10138  CGameMode::Zc_Reply_RemainTime
+      sprintf ( buffer , bf_tr ( "..." ) , expirationTime -> tm_year + 1900 , expirationTime -> tm_mon + 1 , expirationTime -> tm_mday , p -> RemainTime / ( 60 * 6...
+      귀하는 혼합요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d , 남은시간 : %d 시간 %d 분 %d 초)
+   src/GameModePacket.cpp:10146  CGameMode::Zc_Reply_RemainTime
+      sprintf ( buffer , bf_tr ( "..." ) , expirationTime -> tm_year + 1900 , expirationTime -> tm_mon + 1 , expirationTime -> tm_mday ) ;
+      귀하는 정액요금제 사용자 입니다. (종료일시 : %04d/%02d/%02d )
+   src/GameModePacket.cpp:10151  CGameMode::Zc_Reply_RemainTime
+      sprintf ( buffer , bf_tr ( "..." ) , p -> RemainTime / ( 60 * 60 ) , ( p -> RemainTime / 60 ) % 60 , p -> RemainTime % 60 ) ;
+      귀하는 정량요금제 사용자 입니다. (남은시간 : %d 시간 %d 분 %d 초)
+   src/GameModePacket.cpp:10156  CGameMode::Zc_Reply_RemainTime
+      else if ( p -> ExpirationDate <= currentTime && p -> RemainTime == 0 ) sprintf ( buffer , bf_tr ( "..." ) ) ;
+      귀하는 무료요금제 사용자 입니다.
+   src/GameModePacket.cpp:10159  CGameMode::Zc_Reply_RemainTime
+      case 1000 : sprintf ( buffer , bf_tr ( "..." ) ) ;
+      PC방의 요금제 정보는 요청할 수 없습니다.
+   src/GameModePacket.cpp:10162  CGameMode::Zc_Reply_RemainTime
+      case 10000 : sprintf ( buffer , bf_tr ( "..." ) ) ;
+      귀하는 사크라이 2시간 무료요금제 사용자 입니다.
+   src/GameModePacket.cpp:10165  CGameMode::Zc_Reply_RemainTime
+      default : sprintf ( buffer , bf_tr ( "..." ) ) ;
+      과금정보 요청에 실패 했습니다.
+   src/GameModePacket.cpp:10191  CGameMode::Zc_Info_RemainTime
+      case 100 : sprintf ( buffer , bf_tr ( "..." ) , p -> RemainTime / 60 , p -> RemainTime % 60 ) ;
+      개인 정액제 시간이 %d분 %d초 남았습니다.
+   src/GameModePacket.cpp:10194  CGameMode::Zc_Info_RemainTime
+      case 200 : sprintf ( buffer , bf_tr ( "..." ) , p -> RemainTime / 60 , p -> RemainTime % 60 ) ;
+      개인 정량제 시간이 %d분 %d초 남았습니다.
+   src/GameModePacket.cpp:12674  CGameMode::ZC_KILLER_RANK
+      sprintf ( msg , bf_tr ( "..." ) ) ;
+      =========== 학살자 RANK ==============
    src/GameWorld.cpp:897  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       world에 NULL값이 들어왔습니다
    src/GameWorld.cpp:914  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       attr 파일이 rsw 내에 지정되어 있지 않습니다
    src/GameWorld.cpp:921  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       attr 파일 읽기에 실패
    src/GameWorld.cpp:928  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       gnd 파일이 rsw 내에 지정되어 있지 않습니다
    src/GameWorld.cpp:935  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       ground에 NULL이 들어왔습니다.
    src/GameWorld.cpp:943  CWorld::OnEnterFrame
-      ErrorMsg ( "..." ) ;
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       맵이 옛 버젼입니다
-   src/ItemInfo.cpp:53  CheckItemTable
-      if ( tableiter >= table . end ( ) ) ErrorMsg ( "..." ) ;
-      item.txt 스크립트를 확인해주세요.
-   src/LoginMode.cpp:1239  CLoginMode::Ac_Refuse_Login
-      if ( g_windowMgr . ErrorMsg ( "..." , ME_OK , TRUE , TRUE , 0 ) == ID_OK ) {
+   src/LoginMode.cpp:534  CLoginMode::OnChangeState
+      if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , bf_tr ( "...
+      리디아+펜릴
+   src/LoginMode.cpp:536  CLoginMode::OnChangeState
+      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , bf_t...
+      아이리스+토르
+   src/LoginMode.cpp:538  CLoginMode::OnChangeState
+      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , bf_t...
+      로키+발두르
+   src/LoginMode.cpp:540  CLoginMode::OnChangeState
+      else if ( ! strcmp ( ( char * ) m_serverInfo [ i ] . name , "..." ) ) sprintf ( serverName + strlen ( serverName ) , "..." , m_serverInfo [ i ] . name , bf_t...
+      케이아스+오딘
+   src/LoginMode.cpp:1371  CLoginMode::Ac_Refuse_Login
+      if ( g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , TRUE , TRUE , 0 ) == ID_OK ) {
       비밀번호를 3회 잘못입력하였습니다. 비밀번호를 확인해주세요.              클라이언트 실행을 종료합니다.
-   src/LoginMode.cpp:1322  CLoginMode::Ac_Refuse_Login
-      if ( g_windowMgr . ErrorMsg ( "..." , ME_OK , TRUE , TRUE , 0 ) == ID_OK ) {
+   src/LoginMode.cpp:1454  CLoginMode::Ac_Refuse_Login
+      if ( g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , TRUE , TRUE , 0 ) == ID_OK ) {
       비밀 번호 변경 후, 다시 접속 해주시기 바랍니다.
-   src/Session2.cpp:4155  CSession::GetMonsterSkillInfo
-      g_windowMgr . ErrorMsg ( "..." , ME_OK , 1 , 0 , 0 ) ;
+   src/Session.cpp:197  CSession::Init
+      sprintf ( m_merName , bf_tr ( "..." ) ) ;
+      용병
+   src/Session2.cpp:4166  CSession::GetMonsterSkillInfo
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , 1 , 0 , 0 ) ;
       에러발생. 클라이언트 담당자 에게 에러 사실을 통보 하세요. 위치 - CPlayer :: GetMonsterSkillInfo
-   src/Session2.cpp:4156  CSession::GetMonsterSkillInfo
-      g_windowMgr . ErrorMsg ( "..." , ME_OK , 1 , 0 , 0 ) ;
+   src/Session2.cpp:4167  CSession::GetMonsterSkillInfo
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , 1 , 0 , 0 ) ;
       action 또는 loopType 이 존재하지 않음.
-   src/Session2.cpp:5462  CSession::EraseProhibit
-      g_windowMgr . ErrorMsg ( "..." , ME_OK , 1 , 0 , 0 ) ;
+   src/Session2.cpp:4749  CSession::GetPetHungryStateText
+      if ( hungry >= 0 && hungry <= 10 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      배고픔
+   src/Session2.cpp:4751  CSession::GetPetHungryStateText
+      else if ( hungry > 10 && hungry <= 25 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      출출함
+   src/Session2.cpp:4753  CSession::GetPetHungryStateText
+      else if ( hungry > 25 && hungry <= 75 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      보통
+   src/Session2.cpp:4755  CSession::GetPetHungryStateText
+      else if ( hungry > 75 && hungry <= 90 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      배부름
+   src/Session2.cpp:4757  CSession::GetPetHungryStateText
+      else if ( hungry > 90 && hungry <= 100 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      아주 배부름
+   src/Session2.cpp:4759  CSession::GetPetHungryStateText
+      else strcpy ( buf , bf_tr ( "..." ) ) ;
+      몰라요.
+   src/Session2.cpp:4765  CSession::GetPetFriendlyStateText
+      if ( friendly >= 0 && friendly <= 100 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      서먹서먹함
+   src/Session2.cpp:4767  CSession::GetPetFriendlyStateText
+      else if ( friendly > 100 && friendly <= 250 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      어색함
+   src/Session2.cpp:4769  CSession::GetPetFriendlyStateText
+      else if ( friendly > 250 && friendly <= 750 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      보통
+   src/Session2.cpp:4771  CSession::GetPetFriendlyStateText
+      else if ( friendly > 750 && friendly <= 900 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      친함
+   src/Session2.cpp:4773  CSession::GetPetFriendlyStateText
+      else if ( friendly > 900 && friendly <= 1000 ) strcpy ( buf , bf_tr ( "..." ) ) ;
+      절친함
+   src/Session2.cpp:4775  CSession::GetPetFriendlyStateText
+      else strcpy ( buf , bf_tr ( "..." ) ) ;
+      저는 모릅니다아아아.
+   src/Session2.cpp:5480  CSession::EraseProhibit
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , 1 , 0 , 0 ) ;
       채팅 로그 삭제 안함 : 마이너스 된 시간이 기존의 채팅 금지 시간보다 짧습니다.
-   src/Session2.cpp:5465  CSession::EraseProhibit
-      g_windowMgr . ErrorMsg ( "..." , ME_OK , 1 , 0 , 0 ) ;
+   src/Session2.cpp:5483  CSession::EraseProhibit
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , 1 , 0 , 0 ) ;
       채팅 로그 삭제 성공
-   src/Session2.cpp:5468  CSession::EraseProhibit
-      g_windowMgr . ErrorMsg ( "..." , ME_OK , 1 , 0 , 0 ) ;
+   src/Session2.cpp:5486  CSession::EraseProhibit
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , ME_OK , 1 , 0 , 0 ) ;
       채팅 로그 삭제 실패 : 채팅 금지를 준 기록이 없습니다.
-   src/UIItemWnd.cpp:6829  UIMerchantShopMakeWnd::SendMsg
-      g_windowMgr . ErrorMsg ( "..." , 0 , TRUE , FALSE , 0 ) ;
-      상점과 채팅방을 동시에 열수 없습니다.
-   src/resource/Action.cpp:474  CRmaRes::Load
-      if ( m_actionList [ actNum ] . startFrame != - 1 ) ErrorMsg ( "..." ) ;
+   src/UIControl.cpp:868  UINameBalloonText::SetNameText
+      if ( g_serviceType == ServiceKorea ) sprintf ( temp , bf_tr ( "..." ) , cName . c_str ( ) , namePair . pName . c_str ( ) ) ;
+      %s『%s』
+   src/UIControl.cpp:878  UINameBalloonText::SetNameText
+      if ( g_serviceType == ServiceKorea ) sprintf ( temp , bf_tr ( "..." ) , namePair . gName . c_str ( ) , namePair . rName . c_str ( ) ) ;
+      %s『%s』
+   src/UIFrameWnd2.cpp:8310  UIProhibitListWnd::OnDraw
+      sprintf ( msg , bf_tr ( "..." ) , g_session . m_chatProhibitLog [ c ] . prohibitTime , ( logDate >> 16 ) & 0xffff , ( logDate >> 8 ) & 0xff , logDate & 0xff ...
+      ProhibitTime : %d분   LogTime : %d년 %d월 %d일   %d시 %d분 %d초
+   src/UIFrameWnd3.cpp:2952  UIRoMapWnd::DrawPartyInfos
+      int starX = GetTextWidth ( bf_tr ( "..." ) , 0 , 0 , 12 , true ) ;
+      ★
+   src/UIFrameWnd3.cpp:2956  UIRoMapWnd::DrawPartyInfos
+      TextOutWithOutline ( starX , it -> mapPosInfo . y_LT + 16 , bf_tr ( "..." ) , 0 , 0x8080f0 , 0xffffff , 0 , 12 , true ) ;
+      ★
+   src/UIItemWnd.cpp:887  UIItemShopWnd::OnMouseHover
+      if ( g_isGravityID ) sprintf ( tmp , bf_tr ( "..." ) ) ;
+      한코인
+   src/UIItemWnd.cpp:2028  UIItemPurchaseWnd::OnMouseHover
+      if ( g_isGravityID ) sprintf ( tmp , bf_tr ( "..." ) ) ;
+      한코인
+   src/UIItemWnd.cpp:2223  UIItemPurchaseWnd::OnDraw
+      if ( g_isGravityID ) sprintf ( tmp , bf_tr ( "..." ) ) ;
+      한코인
+   src/resource/Action.cpp:484  CRmaRes::Load
+      if ( m_actionList [ actNum ] . startFrame != - 1 ) ErrorMsg ( bf_tr ( "..." ) ) ;
       중복되는 액션이 있음
-   src/resource/Attr.cpp:59  C3dAttr::Load
-      ErrorMsg ( "..." ) ;
+   src/resource/Attr.cpp:62  C3dAttr::Load
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       Block Attr 이 지원되지 않는 옛버젼의 GAT 파일입니다. 새 버젼의 RPGSTUDIO 에서 교정하세요
-   src/resource/Model.cpp:216  C3dModelRes::Load
-      ErrorMsg ( "..." ) ;
+   src/resource/Model.cpp:219  C3dModelRes::Load
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       잘못된 포맷의 모델파일임.
-   src/resource/Model.cpp:225  C3dModelRes::Load
-      ErrorMsg ( "..." ) ;
+   src/resource/Model.cpp:232  C3dModelRes::Load
+      ErrorMsg ( bf_tr ( "..." ) ) ;
       지원되지 않는 버젼입니다. 내용물이 깨져있을 수 있습니다
 
--- text built with strcpy() for display  [12]
-   src/Session2.cpp:4738  CSession::GetPetHungryStateText
-      if ( hungry >= 0 && hungry <= 10 ) strcpy ( buf , "..." ) ;
-      배고픔
-   src/Session2.cpp:4740  CSession::GetPetHungryStateText
-      else if ( hungry > 10 && hungry <= 25 ) strcpy ( buf , "..." ) ;
-      출출함
-   src/Session2.cpp:4742  CSession::GetPetHungryStateText
-      else if ( hungry > 25 && hungry <= 75 ) strcpy ( buf , "..." ) ;
-      보통
-   src/Session2.cpp:4744  CSession::GetPetHungryStateText
-      else if ( hungry > 75 && hungry <= 90 ) strcpy ( buf , "..." ) ;
-      배부름
-   src/Session2.cpp:4746  CSession::GetPetHungryStateText
-      else if ( hungry > 90 && hungry <= 100 ) strcpy ( buf , "..." ) ;
-      아주 배부름
-   src/Session2.cpp:4748  CSession::GetPetHungryStateText
-      else strcpy ( buf , "..." ) ;
-      몰라요.
-   src/Session2.cpp:4754  CSession::GetPetFriendlyStateText
-      if ( friendly >= 0 && friendly <= 100 ) strcpy ( buf , "..." ) ;
-      서먹서먹함
-   src/Session2.cpp:4756  CSession::GetPetFriendlyStateText
-      else if ( friendly > 100 && friendly <= 250 ) strcpy ( buf , "..." ) ;
-      어색함
-   src/Session2.cpp:4758  CSession::GetPetFriendlyStateText
-      else if ( friendly > 250 && friendly <= 750 ) strcpy ( buf , "..." ) ;
-      보통
-   src/Session2.cpp:4760  CSession::GetPetFriendlyStateText
-      else if ( friendly > 750 && friendly <= 900 ) strcpy ( buf , "..." ) ;
-      친함
-   src/Session2.cpp:4762  CSession::GetPetFriendlyStateText
-      else if ( friendly > 900 && friendly <= 1000 ) strcpy ( buf , "..." ) ;
-      절친함
-   src/Session2.cpp:4764  CSession::GetPetFriendlyStateText
-      else strcpy ( buf , "..." ) ;
-      저는 모릅니다아아아.
-
--- text of a window message handler, drawn by the window  [7]
+-- text of a window message handler, drawn by the window  [13]
    src/UIFrameWnd2.cpp:3596  UIItemCollectionWnd::SendMsg
-      if ( m_isPetNameModified ) pet = "..." ;
+      if ( m_isPetNameModified ) pet = bf_tr ( "..." ) ;
       이름 변경됨
    src/UIFrameWnd2.cpp:3598  UIItemCollectionWnd::SendMsg
-      else pet = "..." ;
+      else pet = bf_tr ( "..." ) ;
       이름 변경되지않음
    src/UIFrameWnd2.cpp:3602  UIItemCollectionWnd::SendMsg
-      pet = "..." ;
+      pet = bf_tr ( "..." ) ;
       레벨 : 
    src/UIFrameWnd2.cpp:3607  UIItemCollectionWnd::SendMsg
-      pet = "..." ;
+      pet = bf_tr ( "..." ) ;
       만복도 : 
    src/UIFrameWnd2.cpp:3612  UIItemCollectionWnd::SendMsg
-      pet = "..." ;
+      pet = bf_tr ( "..." ) ;
       친밀도 : 
    src/UIFrameWnd2.cpp:3617  UIItemCollectionWnd::SendMsg
-      if ( m_petITID ) pet = "..." ;
+      if ( m_petITID ) pet = bf_tr ( "..." ) ;
       악세사리 : 장착됨
    src/UIFrameWnd2.cpp:3619  UIItemCollectionWnd::SendMsg
-      else pet = "..." ;
+      else pet = bf_tr ( "..." ) ;
       악세사리 : 장착안됨
+   src/UIFrameWnd2.cpp:9789  UIMailListWnd::SendMsg
+      g_windowMgr . SendMsg ( UIM_PUSHINTOCHATHISTORY , ( INT_PTR ) bf_tr ( "..." ) , 0xff , 0 , 0 ) ;
+      불량단어가 검출되어 메일을 보낼수 없습니다.
+   src/UIItemWnd.cpp:2274  UIItemPurchaseWnd::SendMsg
+      if ( g_isGravityID ) sprintf ( text , bf_tr ( "..." ) , 0 ) ;
+      Total : %d 한코인
+   src/UIItemWnd.cpp:2276  UIItemPurchaseWnd::SendMsg
+      else sprintf ( text , bf_tr ( "..." ) , 0 ) ;
+      Total : %d 캐시
+   src/UIItemWnd.cpp:2514  UIItemPurchaseWnd::SendMsg
+      if ( g_isGravityID ) sprintf ( text , bf_tr ( "..." ) , GetNumberText ( totalPrice , moneyTxt ) ) ;
+      Total : %s 한코인
+   src/UIItemWnd.cpp:2516  UIItemPurchaseWnd::SendMsg
+      else sprintf ( text , bf_tr ( "..." ) , GetNumberText ( totalPrice , moneyTxt ) ) ;
+      Total : %s 캐시
+   src/UIItemWnd.cpp:6833  UIMerchantShopMakeWnd::SendMsg
+      g_windowMgr . ErrorMsg ( bf_tr ( "..." ) , 0 , TRUE , FALSE , 0 ) ;
+      상점과 채팅방을 동시에 열수 없습니다.
+
+-- error box: text of a MessageBox (ErrorMsg) the player reads  [1]
+   src/ItemInfo.cpp:56  CheckItemTable
+      if ( tableiter >= table . end ( ) ) ErrorMsg ( "..." ) ;
+      item.txt 스크립트를 확인해주세요.
 
 -- returned as an item name shown to the player  [1]
-   src/Session.cpp:3869  CSession::GetItemName
-      return "..." ;
+   src/Session.cpp:3888  CSession::GetItemName
+      return bf_tr ( "..." ) ;
       검은물약
-
--- pushed into the chat history (UIM_PUSHINTOCHATHISTORY)  [1]
-   src/UIFrameWnd2.cpp:9786  UIMailListWnd::SendMsg
-      g_windowMgr . SendMsg ( UIM_PUSHINTOCHATHISTORY , ( INT_PTR ) "..." , 0xff , 0 , 0 ) ;
-      불량단어가 검출되어 메일을 보낼수 없습니다.
-
--- measures text that is drawn  [1]
-   src/UIFrameWnd3.cpp:2950  UIRoMapWnd::DrawPartyInfos
-      int starX = GetTextWidth ( "..." , 0 , 0 , 12 , true ) ;
-      ★
-
--- drawn on the map  [1]
-   src/UIFrameWnd3.cpp:2954  UIRoMapWnd::DrawPartyInfos
-      TextOutWithOutline ( starX , it -> mapPosInfo . y_LT + 16 , "..." , 0 , 0x8080f0 , 0xffffff , 0 , 12 , true ) ;
-      ★
 
 === other: 1685 literals, 1631 distinct ===
 
@@ -254,25 +246,25 @@ classes the first examples of each group show the call site the rule looked at.
    ... 241 more
 
 -- typed chat command, matched against the player's input; not shown  [101]
-   src/Session.cpp:6060  CSession::GetTalkType
+   src/Session.cpp:6107  CSession::GetTalkType
       else if ( t [ 0 ] == "..." ) {
       /ㅠ
-   src/Session.cpp:6069  CSession::GetTalkType
+   src/Session.cpp:6116  CSession::GetTalkType
       else if ( t [ 0 ] == "..." ) {
       /ㅣㅠ
-   src/Session.cpp:6075  CSession::GetTalkType
+   src/Session.cpp:6122  CSession::GetTalkType
       else if ( t [ 0 ] == "..." ) {
       /파란말
    ... 98 more
 
 -- kinship words searched and replaced in pet-talk text (GetPetTalkString); the English pettalk table never contains them  [26]
-   src/Session2.cpp:4629  -
+   src/Session2.cpp:4640  -
       "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..."...
       아빠
-   src/Session2.cpp:4630  -
+   src/Session2.cpp:4641  -
       "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..."...
       형님
-   src/Session2.cpp:4631  -
+   src/Session2.cpp:4642  -
       "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..." , "..."...
       오빠
    ... 23 more
@@ -320,19 +312,19 @@ classes the first examples of each group show the call site the rule looked at.
    src/MsgStrings.cpp:1482  GetMsgString
       Trace ( "..." , id , g_idMsgStrings [ id ] . msg ) ;
       다음 한글 메시지에 해당하는 번역 스크립트가 없습니다.\n ID:%d,메시지명:%s
-   src/Session.cpp:546  CSession::InitTable
+   src/Session.cpp:562  CSession::InitTable
       Trace ( "..." ) ;
       세션 에서 테이블 초기화 끝
    ... 4 more
 
 -- saved shortcut text compared with the Korean default; not shown  [7]
-   src/Session2.cpp:3399  CSession::InitShortCutTextFromReg
+   src/Session2.cpp:3410  CSession::InitShortCutTextFromReg
       if ( m_shortcutText [ 2 ] == "..." ) m_shortcutText [ 2 ] = MsgStr ( MSI_EMOTION_DELIGHT ) ;
       /기쁨
-   src/Session2.cpp:3400  CSession::InitShortCutTextFromReg
+   src/Session2.cpp:3411  CSession::InitShortCutTextFromReg
       if ( m_shortcutText [ 3 ] == "..." ) m_shortcutText [ 3 ] = MsgStr ( MSI_EMOTION_THROB ) ;
       /하트
-   src/Session2.cpp:3401  CSession::InitShortCutTextFromReg
+   src/Session2.cpp:3412  CSession::InitShortCutTextFromReg
       if ( m_shortcutText [ 4 ] == "..." ) m_shortcutText [ 4 ] = MsgStr ( MSI_EMOTION_SWEAT ) ;
       /땀
    ... 4 more
@@ -341,10 +333,10 @@ classes the first examples of each group show the call site the rule looked at.
    src/UIFrameWnd3.cpp:531  UIChangeNameWnd::SendMsg
       if ( strstr ( ( const char * ) g_charInfo . name , "..." ) ) break ;
       그라비티
-   src/UIWindowMgr.cpp:364  UIWindowMgr::InitShortcutItemInfoFromReg
+   src/UIWindowMgr.cpp:365  UIWindowMgr::InitShortcutItemInfoFromReg
       if ( strstr ( g_session . m_lastServerName . c_str ( ) , "..." ) ) strcat ( UIPath , "..." ) ;
       사크라이
-   src/UIWindowMgr.cpp:434  UIWindowMgr::WriteShorcutItemInfoToReg
+   src/UIWindowMgr.cpp:435  UIWindowMgr::WriteShorcutItemInfoToReg
       if ( strstr ( g_session . m_lastServerName . c_str ( ) , "..." ) ) strcat ( UIPath , "..." ) ;
       사크라이
    ... 2 more
@@ -370,28 +362,28 @@ classes the first examples of each group show the call site the rule looked at.
        ♡
 
 -- registry value text, not shown  [2]
-   src/UIWindowMgr.cpp:365  UIWindowMgr::InitShortcutItemInfoFromReg
+   src/UIWindowMgr.cpp:366  UIWindowMgr::InitShortcutItemInfoFromReg
       if ( strstr ( g_session . m_lastServerName . c_str ( ) , "..." ) ) strcat ( UIPath , "..." ) ;
       사크라이
-   src/UIWindowMgr.cpp:435  UIWindowMgr::WriteShorcutItemInfoToReg
+   src/UIWindowMgr.cpp:436  UIWindowMgr::WriteShorcutItemInfoToReg
       if ( strstr ( g_session . m_lastServerName . c_str ( ) , "..." ) ) strcat ( UIPath , "..." ) ;
       사크라이
 
 -- file content written by the client, never displayed  [2]
-   src/window/UIFrameWnd.cpp:1147  UINoticeWnd::OnCreate
+   src/window/UIFrameWnd.cpp:1171  UINoticeWnd::OnCreate
       fwrite ( "..." , 16 , 1 , file ) ;
       공지사항파일없음
-   src/window/UIFrameWnd.cpp:1154  UINoticeWnd::OnCreate
+   src/window/UIFrameWnd.cpp:1178  UINoticeWnd::OnCreate
       fwrite ( "..." , 12 , 1 , file ) ;
       없으니만들자
 
 -- dead code: a message buffer that is filled and never used  [1]
-   src/3dlib/Renderer.cpp:1696  CRenderer::ScreenEffect
+   src/3dlib/Renderer.cpp:1775  CRenderer::ScreenEffect
       sprintf ( msg , "..." ) ;
       안녕하세요? 카카로트입니다!
 
 -- initial value of a name field, overwritten before it is shown  [1]
-   src/Session.cpp:3110  CSession::InitVariables
+   src/Session.cpp:3129  CSession::InitVariables
       strcpy ( m_cName , "..." ) ;
       잠이들었던거야
 
@@ -401,25 +393,25 @@ classes the first examples of each group show the call site the rule looked at.
       가나다라마바사아자차카타파하가나다라마바사아자차카타파하
 
 -- line of a log file the client writes  [1]
-   src/Session2.cpp:5423  CSession::RerecordProhibitLog
+   src/Session2.cpp:5441  CSession::RerecordProhibitLog
       sprintf ( msg , "..." , m_chatProhibitLog [ a ] . prohibitTime , year , month , day , hour , min , sec ) ;
       %d분채금	%d년 %d월 %d일	%d시 %d분 %d초
 
 -- code-page conversion table  [1]
    src/framework/Language.cpp:679  CLanguageTC::CLanguageTC
-      BYTE text [ ] = "..." ;
+      BYTE text [ 82 ] = "..." ;
       즨즬＞？＄＝；＋／３즪＇???＂＆），９－１＊：０４즩！즮％?＃즭?（즫７５．２６
 
-=== path: 2429 literals, 1384 distinct ===
+=== path: 2437 literals, 1392 distinct ===
 
 -- assigned to m_newAccessoryNameTable, a file or folder name part  [412]
-   src/Session.cpp:833  CSession::InitPcNameTable
+   src/Session.cpp:852  CSession::InitPcNameTable
       m_newAccessoryNameTable [ 1 ] = "..." ;
       _고글
-   src/Session.cpp:834  CSession::InitPcNameTable
+   src/Session.cpp:853  CSession::InitPcNameTable
       m_newAccessoryNameTable [ 2 ] = "..." ;
       _고양이머리띠
-   src/Session.cpp:835  CSession::InitPcNameTable
+   src/Session.cpp:854  CSession::InitPcNameTable
       m_newAccessoryNameTable [ 3 ] = "..." ;
       _글래스
    ... 409 more
@@ -436,17 +428,17 @@ classes the first examples of each group show the call site the rule looked at.
       유저인터페이스\sml_button_down.bmp
    ... 361 more
 
--- file name shape (folder separator or resource extension)  [202]
-   src/3dGround.cpp:215  C3dGround::UpdateWater
+-- file name shape (folder separator or resource extension)  [208]
+   src/3dGround.cpp:206  C3dGround::UpdateWater
       sprintf ( waterName , "..." , m_waterSet , ( m_waterCnt / m_texAnimCycle ) % 32 ) ;
       워터\water%d%02d.jpg
-   src/3dGround.cpp:220  C3dGround::UpdateWater
+   src/3dGround.cpp:211  C3dGround::UpdateWater
       sprintf ( waterName , "..." , m_waterSet % 6 , ( m_waterCnt / m_texAnimCycle ) % 32 ) ;
       워터\water%d%02d.jpg
    src/GameActor.cpp:812  CRenderObject::RenderMercenary
       sprintf ( tmpName , "..." , ( MerJob % 23 ) + 1 ) ;
       인간족\머리통\여\%d_여.act
-   ... 199 more
+   ... 205 more
 
 -- argument of SetSprName(), a file or resource name  [139]
    src/Npc.cpp:44  CBlowEffect::OnInit
@@ -485,61 +477,61 @@ classes the first examples of each group show the call site the rule looked at.
    ... 117 more
 
 -- assigned to m_palJobNameTable, a file or folder name part  [116]
-   src/Session.cpp:1369  CSession::InitPcNameTable
+   src/Session.cpp:1388  CSession::InitPcNameTable
       m_palJobNameTable [ 0 ] = "..." ;
       초보자
-   src/Session.cpp:1370  CSession::InitPcNameTable
+   src/Session.cpp:1389  CSession::InitPcNameTable
       m_palJobNameTable [ 1 ] = "..." ;
       검사
-   src/Session.cpp:1371  CSession::InitPcNameTable
+   src/Session.cpp:1390  CSession::InitPcNameTable
       m_palJobNameTable [ 2 ] = "..." ;
       마법사
    ... 113 more
 
 -- assigned to m_newPcJobNameTable, a file or folder name part  [95]
-   src/Session.cpp:593  CSession::InitPcNameTable
+   src/Session.cpp:612  CSession::InitPcNameTable
       m_newPcJobNameTable [ 0 ] = "..." ;
       초보자
-   src/Session.cpp:594  CSession::InitPcNameTable
+   src/Session.cpp:613  CSession::InitPcNameTable
       m_newPcJobNameTable [ 26 ] = "..." ;
       산타
-   src/Session.cpp:595  CSession::InitPcNameTable
+   src/Session.cpp:614  CSession::InitPcNameTable
       m_newPcJobNameTable [ 27 ] = "..." ;
       여름
    ... 92 more
 
 -- CSession::GetStateFileName only returns file names  [81]
-   src/Session2.cpp:3433  CSession::GetStateFileName
+   src/Session2.cpp:3444  CSession::GetStateFileName
       case EFST_DEC_AGI : return "..." ;
       effect\민첩성감소.tga
-   src/Session2.cpp:3435  CSession::GetStateFileName
+   src/Session2.cpp:3446  CSession::GetStateFileName
       case EFST_BROKENARMOR : return "..." ;
       effect\갑옷파괴.tga
-   src/Session2.cpp:3437  CSession::GetStateFileName
+   src/Session2.cpp:3448  CSession::GetStateFileName
       case EFST_ILLUSION : return "..." ;
       effect\환각.tga
    ... 78 more
 
 -- assigned to m_newPcJobImfNameTable, a file or folder name part  [80]
-   src/Session.cpp:690  CSession::InitPcNameTable
+   src/Session.cpp:709  CSession::InitPcNameTable
       m_newPcJobImfNameTable [ 0 ] = "..." ;
       초보자
-   src/Session.cpp:691  CSession::InitPcNameTable
+   src/Session.cpp:710  CSession::InitPcNameTable
       m_newPcJobImfNameTable [ 1 ] = "..." ;
       검사
-   src/Session.cpp:692  CSession::InitPcNameTable
+   src/Session.cpp:711  CSession::InitPcNameTable
       m_newPcJobImfNameTable [ 2 ] = "..." ;
       마법사
    ... 77 more
 
 -- assigned to m_pcJobNameTable, a file or folder name part  [80]
-   src/Session.cpp:1247  CSession::InitPcNameTable
+   src/Session.cpp:1266  CSession::InitPcNameTable
       m_pcJobNameTable [ 0 ] = "..." ;
       초보자\초보자
-   src/Session.cpp:1248  CSession::InitPcNameTable
+   src/Session.cpp:1267  CSession::InitPcNameTable
       m_pcJobNameTable [ 1 ] = "..." ;
       검사\검사
-   src/Session.cpp:1249  CSession::InitPcNameTable
+   src/Session.cpp:1268  CSession::InitPcNameTable
       m_pcJobNameTable [ 2 ] = "..." ;
       마법사\마법사
    ... 77 more
@@ -557,22 +549,22 @@ classes the first examples of each group show the call site the rule looked at.
    ... 61 more
 
 -- assigned to bmpName, a file or folder name part  [50]
-   src/UIFrameWnd2.cpp:7881  UISelectCartWnd::OnDraw
-      "..." , "..." }
-      유저인터페이스\sysboxs_ld.bmp
    src/UIFrameWnd2.cpp:7882  UISelectCartWnd::OnDraw
       "..." , "..." }
+      유저인터페이스\sysboxs_ld.bmp
+   src/UIFrameWnd2.cpp:7883  UISelectCartWnd::OnDraw
+      "..." , "..." }
       유저인터페이스\sysboxs_rd.bmp
-   src/UIFrameWnd2.cpp:8283  UIProhibitListWnd::OnDraw
+   src/UIFrameWnd2.cpp:8285  UIProhibitListWnd::OnDraw
       "..." , "..." }
       유저인터페이스\sysboxs_ld.bmp
    ... 47 more
 
 -- argument of Get(), a file or resource name  [42]
-   src/3dlib/Renderer.cpp:1847  CRenderer::DrawBattleFieldIcon
+   src/3dlib/Renderer.cpp:1926  CRenderer::DrawBattleFieldIcon
       CActRes * rank_act = ( CActRes * ) g_resMgr ( ) . Get ( "..." , false ) ;
       이팩트\RankFont.act
-   src/3dlib/Renderer.cpp:1848  CRenderer::DrawBattleFieldIcon
+   src/3dlib/Renderer.cpp:1927  CRenderer::DrawBattleFieldIcon
       CSprRes * rank_spr = ( CSprRes * ) g_resMgr ( ) . Get ( "..." , false ) ;
       이팩트\RankFont.spr
    src/GameActor.cpp:2097  CRenderObject::SetCharacterActRes
@@ -581,37 +573,37 @@ classes the first examples of each group show the call site the rule looked at.
    ... 39 more
 
 -- assigned to sprActName.sprName, a file or folder name part  [36]
-   src/GameMode.cpp:1736  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1853  CGameMode::MakeMsgEffect
       case MAKETYPE_MVP_EFFECT : sprActName . sprName = "..." ;
       이팩트\mvp.spr
-   src/GameMode.cpp:1743  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1860  CGameMode::MakeMsgEffect
       case MAKETYPE_CART_EFFECT : sprActName . sprName = "..." ;
       이팩트\손수레.spr
-   src/GameMode.cpp:1749  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1866  CGameMode::MakeMsgEffect
       case MAKETYPE_CART_EFFECT2 : sprActName . sprName = "..." "..." ;
       이팩트\손수레1.spr
    ... 33 more
 
 -- assigned to sprActName.actName, a file or folder name part  [36]
-   src/GameMode.cpp:1737  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1854  CGameMode::MakeMsgEffect
       sprActName . actName = "..." ;
       이팩트\mvp.act
-   src/GameMode.cpp:1744  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1861  CGameMode::MakeMsgEffect
       sprActName . actName = "..." ;
       이팩트\손수레.act
-   src/GameMode.cpp:1750  CGameMode::MakeMsgEffect
+   src/GameMode.cpp:1867  CGameMode::MakeMsgEffect
       sprActName . actName = "..." "..." ;
       이팩트\손수레1.act
    ... 33 more
 
 -- assigned to m_jobNameTable, a file or folder name part  [31]
-   src/Session.cpp:3009  CSession::InitJobNameTable
+   src/Session.cpp:3028  CSession::InitJobNameTable
       m_jobNameTable [ JT_P_CHUNG_E ] = "..." ;
       새해인형
-   src/Session.cpp:3048  CSession::InitJobNameTable
+   src/Session.cpp:3067  CSession::InitJobNameTable
       m_jobNameTable [ JT_MER_ARCHER01 ] = "..." ;
       여\활용병
-   src/Session.cpp:3049  CSession::InitJobNameTable
+   src/Session.cpp:3068  CSession::InitJobNameTable
       m_jobNameTable [ JT_MER_ARCHER02 ] = "..." ;
       여\활용병
    ... 28 more
@@ -640,29 +632,29 @@ classes the first examples of each group show the call site the rule looked at.
       유저인터페이스\checkbox_1.bmp
    ... 27 more
 
+-- argument of GetTexture(), a file or resource name  [29]
+   src/3dlib/Renderer.cpp:1911  CRenderer::DrawBattleFieldIcon
+      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
+      effect\사자(A).bmp
+   src/3dlib/Renderer.cpp:1919  CRenderer::DrawBattleFieldIcon
+      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
+      effect\독수리(B).bmp
+   src/3dlib/Renderer.cpp:2020  CRenderer::DrawAgeRate
+      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
+      유저인터페이스\t_12세.tga
+   ... 26 more
+
 -- assigned to m_pcWeaponNameTable, a file or folder name part  [29]
-   src/Session.cpp:1338  CSession::InitPcNameTable
+   src/Session.cpp:1357  CSession::InitPcNameTable
       m_pcWeaponNameTable [ 1 ] = "..." ;
       _단검
-   src/Session.cpp:1339  CSession::InitPcNameTable
+   src/Session.cpp:1358  CSession::InitPcNameTable
       m_pcWeaponNameTable [ 2 ] = "..." ;
       _검
-   src/Session.cpp:1340  CSession::InitPcNameTable
+   src/Session.cpp:1359  CSession::InitPcNameTable
       m_pcWeaponNameTable [ 3 ] = "..." ;
       _검
    ... 26 more
-
--- argument of GetTexture(), a file or resource name  [27]
-   src/3dlib/Renderer.cpp:1832  CRenderer::DrawBattleFieldIcon
-      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
-      effect\사자(A).bmp
-   src/3dlib/Renderer.cpp:1840  CRenderer::DrawBattleFieldIcon
-      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
-      effect\독수리(B).bmp
-   src/3dlib/Renderer.cpp:1941  CRenderer::DrawAgeRate
-      ( ( CMode * ) g_modeMgr . GetGameMode ( ) ) -> DrawTexture ( & rect , 0 , oow , RGBA , g_texMgr . GetTexture ( "..." , false ) ) ;
-      유저인터페이스\t_12세.tga
-   ... 24 more
 
 -- assigned to preBmpName2, a file or folder name part  [25]
    src/UIFrameWnd2.cpp:537  UIBasicInfoWnd::OnCreate
@@ -677,7 +669,7 @@ classes the first examples of each group show the call site the rule looked at.
    ... 22 more
 
 -- argument of SetBitmap(), a file or resource name  [21]
-   src/UIFrameWnd2.cpp:6789  UIWhisperWnd::OnCreate
+   src/UIFrameWnd2.cpp:6790  UIWhisperWnd::OnCreate
       m_resizer -> SetBitmap ( "..." ) ;
       유저인터페이스\btn_resize.bmp
    src/UIFrameWnd3.cpp:492  UIChangeNameWnd::OnCreate
@@ -689,13 +681,13 @@ classes the first examples of each group show the call site the rule looked at.
    ... 18 more
 
 -- CSession::GetPetAccActName only returns file names  [20]
-   src/Session2.cpp:4404  CSession::GetPetAccActName
+   src/Session2.cpp:4415  CSession::GetPetAccActName
       case 10001 : return "..." ;
       몬스터\BAPHOMET_뼉다구모자.act
-   src/Session2.cpp:4407  CSession::GetPetAccActName
+   src/Session2.cpp:4418  CSession::GetPetAccActName
       case 10003 : return "..." ;
       몬스터\DESERT_WOLF_B_우주복머리.act
-   src/Session2.cpp:4410  CSession::GetPetAccActName
+   src/Session2.cpp:4421  CSession::GetPetAccActName
       case 10004 : return "..." ;
       몬스터\DEVIRUCHI_젖꼭지.act
    ... 17 more
@@ -707,31 +699,31 @@ classes the first examples of each group show the call site the rule looked at.
    src/UIFrameWnd2.cpp:1656  UIStatusWnd::OnCreate
       std :: string preBmpName = "..." ;
       유저인터페이스\basic_interface\arw_right.bmp
-   src/UIFrameWnd2.cpp:6120  UIExchangeWnd::OnCreate
+   src/UIFrameWnd2.cpp:6121  UIExchangeWnd::OnCreate
       std :: string preBmpName = "..." ;
       유저인터페이스\btn_
    ... 17 more
 
 -- argument of SetSpriteName(), a file or resource name  [16]
-   src/UIFrameWnd2.cpp:7702  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7703  UISelectCartWnd::OnCreate
       m_sprButton [ 0 ] -> SetSpriteName ( "..." ) ;
       이팩트\손수레.spr
-   src/UIFrameWnd2.cpp:7712  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7713  UISelectCartWnd::OnCreate
       m_sprButton [ 1 ] -> SetSpriteName ( "..." "..." ) ;
       이팩트\손수레1.spr
-   src/UIFrameWnd2.cpp:7721  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7722  UISelectCartWnd::OnCreate
       m_sprButton [ 2 ] -> SetSpriteName ( "..." "..." ) ;
       이팩트\손수레2.spr
    ... 13 more
 
 -- argument of SetActFileName(), a file or resource name  [16]
-   src/UIFrameWnd2.cpp:7703  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7704  UISelectCartWnd::OnCreate
       m_sprButton [ 0 ] -> SetActFileName ( "..." ) ;
       이팩트\손수레.act
-   src/UIFrameWnd2.cpp:7713  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7714  UISelectCartWnd::OnCreate
       m_sprButton [ 1 ] -> SetActFileName ( "..." "..." ) ;
       이팩트\손수레1.act
-   src/UIFrameWnd2.cpp:7722  UISelectCartWnd::OnCreate
+   src/UIFrameWnd2.cpp:7723  UISelectCartWnd::OnCreate
       m_sprButton [ 2 ] -> SetActFileName ( "..." "..." ) ;
       이팩트\손수레2.act
    ... 13 more
@@ -797,13 +789,13 @@ classes the first examples of each group show the call site the rule looked at.
    ... 3 more
 
 -- initial entry of a sprite folder name table  [6]
-   src/Session.cpp:592  CSession::InitPcNameTable
+   src/Session.cpp:611  CSession::InitPcNameTable
       m_newPcJobNameTable . resize ( JT_LAST - JOBMINUS , "..." ) ;
       초보자
-   src/Session.cpp:689  CSession::InitPcNameTable
+   src/Session.cpp:708  CSession::InitPcNameTable
       m_newPcJobImfNameTable . resize ( JT_LAST - JOBMINUS , "..." ) ;
       초보자
-   src/Session.cpp:771  CSession::InitPcNameTable
+   src/Session.cpp:790  CSession::InitPcNameTable
       m_newPcSexNameTable . resize ( 2 , "..." ) ;
       여
    ... 3 more
@@ -821,25 +813,25 @@ classes the first examples of each group show the call site the rule looked at.
    ... 1 more
 
 -- assigned to m_shieldNameTable, a file or folder name part  [4]
-   src/Session.cpp:1494  CSession::InitPcNameTable
+   src/Session.cpp:1513  CSession::InitPcNameTable
       m_shieldNameTable [ 1 ] = "..." ;
       _가드
-   src/Session.cpp:1495  CSession::InitPcNameTable
+   src/Session.cpp:1514  CSession::InitPcNameTable
       m_shieldNameTable [ 3 ] = "..." ;
       _쉴드
-   src/Session.cpp:1496  CSession::InitPcNameTable
+   src/Session.cpp:1515  CSession::InitPcNameTable
       m_shieldNameTable [ 4 ] = "..." ;
       _미러쉴드
    ... 1 more
 
 -- assigned to buttonName, a file or folder name part  [4]
-   src/UIFrameWnd2.cpp:8412  UIBookWnd::OnCreate
+   src/UIFrameWnd2.cpp:8414  UIBookWnd::OnCreate
       "..." , "..." , "..." , "..." , }
       책갈피
-   src/UIFrameWnd2.cpp:8413  UIBookWnd::OnCreate
+   src/UIFrameWnd2.cpp:8415  UIBookWnd::OnCreate
       "..." , "..." , "..." , "..." , }
       책왼쪽
-   src/UIFrameWnd2.cpp:8414  UIBookWnd::OnCreate
+   src/UIFrameWnd2.cpp:8416  UIBookWnd::OnCreate
       "..." , "..." , "..." , "..." , }
       책오른쪽
    ... 1 more
@@ -856,24 +848,24 @@ classes the first examples of each group show the call site the rule looked at.
       유저인터페이스\화이트슬림포션.bmp
 
 -- CSession::GetJobDyeSprName only returns file names  [3]
-   src/Session.cpp:5960  CSession::GetJobDyeSprName
+   src/Session.cpp:6007  CSession::GetJobDyeSprName
       sprintf ( buf , "..." , m_newPcSexNameTable [ sex ] , "..." , "..." ) ;
       인간족\몸통\%s\%s%s
-   src/Session.cpp:5960  CSession::GetJobDyeSprName
+   src/Session.cpp:6007  CSession::GetJobDyeSprName
       sprintf ( buf , "..." , m_newPcSexNameTable [ sex ] , "..." , "..." ) ;
       성직자
-   src/Session.cpp:5960  CSession::GetJobDyeSprName
+   src/Session.cpp:6007  CSession::GetJobDyeSprName
       sprintf ( buf , "..." , m_newPcSexNameTable [ sex ] , "..." , "..." ) ;
       _여
 
 -- argument of pName(), a file or resource name  [3]
-   src/UIControl2.cpp:1701  UIScrollBar2::OnDraw
+   src/UIControl2.cpp:1702  UIScrollBar2::OnDraw
       std :: string pName ( "..." ) ;
       유저인터페이스\basic_interface\
-   src/UIControl2.cpp:1735  UIScrollBar3::OnDraw
+   src/UIControl2.cpp:1736  UIScrollBar3::OnDraw
       std :: string pName ( "..." ) ;
       유저인터페이스\basic_interface\
-   src/UIControl2.cpp:1778  UIScrollBar4::OnDraw
+   src/UIControl2.cpp:1779  UIScrollBar4::OnDraw
       std :: string pName ( "..." ) ;
       유저인터페이스\basic_interface\
 
@@ -886,10 +878,10 @@ classes the first examples of each group show the call site the rule looked at.
       인간족\
 
 -- assigned to m_wallPaperBmpName, a file or folder name part  [2]
-   src/LoginMode.cpp:375  CLoginMode::OnChangeState
+   src/LoginMode.cpp:398  CLoginMode::OnChangeState
       case LSM_WARNING : if ( g_serviceType == ServiceKorea ) m_wallPaperBmpName = "..." ;
       유저인터페이스\login_interface\warning.bmp
-   src/LoginMode.cpp:377  CLoginMode::OnChangeState
+   src/LoginMode.cpp:400  CLoginMode::OnChangeState
       else m_wallPaperBmpName = "..." ;
       유저인터페이스\login_interface\warning.bmp
 
@@ -902,34 +894,34 @@ classes the first examples of each group show the call site the rule looked at.
       effect\270바람.tga
 
 -- assigned to m_newPcSexNameTable, a file or folder name part  [2]
-   src/Session.cpp:772  CSession::InitPcNameTable
+   src/Session.cpp:791  CSession::InitPcNameTable
       m_newPcSexNameTable [ 0 ] = "..." ;
       여
-   src/Session.cpp:773  CSession::InitPcNameTable
+   src/Session.cpp:792  CSession::InitPcNameTable
       m_newPcSexNameTable [ 1 ] = "..." ;
       남
 
 -- assigned to m_pcSexNameTable, a file or folder name part  [2]
-   src/Session.cpp:1329  CSession::InitPcNameTable
+   src/Session.cpp:1348  CSession::InitPcNameTable
       m_pcSexNameTable [ 0 ] = "..." ;
       _여
-   src/Session.cpp:1330  CSession::InitPcNameTable
+   src/Session.cpp:1349  CSession::InitPcNameTable
       m_pcSexNameTable [ 1 ] = "..." ;
       _남
 
 -- assigned to itemSpriteFileName, a file or folder name part  [2]
-   src/Session.cpp:6747  CSession::GetItemSpriteFileName_Skill
+   src/Session.cpp:6794  CSession::GetItemSpriteFileName_Skill
       itemSpriteFileName = "..." ;
       아이템\
-   src/Session.cpp:6765  CSession::GetItemSpriteFileName
+   src/Session.cpp:6812  CSession::GetItemSpriteFileName
       itemSpriteFileName = "..." ;
       아이템\
 
 -- assigned to m_weaponHitWaveNameTable, a file or folder name part  [2]
-   src/Session.cpp:7295  CSession::InitWeaponHitWaveName
+   src/Session.cpp:7342  CSession::InitWeaponHitWaveName
       m_weaponHitWaveNameTable [ WPCLASS_GUN_HANDGUN ] = "..." ;
       _hit_권총.wav
-   src/Session.cpp:7296  CSession::InitWeaponHitWaveName
+   src/Session.cpp:7343  CSession::InitWeaponHitWaveName
       m_weaponHitWaveNameTable [ WPCLASS_GUN_RIFLE ] = "..." ;
       _hit_라이플.wav
 
@@ -945,7 +937,7 @@ classes the first examples of each group show the call site the rule looked at.
    src/UIGuildWnd.cpp:1994  UIGuildSkillWnd::OnCreate
       std :: string preBmpName1 = "..." ;
       유저인터페이스\basic_interface\skill_up_a.bmp
-   src/UIItemWnd.cpp:5573  UISkillListWnd::OnCreate
+   src/UIItemWnd.cpp:5577  UISkillListWnd::OnCreate
       std :: string preBmpName1 = "..." ;
       유저인터페이스\basic_interface\skill_up_a.bmp
 
@@ -953,7 +945,7 @@ classes the first examples of each group show the call site the rule looked at.
    src/UIGuildWnd.cpp:1996  UIGuildSkillWnd::OnCreate
       std :: string preBmpName3 = "..." ;
       유저인터페이스\basic_interface\skill_up_c.bmp
-   src/UIItemWnd.cpp:5575  UISkillListWnd::OnCreate
+   src/UIItemWnd.cpp:5579  UISkillListWnd::OnCreate
       std :: string preBmpName3 = "..." ;
       유저인터페이스\basic_interface\skill_up_c.bmp
 
@@ -966,12 +958,12 @@ classes the first examples of each group show the call site the rule looked at.
       유저인터페이스\cardbmp\
 
 -- assigned to minimapBmpName, a file or folder name part  [1]
-   src/GameMode.cpp:235  CGameMode::OnInit
+   src/GameMode.cpp:322  CGameMode::OnInit
       string minimapBmpName = "..." ;
       유저인터페이스\map\
 
 -- resource name of the placeholder item (identifiedResourceName)  [1]
-   src/ItemInfo.cpp:496  -
+   src/ItemInfo.cpp:500  -
       static const char * const strApple = "..." ;
       사과
 
@@ -1001,21 +993,21 @@ classes the first examples of each group show the call site the rule looked at.
       유저인터페이스\item\
 
 -- argument of Create(), a file or resource name  [1]
-   src/UIFrameWnd2.cpp:10887  UIImgMenuWnd::OnCreate
+   src/UIFrameWnd2.cpp:10890  UIImgMenuWnd::OnCreate
       m_imgMenu -> Create ( cx , cy , 0 , 0 , "..." ) ;
       유저인터페이스\basic_interface\auction_menu
 
 -- assigned to TITLE_FILE, a file or folder name part  [1]
-   src/framework/Locale.cpp:194  InitClientInfo
+   src/framework/Locale.cpp:205  InitClientInfo
       set_title_bmp : TITLE_FILE = "..." ;
       유저인터페이스\bgi_temp.bmp
 
 -- assigned to serviceBmpName, a file or folder name part  [1]
-   src/window/UIFrameWnd.cpp:662  UISelectServerWnd::OnDraw
+   src/window/UIFrameWnd.cpp:663  UISelectServerWnd::OnDraw
       static char * serviceBmpName = "..." ;
       유저인터페이스\login_interface\win_service_ph.bmp
 
 -- argument of pathUI(), a file or resource name  [1]
-   src/window/UIFrameWnd.cpp:802  UILoginWnd::OnCreate
+   src/window/UIFrameWnd.cpp:817  UILoginWnd::OnCreate
       std :: string pathUI ( "..." ) ;
       유저인터페이스\
