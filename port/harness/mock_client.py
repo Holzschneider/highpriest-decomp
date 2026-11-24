@@ -939,6 +939,8 @@ class Mock:
                 raise ProtocolError("bad_request", "text needs a string")
             if not cp1252_ok(text):
                 raise ProtocolError("bad_text", "not representable in Windows-1252")
+            if any(ord(ch) < 0x20 or ord(ch) == 0x7f for ch in text):
+                raise ProtocolError("bad_text", "control characters are keys, not text")
             token = self.queue_input([(lambda ch=ch: self.on_text(ch)) for ch in text] or [lambda: None])
         elif action in ("down", "up", "press"):
             key = msg.get("key")
