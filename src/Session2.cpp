@@ -4943,8 +4943,13 @@ void	CSession :: InitMapTypeInfoTable()
 	if (!fp.Open("MapInfoTable.scp", CFile::modeRead)) {
 		if( g_serviceType == ServiceKorea )
 		{
+#if defined(BF_PORT)
+			bf_port_missing(BFT_FILE, "table.missing", "MapInfoTable.scp");
+			memset(m_mapInfoTable,0,sizeof(m_mapInfoTable));
+#else
 			sAssertM(false,"Load MapInfoTable Failed!");
 			ErrorMsg("Load MapInfoTable Failed!");
+#endif
 			return;
 		}
 		else

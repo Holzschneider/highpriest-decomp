@@ -56,7 +56,11 @@ bool	C3dAttr :: Load(const char *fName)
 	fp.Read(magicBuf, 4);
 	magicBuf[4]=0;
 	if (strcmp(magicBuf, magicId)) {
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: not an attribute file", fName);
+#else
 		ErrorMsg("Block Attr \xc0\xcc \xc1\xf6\xbf\xf8\xb5\xc7\xc1\xf6 \xbe\xca\xb4\xc2 \xbf\xbe\xb9\xf6\xc1\xaf\xc0\xc7 GAT \xc6\xc4\xc0\xcf\xc0\xd4\xb4\xcf\xb4\xd9. \xbb\xf5 \xb9\xf6\xc1\xaf\xc0\xc7 RPGSTUDIO \xbf\xa1\xbc\xad \xb1\xb3\xc1\xa4\xc7\xcf\xbc\xbc\xbf\xe4");
+#endif
 		return	false;
 	} else {
 
@@ -66,7 +70,11 @@ bool	C3dAttr :: Load(const char *fName)
 		fp.Read(&verMajor, sizeof(BYTE));
 		fp.Read(&verMinor, sizeof(BYTE));
 		if (verMajor != 1 || verMinor > 2) {
+#if defined(BF_PORT)
+			bf_port_missing(BFT_RES, "res.unusable", "%s: attribute version %d.%d", fName, verMajor, verMinor);
+#else
 			ErrorMsg("C3dAttr::Unsupported Version");
+#endif
 			return	TRUE;
 		}
 		fp.Read(&w, sizeof(int));

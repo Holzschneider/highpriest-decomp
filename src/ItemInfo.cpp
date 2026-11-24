@@ -50,7 +50,11 @@ typename T::mapped_type& GetMapObject(typename T::key_type itemName, T& table)
 
 inline void CheckItemTable(PCharListIter tableiter, PCharList& table)
 {
+#if defined(BF_PORT)
+	if ( tableiter >= table.end() ) bf_port_missing(BFT_FILE, "table.short", "an item table ends inside an entry");
+#else
 	if ( tableiter >= table.end() ) ErrorMsg("item.txt \xbd\xba\xc5\xa9\xb8\xb3\xc6\xae\xb8\xa6 \xc8\xae\xc0\xce\xc7\xd8\xc1\xd6\xbc\xbc\xbf\xe4.");
+#endif
 }
 
 void CommonObject::Clear()
@@ -831,6 +835,18 @@ void ITEM_INFO::InitItemInfoTables()
 
 const ITEM_DESC& ITEM_INFO::GetItemDesc(int itemName)
 {
+#if defined(BF_PORT)
+	// An id the tables do not have (an item added after 2008): "?<id>" with
+	// the unknown item's sprite, made once per id (spec section 5).
+	if (s_itemDescMap.find(itemName) == s_itemDescMap.end() && s_itemDescMap.find(0) != s_itemDescMap.end()) {
+		ITEM_DESC& desc = s_itemDescMap[itemName];
+		desc = s_itemDescMap[0];
+		char buf[24];
+		sprintf(buf, "?%d", itemName);
+		desc.identifiedDisplayName = desc.unidentifiedDisplayName = strdup(buf);
+		bf_port_missing(BFT_RES, "table.missing.item", "item %d: shown as %s", itemName, buf);
+	}
+#endif
 	return GetDesc(itemName, s_itemDescMap);
 }
 

@@ -153,7 +153,9 @@ bool	CActRes :: Load(const char *fName)
 	CFile	fp;
 	if (!fp.Open(fName, CFile::modeRead))
 	{
+#if !defined(BF_PORT)	// missing: counted by CRes::OnLoadError after both names
 		ErrorMsg((string("Cannot find File : ") + string(fName)).c_str());
+#endif
 		return	false;
 	}
 
@@ -161,8 +163,12 @@ bool	CActRes :: Load(const char *fName)
 	fp.Read(&FileHeader, sizeof(FileHeader));
 	if (FileHeader.id != (int('C')*256+'A'))
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: not an action file", fName);
+#else
 		ErrorMsg("Illegal file format");
 		ErrorMsg(fName);
+#endif
 		fp.Close();
 		return	false;
 	}
@@ -174,7 +180,11 @@ bool	CActRes :: Load(const char *fName)
 	if (FileHeader.ver > 0x205)
 	{
 
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: action version 0x%x", fName, FileHeader.ver);
+#else
 		ErrorMsg("Unsupported Version. Content may be corrupted");
+#endif
 		fp.Close();
 		return false;
 	}

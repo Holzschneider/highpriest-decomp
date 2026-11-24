@@ -97,7 +97,11 @@ bool	C3dWorldRes :: Load(const char *fName)
 	magicBuf[4]=0;
 	if (strcmp(magicBuf, magicId))
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: not a world file", fName);
+#else
 		ErrorMsg("Invalid Format");
+#endif
 		return	false;
 	}
 
@@ -110,7 +114,11 @@ bool	C3dWorldRes :: Load(const char *fName)
 	fp.Read(&verMinor, sizeof(BYTE));
 	if ((verMajor==2 && verMinor > 1) || verMajor>2)
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: world version %d.%d", fName, verMajor, verMinor);
+#else
 		ErrorMsg("C3dWorldRes :: Unsupported Version");
+#endif
 		return	false;
 	}
 	m_verMajor = verMajor;

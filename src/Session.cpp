@@ -5908,21 +5908,49 @@ DWORD	CSession :: GetPartyColorBySeq(int seq)
 	}
 }
 
+#if defined(BF_PORT)
+// A job the tables do not have (a class added after 2008): "?<job>", counted
+// once per job (spec section 5). Its sprite name then names no file, and the
+// resource manager draws the default sprite.
+static const char* MissingJobEntry(int job)
+{
+	static std::map<int, std::string> names;
+	std::map<int, std::string>::iterator it = names.find(job);
+	if (it != names.end())
+		return it->second.c_str();
+	char buf[24];
+	sprintf(buf, "?%d", job);
+	bf_port_missing(BFT_RES, "table.missing.job", "job %d: shown as %s", job, buf);
+	return names.insert(std::make_pair(job, std::string(buf))).first->second.c_str();
+}
+
+static const char* JobEntry(const std::vector<char const *>& table, int index, int job)
+{
+	if (index < 0 || index >= (int)table.size() || !table[index])
+		return MissingJobEntry(job);
+	return table[index];
+}
+
+#define m_newPcJobNameTable_at(i, job) JobEntry(m_newPcJobNameTable, (i), (job))
+#else
+#define m_newPcJobNameTable_at(i, job) m_newPcJobNameTable[i]
+#endif
+
 char *	CSession :: GetJobActName(int job, int sex, char *buf)
 {
 	if (job>0xf6e)
-		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.act", m_newPcSexNameTable[sex], m_newPcJobNameTable[job-0xf6e], m_pcSexNameTable[sex]);
+		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.act", m_newPcSexNameTable[sex], m_newPcJobNameTable_at(job-0xf6e, job), m_pcSexNameTable[sex]);
 	else
-		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.act", m_newPcSexNameTable[sex], m_newPcJobNameTable[job], m_pcSexNameTable[sex]);
+		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.act", m_newPcSexNameTable[sex], m_newPcJobNameTable_at(job, job), m_pcSexNameTable[sex]);
 	return	buf;
 }
 
 char *	CSession :: GetJobSprName(int job, int sex, char *buf)
 {
 	if (job>0xf6e)
-		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.spr", m_newPcSexNameTable[sex], m_newPcJobNameTable[job-0xf6e], m_pcSexNameTable[sex]);
+		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.spr", m_newPcSexNameTable[sex], m_newPcJobNameTable_at(job-0xf6e, job), m_pcSexNameTable[sex]);
 	else
-		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.spr", m_newPcSexNameTable[sex], m_newPcJobNameTable[job], m_pcSexNameTable[sex]);
+		sprintf(buf, "\xc0\xce\xb0\xa3\xc1\xb7\\\xb8\xf6\xc5\xeb\\%s\\%s%s.spr", m_newPcSexNameTable[sex], m_newPcJobNameTable_at(job, job), m_pcSexNameTable[sex]);
 	return	buf;
 }
 
@@ -8793,6 +8821,9 @@ void	CSession :: SetCompressedEmblemImage(const char *compressedEmblemImage, DWO
 
 const char *	CSession :: GetJobName(int job)
 {
+#if defined(BF_PORT)
+	return	JobEntry(m_jobNameTable, job, job);
+#endif
 	return	m_jobNameTable[job];
 }
 

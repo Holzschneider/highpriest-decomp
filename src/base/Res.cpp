@@ -92,7 +92,12 @@ void	CRes :: OnLoadError(const char* fName)
 {
 	char	msg[255];
 	sprintf_s(msg,256,"ResourceError : Can't find file %s\n", fName);
-#ifdef EPISODE_VER
+#if defined(BF_PORT)
+	// Missing data (spec section 5): counted and traced, no box. CResMgr::Get
+	// then hands out a placeholder or NULL, which the callers handled after
+	// the original box too.
+	bf_port_missing(BFT_RES, "res.missing", "%s", fName);
+#elif defined(EPISODE_VER)
 	sAssertM(false,msg);
 #else
 	ErrorMsg(msg);
@@ -184,6 +189,26 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 		if(!newRes->Load(openFileName))
 		{
 			newRes->OnLoadError(fName);
+#if defined(BF_PORT)
+			// A missing sprite or action (a job, monster or headgear newer
+			// than the client knows, or one the 2021 data renamed) is drawn
+			// as the poring: the default sprite, loaded under the missing
+			// name so that it is looked for once.
+			const char* placeholder = NULL;
+			const char* ext = ExtractExt(fName);
+			if (!strcmp(ext, "spr"))
+				placeholder = "sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.spr";
+			else if (!strcmp(ext, "act"))
+				placeholder = "sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.act";
+			if (placeholder && newRes->Load(placeholder))
+			{
+				MakeOpenName(openFileName, fName, m_typeDir[extIndex]);
+				newRes->UpdateInfo(openFileName, extIndex);
+				m_fileList[extIndex].insert(res_map_value(&newRes->m_fName, newRes));
+				LeaveCriticalSection(&m_GetResSection);
+				return newRes;
+			}
+#endif
 			delete newRes;
 			LeaveCriticalSection(&m_GetResSection);
 			return NULL;

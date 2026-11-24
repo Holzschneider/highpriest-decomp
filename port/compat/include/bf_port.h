@@ -33,6 +33,16 @@ int bf_port_start_graphics(void);
    requests. Does nothing without a socket. */
 void bf_port_frame(void);
 
+/* Missing or unusable data (spec section 5, M3.5): one trace line under
+   `category` (BFT_FILE, BFT_RES), prefixed with the counter's name, and the
+   counter `counter` increased by one. The caller draws or returns its
+   placeholder and carries on; no error box. */
+void bf_port_missing(unsigned category, const char *counter, const char *format, ...)
+#if defined(__GNUC__)
+	__attribute__((format(printf, 3, 4)))
+#endif
+	;
+
 /* An option of the settings (BF_OPT_*), 0 or 1, with its default. */
 int bf_port_option(const char *option);
 

@@ -73,7 +73,9 @@ bool	CEZeffectRes :: Load(const char *fName)
 
 	if (!m_fp.Open(fName, CFile::modeRead))
 	{
+#if !defined(BF_PORT)	// missing: counted by CRes::OnLoadError after both names
 		ErrorMsg((std::string("Str::Cannot find File : ") + std::string(fName)).c_str());
+#endif
 		Reset();
 		return	false;
 	}
@@ -93,7 +95,11 @@ bool	CEZeffectRes :: Load(const char *fName)
 	m_fp.Seek(sizeof(DWORD) * 4, SEEK_CUR);
 
 	if (dwVer != KSTR_VERSION) {
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: str version 0x%x", fName, (unsigned)dwVer);
+#else
 		ErrorMsg("LoadAniClip: Version is incorrect");
+#endif
 		Reset();
 		return false;
 	}

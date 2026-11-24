@@ -26,6 +26,7 @@
 // the C library's own file names) into the library bf_port_main.
 #include <windows.h>
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -194,6 +195,19 @@ bool IsPortFlag(const char *arg)
 extern "C" int bf_port_headless(void)
 {
 	return g_headless;
+}
+
+extern "C" void bf_port_missing(unsigned category, const char *counter, const char *format, ...)
+{
+	bf_count(counter, 1);
+	if (!(bf_trace_mask & category))
+		return;
+	char text[1024];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(text, sizeof text, format, args);
+	va_end(args);
+	bf_tracef(category, "%s: %s", counter, text);
 }
 
 extern "C" int bf_port_option(const char *option)

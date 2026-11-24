@@ -64,7 +64,11 @@ bool	CBitmapRes :: LoadFromBuffer(const char *fName, const BYTE* buffer, int siz
 	else if (!lstrcmpi(strExtension, ".jpg"))
 		return LoadJPGData(buffer, size);
 	else {
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: not a bmp, tga or jpg", fName);
+#else
 		ErrorMsg("Unsupport fileformat!");
+#endif
 		return false;
 	}
 }
@@ -92,7 +96,11 @@ bool	CBitmapRes :: SetAlphaWithBMP(const char *fName)
 {
 	CBitmapRes alphaBitmap;
 	if (!alphaBitmap.Load(fName)) {
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.missing", "%s: alpha bitmap", fName);
+#else
 		ErrorMsg("Error reading alpha bitmap");
+#endif
 		alphaBitmap.Reset();
 		return false;
 	}
@@ -232,7 +240,11 @@ bool	CBitmapRes :: LoadBMPData(const BYTE* bitmap, int size)
 
 		if (InfoHdr.bmiHeader.biBitCount != 24 && InfoHdr.bmiHeader.biBitCount != 8)
 		{
+#if defined(BF_PORT)
+			bf_port_missing(BFT_RES, "res.unusable", "bmp with %d bits per pixel", (int)InfoHdr.bmiHeader.biBitCount);
+#else
 			ErrorMsg("Only 16M or 8bit color format supported");
+#endif
 			return	false;
 		}
 		DWORD	pitch = (InfoHdr.bmiHeader.biWidth + 3) & ~3;
@@ -350,7 +362,11 @@ bool	CBitmapRes :: LoadBMPData(const BYTE* bitmap, int size)
 
 		if (InfoHdr.bmiHeader.biBitCount != 24 && InfoHdr.bmiHeader.biBitCount != 8)
 		{
+#if defined(BF_PORT)
+			bf_port_missing(BFT_RES, "res.unusable", "bmp with %d bits per pixel", (int)InfoHdr.bmiHeader.biBitCount);
+#else
 			ErrorMsg("Only 16M or 8bit color format supported");
+#endif
 			return	false;
 		}
 		DWORD	pitch = (InfoHdr.bmiHeader.biWidth + 3) & ~3;
@@ -461,7 +477,11 @@ bool	CBitmapRes :: LoadBMPData(const BYTE* bitmap, int size)
 
 	if (InfoHdr.bmiHeader.biBitCount != 24 && InfoHdr.bmiHeader.biBitCount != 8)
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "bmp with %d bits per pixel", (int)InfoHdr.bmiHeader.biBitCount);
+#else
 		ErrorMsg("Only 16M or 8bit color format supported");
+#endif
 		return	false;
 	}
 	DWORD	pitch = (InfoHdr.bmiHeader.biWidth + 3) & ~3;

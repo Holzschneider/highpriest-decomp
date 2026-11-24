@@ -186,7 +186,11 @@ bool CFile::Open(const char* fName, unsigned int nOpenFlags)
 			m_size = GetFileSize(m_hFile, NULL);
 			return true;
 		} else {
+#if defined(BF_PORT)
+			bf_port_missing(BFT_FILE, "file.write_failed", "%s", m_fileName);
+#else
 			ErrorMsg(m_fileName);
+#endif
 			return false;
 		}
 	} else {
@@ -264,6 +268,14 @@ bool CFile::IsFileExist(const char* fName)
 
 void CFile::MakeFileName(char* output, const char* input)
 {
+#if defined(BF_PORT)
+	// An absolute path (one built on g_baseDir3, the game folder's POSIX
+	// path) is not below g_baseDir; on Windows the drive letter's ':' did this.
+	if (input[0] == '/') {
+		strcpy(output, input);
+		return;
+	}
+#endif
 	strcpy(output, g_baseDir);
 	strcat(output, input);
 

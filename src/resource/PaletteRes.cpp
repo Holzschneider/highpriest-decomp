@@ -23,7 +23,9 @@ bool	CPaletteRes :: Load(const char *fName)
 
 
 	if (!fp.Open(fName, CFile::modeRead)) {
+#if !defined(BF_PORT)	// missing: counted by CRes::OnLoadError after both names
 		ErrorMsg((string("CPaletteRes :: Cannot find File : ") + string(fName)).c_str());
+#endif
 		return	false;
 	}
 

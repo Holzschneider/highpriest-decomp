@@ -66,20 +66,30 @@ bool	CSprRes :: Load(const char *fName)
 
 	if (!fp.Open(fName, CFile::modeRead))
 	{
+#if !defined(BF_PORT)	// missing: counted by CRes::OnLoadError after both names
 		ErrorMsg((std::string("Spr :: Cannot find File : ") + std::string(fName)).c_str());
+#endif
 		return	false;
 	}
 
 	fp.Read((void *)&FileHeader, sizeof(FileHeader));
 	if (FileHeader.id != (int('P') * 256 + 'S'))
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: not a sprite", fName);
+#else
 		ErrorMsg("Illegal File Format");
 		ErrorMsg(fName);
+#endif
 		return false;
 	}
 	if (FileHeader.ver > 0x0201)
 	{
+#if defined(BF_PORT)
+		bf_port_missing(BFT_RES, "res.unusable", "%s: sprite version 0x%x", fName, FileHeader.ver);
+#else
 		ErrorMsg("Unsupported Version. Content may be corrupted");
+#endif
 		return false;
 	}
 

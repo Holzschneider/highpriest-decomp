@@ -438,7 +438,13 @@ CTexture *	CTexMgr :: LoadTexture(const char *fName, bool blackkey)
 	}
 	else
 	{
+#if defined(BF_PORT)
+		// Missing texture (spec section 5): magenta, opaque. 0xF0 blue keeps
+		// it off the 0xFF00FF colour key, which CTexture::Update makes clear.
+		DWORD dwColor = 0xffff00f0;
+#else
 		DWORD dwColor = 0;
+#endif
 		tmp = g_texMgr.CreateTexture(1, 1, &dwColor, PF_A1R5G5B5, blackkey);
 	}
 
