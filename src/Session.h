@@ -1112,21 +1112,21 @@ public:
 	int GetMaxWeight() { return m_maxWeight; }
 	int GetJobNextexp();
 	int GetSkillPoint() { return m_skillPoint; }
-	int GetASPD();
-	int GetPlusASPD();
-	int GetAttPower();
-	int GetMdefPower();
-	int GetItemDefPower();
-	int GetPlusdefPower();
+	int GetASPD() { return m_ASPD; }
+	int GetPlusASPD() { return m_plusASPD; }
+	int GetAttPower() { return m_attPower; }
+	int GetMdefPower() { return m_mdefPower; }
+	int GetItemDefPower() { return m_itemDefPower; }
+	int GetPlusdefPower() { return m_plusdefPower; }
 	int GetEquipArrowIndex() { return m_equipArrowIndex; }
-	int GetHitSuccessValue();
-	int GetRefiningPower();
-	int GetMax_mattPower();
-	int GetMin_mattPower();
-	int GetPlusmdefPower();
-	int GetAvoidSuccessValue();
-	int GetCriticalSuccessValue();
-	int GetPlusAvoidSuccessValue();
+	int GetHitSuccessValue() { return m_hitSuccessValue; }
+	int GetRefiningPower() { return m_refiningPower; }
+	int GetMax_mattPower() { return m_max_mattPower; }
+	int GetMin_mattPower() { return m_min_mattPower; }
+	int GetPlusmdefPower() { return m_plusmdefPower; }
+	int GetAvoidSuccessValue() { return m_avoidSuccessValue; }
+	int GetCriticalSuccessValue() { return m_criticalSuccessValue; }
+	int GetPlusAvoidSuccessValue() { return m_plusAvoidSuccessValue; }
 	const char* GetCharName();
 	int GetEffectIgnoreCnt(int index);
 	void SetCharName(const char* characterName);

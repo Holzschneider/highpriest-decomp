@@ -706,15 +706,15 @@ int ReadRegistry()
 		RegQueryValueExA(hKey, "ISFULLSCREENMODE", 0, &reg_Type, (LPBYTE)&g_registry.m_isFullScreenMode, &Datalength);
 		RegQueryValueExA(hKey, "WIDTH",            0, &reg_Type, (LPBYTE)&g_registry.m_width,            &Datalength);
 		RegQueryValueExA(hKey, "HEIGHT",           0, &reg_Type, (LPBYTE)&g_registry.m_height,           &Datalength);
-		g_registry.m_isFullScreenMode = 0;
-		WINDOW_WIDTH = 1024;
-		WINDOW_HEIGHT = 768;
+		if (!g_registry.m_isFullScreenMode) {
+			WINDOW_WIDTH = g_registry.m_width;
+			WINDOW_HEIGHT = g_registry.m_height;
+		}
 		RegQueryValueExA(hKey, "BITPERPIXEL",      0, &reg_Type, (LPBYTE)&g_registry.m_bitPerPixel,      &Datalength);
 		RegQueryValueExA(hKey, "DEVICECNT",        0, &reg_Type, (LPBYTE)&g_registry.m_deviceCnt,        &Datalength);
 		RegQueryValueExA(hKey, "MODECNT",          0, &reg_Type, (LPBYTE)&g_registry.m_modeCnt,          &Datalength);
 		RegQueryValueExA(hKey, "ISVOODOO",         0, &reg_Type, (LPBYTE)&g_registry.m_isVoodoo,         &Datalength);
 		RegQueryValueExA(hKey, "SHOWTIPSATSTARTUP",0, &reg_Type, (LPBYTE)&g_showTipsAtStartup,           &Datalength);
-		g_showTipsAtStartup = 0;
 		if (RegQueryValueExA(hKey, "ISLIGHTMAP", 0, &reg_Type, (LPBYTE)&g_isLightMap, &Datalength) != ERROR_SUCCESS)
 			g_isLightMap = 1;
 		if (g_isLightMap == 1)
@@ -777,7 +777,6 @@ int ReadRegistry()
 		reg_Type = REG_DWORD;
 		Datalength = sizeof(DWORD);
 		RegQueryValueExA(hKey, "SOUNDMODE",       0, &reg_Type, (LPBYTE)&g_registry.m_soundMode,       &Datalength);
-		g_registry.m_soundMode = 1;
 		RegQueryValueExA(hKey, "SPEAKERTYPE",     0, &reg_Type, (LPBYTE)&g_registry.m_speakerType,     &Datalength);
 		RegQueryValueExA(hKey, "DIGITALRATETYPE", 0, &reg_Type, (LPBYTE)&g_registry.m_digitalrateType, &Datalength);
 		RegQueryValueExA(hKey, "DIGITALBITSTYPE", 0, &reg_Type, (LPBYTE)&g_registry.m_digitalbitsType, &Datalength);

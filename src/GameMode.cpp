@@ -578,6 +578,13 @@ void CGameMode::Initialize()
 		if (!strcmp("comodo.rsw", m_rswName) && g_session.m_isEffectOn)
 			g_Weather.LaunchPokJuk();
 	}
+
+	g_session.m_homunGID = 0;
+	g_session.m_homunAlive = 0;
+	g_session.InitHomunTargetInfo();
+	g_session.m_merGID = 0;
+	g_session.m_merAlive = 0;
+	g_session.InitMerTargetInfo();
 }
 
 BOOL	CGameMode :: OnRun()
@@ -610,9 +617,15 @@ void CGameMode::OnUpdate()
 	m_scheduler.OnRun();
 
 	if (m_loopCond) {
+		// BF_RECOVER_OPEN(onupdate-calls): the 2008 client (0x57BC90) calls five functions here where
+		// this source has ProcessInput and ProcessPlayWave: a lazily created singleton (0x57C060), a
+		// timed callback list like m_scheduler.OnRun (0x537140), ProcessInput (0x588CC0), a 10 s/1 s
+		// timer on one actor id (0x58D550) and ProcessPlayWave (0x58E460); its drawing part also calls
+		// more than this one. Which are missing here is not yet settled.
 		ProcessInput();
 		ProcessPlayWave();
 		if (g_isSkipFrame > 0) {
+			SynchronizeTimeWithServer(false);
 			ProcessAssignAID();
 			UnloadRarelyUsedCaches();
 		}
@@ -801,7 +814,7 @@ void	CGameMode :: PlayBGM()
 	const char *temp = g_session.GetMp3Name(m_rswName);
 	m_streamFileName = temp;
 	if (!g_session.m_bgmIsPaused)
-		PlayStream("bgm\\08.mp3");
+		PlayStream(m_streamFileName.c_str());
 	SetRoomEffect(ENVIRONMENT_GENERIC);
 }
 void	CGameMode :: WriteRagPathToReg()
@@ -4793,6 +4806,81 @@ void	CGameMode :: ProcessMouseSnap(CActorPickInfo *	actorInfo, int processType)
 
 void CGameMode::ProcessWheel(int processType)
 {
+	if (g_mouse.GetWheel() == 0)
+		return;
+	if (m_skillUseInfo.m_skillUseType != SUT_NOSKILL)
+		return;
+
+	SKILL_INFO dreamSkill = g_session.GetSkillItemInfoBySkillId(SKID_DA_DREAM);
+	if (dreamSkill.level > 0) {
+		if (m_MouseRollMax < m_MouseRollCount)
+			m_MouseRollMax = m_MouseRollCount;
+		m_MouseRollCount += 4;
+	}
+
+	if (CheckKeyPressed(VK_SHIFT)) {
+		float deltaLatitude = g_mouse.GetWheel() > 0 ? -5.0f : 5.0f;
+		float range = 10.0f;
+		float maxLatitude;
+		if (m_canRotateView)
+			range = 20.0f;
+
+		g_viewLatitude = m_view->GetDestLatitude() - deltaLatitude;
+		if (m_hasViewPoint) {
+			if (g_viewLatitude < ViewPointData[7])
+				g_viewLatitude = ViewPointData[7];
+			maxLatitude = ViewPointData[6];
+		} else {
+			if (g_viewLatitude < -45.0f - range)
+				g_viewLatitude = -45.0f - range;
+			if (CheckKeyPressed(VK_CONTROL) && m_view->GetDestDistance() <= FAR_DIST)
+				maxLatitude = range - 45.0f;
+			else
+				maxLatitude = range - 70.0f;
+		}
+		if (g_viewLatitude > maxLatitude)
+			g_viewLatitude = maxLatitude;
+		m_view->SetDestLatitude(g_viewLatitude);
+		return;
+	}
+
+	if (processType != 0 && !CheckKeyPressed(VK_CONTROL))
+		return;
+
+	if (g_session.m_isQuickSpell2 == 1) {
+		g_session.m_isQ2begin = 1;
+		UIShortCutWnd *shortCutWnd = g_windowMgr.GetShortCutWnd();
+		if (shortCutWnd)
+			shortCutWnd->SendMsg(NULL, UM_USE_SHORTEN_ITEM, g_mouse.GetWheel() > 0 ? 7 : 6, 0, 0, 0);
+		return;
+	}
+
+	float farDist = AVG_DIST;
+	if (m_canRotateView)
+		farDist = FAR_DIST;
+	g_viewDistance = m_view->GetDestDistance() - (g_mouse.GetWheel() > 0 ? -24.3f : 24.3f);
+
+	SKILL_INFO devilSkill = g_session.GetSkillItemInfoBySkillId(SKID_SG_DEVIL);
+	if (devilSkill.level < 1 && g_session.GetJob() == JT_STAR && m_world->m_player->m_stateId == ST_SIT
+		&& !m_hasViewPoint && !m_world->m_player->IsEffectExist(0x14e)) {
+		if (g_viewDistance < CLOSE_DIST)
+			g_viewDistance = CLOSE_DIST;
+		if (g_viewDistance > farDist * 3.0f)
+			g_viewDistance = farDist * 3.0f;
+		if (g_viewDistance > farDist && m_view->GetDestLatitude() > -50.0f)
+			m_view->SetDestLatitude(-50.0f);
+	} else if (m_hasViewPoint) {
+		if (g_viewDistance < ViewPointData[0])
+			g_viewDistance = ViewPointData[0];
+		if (g_viewDistance > ViewPointData[0] + ViewPointData[1])
+			g_viewDistance = ViewPointData[0] + ViewPointData[1];
+	} else {
+		if (g_viewDistance < CLOSE_DIST)
+			g_viewDistance = CLOSE_DIST;
+		if (g_viewDistance > farDist)
+			g_viewDistance = farDist;
+	}
+	m_view->SetDestDistance(g_viewDistance);
 }
 
 void CGameMode::ProcessRBtn()
@@ -6225,7 +6313,7 @@ void	CGameMode :: ProcessTalkType(int val1, int val2)
 				g_session.m_bgmIsPaused = 1 - g_session.m_bgmIsPaused;
 				if (!g_session.m_bgmIsPaused)
 				{
-					PlayStream("bgm\\08.mp3");
+					PlayStream(m_streamFileName.c_str());
 				}
 				else
 					CloseStream();

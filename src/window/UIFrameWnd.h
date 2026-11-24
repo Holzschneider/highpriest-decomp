@@ -1226,10 +1226,8 @@ public:
 	void DrawHexagon();
 	UIBitmapEditCtrl* m_nameEditCtrl;
 	CHARACTER_INFO m_charInfo;
-	CHARACTER_INFO m_charInfo2;
 private:
 	viewSprite m_viewChar;
-	viewSprite m_viewChar2;
 	UIStaticText* m_text[6];
 };
 

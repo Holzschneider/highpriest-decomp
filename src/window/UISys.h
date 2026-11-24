@@ -314,10 +314,6 @@ enum {
 	ID_QUEST = 295,
 	ID_PREMIUMSLOT = 296,
 	ID_RESET = 297,
-	ID_LEFT2 = 298,
-	ID_RIGHT2 = 299,
-	ID_UP2 = 300,
-	ID_HARDNESS = 301,
 };
 enum {
 	ME_OK,

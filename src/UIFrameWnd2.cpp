@@ -1799,6 +1799,37 @@ void UIStatusWnd::OnDraw()
 			TextOutA(74, posY[i] + 16, text, 0, 1, 14, 0);
 		}
 	}
+
+	const int* standardParams[6] = { g_session.GetStandardStrPointer(), g_session.GetStandardAgiPointer(),
+		g_session.GetStandardVitPointer(), g_session.GetStandardIntPointer(), g_session.GetStandardDexPointer(),
+		g_session.GetStandardLukPointer() };
+	char text2[32];
+	int textLen;
+	for (int j = 0; j < 6; j++) {
+		textLen = sprintf(text2, "%d", *standardParams[j]);
+		TextOutWithRightAlign(114, posY[j] + 16, text2, textLen, 1, 14, 0);
+	}
+
+	textLen = sprintf(text2, "%d + %d", g_session.GetAttPower(), g_session.GetRefiningPower());
+	TextOutWithRightAlign(192, 21, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d ~ %d", g_session.GetMin_mattPower(), g_session.GetMax_mattPower());
+	TextOutWithRightAlign(192, 37, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d", g_session.GetHitSuccessValue());
+	TextOutWithRightAlign(192, 53, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d", g_session.GetCriticalSuccessValue());
+	TextOutWithRightAlign(192, 69, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d + %d", g_session.GetItemDefPower(), g_session.GetPlusdefPower());
+	TextOutWithRightAlign(273, 21, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d + %d", g_session.GetMdefPower(), g_session.GetPlusmdefPower());
+	TextOutWithRightAlign(273, 37, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d + %d", g_session.GetAvoidSuccessValue(), g_session.GetPlusAvoidSuccessValue());
+	TextOutWithRightAlign(273, 53, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d", (2000 - g_session.GetASPD()) / 10);
+	TextOutWithRightAlign(273, 69, text2, textLen, 1, 14, 0);
+	textLen = sprintf(text2, "%d", g_session.GetPoint());
+	TextOutWithRightAlign(273, 85, text2, textLen, 1, 14, 0);
+	if (g_guildInfo.m_guildName.size())
+		TextOutWithRightAlign(273, 101, g_guildInfo.m_guildName.c_str(), g_guildInfo.m_guildName.size(), 0, 12, 0);
 }
 
 int UIStatusWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)

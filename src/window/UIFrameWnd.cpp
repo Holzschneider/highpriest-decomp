@@ -2392,7 +2392,7 @@ UIMakeCharWnd::UIMakeCharWnd()
 	m_charInfo.headpalette = 0;
 	m_charInfo.head = 1;
 	m_charInfo.name[0] = NULL;
-	m_charInfo.job = 4;
+	m_charInfo.job = 0;
 	m_charInfo.level = 1;
 	m_charInfo.sppoint = 1;
 	m_charInfo.jobpoint = 0;
@@ -2409,6 +2409,16 @@ UIMakeCharWnd::UIMakeCharWnd()
 	m_charInfo.accessory2 = 0;
 	m_charInfo.accessory3 = 0;
 	m_charInfo.headpalette = 0;
+
+	int* param = (int*)g_modeMgr.GetCurMode()->SendMsg(LMM_GET_CHAR_PARAM, 0, 0, 0);
+	m_charInfo.Str = param[0];
+	m_charInfo.Agi = param[1];
+	m_charInfo.Vit = param[2];
+	m_charInfo.Int = param[3];
+	m_charInfo.Dex = param[4];
+	m_charInfo.Luk = param[5];
+	m_charInfo.headpalette = param[6];
+	m_charInfo.head = param[7];
 
 	sAssert(m_charInfo.head < HEADTYPE_LAST);
 	m_viewChar.x = 95;
@@ -2433,41 +2443,6 @@ UIMakeCharWnd::UIMakeCharWnd()
 		m_viewChar.headPaletteName = g_session.GetHeadPaletteName(head, m_charInfo.job, g_session.GetSex(), m_viewChar.headPalette, palName);
 	}
 	m_viewChar.imfName = g_session.GetImfName(m_charInfo.job, m_charInfo.head, g_session.GetSex(), tmpName);
-
-	m_charInfo2.headpalette = 0;
-	m_charInfo2.head = 3;
-	m_charInfo2.job = 10;
-	m_charInfo2.CharNum = g_charInfo.CharNum;
-	m_charInfo2.bodypalette = 0;
-	m_charInfo2.shield = 0;
-	m_charInfo2.accessory2 = 0;
-	m_charInfo2.accessory3 = 0;
-	m_charInfo2.headpalette = 0;
-
-	sAssert(m_charInfo2.head < HEADTYPE_LAST);
-	m_viewChar2.x = 436;
-	m_viewChar2.y = 171;
-	m_viewChar2.baseAction = 0;
-	m_viewChar2.curAction = m_viewChar2.baseAction;
-	m_viewChar2.curMotion = 0;
-	RAG_BUDGET_FILL(6)
-	m_viewChar2.actName[0] = g_session.GetJobActName(m_charInfo2.job, 1, tmpName);
-	m_viewChar2.sprName[0] = g_session.GetJobSprName(m_charInfo2.job, 1, tmpName);
-	head = m_charInfo2.head;
-	m_viewChar2.actName[1] = g_session.GetHeadActName(m_charInfo2.job, head, 1, tmpName);
-	m_viewChar2.sprName[1] = g_session.GetHeadSprName(m_charInfo2.job, head, 1, tmpName);
-	m_charInfo2.head = head;
-	m_viewChar2.bodyPalette = m_charInfo2.bodypalette;
-	if (m_viewChar2.bodyPalette) {
-		char palName[64];
-		m_viewChar2.bodyPaletteName = g_session.GetBodyPaletteName(m_charInfo2.job, 1, m_viewChar2.bodyPalette, palName);
-	}
-	m_viewChar2.headPalette = m_charInfo2.headpalette;
-	if (m_viewChar2.headPalette) {
-		char palName[64];
-		m_viewChar2.headPaletteName = g_session.GetHeadPaletteName(head, m_charInfo2.job, 1, m_viewChar2.headPalette, palName);
-	}
-	m_viewChar2.imfName = g_session.GetImfName(m_charInfo2.job, m_charInfo2.head, 1, tmpName);
 }
 UIMakeCharWnd::~UIMakeCharWnd()
 {}
@@ -2480,12 +2455,8 @@ void UIMakeCharWnd::OnProcess()
 		if (m_viewChar.curAction >= m_viewChar.baseAction + 8) {
 			m_viewChar.curAction = m_viewChar.baseAction;
 		}
-		m_viewChar2.curAction--;
-		if (m_viewChar2.curAction < 0) {
-			m_viewChar2.curAction = m_viewChar2.baseAction + 7;
-		}
 	}
-	m_viewChar2.curMotion = m_viewChar.curMotion = 0;
+	m_viewChar.curMotion = 0;
 	m_stateCnt++;
 }
 
@@ -2502,6 +2473,14 @@ void UIMakeCharWnd::OnCreate(int cx, int cy)
 	m_nameEditCtrl->SetId(ID_OK);
 	AddChild(m_nameEditCtrl);
 	MakeButton();
+	for (int t = 0; t < 6; ++t) {
+		m_text[t] = new UIStaticText;
+		m_text[t]->Create(60, 15);
+		m_text[t]->SetText("", 0);
+		m_text[t]->Move((t / 6) * 144 + 489, (t % 6) * 16 + 42);
+		AddChild(m_text[t]);
+	}
+	InitTextControls();
 	g_windowMgr.SetFocusEdit(m_nameEditCtrl);
 	m_defPushId = 0x76;
 }
@@ -2536,9 +2515,10 @@ void UIMakeCharWnd::OnDraw()
 	CTexture* tex;
 
 	DrawBitmap(0, 0, (CBitmapRes*)g_resMgr().Get(
-		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\login_interface\\win_make_HP.bmp"), false), false);
+		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\login_interface\\win_make.bmp"), false), false);
 
 	CacheInfo info;
+	DrawHexagon();
 
 	int i;
 	for (i = 0; i < 2; ++i) {
@@ -2594,60 +2574,6 @@ void UIMakeCharWnd::OnDraw()
 			(int)(info.tu * 256.0f), (int)(info.tv * 256.0f),
 			img->width, img->height, clip->flags, img->isHalfW + 1, img->isHalfH + 1);
 	}
-
-	for (i = 0; i < 2; ++i) {
-		const char* imfName = m_viewChar2.imfName.c_str();
-		CImfRes* imfRes = (CImfRes*)g_resMgr().Get(imfName, false);
-		CActRes* actRes = (CActRes*)g_resMgr().Get(m_viewChar2.actName[i].c_str(), false);
-		CSprRes* sprRes = (CSprRes*)g_resMgr().Get(m_viewChar2.sprName[i].c_str(), false);
-
-		CMotion* curMotion = actRes->GetMotion(m_viewChar2.curAction, m_viewChar2.curMotion);
-		POINT p = imfRes->GetPoint(i, m_viewChar2.curAction, m_viewChar2.curMotion);
-		int offX = p.x;
-		int offY = p.y;
-
-		if (i == 1) {
-			CMotion* bodyMotion = ((CActRes*)g_resMgr().Get(m_viewChar2.actName[0].c_str(), false))->
-				GetMotion(m_viewChar2.curAction, m_viewChar2.curMotion);
-			if (curMotion->attachCnt && bodyMotion->attachCnt) {
-				if (curMotion->attachInfo[0].m_attr == bodyMotion->attachInfo[0].m_attr) {
-					offX += bodyMotion->attachInfo[0].x - curMotion->attachInfo[0].x;
-					offY += bodyMotion->attachInfo[0].y - curMotion->attachInfo[0].y;
-				}
-			}
-		}
-
-		unsigned long* palette = sprRes->m_pal;
-		switch (i) {
-		case 0:
-			if (m_viewChar2.bodyPalette) {
-				CPaletteRes* palRes = (CPaletteRes*)g_resMgr().Get(m_viewChar2.bodyPaletteName.c_str(), false);
-				palette = palRes->m_pal;
-			}
-			break;
-		case 1:
-			if (m_viewChar2.headPalette) {
-				CPaletteRes* palRes = (CPaletteRes*)g_resMgr().Get(m_viewChar2.headPaletteName.c_str(), false);
-				palette = palRes->m_pal;
-			}
-			break;
-		}
-
-		CSprClip* clip = curMotion->GetClip(i);
-		SprImg* img = sprRes->m_sprites[clip->clipType][clip->sprIndex];
-		if (clip->clipType == 0) {
-			tex = g_renderer->GetSpriteIndex(*img, (unsigned long)palette, &info);
-			if (tex == NULL)
-				tex = g_renderer->AddSpriteIndex(*img, palette, &info);
-		}
-		else {
-			tex = img->tex;
-		}
-
-		m_dc->BltTexture2(m_viewChar2.x + clip->x + offX, m_viewChar2.y + clip->y + offY, tex,
-			(int)(info.tu * 256.0f), (int)(info.tv * 256.0f),
-			img->width, img->height, clip->flags, img->isHalfW + 1, img->isHalfH + 1);
-	}
 }
 
 void UIMakeCharWnd::OnDestroy() {}
@@ -2688,7 +2614,7 @@ void UIMakeCharWnd::MakeButton()
 		{ 349, 190 },
 	};
 
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < 8; ++i) {
 		UIBitmapButton* button = new UIBitmapButton;
 		button->SetBitmapName((pathName + buttonName[i][0] + ".bmp").c_str(), 0);
 		button->SetBitmapName((pathName + buttonName[i][1] + ".bmp").c_str(), 1);
@@ -2732,59 +2658,24 @@ void UIMakeCharWnd::MakeButton()
 			AddChild(button);
 		}
 	}
-
-	{
-		std::string pathName("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\");
-
-		const char* buttonName[3][3] = {
-			{ "scroll1left", "scroll1left", "scroll1left" },
-			{ "scroll1right", "scroll1right", "scroll1right" },
-			{ "scroll0up", "scroll0up", "scroll0up" },
-		};
-		int ids[3] = { ID_LEFT2, ID_RIGHT2, ID_UP2 };
-		int pos[3][2] = {
-			{ 387, 90 },
-			{ 469, 90 },
-			{ 428, 56 },
-		};
-		const char* toolTip[3] = {
-			MsgStr(MSI_SELECT_HAIR_STYLE),
-			MsgStr(MSI_SELECT_HAIR_STYLE),
-			MsgStr(MSI_SELECT_HAIR_COLOR),
-		};
-
-		for (int i = 0; i < 3; ++i) {
-			UIBitmapButton* button = new UIBitmapButton;
-			button->SetBitmapName((pathName + buttonName[i][0] + ".bmp").c_str(), 0);
-			button->SetBitmapName((pathName + buttonName[i][1] + ".bmp").c_str(), 1);
-			button->SetBitmapName((pathName + buttonName[i][2] + ".bmp").c_str(), 2);
-			button->Create(button->GetBitmapWidth(), button->GetBitmapHeight());
-			button->Move(pos[i][0], pos[i][1]);
-			button->SetId(ids[i]);
-			button->SetToolTip(toolTip[i]);
-			AddChild(button);
-		}
-	}
-
-	{
-		std::string pathName("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\");
-		const char* toolTip[1] = { MsgStr(MSI_GIVING_MANNER_POINT_SUCCESS) };
-
-		for (int i = 0; i < 1; ++i) {
-			UIBitmapButton* button = new UIBitmapButton;
-			button->SetBitmapName((pathName + "scroll1left" + ".bmp").c_str(), 0);
-			button->SetBitmapName((pathName + "scroll1left" + ".bmp").c_str(), 1);
-			button->SetBitmapName((pathName + "scroll1left" + ".bmp").c_str(), 2);
-			button->Create(button->GetBitmapWidth(), button->GetBitmapHeight());
-			button->Move(333, 157);
-			button->SetId(ID_HARDNESS);
-			button->SetToolTip(toolTip[i]);
-			AddChild(button);
-		}
-	}
 }
 
-void UIMakeCharWnd::InitTextControls() {}
+void UIMakeCharWnd::InitTextControls()
+{
+	char buf[100];
+	sprintf(buf, "%d", m_charInfo.Str);
+	m_text[0]->SetTextWithShorten(buf);
+	sprintf(buf, "%d", m_charInfo.Agi);
+	m_text[1]->SetTextWithShorten(buf);
+	sprintf(buf, "%d", m_charInfo.Vit);
+	m_text[2]->SetTextWithShorten(buf);
+	sprintf(buf, "%d", m_charInfo.Int);
+	m_text[3]->SetTextWithShorten(buf);
+	sprintf(buf, "%d", m_charInfo.Dex);
+	m_text[4]->SetTextWithShorten(buf);
+	sprintf(buf, "%d", m_charInfo.Luk);
+	m_text[5]->SetTextWithShorten(buf);
+}
 
 int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, int val3, int val4)
 {
@@ -2809,6 +2700,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					strcpy(tmpName, m_nameEditCtrl->GetText());
 					memcpy(m_charInfo.name, tmpName, sizeof(m_charInfo.name));
 					g_charInfo = m_charInfo;
+					g_modeMgr.GetCurMode()->SendMsg(LMM_SENDCHARINFO, 0, 0, 0);
 					g_windowMgr.PostQuit(this);
 				} else {
 					if (!isGood)
@@ -2823,11 +2715,18 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 			{
 				g_windowMgr.ErrorMsg(MsgStr(MSI_ENTER_NAME_MORE_THAN_4_CHAR), ME_OK, 1, 0, 0);
 			}
+			{
+				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_MAKING_CHAR_NAME, (int)m_nameEditCtrl->GetText(), 0, 0);
+				int param[8] = { m_charInfo.Str, m_charInfo.Agi, m_charInfo.Vit, m_charInfo.Int,
+					m_charInfo.Dex, m_charInfo.Luk, m_charInfo.headpalette, m_charInfo.head };
+				g_modeMgr.GetCurMode()->SendMsg(LMM_SET_CHAR_PARAM, (int)param, 0, 0);
+			}
 			RAG_BUDGET_FILL(9)
 			break;
 
 		case ID_CANCEL:
 			g_windowMgr.PostQuit(this);
+			g_modeMgr.GetCurMode()->SendMsg(MM_COMMAND, LMM_SELECTCHARACTER, 0, 0);
 			break;
 
 		case ID_STR:
@@ -2839,6 +2738,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Str = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_AGI:
@@ -2850,6 +2750,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Agi = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_VIT:
@@ -2862,6 +2763,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Dex = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_INT:
@@ -2873,6 +2775,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Str = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_DEX:
@@ -2884,6 +2787,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Dex = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_LUK:
@@ -2895,6 +2799,7 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 					m_charInfo.Agi = 5;
 				}
 			}
+			InitTextControls();
 			break;
 
 		case ID_UP:
@@ -2946,58 +2851,6 @@ int UIMakeCharWnd::SendMsg(UIWindow *sender, int message, int val1, int val2, in
 				m_viewChar.headPaletteName = g_session.GetHeadPaletteName(
 					head, m_charInfo.job, g_session.GetSex(), m_viewChar.headPalette, palName);
 				Trace("headPaletteName = %s", m_viewChar.headPaletteName.c_str());
-			}
-			break;
-		}
-
-		case ID_UP2:
-			m_viewChar2.headPalette++;
-			if (m_viewChar2.headPalette > 8)
-				m_viewChar2.headPalette = 0;
-			if (m_viewChar2.headPalette) {
-				char palName[64];
-				int head = m_charInfo2.head;
-				m_viewChar2.headPaletteName = g_session.GetHeadPaletteName(head, m_charInfo2.job, 1, m_viewChar2.headPalette, palName);
-			}
-			m_charInfo2.headpalette = (short)m_viewChar2.headPalette;
-			break;
-
-		case ID_LEFT2: {
-			int head;
-			char tmpName[256];
-			Invalidate();
-			m_charInfo2.head--;
-			if (m_charInfo2.head == 0)
-				m_charInfo2.head = 25;
-			head = m_charInfo2.head;
-			m_viewChar2.actName[1] = g_session.GetHeadActName(m_charInfo2.job, head, 1, tmpName);
-			m_viewChar2.sprName[1] = g_session.GetHeadSprName(m_charInfo2.job, head, 1, tmpName);
-			m_charInfo2.head = (short)head;
-			m_viewChar2.imfName = g_session.GetImfName(m_charInfo2.job, m_charInfo2.head, 1, tmpName);
-			if (m_viewChar2.headPalette) {
-				char palName[64];
-				m_viewChar2.headPaletteName = g_session.GetHeadPaletteName(
-					head, m_charInfo2.job, 1, m_viewChar2.headPalette, palName);
-			}
-			break;
-		}
-
-		case ID_RIGHT2: {
-			int head;
-			char tmpName[256];
-			Invalidate();
-			m_charInfo2.head++;
-			if (m_charInfo2.head == 26)
-				m_charInfo2.head = 1;
-			head = m_charInfo2.head;
-			m_viewChar2.actName[1] = g_session.GetHeadActName(m_charInfo2.job, head, 1, tmpName);
-			m_viewChar2.sprName[1] = g_session.GetHeadSprName(m_charInfo2.job, head, 1, tmpName);
-			m_charInfo2.head = (short)head;
-			m_viewChar2.imfName = g_session.GetImfName(m_charInfo2.job, m_charInfo2.head, 1, tmpName);
-			if (m_viewChar2.headPalette) {
-				char palName[64];
-				m_viewChar2.headPaletteName = g_session.GetHeadPaletteName(
-					head, m_charInfo2.job, 1, m_viewChar2.headPalette, palName);
 			}
 			break;
 		}

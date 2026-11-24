@@ -241,29 +241,6 @@ void  CPc :: SetSprJobDye(int job)
 void	CPc :: SetSprAccessory(int accessory)
 {
 	m_accessory = accessory;
-	if (accessory == 0x1505)
-		m_accessory = 0x183;
-	else if (accessory == 0x1435)
-		m_accessory = 0xe3;
-	else if (accessory == 0x14b4)
-		m_accessory = 0x142;
-	else if (accessory == 0x145c)
-		m_accessory = 0x10a;
-	else if (accessory == 0x148f)
-		m_accessory = 0x12f;
-	else if (accessory == 0x145e)
-		m_accessory = 0x10c;
-	else if (accessory == 0x1411)
-		m_accessory = 0xd0;
-	else if (accessory == 0x1408)
-		m_accessory = 0x102;
-	else if (accessory == 0x145a)
-		m_accessory = 0x108;
-	else if (accessory == 0x1504)
-		m_accessory = 0x182;
-
-	if (m_gid == 1)
-		g_session.m_accessory = m_accessory;
 
 	char	tmpName[256];
 	SetActNameList(2, g_session.GetAccessoryActName(GetJob(), m_head, m_sex, m_accessory, tmpName));
@@ -273,29 +250,6 @@ void	CPc :: SetSprAccessory(int accessory)
 void	CPc :: SetSprAccessory2(int accessory2)
 {
 	m_accessory2 = accessory2;
-	if (accessory2 == 0x8c2)
-		m_accessory2 = 0x1a;
-	else if (accessory2 == 0x8e4)
-		m_accessory2 = 0x3f;
-	else if (accessory2 == 0x1437)
-		m_accessory2 = 0xe5;
-	else if (accessory2 == 0x140f)
-		m_accessory2 = 0xcf;
-	else if (accessory2 == 0x1467)
-		m_accessory2 = 0xaf;
-	else if (accessory2 == 0x14ed)
-		m_accessory2 = 0x16d;
-	else if (accessory2 == 0x8ee)
-		m_accessory2 = 0x49;
-	else if (accessory2 == 0x14c3)
-		m_accessory2 = 0x151;
-	else if (accessory2 == 0x14cd)
-		m_accessory2 = 0x159;
-	else if (accessory2 == 0x13ee)
-		m_accessory2 = 0xb9;
-
-	if (m_gid == 1)
-		g_session.m_accessory2 = m_accessory2;
 
 	char	tmpName[256];
 	SetActNameList(3, g_session.GetAccessoryActName(GetJob(), m_head, m_sex, m_accessory2, tmpName));
@@ -312,25 +266,6 @@ void	CPc :: SetSprAccessory2(int accessory2)
 void	CPc :: SetSprAccessory3(int accessory3)
 {
 	m_accessory3 = accessory3;
-	if (accessory3 == 0x8dd)
-		m_accessory3 = 0x38;
-	else if (accessory3 == 0x1456)
-		m_accessory3 = 0x103;
-	else if (accessory3 == 0x8db)
-		m_accessory3 = 0x36;
-	else if (accessory3 == 0x13f9)
-		m_accessory3 = 0xc2;
-	else if (accessory3 == 0x8da)
-		m_accessory3 = 0x35;
-	else if (accessory3 == 0x13f6)
-		m_accessory3 = 0xbf;
-	else if (accessory3 == 0x13f3)
-		m_accessory3 = 0xbc;
-	else if (accessory3 == 0x8de)
-		m_accessory3 = 0x39;
-
-	if (m_gid == 1)
-		g_session.m_accessory3 = m_accessory3;
 
 	char	tmpName[256];
 	SetActNameList(4, g_session.GetAccessoryActName(GetJob(), m_head, m_sex, m_accessory3, tmpName));
@@ -340,11 +275,7 @@ void	CPc :: SetSprAccessory3(int accessory3)
 void	CPc :: SetSprWeapon(int weapon)
 {
 	char tmpName[256];
-	char bufStr[256];
 	m_weapon = weapon;
-
-	sprintf(bufStr, "\xb9\xab\xb1\xe2 \xb9\xf8\xc8\xa3 - %d, \xc1\xf7\xbe\xf7 - %d", weapon, GetJob());
-	g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, int(bufStr), 0xfa969b, 0, 0);
 
 	if (!g_session.IsProperWeapon(GetJob(), m_weapon))
 	{

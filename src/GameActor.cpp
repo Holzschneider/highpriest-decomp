@@ -42,7 +42,6 @@ const int Layer_Body       = 0;
 const int Layer_Head       = 1;
 const int Layer_Accessory1 = 2;
 const int NEVERSEE_DAMAGEVALUE = -29999;
-const int HP_ST_SLEEP = 10;
 const int MAKETYPE_NEWCART_START = 36;
 
 inline bool IsPetHeadType(CGameActor* actor) { return actor->GetHeadType() == HEADTYPE_LAST; }
@@ -4194,7 +4193,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, int arg1, int arg2,
 					m_msgEffectList.push_back(sleepEffect);
 					sleepEffect->SendMsg(this, AM_SET_MASTER_POINTER);
 					m_sleepEffect = sleepEffect;
-					SetState(HP_ST_SLEEP);
+					SetState(ST_SLEEP);
 				}
 			}
 			break;

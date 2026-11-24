@@ -336,7 +336,7 @@ int CGameMode::SendMsg(int messageId, int val1, int val2, int val3)
 		break;
 	case MM_REFRESH_MUSIC: {
 		if (!g_session.m_bgmIsPaused)
-			PlayStream("bgm\\08.mp3");
+			PlayStream(m_streamFileName.c_str());
 		else
 			CloseStream();
 		break;
@@ -648,7 +648,11 @@ int CGameMode::SendMsg(int messageId, int val1, int val2, int val3)
 			ITEM_INFO	itemInfo = g_session.GetEquipedItems(slotNum);
 			if (itemInfo.IsValid()) {
 				if (itemInfo.m_num > 0) {
-					g_session.MoveItemFromEquipWndToItemWnd(itemInfo.m_location);
+					m_waitingTakeoffEquipAck = timeGetTime();
+					PACKET_CZ_REQ_TAKEOFF_EQUIP	 packet;
+					packet.PacketType	= HEADER_CZ_REQ_TAKEOFF_EQUIP;
+					packet.index		= itemInfo.m_itemIndex;
+					g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_REQ_TAKEOFF_EQUIP), (const char *)(&packet));
 					return	1;
 				} else {
 				return	0;
@@ -781,17 +785,12 @@ int CGameMode::SendMsg(int messageId, int val1, int val2, int val3)
 			break;
 		}
 
-		if (itemInfo.IsValid()) {
-			if (g_session.GetWeaponType(itemInfo.GetItemId()) != WEAPONTYPE_SHORTSWORD)
-			{
-				if (g_session.GetWeaponType(itemInfo.GetItemId()) != WEAPONTYPE_KNUKLE)
-				{
-					g_session.MoveItemFromEquipWndToItemWnd(itemInfo.m_location);
-					itemInfo.m_wearLocation = itemInfo.m_location;
-					g_session.MoveItemFromItemWndToEquipWnd(&itemInfo);
-				}
-			}
-		}
+		m_waitingWearEquipAck = timeGetTime();
+		PACKET_CZ_REQ_WEAR_EQUIP	 packet;
+		packet.PacketType	= HEADER_CZ_REQ_WEAR_EQUIP;
+		packet.index		= itemIndex;
+		packet.wearLocation	= location;
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_REQ_WEAR_EQUIP), (const char *)(&packet));
 
 			break;
 		}
