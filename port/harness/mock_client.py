@@ -553,6 +553,108 @@ class SkillsOptionsMixin:
 
 
 
+# The Alt shortcuts that open a window and the tip of the day (M8, altkeys.py):
+# UIWindowMgr::ProcessPushButton as restored from the reference (0x4f58c0).
+# Each toggles its window; Alt+H and Alt+Z open the friend and party window on
+# its friend or party tab (a press for the other tab while it is open switches
+# it); Alt+U is Korea's only and does nothing for the English service.
+WID.update({"CHATROOMMAKEWND": 27, "DETAILLEVELWND": 57, "FRIENDOPTIONWND": 68, "EMOTIONWND": 86,
+            "EMOTIONLISTWND": 87, "COMMANDLISTWND": 112, "ROMAPWND": 147, "MEMORIAL_DUN_WND": 144,
+            "TIPOFTHEDAYWND": 38, "QUESTWND": 141})
+ALT_TOGGLES = {("alt", "c"): "CHATROOMMAKEWND", ("alt", "d"): "DETAILLEVELWND", ("alt", "i"): "FRIENDOPTIONWND",
+               ("alt", "l"): "EMOTIONLISTWND", ("alt", "m"): "EMOTIONWND", ("alt", "y"): "COMMANDLISTWND",
+               ("alt", "b"): "MEMORIAL_DUN_WND", ("alt", "x"): "QUITWND", ("ctrl", "grave"): "ROMAPWND"}
+MOCK_TIP = ["Hold the ctrl key and press the * key to toggle the minimap between opaque and semi-transparent", ""]
+
+
+class AltKeysMixin:
+    def key_extra(self, key, down, mods):
+        if down and self.mode == "game" and self.window("BASICINFOWND"):
+            mod = "alt" if "alt" in mods else "ctrl" if "ctrl" in mods else None
+            name = ALT_TOGGLES.get((mod, key))
+            if name:
+                if not self.close_window(name):
+                    L = self.logical()
+                    self.open_window(Window(name, [0, 0, L[0], L[1]] if name == "ROMAPWND" else [300, 100, 280, 200]))
+                return True
+            if mod == "alt" and key in ("h", "z"):
+                old = self.alt_radio()
+                self.altkeys_radio = 1 if key == "z" else 0
+                if not self.close_window("MESSENGERGROUPWND") or old != self.altkeys_radio:
+                    self.messenger_window()
+                return True
+            if mod == "alt" and key == "u":
+                return True       # the Korean service's quest window
+        return super().key_extra(key, down, mods)
+
+    def alt_radio(self):
+        return getattr(self, "altkeys_radio", 1)
+
+    def messenger_window(self):
+        L = self.logical()
+        x, y = L[0] - 150, 40
+        on = self.alt_radio()
+        w = Window("MESSENGERGROUPWND", [x, y, 140, 155], [
+            ctl("tab:friend", "button", x + 4, y + 139, 48, 12, "on" if on == 0 else "off"),
+            ctl("tab:party", "button", x + 64, y + 139, 40, 12, "on" if on == 1 else "off")])
+        self.open_window(w)
+
+    def tip_of_the_day(self):
+        """GameMode.cpp: once per run, on the first entry into the world, when
+        SHOWTIPSATSTARTUP is on and the tips loaded. The mock asks for an
+        explicit 1 in the home's settings (own_home(t, tips=True))."""
+        if getattr(self, "altkeys_tip_shown", False):
+            return
+        self.altkeys_tip_shown = True
+        if int(self.settings().get("Client", {}).get("SHOWTIPSATSTARTUP", 0)) != 1:
+            return
+        tips = []
+        path = Path(os.environ.get("BF_CLIENT_DIR") or paths.client_dir()) / "tipOfTheday_e.txt"
+        try:
+            for part in path.read_bytes().decode("cp1252", "replace").split("#")[:-1]:
+                tips.append(part.split("\n"))
+        except OSError:
+            tips = [MOCK_TIP]
+        self.altkeys_tips = tips or [MOCK_TIP]
+        self.altkeys_tip = 0
+        L = self.logical()
+        x, y = L[0] // 2 - 200, L[1] // 2 - 180
+        w = Window("TIPOFTHEDAYWND", [x, y, 280, 180], [
+            ctl("text", "list", x + 10, y + 22, 260, 125),
+            ctl("prev", "button", x + 144, y + 156, 42, 20),
+            ctl("next", "button", x + 189, y + 156, 42, 20),
+            ctl("close", "button", x + 234, y + 156, 42, 20),
+            ctl("check:0", "check", x + 10, y + 160, 120, 12, "on")])
+        self.open_window(w)
+        self.altkeys_tip_text()
+
+    def altkeys_tip_text(self):
+        w = self.window("TIPOFTHEDAYWND")
+        if not w:
+            return
+        lines = ["Did you know...?"] + self.altkeys_tips[self.altkeys_tip % len(self.altkeys_tips)]
+        c = w.control("text")
+        c["items"] = lines
+        c["text"] = "\n".join(lines)
+
+    def button_extra(self, button, down, x, y):
+        w = self.window("TIPOFTHEDAYWND")
+        if w and button == "left" and not down:
+            wx, wy, ww, wh = w.rect
+            c = w.hit(x, y) if wx <= x < wx + ww and wy <= y < wy + wh else None
+            if c and c["id"] == "close":
+                self.close_window(w.name)
+                return True
+            if c and c["id"] in ("next", "prev"):
+                self.altkeys_tip += 1 if c["id"] == "next" else -1
+                self.altkeys_tip_text()
+                return True
+        if w and button == "left" and down and w.hit(x, y):
+            return True
+        return super().button_extra(button, down, x, y)
+
+
+
 class Conn:
     def __init__(self, sock):
         self.sock = sock
@@ -565,7 +667,7 @@ class Conn:
         self.out = b""
 
 
-class Mock(SkillsOptionsMixin):
+class Mock(AltKeysMixin, SkillsOptionsMixin):
     def __init__(self, path, db, trace):
         self.path = path
         self.db = db
@@ -730,6 +832,7 @@ class Mock(SkillsOptionsMixin):
                                     [ctl("chat_edit", "edit", 4, L[1] - 20, 392, 16),
                                      ctl("whisper_edit", "edit", 4, L[1] - 40, 90, 16)]))
             self.window("CHATWND").focus_control = "chat_edit"
+            self.tip_of_the_day()
 
     def open_window(self, w):
         self.windows.insert(0, w)

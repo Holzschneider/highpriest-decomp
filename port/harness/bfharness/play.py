@@ -163,16 +163,45 @@ def stop_after_zone_entry(t):
     t.client = None
 
 
-def own_home(t):
+def own_home(t, tips=False):
     """Environment for t.launch: the client keeps its settings (window
     positions, camera, the registry) under the run directory (BF_HOME), so a
     script starts from the defaults and leaves the user's profile alone. The
-    game folder stays BF_CLIENT_DIR, which the harness always passes."""
-    if t.mock:
+    game folder stays BF_CLIENT_DIR, which the harness always passes.
+
+    One default is changed: the tip of the day, which the 2008 client opens
+    over the middle of the screen on the first entry into the world
+    (SHOWTIPSATSTARTUP, on unless unticked), is off unless `tips` is true, so
+    that it covers nothing a script clicks. With --mock a home is made only
+    for tips=True (the mock shows the window only when the setting says 1)."""
+    if t.mock and not tips:
         return {}
     home = t.run_dir / "home"
     home.mkdir(exist_ok=True)
+    set_client_setting(home, "SHOWTIPSATSTARTUP", 1 if tips else 0)
     return {"BF_HOME": str(home)}
+
+
+def set_client_setting(home, name, value):
+    """A value of the client's registry key (group Client of Settings.plist,
+    port/compat/win32's registry) in the home `home`, other values kept."""
+    import plistlib
+    from . import paths
+    folder = home / "Library" / "Application Support" / paths.app_name()
+    folder.mkdir(parents=True, exist_ok=True)
+    plist = folder / "Settings.plist"
+    try:
+        with open(plist, "rb") as f:
+            values = plistlib.load(f)
+    except (OSError, plistlib.InvalidFileException):
+        values = {"FormatVersion": 1}
+    group = next((k for k in values if k.lower() == "client" and isinstance(values[k], dict)), "Client")
+    values.setdefault(group, {})
+    for k in [k for k in values[group] if k.lower() == name.lower()]:
+        del values[group][k]
+    values[group][name] = value
+    with open(plist, "wb") as f:
+        plistlib.dump(values, f)
 
 
 def fresh_character(t, user, password, name, sex="M", place=None, **columns):
