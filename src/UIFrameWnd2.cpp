@@ -4803,12 +4803,15 @@ INT_PTR UIQuitWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR 
 	switch (message) {
 	case UM_COMMAND:
 		switch (val1) {
+		// As the 2008 client (UIQuitWnd::SendMsg 0x483B70): "Exit" asks the
+		// zone server to disconnect (MM_QUIT_GAME, CZ_REQ_DISCONNECT) and quits
+		// on its answer; "Character select" sends CZ_RESTART type 1.
 		case ID_EXIT:
-			gm->SendMsg(MM_QUIT, 0, 0, 0);
+			gm->SendMsg(MM_QUIT_GAME, 0, 0, 0);
 			g_windowMgr.DeleteWindow((WINDOWID)0x30);
 			break;
 		case ID_RESTART:
-			gm->SendMsg(MM_QUIT, 0, 0, 0);
+			gm->SendMsg(MM_RESTART, QUIT_EXIT, 0, 0);
 
 		case ID_CANCEL:
 			g_windowMgr.DeleteWindow((WINDOWID)0x30);
