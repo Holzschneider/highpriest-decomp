@@ -6,8 +6,9 @@ the character gained experience; the monster's drop lies on the ground as an
 item actor, the client picks it up by clicking it, and the server logs the
 pickup and holds the item in the inventory.
 
-Set-up: a fresh group-99 account and its Novice (bifrost-bot creates the
-character and logs out again; SQL places it on prt_fild08). In game, the
+Set-up: a fresh group-99 account and its male Novice (bifrost-bot creates
+the character and logs out again; SQL places it on prt_fild08;
+play.fresh_character). In game, the
 client types `@monster 1002 1` (a Poring beside the character; set-up by
 atcommand, in atcommandlog).
 
@@ -31,8 +32,7 @@ import re
 import time
 
 from bfharness.accounts import unique_name
-from bfharness.bot import Bot
-from bfharness.play import enter_game, login, own_home
+from bfharness.play import enter_game, fresh_character, login, own_home
 from bfharness.sql import wait_rows
 
 NAME = "combat"
@@ -47,28 +47,6 @@ START = ("prt_fild08", 170, 375)
 
 def ok(s, cond, message):
     s.check(cond, message, passed=bool(cond))
-
-
-def setup_character(t, user, password, name, sex="M"):
-    """A fresh group-99 account with a Novice, placed at START."""
-    with t.step("set-up: account and character", "group 99; the character created by bifrost-bot, placed by SQL") as s:
-        aid = t.accounts.create_account(user, password, sex=sex, group_id=99)
-        s.note("account %s (%d)" % (user, aid))
-        if not t.mock:
-            bot = Bot.start(t, "create", user, password, name, gm=True)
-            s.state("created by the bot", bot.entered)
-            bot.quit()
-            wait_rows(lambda: [r for r in [t.logs.char(name)] if r and not r["online"]], timeout=20)
-        else:
-            if not t.logs.char(name):
-                t.mockdb.put("char", char_id=max([r["char_id"] for r in t.mockdb.rows("char")] or [150000]) + 1,
-                             account_id=aid, char_num=0, name=name, **{"class": 0}, base_level=1, job_level=1,
-                             base_exp=0, job_exp=0, zeny=0, last_map="prontera", last_x=155, last_y=183,
-                             str=5, agi=5, vit=5, int=5, dex=5, luk=5, status_point=0,
-                             hp=40, max_hp=40, sp=11, max_sp=11, online=0)
-        c = t.accounts.set_char(name, map=START[0], x=START[1], y=START[2])
-        s.state("char row", {k: c[k] for k in ("char_id", "last_map", "last_x", "last_y", "base_exp", "job_exp")})
-        return c
 
 
 def own_poring(t, ctl, s, me):
@@ -147,7 +125,7 @@ def run(t):
     name = t.param("char") or unique_name(tag="C")
     sex = t.param("sex", "M")
 
-    c0 = setup_character(t, user, password, name, sex)
+    c0 = fresh_character(t, user, password, name, sex, place=START)
     char_id = c0["char_id"]
 
     ctl = t.launch(env=own_home(t))

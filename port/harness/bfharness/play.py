@@ -173,3 +173,35 @@ def own_home(t):
     home = t.run_dir / "home"
     home.mkdir(exist_ok=True)
     return {"BF_HOME": str(home)}
+
+
+def fresh_character(t, user, password, name, sex="M", place=None, **columns):
+    """Set-up for the M8 scripts, which must not share a character: a group-99
+    account `user` (atcommands for set-up) with a Novice `name`, created by
+    bifrost-bot (which logs in once and out again), then placed and changed
+    by SQL while offline (`place` = (map, x, y); `columns` as set_char
+    takes them). With --mock the character row is written to the mock's
+    database. Returns the char row."""
+    from .bot import Bot
+    with t.step("set-up: account and character",
+                "group 99; the character created by bifrost-bot, set by SQL while offline") as s:
+        aid = t.accounts.create_account(user, password, sex=sex, group_id=99)
+        s.note("account %s (%d), sex %s" % (user, aid, sex))
+        if not t.mock:
+            bot = Bot.start(t, "create", user, password, name, gm=True)
+            s.state("created by the bot", bot.entered)
+            bot.quit()
+            wait_rows(lambda: [r for r in [t.logs.char(name)] if r and not r["online"]], timeout=20)
+        elif not t.logs.char(name):
+            rows = t.mockdb.rows("char")
+            t.mockdb.put("char", char_id=max([r["char_id"] for r in rows] or [150000]) + 1,
+                         account_id=aid, char_num=0, name=name, **{"class": 0}, base_level=1, job_level=1,
+                         base_exp=0, job_exp=0, zeny=0, last_map="prontera", last_x=155, last_y=183,
+                         str=5, agi=5, vit=5, int=5, dex=5, luk=5, status_point=0,
+                         hp=40, max_hp=40, sp=11, max_sp=11, online=0)
+        if place:
+            columns.update(map=place[0], x=place[1], y=place[2])
+        c = t.accounts.set_char(name, **columns)
+        s.state("char row", {k: c.get(k) for k in ("char_id", "last_map", "last_x", "last_y", "hp", "max_hp",
+                                                    "str", "status_point", "base_exp", "job_exp")})
+        return c

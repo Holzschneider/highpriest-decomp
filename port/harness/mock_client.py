@@ -44,7 +44,7 @@ WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECT
        "NOTICECONFIRMWND": 20, "ITEMSHOPWND": 22, "ITEMSELLWND": 24, "CHOOSESELLBUYWND": 25,
        "ITEMWND": 8, "EQUIPWND": 10, "STATUSWND": 11, "OPTIONWND": 13, "SKILLLISTWND": 37,
        "PARTYSETTINGWND": 53, "WHISPERWND": -1,
-       "MAILLISTWND": 98, "MAILVIEWWND": 99}
+       "MAILLISTWND": 98, "MAILVIEWWND": 99, "ITEMDROPCNTWND": 15}
 COMMANDS = ["hello", "key", "pointer", "capture", "state", "wait", "resize", "quit"]
 # char columns the mock saves on logout when the character row has them
 SAVED_STATS = ("base_exp", "job_exp", "hp", "sp", "str", "agi", "vit", "int", "dex", "luk", "status_point")
@@ -54,6 +54,14 @@ DETAIL = {"login": "LSM_IDENTRY", "connecting": "LSM_WAITRESP_FROM_ACSVR",
           "charselect": "LSM_SELECTCHAR", "makechar": "LSM_MAKECHAR",
           "loading": "LSM_READY_FOR_ZONESVR", "game": "MT_GAME", "quitting": "MT_QUIT"}
 ITEMS = {501: ("Red Potion", 50), 502: ("Orange Potion", 200), 909: ("Jellopy", 6)}
+# the item window (M8.1d): equipment by id -> (name, price, location bits, atk, def);
+# consumables heal (item id -> HP)
+EQUIPMENT = {1201: ("Knife", 50, 2, 17, 0), 1207: ("Main Gauche", 2400, 2, 43, 0),
+             2301: ("Cotton Shirt", 10, 16, 0, 1), 2305: ("Adventurer's Suit", 1000, 16, 0, 3)}
+for _n, _e in EQUIPMENT.items():
+    ITEMS.setdefault(_n, _e[:2])
+HEAL = {501: 45, 502: 105}
+STATS = ("str", "agi", "vit", "int", "dex", "luk")
 JOBS = {"Swordman": 1, "Mage": 2, "Archer": 3, "Acolyte": 4, "Merchant": 5, "Thief": 6}
 MAPS = {"prontera": (312, 392), "prt_fild08": (400, 400), "prt_in": (180, 180), "izlude": (256, 256)}
 NPCS = [  # map, x, y, name, sprite, role
@@ -195,6 +203,7 @@ class Mock:
         self.pick = None
         self.talk = None
         self.cart = {}
+        self.drag = None          # an inventory row dragged from the item window
         self.selected_slot = 0
         self.last_click = (-1, 0, 0)
         self.after_connect = None
@@ -393,7 +402,9 @@ class Mock:
             # The basic window's shortcuts toggle a window (UIWindowMgr::ProcessPushButton).
             name = ALT_WINDOWS[key]
             if not self.close_window(name):
-                self.open_window(Window(name, [300, 100, 280, 200]))
+                rect = {"ITEMWND": [0, 120, 280, 102], "STATUSWND": [185, 300, 280, 120]}.get(name, [300, 100, 280, 200])
+                self.open_window(Window(name, rect, data={"tab": "item"}))
+                self.item_windows()
 
     def on_enter(self):
         if self.mode == "login":
@@ -403,6 +414,9 @@ class Mock:
         elif self.mode == "makechar":
             self.make_char()
         elif self.mode == "game":
+            if self.window("ITEMDROPCNTWND"):
+                self.drop_item()
+                return
             if self.window("SAYDIALOGWND"):
                 self.close_window("SAYDIALOGWND")
                 self.talk = None
@@ -433,12 +447,23 @@ class Mock:
             self.set_mode("login")
 
     def on_button(self, button, down, x, y):
+        self.item_windows()
         if down:
             self.buttons.add(button)
         else:
             self.buttons.discard(button)
+        if button == "left" and down and self.mode == "game":
+            w = self.window_at(x, y)
+            c = w.hit(x, y) if w else None
+            self.drag = c["row"] if w and w.name == "ITEMWND" and c and c["id"].startswith("item:") else None
+            return
         if button != "left" or down:
             return
+        if self.drag is not None:
+            row, self.drag = self.drag, None
+            if self.window_at(x, y) is None and self.mode == "game":
+                self.begin_drop(row)
+                return
         now = self.frame
         dbl = self.last_click[0] >= now - 30 and abs(self.last_click[1] - x) < 4 and abs(self.last_click[2] - y) < 4
         self.last_click = (now, x, y)
@@ -527,6 +552,124 @@ class Mock:
                 self.mail_send()
         elif w.name == "MAILVIEWWND" and cid == "close":
             self.close_window(w.name)
+
+        elif w.name in ("ITEMWND", "EQUIPWND", "STATUSWND", "ITEMDROPCNTWND"):
+            self.on_item_control(w, c, dbl)
+
+    # -- item, equipment and status windows (M8.1d) ---------------------------
+
+    def window_at(self, x, y):
+        for w in self.windows:
+            wx, wy, ww, wh = w.rect
+            if wx <= x < wx + ww and wy <= y < wy + wh:
+                return w
+        return None
+
+    def worn_bonus(self):
+        atk = dfn = 0
+        for r in self.inventory():
+            e = EQUIPMENT.get(r["nameid"])
+            if e and r.get("equip"):
+                atk, dfn = atk + e[3], dfn + e[4]
+        return atk, dfn
+
+    def item_windows(self):
+        """Rebuild the controls of the item, equipment and status windows from
+        the inventory rows and the character (as the client's report does)."""
+        s = self.self_
+        if self.mode != "game" or not s:
+            return
+        inv = self.inventory()
+        w = self.window("ITEMWND")
+        if w:
+            x, y = w.rect[0], w.rect[1]
+            tab = w.data.get("tab", "item")
+            ctls = [ctl("tab:%s" % n, "button", x, y + 17 + i * 27, 20, 27, "on" if n == tab else "")
+                    for i, n in enumerate(("item", "equip", "etc"))]
+            shown = [r for r in inv if not r.get("equip") and
+                     ("equip" if r["nameid"] in EQUIPMENT else "item" if r["nameid"] in HEAL else "etc") == tab]
+            for i, r in enumerate(shown[:14]):
+                ctls.append(ctl("item:%d" % r["id"], "item", x + 40 + (i % 7) * 32, y + 17 + (i // 7) * 32, 32, 32,
+                                ITEMS.get(r["nameid"], ("?item", 0))[0], row=r["id"]))
+            w.controls = ctls
+        w = self.window("EQUIPWND")
+        if w:
+            x, y = w.rect[0], w.rect[1]
+            w.controls = [ctl("item:%d" % r["id"], "item", x + (6 if EQUIPMENT[r["nameid"]][2] == 2 else 251),
+                              y + 69, 24, 24, EQUIPMENT[r["nameid"]][0], row=r["id"])
+                          for r in inv if r.get("equip") and r["nameid"] in EQUIPMENT]
+        w = self.window("STATUSWND")
+        if w:
+            x, y = w.rect[0], w.rect[1]
+            atk, dfn = self.worn_bonus()
+            ctls = []
+            for i, k in enumerate(STATS):
+                v = s.get(k, 5)
+                ctls += [ctl(k, "button", x + 88, y + 23 + i * 16, 11, 11),
+                         ctl("stat:%s" % k, "text", x + 54, y + 22 + i * 16, 34, 14, str(v)),
+                         ctl("need:%s" % k, "text", x + 100, y + 22 + i * 16, 14, 14, str(v // 10 + 2))]
+            ctls += [ctl("atk", "text", x + 132, y + 21, 60, 14, "%d + 0" % (s.get("str", 5) + 2 + atk)),
+                     ctl("def", "text", x + 213, y + 21, 60, 14, "%d + %d" % (dfn, s.get("vit", 5))),
+                     ctl("status_point", "text", x + 213, y + 85, 60, 14, str(s.get("status_point", 0)))]
+            w.controls = ctls
+
+    def on_item_control(self, w, c, dbl):
+        cid = c["id"]
+        s = self.self_
+        if w.name == "ITEMWND" and cid.startswith("tab:"):
+            w.data["tab"] = cid[4:]
+        elif w.name == "ITEMWND" and cid.startswith("item:") and dbl:
+            r = next((r for r in self.inventory() if r["id"] == c["row"]), None)
+            if r and r["nameid"] in HEAL:
+                s["hp"] = min(s["max_hp"], s["hp"] + HEAL[r["nameid"]])
+                self.add_item(r["nameid"], -1, "C")
+            elif r and r["nameid"] in EQUIPMENT:
+                loc = EQUIPMENT[r["nameid"]][2]
+                for o in self.inventory():
+                    if o.get("equip") == loc:
+                        self.db.update("inventory", o["id"], equip=0)
+                self.db.update("inventory", r["id"], equip=loc)
+        elif w.name == "EQUIPWND" and cid.startswith("item:") and dbl:
+            self.db.update("inventory", c["row"], equip=0)
+        elif w.name == "STATUSWND" and cid in STATS:
+            need = s.get(cid, 5) // 10 + 2
+            if s.get("status_point", 0) >= need:
+                s[cid] = s.get(cid, 5) + 1
+                s["status_point"] -= need
+        elif w.name == "ITEMDROPCNTWND" and cid == "ok":
+            self.drop_item()
+        self.item_windows()
+
+    def begin_drop(self, row):
+        r = next((r for r in self.inventory() if r["id"] == row), None)
+        if not r:
+            return
+        if r["amount"] == 1:
+            self.drop_item(r, 1)
+            return
+        L = self.logical()
+        self.open_window(Window("ITEMDROPCNTWND", [L[0] // 2 - 91, L[1] // 2 - 64, 182, 46], [
+            ctl("edit:0", "edit", L[0] // 2 - 76, L[1] // 2 - 42, 80, 16, str(r["amount"])),
+            ctl("text:0", "text", L[0] // 2 - 76, L[1] // 2 - 58, 152, 15, ITEMS.get(r["nameid"], ("?item",))[0]),
+            ctl("ok", "button", L[0] // 2 + 20, L[1] // 2 - 44, 40, 20, "OK")], data={"row": row}))
+
+    def drop_item(self, r=None, n=None):
+        if r is None:
+            w = self.window("ITEMDROPCNTWND")
+            self.close_window("ITEMDROPCNTWND")
+            r = next((x for x in self.inventory() if x["id"] == w.data["row"]), None)
+            try:
+                n = int(w.control("edit:0")["text"] or 0)
+            except ValueError:
+                n = 0
+        if not r or n <= 0:
+            return
+        n = min(n, r["amount"])
+        self.add_item(r["nameid"], -n, "P")
+        s = self.self_
+        self.add_actor("item", "%s: %d ea." % (ITEMS.get(r["nameid"], ("?item",))[0], n), r["nameid"],
+                       s["x"] + 1, s["y"] + 1)
+        self.item_windows()
 
     # -- login, characters ---------------------------------------------------
 
@@ -863,7 +1006,7 @@ class Mock:
 
     def add_item(self, nameid, amount, log_type):
         s = self.self_
-        inv = {r["nameid"]: r for r in self.inventory()}
+        inv = {r["nameid"]: r for r in self.inventory() if not (nameid in EQUIPMENT and amount > 0)}
         if nameid in inv:
             r = inv[nameid]
             n = r["amount"] + amount
@@ -991,6 +1134,8 @@ class Mock:
             elif cmd == "monster":
                 for i in range(int(args[1]) if len(args) > 1 else 1):
                     self.add_actor("monster", "Poring", 1002, s["x"] + 2 + i, s["y"] + 2, hp=3)
+            elif cmd == "statuspoint":
+                s["status_point"] = s.get("status_point", 0) + int(args[0])
             elif cmd == "heal":
                 s["hp"], s["sp"] = s["max_hp"], s["max_sp"]
             else:
@@ -1343,6 +1488,11 @@ class Mock:
                      "zeny": s["zeny"], "weight": 0, "max_weight": 2400} if s else None)
         put("actors", [{"id": a["id"], "type": a["type"], "name": self.shown_name(a), "job": a["job"], "x": a["x"],
                         "y": a["y"], "screen": self.screen_of(a["x"], a["y"])} for a in self.actors] if s else [])
+        put("items", [{"index": r["id"], "id": r["nameid"], "name": ITEMS.get(r["nameid"], ("?item",))[0],
+                       "amount": r["amount"], "equipped": r.get("equip", 0),
+                       "type": 4 if r["nameid"] in EQUIPMENT else 0, "identified": True}
+                      for r in self.inventory()] if s else None)
+        self.item_windows()
         put("windows", [w.to_json(i == 0) for i, w in enumerate(self.windows)])
         put("sound", self.sound_state())
         return out

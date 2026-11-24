@@ -83,7 +83,7 @@ class Accounts:
         return self.logs.account(userid)["account_id"]
 
     def set_char(self, name, map=None, x=None, y=None, job=None, base_level=None,
-                 job_level=None, zeny=None, save_point=False):
+                 job_level=None, zeny=None, save_point=False, hp=None, status_point=None):
         """Change an offline character's row before it logs in."""
         c = self.logs.char(name)
         if not c:
@@ -96,14 +96,16 @@ class Accounts:
             if save_point:
                 sets += ["`save_map` = %s" % _q(map), "`save_x` = %d" % int(x), "`save_y` = %d" % int(y)]
         for col, val in (("class", job), ("base_level", base_level),
-                         ("job_level", job_level), ("zeny", zeny)):
+                         ("job_level", job_level), ("zeny", zeny), ("hp", hp),
+                         ("status_point", status_point)):
             if val is not None:
                 sets.append("`%s` = %d" % (col, int(val)))
         mock = getattr(self.sql, "db", None)
         if mock is not None:  # MockSql
             changes = {"class" if k == "job" else k: v for k, v in
                        (("last_map", map), ("last_x", x), ("last_y", y), ("job", job),
-                        ("base_level", base_level), ("job_level", job_level), ("zeny", zeny))
+                        ("base_level", base_level), ("job_level", job_level), ("zeny", zeny),
+                        ("hp", hp), ("status_point", status_point))
                        if v is not None}
             mock.update("char", c["char_id"], **changes)
             return self.logs.char(name)
