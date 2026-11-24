@@ -61,7 +61,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [ ] | M4.4 DirectDraw and Direct3D adapter for the methods `3dlib` calls | compat | M4.2 |
 | [x] 2a6bf9d | M4.5 Text module on CoreText, unsmoothed, with a metrics test | native | |
 | [ ] | M4.5a GDI adapter | compat | M4.5 |
-| [ ] | M4.6 Control interface, first part: socket, JSON lines, frame capture | native | M4.1 |
+| [x] 3b7143e | M4.6 Control interface, first part: socket, JSON lines, frame capture | native | M4.1 |
 | [ ] | M4.7 Options to skip the licence and intro screens | src | M3.7 |
 | [x] a81ced5 | M4.8 Reference screenshots of 2008-era clients collected under `~/Games/Bifrost/test/reference/` | ref | |
 | [ ] | M4 exit (verifier) | | M3 exit, M4.1–M4.8 |
