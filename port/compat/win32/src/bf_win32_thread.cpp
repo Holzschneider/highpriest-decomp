@@ -14,14 +14,22 @@ using namespace bf_win32;
 
 // ---- Time -----------------------------------------------------------------------
 
+// On Windows both count from the system's start, so the client never sees a
+// small value; it subtracts its expiry times from them unsigned (the sprite
+// cache's EXPIRETIME / 4 = 3750 ms in CRenderer::AddSpriteIndex), which from
+// a clock starting at 0 gives 0 at 3750 ms, and that call then never finds a
+// free slot. The clock therefore starts as if the system had been up for an
+// hour; it wraps after 48.7 more days, as a Windows clock may.
+static const DWORD BF_TICKS_AT_START = 3600u * 1000u;
+
 DWORD WINAPI timeGetTime(void)
 {
-	return bf_clock_ms();
+	return bf_clock_ms() + BF_TICKS_AT_START;
 }
 
 DWORD WINAPI GetTickCount(void)
 {
-	return bf_clock_ms();
+	return bf_clock_ms() + BF_TICKS_AT_START;
 }
 
 MMRESULT WINAPI timeGetDevCaps(LPTIMECAPS caps, UINT size)
