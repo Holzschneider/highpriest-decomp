@@ -1,6 +1,6 @@
 #!/bin/bash
 # Makes a throwaway copy of src/ under build/port/shadow and applies the
-# automatic rewrites of codemod.py to it, twice over: the text rules first,
+# automatic rewrites of codemod.py to it (every text rule, time_t included), twice over: the text rules first,
 # then the pointer-cast rule from a census of the result. The copy shows how
 # much of the port's compile work is mechanical without touching src/.
 #

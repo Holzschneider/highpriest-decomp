@@ -18,6 +18,10 @@ Rules (all run when none is named):
   enumfwd     Gives the forward-declared enumeration WINDOWID a fixed
               underlying type, which standard C++ requires.
   typename    Adds 'typename' in front of dependent type names.
+  time_t      The 'time_t' fields of the structures in packet.h become 'int'.
+              Visual C++ 6.0 makes time_t a 32-bit long; here it is 64 bits,
+              which moves the fields that follow in every packet that carries
+              one. Only structure fields in packet.h, not locals or other files.
   ptrcast     Widens casts of pointers to int, at the places the compiler
               reports (needs --diagnostics, a file of clang error output).
 
@@ -53,7 +57,13 @@ def rule_typename(text, rel):
     text = text.replace('\tstatic T::referent_type nullDesc;', '\tstatic typename T::referent_type nullDesc;')
     return text.replace('\tT::iterator iter = table.find(itemName);', '\ttypename T::iterator iter = table.find(itemName);')
 
-RULES = {'long32': rule_long32, 'allocator': rule_allocator, 'enumfwd': rule_enumfwd, 'typename': rule_typename}
+def rule_time_t(text, rel):
+    if rel != 'packet.h':
+        return text
+    return re.sub(r'(?m)^(\s*)time_t(\s+\w+\s*;)', r'\1int\2', text)
+
+RULES = {'long32': rule_long32, 'allocator': rule_allocator, 'enumfwd': rule_enumfwd, 'typename': rule_typename,
+         'time_t': rule_time_t}
 
 def apply_ptrcast(tree, diagnostics, dry_run):
     """Rewrites '(int)expr' and 'int(expr)' to use INT_PTR where clang reported
