@@ -28,7 +28,7 @@ compile "$ROOT/port/probe/probe_support.cpp"
 compile "$ROOT/port/probe/packetlen.cpp"
 compile "$ROOT/port/probe/netprobe.cpp"
 
-link() { clang++ -target arm64-apple-macos13 "$@"; }
+link() { clang++ -target arm64-apple-macos14 "$@"; }
 link "$OUT/obj/packetlen.o" "$OUT/obj/packet.o" -o "$OUT/bin/bifrost-packetlen"
 link "$OUT/obj/netprobe.o" "$OUT/obj/Connection.o" "$OUT/obj/PacketQueue.o" "$OUT/obj/packet.o" \
      "$OUT/obj/bf_trace.o" "$OUT/obj/bf_packet_names.o" "$OUT/obj/probe_support.o" -o "$OUT/bin/bifrost-netprobe"
