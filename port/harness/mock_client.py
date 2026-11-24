@@ -38,7 +38,7 @@ KEYS = set("abcdefghijklmnopqrstuvwxyz0123456789") | {"f%d" % i for i in range(1
     "pageup", "pagedown", "left", "right", "up", "down", "minus", "equal", "leftbracket",
     "rightbracket", "backslash", "semicolon", "quote", "comma", "period", "slash", "grave",
     "kpenter", "kpplus", "kpminus", "kpmultiply", "kpdivide", "kpdecimal",
-    "shift", "ctrl", "alt", "cmd"} | {"kp%d" % i for i in range(10)}
+    "shift", "ctrl", "alt", "cmd"} | {"kp%d" % i for i in range(10)} | {"f13", "f14", "f15"}
 MODS = {"shift", "ctrl", "alt", "cmd"}
 WID = {"BASICINFOWND": 0, "CHATWND": 1, "LOGINWND": 3, "MAKECHARWND": 4, "SELECTCHARWND": 5,
        "WAITWND": 6, "LOADINGWND": 7, "SAYDIALOGWND": 16, "CHOOSEWND": 17, "RESTARTWND": 19,
@@ -182,6 +182,369 @@ def ctl(cid, kind, x, y, w, h, text="", **extra):
     return d
 
 
+# Skills, the shortcut bar, the option window and screenshots (M8.1f, M8.1g).
+# A Swordman's tree as skillnametable.txt names it: id, name, max level, and
+# whether it is used on the self (else on a target).
+SKILL_TREE = {0: [(1, "NV_BASIC", 9, None)],
+              1: [(1, "NV_BASIC", 9, None), (2, "SM_SWORD", 10, None), (3, "SM_TWOHAND", 10, None),
+                  (4, "SM_RECOVERY", 10, None), (5, "SM_BASH", 10, "target"), (6, "SM_PROVOKE", 10, "target"),
+                  (7, "SM_MAGNUM", 10, "self"), (8, "SM_ENDURE", 10, "self")]}
+SKILL_SP = {5: 8, 6: 4, 7: 15, 8: 10}
+LEVEL_USE = {5, 6}          # leveluseskillspamount.txt: the bar keeps a use level for these only
+SKILL_ROWS = 6
+WID["SHORTCUTWND"] = 36
+OPTION_DEFAULTS = {"isEffectOn": 1, "bgmIsPaused": 0, "isSoundOn": 1, "streamVolume": 100, "soundVolume": 100,
+                   "g_isFixedCamera": 0, "m_isNoCtrl": 0}
+
+
+class SkillsOptionsMixin:
+    """The mock's skill window, shortcut bar, option window, slash toggles,
+    wheel zoom and screenshot key. Hooked into Mock by a line each."""
+
+    def init_extras(self):
+        self.held = set()             # modifier keys held by key down/up
+        self.skill_view = 0
+        self.skill_sel = None
+        self.skill_target = None
+        self.sdrag = None
+        self.cam = 1.0                # camera distance: 1.0 is the start and the 2008 limit
+        self.shot_count = 0
+        self.settings_file = os.environ.get("BF_MOCK_SETTINGS") or os.path.join(
+            os.path.dirname(os.environ.get("BF_MOCK_DB") or self.path), "mock-settings.plist")
+        self.options = dict(OPTION_DEFAULTS)
+        self.free_camera = 1
+        try:
+            import plistlib
+            with open(self.settings_file, "rb") as f:
+                d = plistlib.load(f)
+            self.options.update(d.get("Client", {}).get("Option", {}))
+            self.free_camera = int(d.get("Options", {}).get("FreeCamera", 1))
+        except (OSError, ValueError):
+            pass
+
+    def save_settings(self):
+        import plistlib
+        d = {}
+        try:
+            with open(self.settings_file, "rb") as f:
+                d = plistlib.load(f)
+        except (OSError, ValueError):
+            pass
+        d.setdefault("Client", {})["Option"] = dict(self.options)
+        d.setdefault("Options", {}).setdefault("FreeCamera", self.free_camera)
+        with open(self.settings_file, "wb") as f:
+            plistlib.dump(d, f)
+
+    def pkt(self, direction, header, payload=b""):
+        """A line of the packet log (BF_PKT_LOG), as the client writes it."""
+        path = os.environ.get("BF_PKT_LOG")
+        if not path:
+            return
+        data = struct.pack("<H", int(header, 16)) + payload
+        with open(path, "a") as f:
+            f.write("%d %s %s %d ? %s zone/3\n" % (self.now_ms(), direction, header, len(data), data.hex()))
+
+    # -- skills ----------------------------------------------------------------
+
+    def skill_levels(self):
+        s = self.self_
+        lv = {}
+        for r in self.db.rows("skill"):
+            if r["char_id"] == s["char_id"]:
+                lv[r["id"]] = r["lv"]
+        return lv
+
+    def skill_rows(self):
+        s = self.self_
+        lv = self.skill_levels()
+        return [(sid, name, mx, kind, lv.get(sid, 0)) for sid, name, mx, kind in SKILL_TREE.get(s["class"], [])]
+
+    def skill_window(self):
+        w = self.window("SKILLLISTWND")
+        if not w or not self.self_:
+            return
+        wx, wy = w.rect[0], w.rect[1]
+        rows = self.skill_rows()
+        points = self.self_.get("skill_point", 0)
+        ctls = []
+        for i, (sid, name, mx, kind, lv) in enumerate(rows[self.skill_view:self.skill_view + SKILL_ROWS]):
+            y = wy + 17 + i * 32
+            ctls.append(ctl("skill:%d" % sid, "item", wx + 40, y, 32, 32, "%s %d" % (name, lv)))
+            if points and lv < mx:
+                ctls.append(ctl("up:%d" % sid, "button", wx + 78, y + 4, 24, 24))
+        L = wy + w.rect[3]
+        ctls += [ctl("points", "text", wx, L - 24, 60, 16, str(points)),
+                 ctl("ok", "button", wx + 173, L - 24, 42, 20), ctl("close", "button", wx + 219, L - 24, 42, 20)]
+        w.controls = ctls
+        w.focus_control = None
+
+    def shortcut_window(self):
+        w = self.window("SHORTCUTWND")
+        if not w or not self.self_:
+            return
+        keys = {r["hotkey"]: r for r in self.db.rows("hotkey") if r["char_id"] == self.self_["char_id"]}
+        page = self.self_.get("page", 0)
+        ctls = []
+        for i in range(9):
+            k = keys.get(i + page * 9)
+            text = "" if not k or not k["itemskill_id"] else (
+                "skill:%d:%d" % (k["itemskill_id"], k["skill_lvl"]) if int(k["type"]) == 1 else "item:%d" % k["itemskill_id"])
+            ctls.append(ctl("slot:%d" % i, "item", w.rect[0] + i * 29 + 5, w.rect[1] + 5, 24, 24, text))
+        ctls.append(ctl("page", "text", w.rect[0] + 267, w.rect[1] + 18, 10, 12, str(page + 1)))
+        w.controls = ctls
+
+    def option_window(self):
+        w = self.window("OPTIONWND")
+        if not w:
+            return
+        x, y = w.rect[0], w.rect[1]
+        o = self.options
+        onoff = lambda v: "on" if v else "off"
+        w.controls = [ctl("close", "button", x + 266, y + 3, 11, 11),
+                      ctl("bgm_volume", "scroll", x + 71, y + 21, 165, 12, str(o["streamVolume"])),
+                      ctl("sound_volume", "scroll", x + 71, y + 40, 165, 12, str(o["soundVolume"])),
+                      ctl("bgm_on", "check", x + 237, y + 22, 26, 12, onoff(not o["bgmIsPaused"])),
+                      ctl("sound_on", "check", x + 237, y + 41, 26, 12, onoff(o["isSoundOn"])),
+                      ctl("noctrl", "check", x + 11, y + 100, 52, 12, onoff(o["m_isNoCtrl"]))]
+        w.focus_control = None
+
+    def refresh_windows(self):
+        self.skill_window()
+        self.shortcut_window()
+        self.option_window()
+
+    def use_skill(self, sid, target=None):
+        s = self.self_
+        lv = self.skill_levels().get(sid, 0)
+        cost = SKILL_SP.get(sid, 5)
+        if not lv or s["sp"] < cost:
+            self.system("Skill has failed.")
+            return
+        tid = target["id"] if target else s["account_id"]
+        self.pkt("S", "0x0072", b"\0" * 4 + struct.pack("<H", lv) + b"\0" * 2 + struct.pack("<H", sid) + b"\0" * 9
+                 + struct.pack("<I", tid))
+        s["sp"] -= cost
+        if target is None:
+            self.pkt("R", "0x011a", struct.pack("<HHII", sid, lv, tid, tid) + b"\1")
+            self.system("%s !!" % dict((k, n) for k, n, *_ in SKILL_TREE[1]).get(sid, "Skill"), "normal")
+        else:
+            self.pkt("R", "0x01de", struct.pack("<HII", sid, s["account_id"], tid) + b"\0" * 21)
+            target["hp"] -= 2
+            if target["hp"] <= 0 and target in self.actors:
+                self.actors.remove(target)
+                self.db.put("picklog", char_id=target["job"], type="M", nameid=909, amount=-1, refine=0, map=self.map)
+
+    def begin_use(self, sid):
+        kind = dict((k, t) for k, _n, _m, t in SKILL_TREE.get(self.self_["class"], [])).get(sid)
+        if kind == "target":
+            self.skill_target = sid
+        elif kind == "self":
+            self.use_skill(sid)
+
+    def target_click(self, x, y):
+        sid, self.skill_target = self.skill_target, None
+        for a in self.actors:
+            p = self.screen_of(a["x"], a["y"])
+            if p and a["type"] == "monster" and abs(p["x"] - x) <= CELL // 2 and abs(p["y"] - y) <= CELL // 2:
+                self.use_skill(sid, a)
+                return True
+        return True    # a click elsewhere cancels the target cursor
+
+    def set_hotkey(self, slot, sid):
+        s = self.self_
+        index = slot + s.get("page", 0) * 9
+        lvl = self.skill_levels().get(sid, 0) if sid in LEVEL_USE else 0
+        self.db.put("hotkey", char_id=s["char_id"], hotkey=index, type="1", itemskill_id=sid, skill_lvl=lvl)
+        self.pkt("S", "0x02ba", struct.pack("<HBIH", index, 1, sid, lvl))
+
+    def use_hotkey(self, slot):
+        s = self.self_
+        keys = {r["hotkey"]: r for r in self.db.rows("hotkey") if r["char_id"] == s["char_id"]}
+        k = keys.get(slot + s.get("page", 0) * 9)
+        if k and int(k["type"]) == 1 and k["itemskill_id"]:
+            self.begin_use(k["itemskill_id"])
+
+    # -- input hooks -------------------------------------------------------------
+
+    def key_extra(self, key, down, mods):
+        """True when the key was handled here."""
+        if key in MODS:
+            (self.held.add if down else self.held.discard)(key)
+            return True
+        if key == "f13":
+            if not down:     # Print Screen: WM_KEYUP only
+                self.screenshot("ctrl" in self.held or "ctrl" in mods)
+            return True
+        if not down or self.mode != "game":
+            return False
+        if "alt" in mods and key in ("s", "o"):
+            name = "SKILLLISTWND" if key == "s" else "OPTIONWND"
+            if not self.close_window(name):
+                self.open_window(Window(name, [300, 100, 280, 216] if key == "s" else [300, 300, 280, 120]))
+                self.refresh_windows()
+            return True
+        if key == "f12":
+            s = self.self_
+            s["page"] = (s.get("page", 0) + 1) % 3
+            if not self.window("SHORTCUTWND"):
+                self.open_window(Window("SHORTCUTWND", [185, 300, 280, 34]))
+            self.refresh_windows()
+            return True
+        if key.startswith("f") and key[1:].isdigit() and 1 <= int(key[1:]) <= 9:
+            self.use_hotkey(int(key[1:]) - 1)
+            return True
+        return False
+
+    def button_extra(self, button, down, x, y):
+        """Drags out of the skill window, window moves, the skill window's
+        rows and the option window's controls. True when handled here."""
+        if button != "left" or self.mode != "game":
+            return False
+        self.refresh_windows()
+        if down:
+            for w in self.windows:
+                wx, wy, ww, wh = w.rect
+                if wx <= x < wx + ww and wy <= y < wy + wh:
+                    c = w.hit(x, y)
+                    if w.name == "SKILLLISTWND" and c and c["id"].startswith("skill:"):
+                        self.sdrag = ("skill", int(c["id"][6:]), x, y)
+                    elif not c and w.name in ("SKILLLISTWND", "SHORTCUTWND", "OPTIONWND"):
+                        self.sdrag = ("window", w, x - wx, y - wy)
+                    return False
+            return False
+        drag, self.sdrag = self.sdrag, None
+        if drag and drag[0] == "window":
+            w = drag[1]
+            w.rect[0], w.rect[1] = max(0, x - drag[2]), max(0, y - drag[3])
+            self.refresh_windows()
+            return True
+        if drag and drag[0] == "skill" and (abs(x - drag[2]) > 4 or abs(y - drag[3]) > 4):
+            w = self.window("SHORTCUTWND")
+            c = w.hit(x, y) if w else None
+            if c and c["id"].startswith("slot:"):
+                self.set_hotkey(int(c["id"][5:]), drag[1])
+                self.refresh_windows()
+            return True
+        if self.skill_target:
+            on_window = any(w.rect[0] <= x < w.rect[0] + w.rect[2] and w.rect[1] <= y < w.rect[1] + w.rect[3]
+                            for w in self.windows if w.name not in ("BASICINFOWND",))
+            if not on_window:
+                return self.target_click(x, y)
+        for w in self.windows:
+            wx, wy, ww, wh = w.rect
+            if not (wx <= x < wx + ww and wy <= y < wy + wh):
+                continue
+            c = w.hit(x, y)
+            if not c:
+                return w.name in ("SKILLLISTWND", "SHORTCUTWND", "OPTIONWND")
+            if w.name == "SKILLLISTWND":
+                cid = c["id"]
+                if cid.startswith("skill:"):
+                    dbl = self.skill_sel == int(cid[6:]) and self.frame - getattr(self, "skill_sel_frame", -99) < 30
+                    self.skill_sel, self.skill_sel_frame = int(cid[6:]), self.frame
+                    if dbl:
+                        self.begin_use(self.skill_sel)
+                elif cid.startswith("up:"):
+                    self.raise_skill(int(cid[3:]))
+                elif cid == "ok" and self.skill_sel:
+                    self.begin_use(self.skill_sel)
+                elif cid == "close":
+                    self.close_window(w.name)
+                self.refresh_windows()
+                return True
+            if w.name == "OPTIONWND":
+                self.option_click(c, x)
+                self.refresh_windows()
+                return True
+            if w.name == "SHORTCUTWND":
+                return True
+            return False
+        return False
+
+    def raise_skill(self, sid):
+        s = self.self_
+        if not s.get("skill_point"):
+            return
+        lv = self.skill_levels().get(sid, 0) + 1
+        s["skill_point"] -= 1
+        self.pkt("S", "0x0112", struct.pack("<H", sid))
+        self.db.put("skill", char_id=s["char_id"], id=sid, lv=lv, flag=0)
+        self.db.update("char", s["char_id"], skill_point=s["skill_point"])
+        self.pkt("R", "0x010e", struct.pack("<HHHHB", sid, lv, SKILL_SP.get(sid, 0), 1, 1))
+
+    def option_click(self, c, x):
+        o = self.options
+        cid = c["id"]
+        if cid == "sound_on":
+            o["isSoundOn"] = 1 - o["isSoundOn"]
+        elif cid == "bgm_on":
+            o["bgmIsPaused"] = 1 - o["bgmIsPaused"]
+            if o["bgmIsPaused"]:
+                self.stream.update(file="", started=None)
+            else:
+                self.play_stream(MUSIC.get(self.map, "bgm\\01.mp3"))
+        elif cid == "noctrl":
+            o["m_isNoCtrl"] = 1 - o["m_isNoCtrl"]
+        elif cid in ("bgm_volume", "sound_volume"):
+            key = "streamVolume" if cid == "bgm_volume" else "soundVolume"
+            bx, _by, bw, _bh = c["rect"]
+            thumb = bx + 12 + (bw - 24) * o[key] // 127
+            if x < bx + 12:
+                o[key] -= 1
+            elif x >= bx + bw - 12:
+                o[key] += 1
+            else:
+                o[key] += -10 if x < thumb else 10
+            o[key] = max(0, min(127, o[key]))
+        elif cid == "close":
+            self.close_window("OPTIONWND")
+
+    def on_wheel(self, dy, x, y):
+        """CGameMode::ProcessWheel: away from the user moves the camera away.
+        The mock starts at the 2008 limit, as the client does on a field."""
+        if self.mode != "game":
+            return
+        w = next((w for w in self.windows if w.rect[0] <= x < w.rect[0] + w.rect[2]
+                  and w.rect[1] <= y < w.rect[1] + w.rect[3]), None)
+        if w and w.name == "SKILLLISTWND":
+            n = len(self.skill_rows())
+            self.skill_view = max(0, min(max(0, n - SKILL_ROWS), self.skill_view - dy * 3))
+            self.refresh_windows()
+            return
+        lo, hi = (0.4, 2.5) if self.free_camera else (0.6, 1.0)
+        self.cam = max(lo, min(hi, self.cam + 0.06 * dy))
+
+    def cell_px(self):
+        return CELL if self.cam == 1.0 else CELL / self.cam
+
+    def slash(self, line):
+        """The 2008 client's chat-line toggles; True when handled."""
+        cmd = line.split()[0].lower()
+        o = self.options
+        if cmd == "/effect":
+            o["isEffectOn"] = 1 - o["isEffectOn"]
+            self.system("Effects On" if o["isEffectOn"] else "Effects Off")
+            return True
+        if cmd == "/camera":
+            o["g_isFixedCamera"] = 1 - o["g_isFixedCamera"]
+            self.system("Camera Zooming On" if o["g_isFixedCamera"] else "Camera Zooming Off")
+            return True
+        return False
+
+    def screenshot(self, bmp):
+        folder = os.environ.get("BF_MOCK_PICTURES") or os.path.join(
+            os.path.dirname(os.environ.get("BF_MOCK_DB") or self.path), "mock-pictures")
+        os.makedirs(folder, exist_ok=True)
+        while True:
+            name = "screen%s%03d.%s" % (paths.app_name(), self.shot_count, "bmp" if bmp else "jpg")
+            self.shot_count += 1
+            if not os.path.exists(os.path.join(folder, name)):
+                break
+        self.render(os.path.join(folder, name))
+        self.system("%s is Saved." % os.path.join(folder, name))
+
+
+
 class Conn:
     def __init__(self, sock):
         self.sock = sock
@@ -194,7 +557,7 @@ class Conn:
         self.out = b""
 
 
-class Mock:
+class Mock(SkillsOptionsMixin):
     def __init__(self, path, db, trace):
         self.path = path
         self.db = db
@@ -236,6 +599,7 @@ class Mock:
         self.voices = []          # the `sound` part's recent voices
         self.voice_serial = 0
         self.voices_started = 0
+        self.init_extras()
         self.seed()
         self.movie = {"playing": False, "paused": False, "file": None, "width": 0, "height": 0, "frames": 0,
                       "frame": 0, "fps": 0.0, "tracks": 0, "sound": False, "voice": 0, "sound_seconds": 0.0,
@@ -382,13 +746,15 @@ class Mock:
 
     def on_text(self, ch):
         w = self.windows[0] if self.windows else None
-        if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND")) and \
+        if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND", "SKILLLISTWND", "SHORTCUTWND",
+                                                        "OPTIONWND")) and \
                 self.window("CHATWND").focus_control == "whisper_edit":
             c = self.window("CHATWND").control("whisper_edit")   # the whisper name field (M8.1b)
             if len(c["text"]) < 23:
                 c["text"] += ch
             return
-        if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND")):
+        if self.mode == "game" and (not w or w.name in ("CHATWND", "BASICINFOWND", "SKILLLISTWND", "SHORTCUTWND",
+                                                        "OPTIONWND")):
             self.chat_line += ch
             self.window("CHATWND").control("chat_edit")["text"] = self.chat_line
             return
@@ -401,6 +767,8 @@ class Mock:
                 c["text"] += ch
 
     def on_key(self, key, down, mods):
+        if self.key_extra(key, down, mods):
+            return
         if not down:
             return
         if self.movie["playing"]:
@@ -506,6 +874,8 @@ class Mock:
             self.buttons.add(button)
         else:
             self.buttons.discard(button)
+        if self.button_extra(button, down, x, y):
+            return
         if button == "left" and down and self.mode == "game":
             self.drag = self.item_at(x, y)
             return
@@ -781,6 +1151,7 @@ class Mock:
         self.db.put("charlog", char_msg="char select", account_id=c["account_id"],
                     char_num=c["char_num"], name=c["name"])
         self.self_ = dict(c)
+        self.self_.setdefault("skill_point", 0)
         self.set_mode("loading", timer=20)
 
     def make_char(self):
@@ -805,7 +1176,7 @@ class Mock:
         self.db.update("char", s["char_id"], last_map=self.map, last_x=s["x"], last_y=s["y"],
                        base_level=s["base_level"], job_level=s["job_level"], zeny=s["zeny"],
                        online=0, party_id=s.get("party_id", 0), guild_id=s.get("guild_id", 0),
-                       **{"class": s["class"]})
+                       skill_point=s.get("skill_point", 0), **{"class": s["class"]})
         saved = {k: s[k] for k in SAVED_STATS if k in s}
         if saved:
             self.db.update("char", s["char_id"], **saved)
@@ -815,6 +1186,9 @@ class Mock:
     # -- sound ---------------------------------------------------------------
 
     def play_stream(self, name):
+        if self.options["bgmIsPaused"]:     # CGameMode::PlayBGM plays nothing while music is off
+            self.stream.update(file="", started=None)
+            return
         if self.stream["file"] == name:      # PlayStream returns early for the same name
             return
         self.stream.update(file=name, started=time.monotonic(), opened=self.stream["opened"] + 1)
@@ -844,7 +1218,7 @@ class Mock:
                 "effects_volume": 1.0, "music_volume": 1.0,
                 "stream": {"file": "/mock/" + st["file"].replace("\\", "/").upper() if st["file"] else None,
                            "status": "playing" if st["file"] else "none", "loops": int(played // dur),
-                           "duration": dur, "position": played % dur, "volume": 100 / 127.0,
+                           "duration": dur, "position": played % dur, "volume": self.options["streamVolume"] / 127.0,
                            "opened": st["opened"], "failures": 0},
                 "recent": list(self.voices)}
 
@@ -964,8 +1338,8 @@ class Mock:
 
     def screen_of(self, x, y):
         L = self.logical()
-        sx = L[0] // 2 + (x - self.self_["x"]) * CELL
-        sy = L[1] // 2 - (y - self.self_["y"]) * CELL
+        sx = int(L[0] // 2 + (x - self.self_["x"]) * self.cell_px())
+        sy = int(L[1] // 2 - (y - self.self_["y"]) * self.cell_px())
         return {"x": sx, "y": sy} if 0 <= sx < L[0] and 0 <= sy < L[1] else None
 
     def hover(self, x, y):
@@ -987,8 +1361,8 @@ class Mock:
         if self.mode != "game" or not self.self_:
             return None
         L = self.logical()
-        cx = self.self_["x"] + int(round((x - L[0] // 2) / CELL))
-        cy = self.self_["y"] - int(round((y - L[1] // 2) / CELL))
+        cx = self.self_["x"] + int(round((x - L[0] // 2) / self.cell_px()))
+        cy = self.self_["y"] - int(round((y - L[1] // 2) / self.cell_px()))
         w, h = MAPS.get(self.map, (400, 400))
         if 0 <= cx < w and 0 <= cy < h:
             return {"x": cx, "y": cy}
@@ -1425,6 +1799,8 @@ class Mock:
     def say(self, line):
         s = self.self_
         acc = self.account
+        if line.startswith("/") and self.slash(line):
+            return
         if line.startswith("@"):
             if acc.get("group_id", 0) < 99:
                 self.system("%s: unknown command." % line.split()[0])
@@ -1656,6 +2032,7 @@ class Mock:
                 os.unlink(self.path)
             if self.mode == "game":
                 self.save_char()
+            self.save_settings()
             self.trace("ctl", "exit")
 
     def accept(self, srv):
@@ -1787,7 +2164,7 @@ class Mock:
         elif action == "wheel":
             if not isinstance(msg.get("dy"), int):
                 raise ProtocolError("bad_request", "wheel needs dy")
-            evs.append(lambda: None)
+            evs.append(lambda dy=msg["dy"]: self.on_wheel(dy, px, py))
         else:
             raise ProtocolError("bad_request", "action: %r" % action)
         token = self.queue_input(evs)
@@ -1849,6 +2226,7 @@ class Mock:
         return write_png(path, self.width, self.height, rects, bg.get(self.mode, (0, 0, 0, 255)))
 
     def state(self, fields):
+        self.refresh_windows()
         L = self.logical()
         s = self.self_ if self.mode == "game" else None
         out = {}
