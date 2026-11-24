@@ -49,7 +49,9 @@ typedef std::pair<float, _ActorInfo_t *> _ActorInfoPair_t;
 
 unsigned int __stdcall LoadFarModels(void *pvoid)
 {
+#if !defined(BF_PORT)
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#endif
 
 	std::sort(g_3dActors.begin(), g_3dActors.end());
 
@@ -1029,6 +1031,17 @@ void	CWorld :: OnEnterFrame()
 		world->m_waveHeight);
 
 	m_bgObjCount = m_bgObjList.size();
+#if defined(BF_PORT)
+	// M8.5 (docs/port/threads.md): the far models load here, on the main
+	// thread, before the first frame. The 2008 client loaded them on a
+	// thread of their own while the main thread drew, sharing the texture
+	// manager, the renderer's surfaces and the resource manager's lists
+	// without a lock; the thread existed for loading speed only. The models
+	// still reach the scene graph through m_bgObjThread in ProcessActors.
+	Trace("Load Model :: %d far models", (int)g_3dActors.size());
+	LoadFarModels(this);
+	g_3dActors.clear();
+#else
 	DWORD threadId;
 	g_farModelThread = CreateThread(NULL, 0, LoadFarModels, this, 0, &threadId);
 	if (!g_farModelThread)
@@ -1037,6 +1050,7 @@ void	CWorld :: OnEnterFrame()
 		LoadFarModels(this);
 		WaitForThreadEnd();
 	}
+#endif
 
 	InitPlayer();
 	g_session.m_isShowGameOver = FALSE;

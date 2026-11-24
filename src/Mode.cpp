@@ -291,8 +291,10 @@ void CMode::DrawMouseCursor()
 unsigned int __stdcall FadeBgm(void *res)
 {
 	FadeCnt++;
+#if !defined(BF_PORT)
 	if (g_session.m_BgmVolume == 0)
 		return -1;
+#endif
 	while (FadeCnt != 1)
 		Sleep(5);
 	int a, vol = (INT_PTR)res;
@@ -323,6 +325,13 @@ void CMode::ProcessFadeIn()
 	if (m_fadeInCount) {
 		dwFadeStart = timeGetTime();
 		unsigned int hFadeBgmThread;
+#if defined(BF_PORT)
+		// M8.5 (docs/port/threads.md): the volume is tested here, on the
+		// main thread that sets it, not in the thread. The 2008 thread
+		// returned on 0 without taking its count back, so FadeCnt stayed
+		// at 1 or more and every later fade thread waited forever.
+		if (g_session.m_BgmVolume)
+#endif
 		_beginthreadex(NULL, 0, FadeBgm, (void*)(INT_PTR)g_session.m_BgmVolume, 0, &hFadeBgmThread);
 		m_fadeInCount = FALSE;
 	}
@@ -337,6 +346,9 @@ extern unsigned int dwFadeStart;
 void CMode::RunFadeOut(int bDrawLogo)
 {
 	unsigned int hFadeBgmThread;
+#if defined(BF_PORT)
+	if (g_session.m_BgmVolume)   // M8.5: see ProcessFadeIn
+#endif
 	_beginthreadex(NULL, 0, FadeBgm, (void *)0, 0, &hFadeBgmThread);
 	dwFadeStart = timeGetTime();
 	g_renderer->BackupFrame();
