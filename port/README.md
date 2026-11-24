@@ -48,7 +48,7 @@ The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `de
 port/tools/layoutcheck.py [--tree DIR] [--ref-tree DIR]
 ```
 
-Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. Since M2.2 every record on `src/` matches.
+Compiles the packet and file-format headers for 32-bit Windows and for arm64 and compares the size and field offsets of every record that travels on the wire or is read from a file; it exits 1 on a difference. `--discover` lists the record types the readers fill from buffers; `--self-test` checks the tool on a synthetic header. Since M2.2 every record on `src/` matches (804 records).
 
 ## Reference executable
 

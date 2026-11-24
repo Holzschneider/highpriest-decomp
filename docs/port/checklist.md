@@ -31,7 +31,8 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 8899bf1 | M2.6 The three assembly sites replaced | src | M2.2 |
 | [x] a55de3e | M2.7 CMake project with Ninja: debug, sanitizer, release presets | build | M2.1 |
 | [x] 32ba708 | M2.8 Structure-layout check for packet and file structures | tools | |
-| [ ] | M2 exit (verifier) | | M1 exit, M2.1–M2.8 |
+| [ ] | M2.9 Warnings that point at real faults, found by the M2 verifier: `sscanf("%lx")` into 32-bit variables, `sprintf` overflows, a `CHash` passed for `%s`, `%d` with `INT_PTR`; then a census with those warnings as errors | src | M3.2 |
+| [x] d400aee | M2 exit (verifier) | | M1 exit, M2.1–M2.8 |
 
 ## M3. Links and starts without a window
 

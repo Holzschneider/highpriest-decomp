@@ -75,6 +75,10 @@ OUT = os.path.join(ROOT, 'build', 'port', 'layout')
 
 ALL = None   # every record the entry defines is on the path
 
+# Headers that the client only ever includes after another one, which
+# defines what they use (PaddingPacket.h needs TALKBOX_CHAT_LENGTH).
+PRELUDE = {'PaddingPacket.h': ['packet.h']}
+
 # (file relative to the tree, group, records on the path)
 ENTRIES = [
     ('packet.h', 'packet', ALL),
@@ -238,7 +242,12 @@ def parse_dump(text):
                     ftype, fname = body, '(anon)'
                 else:
                     ftype, _, fname = body.rpartition(' ')
-            if PTRTYPE.search(ftype.replace('struct ', '').replace('class ', '').replace('union ', '')):
+            # A record-typed field or base (struct X, or a base class) is a
+            # record: whether it holds pointers comes from its own fields
+            # below. Only plain types are matched against the pointer
+            # typedefs, which would otherwise take PACKET_... for PVOID-like.
+            is_record = fname.startswith('(base ') or re.match(r'^(const )?(struct|class|union) ', ftype)
+            if '*' in ftype or '&' in ftype or (not is_record and PTRTYPE.search(ftype)):
                 ptr = True
             del stack[depth - 1:]
             parent = '.'.join(stack)
@@ -392,6 +401,8 @@ def compile_entry(job):
         source = os.path.join(unit_dir, stem + '.unit.cpp')
         body = '#include "common.h"\n'
         if not entry.startswith('<'):
+            for first in PRELUDE.get(entry, []):
+                body += '#include "%s"\n' % first
             body += '#include "%s"\n' % entry
         open(source, 'w').write(body)
     if not os.path.isfile(source):
@@ -517,6 +528,12 @@ def check(tree, ref_tree, entries, verbose):
             fatal_lines = [l for l in errors if 'fatal error' in l or l.startswith('missing source')]
             if dump is None or fatal_lines:
                 print('%s: %s compile stopped: %s' % (entry, side, (fatal_lines or errors)[0]), file=sys.stderr)
+                fatal = True
+            # An error inside a header entry itself means some of its records
+            # were not compiled at all, so they would go unchecked.
+            own = [l for l in errors if not entry.endswith('.cpp') and l.startswith(os.path.join(tr, entry) + ':')]
+            if own:
+                print('%s: %s errors in the header itself, its records are not all checked: %s' % (entry, side, own[0]), file=sys.stderr)
                 fatal = True
             in_tree = sum(1 for l in errors if l.startswith(tr))
             errs[side] = '%d (%d)' % (len(errors), in_tree)

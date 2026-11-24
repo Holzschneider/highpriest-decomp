@@ -80,3 +80,16 @@ Verifier's verdict on `dff2f75` (fresh agent, given only the criteria and the co
 - M2.4 integrated: every unit compiles for arm64 (census 139 of 139 clean, 0 errors; 8 exclusions listed with reasons in the root `CMakeLists.txt`). Semantic changes to review when the client runs: `GetDragItemName` returns a function-local static copy (the original returned a pointer into a temporary, safe only with VC6's reference-counted strings); `MM_SETQUAKEINFO` in `RagEffect*.cpp` passed a float's address through `int`, now `INT_PTR`; `base/File.cpp:118` compares a pointer with 0 (`size > 0`, almost certainly meant `*size`), kept as `size != NULL`; libc++'s `std::sort` orders equal-material faces differently from VC6's. The client links but for 15 symbols: ole32 `CoInitialize`/`CoUninitialize`, `Netbios`, the four `ijl*` calls, CRT definitions (`_itoa`, `_ltoa`, `_strlwr`, `_lrotl`, `spawnl`) and `main`. These are M3.2.
 - `port/probe/build.sh` compiles with `BF_COMPAT_ADAPTER`, so the probes keep the C library's file names and link no adapter; `BF_SRC=src port/probe/build.sh` builds and `bifrost-netprobe` ends `OK`.
 - Audio follow-up integrated: each voice is its own source node that applies volume and pan to its samples, because the system mixer smooths every input change over about 15 ms; a reused voice now starts at its own volume (checked within 1% in the first 5 ms).
+
+## 2026-11-24: M2 exit — passed
+
+Verifier's verdict on `d400aee` (fresh agent, given only the criteria and the commit):
+
+| Criterion | Verdict | Evidence |
+|---|---|---|
+| Census reports every unit clean, each exclusion listed in the build file | pass | `census.sh`: 139 sources, 8 excluded, 139 clean, 0 errors; 139 + 8 = the 147 units of `sources.mk`; every exclusion has its reason and is one the plans name for removal |
+| Layout check passes for `packet.h`, `PaddingPacket.h` and the resource headers | pass, with a coverage gap | 802 records, 0 differ, also against `main`'s text; a `long` put into `CHARACTER_INFO` or `PACKET_CZ_USE_SKILL` fails it; but `PACKET_CZ_USE_SKILL_TOGROUND_WITHTALKBOX` was never compared |
+| `BF_SRC=src port/probe/build.sh` builds the probes from the real tree; `bifrost-netprobe` ends `OK` | pass | arm64 binaries; debug info names `src/` files; 63 packets of 21 kinds, all known |
+
+- Fixed by the lead after the verdict: the layout check's gap. `PaddingPacket.h` is now compiled after `packet.h` (it needs `TALKBOX_CHAT_LENGTH`), an error inside a header entry fails the check, and record-typed fields and bases are no longer taken for pointer typedefs (`PACKET_…` matched the `P…` pattern of `PVOID`). 804 records on the path, 0 differ; a field added to the talk-box record now fails. The stray `src/.!32196!GameActorMsgHandler.cpp` (a cut-off copy committed with M2.3) is removed.
+- New step M2.9, from the verifier's run with warnings on: `sscanf("%lx")` into `unsigned int` at `GameModePacket.cpp:2508` and `:2533` writes 8 bytes; `LoginMode.cpp:2109` and `window/UIFrameWnd.cpp:5027` always overflow their `sprintf` buffer; a `CHash` object is passed for `%s` at `base/Res.cpp:408`; `%d` with `INT_PTR` arguments. It follows the start-up package, which holds `src/` now.
