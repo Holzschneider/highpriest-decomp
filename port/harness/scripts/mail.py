@@ -23,6 +23,7 @@ holds the mail packets in both directions with no unknown header.
 
 import time
 
+from bfharness import npcplay
 from bfharness.accounts import unique_name
 from bfharness.play import enter_game, login, own_home, token
 from bfharness.sql import quote, wait_rows
@@ -75,46 +76,6 @@ def controls(w):
             for c in (w or {}).get("controls", [])]
 
 
-def dialog(ctl, s, choice):
-    """Take an NPC dialog through: `next`, the choice, `close`."""
-    deadline = time.monotonic() + 30
-    chosen = 0
-    while time.monotonic() < deadline:
-        st = ctl.state("windows")
-        names = [w["name"] for w in st["windows"]]
-        if "MAILLISTWND" in names:
-            return True
-        if "CHOOSEWND" in names and chosen < 3:
-            # UIChooseWnd ignores ok within 300 ms of the last dialog button.
-            time.sleep(0.4)
-            cw = ctl.window("CHOOSEWND", st)
-            ids = [c["id"] for c in cw.get("controls", [])]
-            s.state("choices", ids)
-            if "choice:" + choice in ids:
-                ctl.click_control("CHOOSEWND", "choice:" + choice)
-            else:
-                # The menu as a list: the first line ("Yes.") is the one
-                # selected when the menu opens; click it, then ok.
-                lx, ly, lw, lh = next(c["rect"] for c in cw["controls"] if c["kind"] == "list")
-                ctl.click(lx + lw // 3, ly + 7)
-                ctl.wait({"frames": 5}, timeout=10)
-                ctl.click_control("CHOOSEWND", "ok")
-            chosen += 1
-        elif "SAYDIALOGWND" in names:
-            w = ctl.window("SAYDIALOGWND", st)
-            # The dialog keeps hidden buttons outside its rectangle; take a
-            # visible one (the next or the close button).
-            wx, wy, ww, wh = w["rect"]
-            shown = [c for c in w.get("controls", []) if c["kind"] == "button"
-                     and wx <= c["rect"][0] and c["rect"][0] + c["rect"][2] <= wx + ww
-                     and wy <= c["rect"][1] and c["rect"][1] + c["rect"][3] <= wy + wh]
-            if shown:
-                bx, by, bw, bh = shown[0]["rect"]
-                ctl.click(bx + bw // 2, by + bh // 2)
-        ctl.wait({"frames": 10}, timeout=10)
-    return False
-
-
 def run(t):
     password = "bfh-test"
     user_a = t.param("user") or unique_name(tag="ma")
@@ -145,8 +106,9 @@ def run(t):
         mark = t.logs.mark()
         box = ctl.actor(lambda a: a["type"] == "npc" and a["name"].startswith("Mailbox"))
         s.check(box is not None and box.get("screen"), "the Mailbox is on screen", actor=box)
-        ctl.click(box["screen"]["x"], box["screen"]["y"])
-        s.check(dialog(ctl, s, "Yes."), "the dialog ends in the mail list")
+        npcplay.click_npc(ctl, lambda a: a["type"] == "npc" and a["name"].startswith("Mailbox"), "Mailbox", dy=-10)
+        ctl.wait_window("SAYDIALOGWND", timeout=15)
+        npcplay.run_dialogue(ctl, s, answers=["Yes."])
         ctl.wait_window("MAILLISTWND", timeout=15)
         ctl.wait({"frames": 20}, timeout=10)
         z = wait_rows(lambda: t.logs.zeny(a["char_id"], after=mark), timeout=10)

@@ -82,7 +82,7 @@ The client also receives `BF_TRACE_FILE`, `BF_PKT_LOG` (both in the run director
 | M8 gate: change job | `char.class` after logout (job changes are not in a log table) |
 | M8 gate: chat | `chatlog` `type`='O' with the line |
 | M8.4 mail: open, read, write | `mail.py`: `zenylog` `type`='N' -130 (the Mailbox's fee), the letter's `mail.status` = 2 (MAIL_READ) after the view opened, a new `mail` row from the player with the typed `title` and `message` byte for byte |
-| M8.4 auction | `auction.py`: `feature.auction` read from the running server (rAthena's default `off`; then no auction window opens); the 4-byte 0x25d answer checked by replay (no SQL) |
+| M8.4 auction | `auction.py`: seller registers (auction row; picklog `type`='I' -1, zenylog 'I' -12000 fee), buyer's name search and bid (zenylog 'I' -bid; `auction.buyer_id`, `price`), seller ends it (0x25d read as 4 bytes, "You have ended the auction."; auction row gone; `mail` rows to both, `mail_attachments` with the item), buyer takes the item at the Mailbox (picklog 'E' +1) |
 | set-up steps | `atcommandlog` row per command |
 
 ## For the client's control module
