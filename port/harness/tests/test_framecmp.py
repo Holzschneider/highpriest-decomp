@@ -157,6 +157,17 @@ class FrameCmp(unittest.TestCase):
         self.assertTrue(self.compare(self.poke(scene(0), [(3, 3)], (0, 0, 0)))["passed"])
         self.assertFalse(self.compare(self.poke(scene(0), [(30, 3)], (0, 0, 0)))["passed"])
 
+    def test_pointer_box(self):
+        import json
+        a = self.run_dir("a", {"f": scene(0)})
+        b = self.run_dir("b", {"f": scene(0)})
+        (a / "f.json").write_text(json.dumps({"mode": "login", "scale": 1, "pointer": [20, 20]}))
+        framecmp.build_reference([a, b], self.tmp / "ref", "test", log=lambda *_: None)
+        s = self.compare(self.poke(scene(0), [(25, 25)], (0, 0, 0)))
+        self.assertTrue(s["passed"])
+        self.assertEqual(s["results"][0]["cursor_beyond"], 1)
+        self.assertFalse(self.compare(self.poke(scene(0), [(80, 25)], (0, 0, 0)))["passed"])
+
     def test_bmp_reader(self):
         rows = scene(0)
         stride = (W * 3 + 3) & ~3

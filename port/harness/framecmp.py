@@ -55,11 +55,14 @@ What "match" means (the definition, written before the reference was taken):
    pixels: the mean colour of the masked pixels within the range of the six
    reference captures' means of that tile, widened by 24 per channel (an
    animated thing that vanishes, turns black or magenta, or is blended
-   wrongly). Judged in the strict region; counted and reported only in the
-   world region (random particles move tile means by more) and in the box
-   of 48x56 logical pixels around the pointer (the cursor animates in some
-   modes, and its unseen phases move a tile's mean; a moved cursor still
-   fails point 4 or 5).
+   wrongly). Judged for tiles wholly in the strict region; counted and
+   reported only for the others (random particles in the world, also behind
+   a window's edge, move tile means by more).
+   The pointer box (48x56 logical pixels from 8 above and left of the
+   pointer the capture records) is reported, not judged, by points 4-6:
+   the cursor animates on the clock in every mode, and six captures do not
+   see every phase of it. A cursor drawn anywhere else than in that box
+   (wrong position, wrong scale) still fails points 4 or 5.
 7. Anywhere: no pixel of placeholder magenta (R and B at least 240, G at
    most 16) where the reference has none.
 8. Same size in device pixels, or the frame fails. A frame whose mask
@@ -425,8 +428,10 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
     strict = rect_rows(info.get("strict", [[0, 0, w, h]]), w, h)
     world = info.get("world", False)
     world_px = w * h - sum(bin(r).count("1") for r in strict) if world else 0
-    bad_strict = bad_world = worst = magenta = 0
+    bad_strict = bad_world = bad_cursor = worst = magenta = 0
     bad_px = []
+    cb = info.get("cursor")
+    cursor = rect_rows([cb], w, h) if cb else [0] * h
     for y in range(h):
         if new[y] == ref[y]:
             continue
@@ -434,6 +439,9 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
             if is_magenta(new[y], x) and not is_magenta(ref[y], x):
                 magenta += 1
             if (mask[y] >> x) & 1:
+                continue
+            if (cursor[y] >> x) & 1:
+                bad_cursor += 1
                 continue
             if (strict[y] >> x) & 1:
                 bad_strict += 1
@@ -452,9 +460,12 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
             continue
         tx, ty = (int(v) for v in k.split(","))
         cx, cy = min(w - 1, tx * TILE + TILE // 2), min(h - 1, ty * TILE + TILE // 2)
-        cb = info.get("cursor")
         in_cursor = cb and cb[0] <= cx < cb[0] + cb[2] and cb[1] <= cy < cb[1] + cb[3]
-        if in_cursor or (world and not (strict[cy] >> cx) & 1):
+        x0, y0 = tx * TILE, ty * TILE
+        tw = min(TILE, w - x0)
+        full = (1 << tw) - 1
+        inside = all((strict[y] >> x0) & full == full for y in range(y0, min(h, y0 + TILE)))
+        if in_cursor or (world and not inside):
             tiles_world += 1
             continue
         tiles_bad.append({"tile": k, "mean": [round(v, 1) for v in rgb] if n >= TILE_MIN else None,
@@ -462,6 +473,7 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
     share = bad_world / float(world_px) if world_px else 0.0
     ok = bad_strict == 0 and not tiles_bad and magenta == 0 and share <= WORLD_SHARE
     res.update(verdict="PASS" if ok else "FAIL", pixels_beyond=bad_strict, world_beyond=bad_world,
+               cursor_beyond=bad_cursor,
                world_share=round(share, 5), worst=worst, magenta=magenta,
                tiles_out_of_range=len(tiles_bad), tiles_world=tiles_world, tiles_checked=len(info["tiles"]),
                tiles=tiles_bad[:20])
@@ -511,9 +523,10 @@ def compare(refdir, frames_dir, out=None, only=None, log=print):
             log("%-24s FAIL  %s" % (name, r["reason"]))
         else:
             log("%-15s %s  strict: %6d px beyond, %3d tiles out  world: %6.3f %% beyond (%d px), %3d tiles  "
-                "worst %3d  magenta %d  masked %5.2f %%%s"
+                "cursor box %4d px  worst %3d  magenta %d  masked %5.2f %%%s"
                 % (name, r["verdict"], r["pixels_beyond"], r["tiles_out_of_range"], 100 * r["world_share"],
-                   r["world_beyond"], r["tiles_world"], r["worst"], r["magenta"], 100 * r["masked_share"],
+                   r["world_beyond"], r["tiles_world"], r["cursor_beyond"], r["worst"], r["magenta"],
+                   100 * r["masked_share"],
                    "  weak" if r["weak"] else ""))
     extra = sorted(set(sets) - set(ref["frames"]))
     passed = all(r["verdict"] == "PASS" for r in results) and bool(results)
