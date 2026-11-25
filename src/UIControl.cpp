@@ -1724,6 +1724,9 @@ void UIEditCtrl3::DrawEditText()
 			buf[len - 2] = 0;
 
 		TextOutA(xOffset, yOffset, buf, 0, 0, 12, textColor);
+#if defined(BF_PORT)
+		delete[] buf;	// never freed: a line's copy leaked on every draw of a multi-line field (M8.6 soak)
+#endif
 	}
 
 	start = strlen(charsetString) + m_selectionCursor;
