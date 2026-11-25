@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Finds numeric packet ids in the client's handlers and senders (M10.2).
 
-  packetids.py [--tree DIR] [--names] [--quiet]
+  packetids.py [--tree DIR] [--names] [--quiet] [--self-test]
 
 Every packet id in src/ is to be written as a HEADER_ enumerator of
 src/packet.h; the numbers themselves live only in that enumeration, and the
@@ -23,6 +23,7 @@ so nothing in them is found):
             the other. "Lone" means the literal is the whole operand: it is
             followed by ; , ) or && / ||, so an expression such as
             `0x80 & PacketInfo` (the GIF reader's own "packet") is not one.
+            Also GetPacketType(...) compared with a lone literal.
   table     a literal used as a key of the length table or as the argument
             of a function that takes a packet id: g_packetLenMap[N],
             GetPacketSize(N), IsFixedPacket(N), bf_packet_name(N).
@@ -30,7 +31,9 @@ so nothing in them is found):
             PACKET_X p = { N, ... } with N other than 0 (`= {0}` clears a
             structure and names no packet).
   store     a literal written to the first two bytes of a buffer:
-            *(WORD *)buf = N, *(short *)buf = N, *(unsigned short *)buf = N.
+            *(WORD *)buf = N, *(short *)buf = N, *(unsigned short *)buf = N;
+            and the same cast compared with a literal (==, !=) when the
+            buffer's name has buf, packet or pkt in it.
 
 Not packet ids, and so not reported:
   - the enumerators' own definitions in packet.h (HEADER_X = N);
@@ -39,7 +42,15 @@ Not packet ids, and so not reported:
   - literals in message macros and the like (PUSH_HELP_MSG(0x9b) is a
     message-table id), byte arrays, GUIDs, sizes and offsets;
   - masks applied to a header (`packetType & 0xffff`), which the "lone"
-    rule leaves out.
+    rule leaves out;
+  - two-byte magic numbers of files and images (SafeAPI's
+    `*(unsigned short *)header == 0x5a4d`, "MZ"): the buffer is not named
+    as a packet buffer;
+  - the GameGuard and Gron messenger protocols' own numbers (not RO packets:
+    device/GronPacket.* has its own table and no HEADER_ names).
+
+--self-test runs the rules on a synthetic text holding one instance of each
+kind and each exclusion, and fails unless exactly the instances are found.
 """
 import argparse, os, re, sys
 
@@ -48,6 +59,7 @@ ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 
 LIT = r'(?:0[xX][0-9a-fA-F]+|\d+)[uUlL]*'
 LONE_END = r'(?=\s*(?:;|,|\)|&&|\|\||$))'
+RAW16 = r'(?:WORD|short|unsigned\s+short|USHORT|u_short|uint16_t|int16_t)'
 HEADER_SIDE = r'(?:[\w\]\)]\s*(?:\.|->)\s*PacketType|\b(?:packetType|packetHeader|PacketHeader))\b'
 
 RULES = [
@@ -56,6 +68,8 @@ RULES = [
     ('table', re.compile(r'\bg_packetLenMap\s*\[\s*(' + LIT + r')\s*\]')),
     ('table', re.compile(r'\b(?:GetPacketSize|IsFixedPacket|bf_packet_name)\s*\(\s*(' + LIT + r')\s*\)')),
     ('init', re.compile(r'\bPACKET_\w+\s+\w+\s*=\s*\{\s*(' + LIT + r')\s*[,}]')),
+    ('header', re.compile(r'\bGetPacketType\s*\([^()]*\)\s*(?:==|!=)\s*\(?\s*(' + LIT + r')\s*\)?' + LONE_END)),
+    ('store', re.compile(r'\*\s*\(\s*' + RAW16 + r'\s*\*\s*\)\s*\(?\s*\w*(?:buf|Buf|packet|Packet|pkt|Pkt)\w*\s*\)?\s*(?:==|!=)\s*(' + LIT + r')' + LONE_END)),
     ('store', re.compile(r'\*\s*\(\s*(?:WORD|short|unsigned\s+short|USHORT|u_short|uint16_t|int16_t)\s*\*\s*\)\s*\(?\s*\w+\s*\)?\s*=\s*(' + LIT + r')\s*;')),
 ]
 SWITCH = re.compile(r'\bswitch\s*\(')
@@ -136,45 +150,110 @@ def header_names(tree):
     return names
 
 
-def scan(tree):
-    hits = []
+def scan_file(path):
+    """[(start, end, rule, literal, line)] of the packet ids in one file,
+    start/end being the literal's offsets in the file's text."""
+    raw = open(path, 'rb').read().decode('latin-1')
+    text = blank(raw)
+    starts = [0] + [m.end() for m in re.finditer('\n', text)]
+
+    def line_of(off):
+        lo, hi = 0, len(starts) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if starts[mid] <= off:
+                lo = mid
+            else:
+                hi = mid - 1
+        return lo + 1
+
+    found, seen = [], set()
+    for off, lit in packet_switch_cases(text):
+        at = text.index(lit, off)
+        found.append((at, at + len(lit), 'case', lit, line_of(at)))
+        seen.add(at)
+    for rule, rx in RULES:
+        for m in rx.finditer(text):
+            if m.start(1) in seen:
+                continue
+            if rule == 'init' and int(m.group(1).rstrip('uUlL'), 0) == 0:
+                continue
+            seen.add(m.start(1))
+            found.append((m.start(1), m.end(1), rule, m.group(1), line_of(m.start(1))))
+    found.sort()
+    return found
+
+
+def source_files(tree):
     for base, dirs, files in os.walk(tree):
         dirs.sort()
         for f in sorted(files):
-            if not f.endswith(('.cpp', '.c', '.h', '.inl')):
-                continue
-            path = os.path.join(base, f)
-            raw = open(path, 'rb').read().decode('latin-1')
-            text = blank(raw)
-            starts = [0] + [m.end() for m in re.finditer('\n', text)]
+            if f.endswith(('.cpp', '.c', '.h', '.inl')):
+                yield os.path.join(base, f)
 
-            def line_of(off):
-                lo, hi = 0, len(starts) - 1
-                while lo < hi:
-                    mid = (lo + hi + 1) // 2
-                    if starts[mid] <= off:
-                        lo = mid
-                    else:
-                        hi = mid - 1
-                return lo + 1
 
-            rel = os.path.relpath(path, os.path.dirname(tree))
-            lines = raw.split('\n')
-            seen = set()
-            for off, lit in packet_switch_cases(text):
-                ln = line_of(off)
-                hits.append((rel, ln, 'case', lit, lines[ln - 1].strip()))
-            for rule, rx in RULES:
-                for m in rx.finditer(text):
-                    ln = line_of(m.start(1))
-                    if (ln, m.start(1)) in seen:
-                        continue
-                    if rule == 'init' and int(m.group(1).rstrip('uUlL'), 0) == 0:
-                        continue
-                    seen.add((ln, m.start(1)))
-                    hits.append((rel, ln, rule, m.group(1), lines[ln - 1].strip()))
-    hits.sort(key=lambda h: (h[0], h[1]))
+def scan(tree):
+    hits = []
+    for path in source_files(tree):
+        found = scan_file(path)
+        if not found:
+            continue
+        rel = os.path.relpath(path, os.path.dirname(tree))
+        lines = open(path, 'rb').read().decode('latin-1').split('\n')
+        for start, end, rule, lit, ln in found:
+            hits.append((rel, ln, rule, lit, lines[ln - 1].strip()))
     return hits
+
+
+SELF_TEST = '''
+void f(char *buf, PACKET_X *q, int packetType) {
+	switch (packetType) {
+	case 120:                                   // FOUND case
+		switch (q->type) { case 7: break; }     // nested switch: not ours
+		break;
+	case HEADER_ZC_SAY_DIALOG: break;
+	}
+	switch (dwResult) { case 120: break; }      // GameGuard code: not a packet
+	switch (c.GetPacketType(buf)) { case 0x9b: break; }   // FOUND case
+	q->PacketType = 0x72;                       // FOUND header
+	p.PacketType	= 275;                      // FOUND header
+	if (packetHeader == 0x25d) {}               // FOUND header
+	if (0x25d != p.PacketType) {}               // FOUND header
+	if (c.GetPacketType(buf) == 0x8c) {}        // FOUND header
+	WORD PacketType = 0x80 & PacketInfo;        // GIF field: not a packet
+	name(packetType & 0xffff);                  // mask: not a packet
+	g_packetLenMap[0xa7] = 8;                   // FOUND table
+	Send(GetPacketSize(0x94), buf);             // FOUND table
+	PACKET_CZ_ENTER e = { 0x9b, 1 };            // FOUND init
+	PACKET_CZ_ENTER z = {0};                    // cleared: not a packet
+	*(WORD *)buf = 0x187;                       // FOUND store
+	if (*(unsigned short *)packet != 0x187) {}  // FOUND store
+	if (*(unsigned short*)header == 0x5a4d) {}  // "MZ": not a packet
+	PUSH_HELP_MSG(0x9b);                        // message id: not a packet
+	char *s = "p.PacketType = 0x99;";           // string: not code
+	// p.PacketType = 0x99;                        comment: not code
+}
+'''
+
+
+def self_test():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, 'self_test.cpp')
+        with open(path, 'w') as f:
+            f.write(SELF_TEST)
+        found = scan_file(path)
+    lines = SELF_TEST.split('\n')
+    want = sorted(i + 1 for i, l in enumerate(lines) if 'FOUND' in l)
+    got = sorted(ln for _, _, _, _, ln in found)
+    for start, end, rule, lit, ln in found:
+        print('  line %d: %s %s' % (ln, rule, lit))
+    if got != want:
+        print('packetids self-test: FAILED, expected lines %s, found %s' % (want, got))
+        return 1
+    print('packetids self-test: %d instances found, %d exclusions left alone' %
+          (len(got), sum(1 for l in lines if ': not' in l or 'not code' in l)))
+    return 0
 
 
 def main():
@@ -182,7 +261,10 @@ def main():
     ap.add_argument('--tree', default=os.path.join(ROOT, 'src'))
     ap.add_argument('--names', action='store_true', help='show the enumerator each value has in packet.h')
     ap.add_argument('--quiet', action='store_true', help='only the summary line')
+    ap.add_argument('--self-test', action='store_true', help='check the rules on a synthetic text')
     args = ap.parse_args()
+    if args.self_test:
+        return self_test()
     tree = os.path.abspath(args.tree)
     names = header_names(tree) if args.names else {}
     hits = scan(tree)
