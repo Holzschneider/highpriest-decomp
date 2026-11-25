@@ -2402,7 +2402,9 @@ class Mock(MinimapMixin, AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOpt
                 s["class"] = int(args[0]) if args[0].isdigit() else JOBS[args[0].capitalize()]
             elif cmd == "monster":
                 for i in range(int(args[1]) if len(args) > 1 else 1):
-                    self.add_actor("monster", "Poring", 1002, s["x"] + 2 + i, s["y"] + 2, hp=3)
+                    # south of the character: at prt_fild08 170,375 the cells north
+                    # of it are the warp prtf004's (the server's free cell is random)
+                    self.add_actor("monster", "Poring", 1002, s["x"] + 2 + i, s["y"] - 2, hp=3)
             elif cmd == "statuspoint":
                 s["status_point"] = s.get("status_point", 0) + int(args[0])
             elif cmd == "allskill":

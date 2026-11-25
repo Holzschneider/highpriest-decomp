@@ -48,12 +48,39 @@ def walk_into_portal(t, ctl, s, warp, slack=4):
     return ev
 
 
-def own_monster(t, ctl, s, mob, me, n=1):
+def near_portal(ctl, a, cells=3):
+    """The portal actor within `cells` (each axis) of actor a, or None."""
+    for p in ctl.state("actors")["actors"]:
+        if p["type"] == "portal" and abs(p["x"] - a["x"]) <= cells and abs(p["y"] - a["y"]) <= cells:
+            return p
+    return None
+
+
+def own_monster(t, ctl, s, mob, me, n=1, tries=4):
     """Spawn a monster by atcommand typed by the client (set-up, in
     atcommandlog) and return the new one nearest the character. The n-th
     call alternates `@monster <mob> 1` and `@monster <mob>` (the same
     amount): the client refuses a line said the third time in a row
-    (CGameMode m_sameChatRepeatCnt)."""
+    (CGameMode m_sameChatRepeatCnt).
+
+    A monster that the server put within 3 cells of a portal is passed
+    over and another spawned (up to `tries` in all): the client walks next
+    to a monster out of reach before attacking it, and at prt_fild08
+    170,375 (the south gate's arrival) a Poring in the corridor north of
+    the character has its neighbour cells inside the warp prtf004 (167-173,
+    376-380), so the attack would carry the character back to prontera."""
+    target = None
+    for k in range(tries):
+        target = _spawn_monster(t, ctl, s, mob, me, n + k)
+        p = target and near_portal(ctl, target)
+        if not p:
+            return target
+        s.note("the new monster at %d,%d stands within 3 cells of the portal at %d,%d; spawning another"
+               % (target["x"], target["y"], p["x"], p["y"]))
+    return target
+
+
+def _spawn_monster(t, ctl, s, mob, me, n):
     before = set(a["id"] for a in ctl.state("actors")["actors"])
     mark = t.logs.mark()
     t.gm.run(t.gm.monster(mob, 1) if n % 2 else "@monster %s" % mob)
