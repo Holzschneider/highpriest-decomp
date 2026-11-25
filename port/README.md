@@ -108,14 +108,12 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 
 | Area | Windows names | On |
 |---|---|---|
-| [`win32`](compat/win32/README.md) | kernel32 files, mappings, threads, time; advapi32 registry (onto the settings plist and the Keychain); winmm; `ShellExecute`; `MessageBox`; the client's `fopen` and other C library file calls, translated through `port/client/include/bf_crt.h` | `sys`, `text` |
+| [`win32`](compat/win32/README.md) | what kernel32, shell32 and user32 names are still called (`FindFirstFile` for FindHack, `Global*` for the clipboard, `MessageBox`/`ShellExecute`/COM/process names in `WinMain.cpp` and `3dlib`); threads and time left in M11.1, files in M11.3, the registry in M11.4 | `sys`, `text` |
 | [`d3d`](compat/d3d/README.md) | `DirectDrawCreateEx`, DirectDraw 7 and Direct3D 7 objects, the DirectX GUIDs; lazy render-target lock | `gfx` |
 | [`gdi`](compat/gdi/README.md) | gdi32: memory DCs, DIB sections, fonts, text, the triangle fill | `text` |
-| [`miles`](compat/miles/README.md) | the 46 `AIL_*` functions of Miles | `audio` |
 | [`input`](compat/input/README.md) | user32 window, message pump, keyboard state, clipboard; DirectInput 7 mouse; imm32 (no IME) | `app`, `view` |
-| [bink](compat/bink/README.md) | the Bink SDK names src/movie/CBink.cpp calls (BinkOpen … BinkClose, BinkDDSurfaceType, the sound system); the intro movie with its sound | formats/bink, audio |
 
-`port/compat/granny`: the 44 `Granny*` functions and 2 data names of granny2.dll on `port/native/formats/granny` (step M12.3a), so that `src/resource/Model.cpp`'s Granny resource classes build as in 2008. `bifrost-compat-granny-test` replays the client's load, animate and skin sequence on the game's 21 `.gr2` files (`skipped` without `data.grf`). In the client: `port/harness/scripts/granny.py` (guild flags, Emperium, guardians, corpses; `--param woe=0` leaves out the castle step, which runs War of Emperium on the test server for about 10 s).
+Left in M11 so far: `miles` (M11.6: `src/device/Sound.cpp` calls `port/native/audio`, see "The client" in [native/audio/README.md](native/audio/README.md)), `granny` and `bink` (M11.10: `port/native/formats/granny` also runs the client's Granny runtime, checked by `bifrost-granny-test`; the intro movie plays through `port/client/src/bf_movie.cpp` on formats/bink and audio, tested by `bifrost-movie-test`; in the client `port/harness/scripts/granny.py`, `intro.py`). The registry calls became `bf_setting_*` (`port/client/include/bf_setting_key.h`, M11.4); `port/tools/native_settings.py` is the rewrite that did it (idempotent; needs `build/cmake/debug/compile_commands.json`).
 
 ## Test harness
 

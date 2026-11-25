@@ -1,7 +1,6 @@
 # No line-ending conversion: the build needs every file byte for byte.
 * -text
 # Third-party headers stay byte-identical to their origins (CRLF, trailing spaces).
-src/device/Mss.h -whitespace
 src/DbgHelp.h -whitespace
 src/ijl.h -whitespace
 port/compat/winheaders/** -whitespace

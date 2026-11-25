@@ -15,7 +15,7 @@ The CC0 dedication in [CC0-1.0.txt](CC0-1.0.txt) covers the build files, `tools/
 | Two members of the DirectX 8.0 SDK libraries, from source | `src/library/DxGuid.cpp`, `src/library/dinput/dilib1.c` | Microsoft; `DxGuid.cpp` also draws on the MinGW-w64 and ReactOS `dxguid.c` (Filip Navara, Magnus Olsen) and keeps its notice | proprietary |
 | Visual C++ 6.0 compilers, headers and libraries; the 12.00.8047 and 12.00.8943 compilers; the Whistler DDK compiler; MASM 6.13; DirectX 8.0 SDK headers and libraries | `tools/` | Microsoft | proprietary |
 | `WinCrypt.h`, `DbgHelp.h` | `src/` | Microsoft | proprietary |
-| Miles Sound System header and `cleanup.c`; Bink headers; Granny header | `src/device/Mss.h`, `src/library/mss/`, `src/movie/`, `src/granny/` | RAD Game Tools | proprietary |
+| Miles Sound System `cleanup.c` (the headers of Miles, Bink and Granny were deleted in M11.6 and M11.10) | `src/library/mss/` | RAD Game Tools | proprietary |
 | Intel JPEG Library header | `src/ijl.h` | Intel | proprietary |
 | wibo, with `tools/wibo/fixed-time.patch` applied | `tools/bin/wibo` | Ash Wolf and Decompals | MIT, below |
 | Wine's C runtime DLLs (`crtdll`, `msvcrt`, `msvcirt`, `msvcrt20`, `msvcrt40`, `msvcr71`, `msvcr90`, `msvcr100`, `msvcr120`, `ucrtbase`) | embedded in `tools/bin/wibo` | the Wine project authors | LGPL 2.1 or later, below |

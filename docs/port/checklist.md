@@ -152,15 +152,15 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] cead691 | M11.0c Reference frames for M11: a reproducible set captured before the first M11 change to `src/`, a comparison script and its tolerance, written down first | harness | M8 exit |
 | [x] 2cf351d | M11.0d Port code that stays moves out of `port/compat` (prefix, control bindings, entry point, CRT helpers) to `port/client` | build | M8 exit |
 | [x] be392de | M11.1 Time and threads | src | M8 exit, M11.0c, M11.0d |
-| [ ] | M11.2 Network | src | M8 exit, M11.0c, M11.0d |
+| [x] b1feb5e | M11.2 Network | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.3 Files | src | M8 exit, M11.0c, M11.0d |
-| [ ] | M11.4 Settings | src | M8 exit, M11.0c, M11.0d |
+| [x] 911d270 | M11.4 Settings | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.5 Shell functions | src | M8 exit, M11.0c, M11.0d |
-| [ ] | M11.6 Sound | src | M8 exit, M11.0c, M11.0d |
+| [x] 7b2f3d7 | M11.6 Sound | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.7 Input and window | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.8 Text | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.9 Graphics | src | M8 exit, M11.0c, M11.0d |
-| [ ] | M11.10 Granny and Bink: the client calls the native readers; `port/compat/granny` and `port/compat/bink` deleted | src | M8 exit, M11.0c, M11.0d |
+| [x] 10ad432 | M11.10 Granny and Bink: the client calls the native readers; `port/compat/granny` and `port/compat/bink` deleted | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.11 No Windows header in the build: `common.h` and every include line, the CRT stand-ins, the Wine headers and `port/compat` removed; source files the port never builds deleted; `nowin` and the link check in the fast check | build | M11.0a, M11.0b, M11.1–M11.10 |
 | [ ] | M11 exit (verifier) | | M10 exit, M11.0a–M11.11 |
 
