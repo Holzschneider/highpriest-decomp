@@ -556,23 +556,23 @@ bool	CRenderer :: DrawScene()
 	return false;
 }
 
+// The render target, locked lazily (bf_render.h, M11.9): nothing is read
+// back until a pixel is touched, and only a written frame goes back.
 int	CRenderer :: Lock()
 {
-	DDSURFACEDESC2 desc;
-	desc.dwSize = sizeof(desc);
-	desc.dwFlags = 0;
-	memset(&desc.dwHeight, 0, sizeof(desc) - 8);
-	if (FAILED(g_3dDevice.GetRenderSurface()->Lock(NULL, &desc, DDLOCK_WAIT, NULL))) return 0;
-	m_lpSurfacePtr = desc.lpSurface;
-	m_bRGBBitCount = desc.ddpfPixelFormat.dwRGBBitCount;
-	m_lPitch = desc.lPitch;
+	int pitch;
+	void* bits = bf_render_lock(0, &pitch);
+	if (!bits) return 0;
+	m_lpSurfacePtr = bits;
+	m_bRGBBitCount = 32;   // X8R8G8B8
+	m_lPitch = pitch;
 	return 1;
 }
 
 
 void	CRenderer :: Unlock()
 {
-	g_3dDevice.GetRenderSurface()->Unlock(NULL);
+	bf_render_unlock();
 }
 
 void	CRenderer :: ReleaseCacheSurfaces()
@@ -1239,8 +1239,7 @@ int	CRenderer :: TextOutScreen(int x, int y, const char *text,
 								   unsigned int colorRef, int fontHeight,
 								   char fontPrint)
 {
-	g_3dDevice.GetRenderSurface()->AddRef();
-	CDCSurface surface(g_3dDevice.GetWidth(), g_3dDevice.GetHeight(), g_3dDevice.GetRenderSurface());
+	CDCSurface surface(g_3dDevice.GetWidth(), g_3dDevice.GetHeight(), TRUE);   // the render target
 	DrawDC dc(&surface);
 	dc.SetFont(0, fontHeight, false);
 
@@ -1269,8 +1268,7 @@ tagSIZE * CRenderer::GetTextSize(char const *text, int textLen, int fontType, in
 
 	tagSIZE t_size;
 
-	g_3dDevice.GetRenderSurface()->AddRef();
-	CDCSurface surface(g_3dDevice.GetWidth(), g_3dDevice.GetHeight(), g_3dDevice.GetRenderSurface());
+	CDCSurface surface(g_3dDevice.GetWidth(), g_3dDevice.GetHeight(), TRUE);   // the render target
 	DrawDC dc(&surface);
 	dc.SetFont(fontType, fontHeight, bold);
 	dc.GetTextExtentPoint32A(text, textLen, &t_size);
@@ -1738,7 +1736,7 @@ int CRenderer::SaveBmp(char const *fName, CBitmapRes *bitmap)
 		fwrite(tempBuf, m_width * 3, 1, file);
 	}
 
-	g_3dDevice.GetRenderSurface()->Unlock(NULL);
+	Unlock();
 	fclose(file);
 	return 1;
 }
@@ -2073,7 +2071,7 @@ int CRenderer::SaveJPG(char const *fName, CBitmapRes *bitmap)
 		}
 	}
 
-	g_3dDevice.GetRenderSurface()->Unlock(NULL);
+	Unlock();
 #if defined(BF_PORT)
 	// ImageIO instead of the Intel JPEG Library (technical plan 3.3), at the
 	// library's default quality; the client's path goes to Pictures.

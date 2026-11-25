@@ -9,8 +9,6 @@
 #include "../resource/Bitmap.h"
 
 #include <windows.h>
-#include <ddraw.h>
-#include <d3d.h>
 #include <stdio.h>
 #include "../pdb_shared.h"
 
@@ -42,15 +40,49 @@ extern int WINDOW_X_OFFSET;
 extern int WINDOW_Y_OFFSET;
 
 
-void D3DUtil_InitSurfaceDesc(DDSURFACEDESC2& ddsd, DWORD dwFlags, DWORD dwCaps);
+#include "bf_input.h"
+
+// The render target is the gfx target (bf_render.h), in 32-bit X8R8G8B8: the
+// display mode, the primary surface and the back buffer DirectDraw gave the
+// 2008 client are that one target (M11.9).
+static const DWORD FRAMEBUFFER_RMASK = 0x00FF0000;
+static const DWORD FRAMEBUFFER_GMASK = 0x0000FF00;
+static const DWORD FRAMEBUFFER_BMASK = 0x000000FF;
+static const DWORD FRAMEBUFFER_AMASK = 0;
+static const DWORD FRAMEBUFFER_BITS  = 32;
+
+// The back buffer is made at the client's size (its client area, or the
+// size it resizes to); a gfx target of another size follows it, keeping the
+// UI scale.
+static void FitTarget(DWORD w, DWORD h)
+{
+	int tw, th, scale;
+	bf_gfx_device* gfx = bf_render_device();
+	if (!gfx)
+		return;
+	bf_gfx_get_size(gfx, &tw, &th, &scale, NULL, NULL);
+	if ((DWORD)tw == w && (DWORD)th == h)
+		return;
+	BF_TRACE(BFT_GFX, "device: render target %ux%u asked, gfx is %dx%d: resizing gfx", (unsigned)w, (unsigned)h, tw, th);
+	if (bf_gfx_resize(gfx, (int)w, (int)h, scale) != BF_GFX_OK)
+		bf_tracef(BFT_ERR, "device: bf_gfx_resize(%u, %u, %d) failed", (unsigned)w, (unsigned)h, scale);
+}
+
+// user32's SetRect.
+static void SetRectangle(RECT* r, int left, int top, int right, int bottom)
+{
+	r->left = left;
+	r->top = top;
+	r->right = right;
+	r->bottom = bottom;
+}
 
 void GDIFlip()
 {
-	if (g_3dDevice.GetDirectDraw()) {
-		g_3dDevice.GetBackBuffer()->Unlock(NULL);
-		g_3dDevice.GetFrontBuffer()->Unlock(NULL);
-		g_3dDevice.GetDirectDraw()->FlipToGDISurface();
-	}
+	// A message box over the game: the render target's lock is let go first
+	// (DirectDraw's FlipToGDISurface did nothing more on a window).
+	if (g_3dDevice.IsInitialized())
+		bf_render_unlock();
 }
 
 C3dDevice :: C3dDevice()
@@ -58,11 +90,8 @@ C3dDevice :: C3dDevice()
 	m_hWnd             = NULL;
 	m_dwRenderWidth    = 0L;
 	m_dwRenderHeight   = 0L;
-	m_pddsFrontBuffer  = NULL;
-	m_pddsBackBuffer   = NULL;
-	m_pddsRenderTarget = NULL;
-	m_pDD              = NULL;
 	m_bInitialized     = FALSE;
+	m_bHasBackup       = FALSE;
 	bf_gfx_state_init(&m_state);
 	m_bIsFullscreen    = FALSE;
 	m_bIsGDIObject     = FALSE;
@@ -75,7 +104,6 @@ C3dDevice :: C3dDevice()
 	m_pfGBitMask = 0;
 	m_pfBBitMask = 0;
 	m_pfABitMask = 0;
-	m_pddsRenderBackup = NULL;
 }
 
 C3dDevice :: ~C3dDevice()
@@ -84,37 +112,22 @@ C3dDevice :: ~C3dDevice()
 
 HRESULT C3dDevice :: DestroyObjects()
 {
-	int nD3D = 0, nDD = 0;
-
-	// The renderer's device holds no object of its own: its textures are
-	// the client's, bound stages are let go here.
+	// Nothing is counted any more (the DirectDraw and Direct3D objects'
+	// references were): the buffers are the gfx target, the textures the
+	// client's. Bound stages are let go.
 	if (m_bInitialized) {
+		bf_render_unlock();
 		bf_render_bind_texture(0, NULL);
 		bf_render_bind_texture(1, NULL);
 	}
 	m_bInitialized = FALSE;
-	if (!m_bIsFullscreen)
-		SAFE_RELEASE(m_pddsBackBuffer);
+	m_bHasBackup = FALSE;
 
-	SAFE_RELEASE(m_pddsRenderTarget);
-	SAFE_RELEASE(m_pddsFrontBuffer);
-	SAFE_RELEASE(m_pddsRenderBackup);
-
-	if (m_pDD) {
-		m_pDD->SetCooperativeLevel(m_hWnd, DDSCL_NORMAL);
-		if ((nDD = m_pDD->Release()) > 0) {
-			char tmp[80];
-			sprintf(tmp, " : DDraw object is still referenced %d times", nDD);
-			MessageBox(g_hMainWnd, tmp, "Error", 0);
-		}
-	}
-	m_pDD = NULL;
-
-	return (nDD == 0 && nD3D == 0) ? S_OK : D3DFWERR_NONZEROREFCOUNT;
+	return S_OK;
 }
 
-HRESULT C3dDevice :: Init(HWND hwnd, GUID* pDriverGUID, GUID* pDeviceGUID,
-						  DDSURFACEDESC2* pMode, DWORD dwFlags)
+HRESULT C3dDevice :: Init(HWND hwnd, const void* pDriverGUID, const void* pDeviceGUID,
+						  DisplayMode* pMode, DWORD dwFlags)
 {
 	HRESULT hr;
 
@@ -126,8 +139,8 @@ HRESULT C3dDevice :: Init(HWND hwnd, GUID* pDriverGUID, GUID* pDeviceGUID,
 	m_bIsFullscreen = (dwFlags & D3DFW_FULLSCREEN) ? TRUE : FALSE;
 
 	if (m_bIsFullscreen) {
-		SetWindowLong(g_hMainWnd, GWL_STYLE, WS_POPUP);
-		ShowWindow(g_hMainWnd, SW_MAXIMIZE);
+		// SetWindowLong(WS_POPUP), ShowWindow(SW_MAXIMIZE): the window's state is macOS's.
+		BF_TRACE(BFT_GFX, "device: full screen asked; the window keeps its state");
 	}
 
 	hr = CreateEnvironment(pDriverGUID, pDeviceGUID, pMode, dwFlags);
@@ -179,21 +192,12 @@ HRESULT C3dDevice :: Init(HWND hwnd, GUID* pDriverGUID, GUID* pDeviceGUID,
 
 void C3dDevice :: EnableClipper(BOOL bEnable) {
 
-	if(!m_bIsFullscreen) return;
-
-	LPDIRECTDRAWCLIPPER pcClipper = NULL;
-	if(bEnable == TRUE) {
-		m_pDD->CreateClipper( 0, &pcClipper, NULL);
-		pcClipper->SetHWnd(0, m_hWnd);
-	}
-
-	m_pddsFrontBuffer->SetClipper(pcClipper);
-
-	if(pcClipper) pcClipper->Release();
+	// The primary surface's clipper for the window: the gfx target is the
+	// window's, there is nothing to clip.
 }
 
-HRESULT C3dDevice :: CreateEnvironment(GUID* pDriverGUID, GUID* pDeviceGUID,
-									   DDSURFACEDESC2* pMode, DWORD dwFlags)
+HRESULT C3dDevice :: CreateEnvironment(const void* pDriverGUID, const void* pDeviceGUID,
+									   DisplayMode* pMode, DWORD dwFlags)
 {
 	HRESULT hr;
 
@@ -210,8 +214,6 @@ HRESULT C3dDevice :: CreateEnvironment(GUID* pDriverGUID, GUID* pDeviceGUID,
 	// The 3D device (any device GUID: the one gfx device), with the Direct3D 7
 	// defaults; its depth buffer is the gfx target's (32-bit float), so the
 	// z-buffer surface and the viewport of the whole target are not made.
-	if (!bf_render_device())
-		return D3DFWERR_NO3DDEVICE;
 	bf_gfx_state_init(&m_state);
 	bf_render_bind_texture(0, NULL);
 	bf_render_bind_texture(1, NULL);
@@ -220,138 +222,53 @@ HRESULT C3dDevice :: CreateEnvironment(GUID* pDriverGUID, GUID* pDeviceGUID,
 	return S_OK;
 }
 
-HRESULT C3dDevice :: CreateDirectDraw(GUID* pDriverGUID, DWORD dwFlags)
+HRESULT C3dDevice :: CreateDirectDraw(const void* pDriverGUID, DWORD dwFlags)
 {
-	DDSURFACEDESC2 ddsd;
-	DWORD dwCoopFlags;
-
-	if (FAILED(DirectDrawCreateEx(pDriverGUID, (VOID**)&m_pDD,
-								  IID_IDirectDraw7, NULL)))
+	// Any driver GUID (or none) is the one gfx device, which the start-up has
+	// made (bf_port_start_graphics); the display mode is its target's.
+	if (!bf_render_device())
 		return D3DFWERR_NODIRECTDRAW;
 
-	ZeroMemory(&ddsd, sizeof(ddsd));
-	ddsd.dwSize = sizeof(ddsd);
-	m_pDD->GetDisplayMode(&ddsd);
-	m_windowBitCount = ddsd.ddpfPixelFormat.dwRGBBitCount;
+	m_windowBitCount = FRAMEBUFFER_BITS;
 
-	dwCoopFlags = DDSCL_NORMAL;
 	if (m_bIsFullscreen)
-		dwCoopFlags = DDSCL_ALLOWREBOOT | DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN;
-	if (0L == (dwFlags & D3DFW_NO_FPUSETUP))
-		dwCoopFlags |= DDSCL_FPUSETUP;
-	dwCoopFlags |= DDSCL_MULTITHREADED;
-
-	if (FAILED(m_pDD->SetCooperativeLevel(m_hWnd, dwCoopFlags)))
-		return D3DFWERR_COULDNTSETCOOPLEVEL;
+		BF_TRACE(BFT_GFX, "device: exclusive full-screen requested; the application module owns full screen");
 	return S_OK;
 }
 
-HRESULT C3dDevice :: CreateBuffers(DDSURFACEDESC2* pddsd, DWORD dwFlags)
+HRESULT C3dDevice :: CreateBuffers(DisplayMode* pddsd, DWORD dwFlags)
 {
-	DDSURFACEDESC2 ddsd;
-	DDSCAPS2 ddscaps;
-	HRESULT hr;
-
 	if (dwFlags & D3DFW_FULLSCREEN) {
-		BOOL useModeX;
-
-		SetRect(&m_rcViewportRect, 0, 0, pddsd->dwWidth, pddsd->dwHeight);
+		SetRectangle(&m_rcViewportRect, 0, 0, pddsd->width, pddsd->height);
 		m_rcScreenRect = m_rcViewportRect;
 		m_dwRenderWidth = m_rcViewportRect.right;
 		m_dwRenderHeight = m_rcViewportRect.bottom;
 
-		useModeX = FALSE;
-		if (m_dwRenderWidth == 320 && m_dwRenderHeight == 200 &&
-			pddsd->ddpfPixelFormat.dwRGBBitCount == 8)
-			useModeX = TRUE;
-
-		if (FAILED(m_pDD->SetDisplayMode(m_dwRenderWidth, m_dwRenderHeight,
-										 pddsd->ddpfPixelFormat.dwRGBBitCount,
-										 pddsd->dwRefreshRate, useModeX)))
-			return D3DFWERR_BADDISPLAYMODE;
-
-		D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS, 0);
-		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE;
-		if (dwFlags & D3DFW_BACKBUFFER) {
-			ddsd.dwFlags |= DDSD_BACKBUFFERCOUNT;
-			ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE |
-								   DDSCAPS_COMPLEX | DDSCAPS_FLIP;
-			ddsd.dwBackBufferCount = 1;
-		}
-
-		if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &m_pddsFrontBuffer, NULL))) {
-			if (hr == DDERR_OUTOFVIDEOMEMORY)
-				return hr;
-			return D3DFWERR_NOPRIMARY;
-		}
-
-		if (dwFlags & D3DFW_BACKBUFFER) {
-			ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
-			ddscaps.dwCaps2 = 0;
-			ddscaps.dwCaps3 = 0;
-			ddscaps.dwCaps4 = 0;
-			if (FAILED(hr = m_pddsFrontBuffer->GetAttachedSurface(&ddscaps, &m_pddsBackBuffer))) {
-				if (hr == DDERR_OUTOFVIDEOMEMORY)
-					return hr;
-				return D3DFWERR_NOBACKBUFFER;
-			}
-		}
+		// SetDisplayMode: the window keeps its size; the primary's back
+		// buffer is the gfx target as it is.
+		BF_TRACE(BFT_GFX, "device: SetDisplayMode(%u, %u, %u) accepted; the window keeps its size",
+				 (unsigned)m_dwRenderWidth, (unsigned)m_dwRenderHeight, (unsigned)pddsd->bitCount);
 	} else {
-		LPDIRECTDRAWCLIPPER pcClipper;
-
-		GetClientRect(m_hWnd, &m_rcViewportRect);
-		GetClientRect(m_hWnd, &m_rcScreenRect);
-		ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
-		ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
+		int w, h;
+		bf_input_client_size(&w, &h);   // the client area, logical ("screen" coordinates are the client's)
+		SetRectangle(&m_rcViewportRect, 0, 0, w, h);
+		m_rcScreenRect = m_rcViewportRect;
 		m_dwRenderWidth = m_rcViewportRect.right;
 		m_dwRenderHeight = m_rcViewportRect.bottom;
 
-		D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS, 0);
-		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-		if (!(dwFlags & D3DFW_BACKBUFFER))
-			ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_3DDEVICE;
-
-		if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &m_pddsFrontBuffer, NULL))) {
-			if (hr == DDERR_OUTOFVIDEOMEMORY)
-				return hr;
-			return D3DFWERR_NOPRIMARY;
-		}
-
-		if (FAILED(m_pDD->CreateClipper(0, &pcClipper, NULL)))
-			return D3DFWERR_NOCLIPPER;
-
-		pcClipper->SetHWnd(0, m_hWnd);
-		m_pddsFrontBuffer->SetClipper(pcClipper);
-		SAFE_RELEASE(pcClipper);
-
-		if (dwFlags & D3DFW_BACKBUFFER) {
-			ddsd.dwWidth = m_dwRenderWidth;
-			ddsd.dwHeight = m_dwRenderHeight;
-			ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
-			if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &m_pddsBackBuffer, NULL))) {
-				if (hr == DDERR_OUTOFVIDEOMEMORY)
-					return hr;
-				return D3DFWERR_NOBACKBUFFER;
-			}
-		} else {
-			ClientToScreen(m_hWnd, (POINT*)&m_rcViewportRect.left);
-			ClientToScreen(m_hWnd, (POINT*)&m_rcViewportRect.right);
-		}
+		if (dwFlags & D3DFW_BACKBUFFER)
+			FitTarget(m_dwRenderWidth, m_dwRenderHeight);
 	}
-
-	D3DUtil_InitSurfaceDesc(m_ddsdFrameBuffer, DDSD_CAPS, 0);
-	m_pddsFrontBuffer->GetSurfaceDesc(&m_ddsdFrameBuffer);
 
 	m_pfRShiftR = 0, m_pfRShiftL = 8;
 	m_pfGShiftR = 0, m_pfGShiftL = 8;
 	m_pfBShiftR = 0, m_pfBShiftL = 8;
 	m_pfAShiftR = 0, m_pfAShiftL = 8;
-	m_pfABitMask = m_ddsdFrameBuffer.ddpfPixelFormat.dwRGBAlphaBitMask;
-	m_pfRBitMask = m_ddsdFrameBuffer.ddpfPixelFormat.dwRBitMask;
-	m_pfGBitMask = m_ddsdFrameBuffer.ddpfPixelFormat.dwGBitMask;
-	m_pfBBitMask = m_ddsdFrameBuffer.ddpfPixelFormat.dwBBitMask;
-	m_pfBitCount = m_ddsdFrameBuffer.ddpfPixelFormat.dwRGBBitCount;
+	m_pfABitMask = FRAMEBUFFER_AMASK;
+	m_pfRBitMask = FRAMEBUFFER_RMASK;
+	m_pfGBitMask = FRAMEBUFFER_GMASK;
+	m_pfBBitMask = FRAMEBUFFER_BMASK;
+	m_pfBitCount = FRAMEBUFFER_BITS;
 	DWORD mask;
 	for (mask = m_pfRBitMask; mask && !(mask & 1); mask >>= 1)
 		m_pfRShiftR++;
@@ -370,20 +287,8 @@ HRESULT C3dDevice :: CreateBuffers(DDSURFACEDESC2* pddsd, DWORD dwFlags)
 	for (; mask; mask >>= 1)
 		m_pfAShiftL--;
 
-	if (dwFlags & D3DFW_BACKBUFFER)
-		m_pddsRenderTarget = m_pddsBackBuffer;
-	else
-		m_pddsRenderTarget = m_pddsFrontBuffer;
-	m_pddsRenderTarget->AddRef();
-
-	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH |
-								  DDSD_PIXELFORMAT, 0);
-	ddsd.dwWidth = m_dwRenderWidth;
-	ddsd.dwHeight = m_dwRenderHeight;
-	ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &m_pddsRenderBackup, NULL)))
-		return E_OUTOFMEMORY;
+	// The backup surface: the gfx module's backup of the target (BackupFrame).
+	m_bHasBackup = FALSE;
 	return S_OK;
 }
 
@@ -394,58 +299,37 @@ void	C3dDevice :: DestroyRenderer(CRenderer *rc)
 
 HRESULT C3dDevice :: FlipToGDISurface(BOOL bDrawFrame)
 {
-	if (m_pDD && m_bIsFullscreen) {
-		m_pDD->FlipToGDISurface();
-		if (bDrawFrame) {
-			DrawMenuBar(m_hWnd);
-			RedrawWindow(m_hWnd, NULL, NULL, RDW_FRAME);
-		}
-	}
+	// FlipToGDISurface, DrawMenuBar and RedrawWindow for a message box over
+	// the full screen: macOS draws the window's frame and menu.
 	return S_OK;
 }
 
 HRESULT C3dDevice :: CloneFrame()
 {
-	if (!m_pddsFrontBuffer)
+	if (!m_bInitialized)
 		return D3DFWERR_NOTINITIALIZED;
-	if (!m_pddsBackBuffer)
-		return m_pddsFrontBuffer->IsLost();
 
-	if (m_bIsFullscreen)
-		return m_pddsBackBuffer->Blt(NULL, m_pddsFrontBuffer, NULL, DDBLT_WAIT, NULL);
-
-	GetClientRect(m_hWnd, &m_rcScreenRect);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
-
-	return m_pddsBackBuffer->Blt(&m_rcViewportRect, m_pddsFrontBuffer, &m_rcScreenRect, DDBLT_WAIT, NULL);
+	// The window into the back buffer: the target holds the frame already.
+	return S_OK;
 }
 
 HRESULT C3dDevice :: ShowFrame(bool vertSync)
 {
-	if (m_pddsFrontBuffer == NULL)
+	if (!m_bInitialized)
 		return D3DFWERR_NOTINITIALIZED;
 
-	if (m_pddsBackBuffer == NULL)
-		return m_pddsFrontBuffer->IsLost();
-
-	if (vertSync) {
-		if (m_bIsFullscreen && !m_bIsGDIObject)
-			return m_pddsFrontBuffer->Flip(NULL, DDFLIP_WAIT);
-
-		GetClientRect(m_hWnd, &m_rcScreenRect);
-		ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
-		ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
-		m_pDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-		return m_pddsFrontBuffer->Blt(&m_rcScreenRect, m_pddsBackBuffer,
-									  &m_rcViewportRect, DDBLT_WAIT, NULL);
+	// Flip, or the Blt of the viewport into the window (the window shows the
+	// whole target, so a viewport smaller than it is stretched over it);
+	// present paces on the display, WaitForVerticalBlank is not needed.
+	if (vertSync && m_bIsFullscreen && !m_bIsGDIObject) {
+		bf_render_present();
+		return S_OK;
 	}
 
-	GetClientRect(m_hWnd, &m_rcScreenRect);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
-	return m_pddsFrontBuffer->Blt(&m_rcScreenRect, m_pddsBackBuffer,
-								  &m_rcViewportRect, DDBLT_WAIT, NULL);
+	bf_render_present_part(m_rcViewportRect.left, m_rcViewportRect.top,
+						   m_rcViewportRect.right - m_rcViewportRect.left,
+						   m_rcViewportRect.bottom - m_rcViewportRect.top);
+	return S_OK;
 }
 
 // A clear of the render size, clipped to the target (Direct3D 7 clipped it
@@ -477,54 +361,29 @@ HRESULT	C3dDevice :: ClearZBuffer()
 HRESULT C3dDevice :: RestoreSurfaces()
 {
 	Trace("HRESULT C3dDevice::RestoreSurfaces()\n");
-	return m_pDD->RestoreAllSurfaces();
+	return S_OK;   // Metal loses no surfaces
 }
 
 #if defined(BF_PORT)
 // The port's resize path (M4.3a): the window's logical size has changed and
 // the graphics device has been resized to it (port/native/view). The back
-// buffer and the backup surface are made anew at the new size, as
-// CreateBuffers does at start-up; the depth buffer is the gfx target's. The
-// original fixed the size at start-up.
+// buffer and the backup are made anew at the new size, as CreateBuffers does
+// at start-up; the depth buffer is the gfx target's. The original fixed the
+// size at start-up.
 HRESULT C3dDevice :: BfResize(DWORD w, DWORD h)
 {
-	if (!m_pDD || !m_bInitialized || !m_pddsBackBuffer || m_bIsFullscreen)
+	if (!m_bInitialized || m_bIsFullscreen)
 		return D3DFWERR_NOTINITIALIZED;
 	if (w == m_dwRenderWidth && h == m_dwRenderHeight)
 		return S_OK;
 
-	DDSURFACEDESC2 ddsd;
-	IDirectDrawSurface7 *back = NULL, *backup = NULL;
-	HRESULT hr;
+	FitTarget(w, h);
+	m_bHasBackup = FALSE;
 
-	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
-	ddsd.dwWidth = w;
-	ddsd.dwHeight = h;
-	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE;
-	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &back, NULL)))
-		return hr;
-
-	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
-	ddsd.dwWidth = w;
-	ddsd.dwHeight = h;
-	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &backup, NULL))) {
-		SAFE_RELEASE(back);
-		return hr;
-	}
-
-	SAFE_RELEASE(m_pddsRenderTarget);
-	SAFE_RELEASE(m_pddsBackBuffer);
-	SAFE_RELEASE(m_pddsRenderBackup);
-	m_pddsBackBuffer = back;
-	m_pddsRenderTarget = back;
-	m_pddsRenderTarget->AddRef();
-	m_pddsRenderBackup = backup;
-
-	SetRect(&m_rcViewportRect, 0, 0, w, h);
-	GetClientRect(m_hWnd, &m_rcScreenRect);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.left);
-	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
+	SetRectangle(&m_rcViewportRect, 0, 0, w, h);
+	int cw, ch;
+	bf_input_client_size(&cw, &ch);
+	SetRectangle(&m_rcScreenRect, 0, 0, cw, ch);
 	m_dwRenderWidth = w;
 	m_dwRenderHeight = h;
 	return S_OK;
@@ -578,7 +437,6 @@ void	C3dDevice :: ConvertPalette(SYSTEMPALETTE* destPal, const PALETTEENTRY* src
 
 CRenderer *	C3dDevice :: CreateRenderer()
 {
-	DDCAPS_DX7 ddCaps;
 	PixelFormat pixelFormat;
 
 	if (m_pfRBitMask == 0xf800) {
@@ -595,11 +453,7 @@ CRenderer *	C3dDevice :: CreateRenderer()
 		pixelFormat = PF_UNSUPPORTED;
 	}
 
-	ddCaps.dwSize = sizeof(ddCaps);
-	ddCaps.dwCaps = 0;
-	ZeroMemory(&ddCaps.dwCaps2, sizeof(ddCaps) - 8);
-	if (m_pDD->GetCaps(&ddCaps, NULL) == D3D_OK)
-		m_bSupportBltStretch = (ddCaps.dwCaps & DDCAPS_BLTSTRETCH) ? TRUE : FALSE;
+	m_bSupportBltStretch = TRUE;   // DDCAPS_BLTSTRETCH: a part of the target is stretched over the window
 
 	// The device's caps (port/native/gfx): textures of 1 to its largest
 	// edge without an aspect limit; two texture stages with
@@ -801,19 +655,23 @@ int C3dDevice :: DecodePixelB(WORD color) const
 	return ((color & m_pfBBitMask) >> m_pfBShiftR) << m_pfBShiftL;
 }
 
+// The whole target into the backup surface and back: the gfx module's
+// backup, never read back (Mode.cpp's fade).
 void C3dDevice :: BackupFrame()
 {
-	if (m_pddsRenderBackup && m_pddsRenderTarget) {
-		if (m_pddsRenderBackup->Blt(NULL, m_pddsRenderTarget, NULL, DDBLT_ASYNC, NULL) < 0)
-			m_pddsRenderBackup->Blt(NULL, m_pddsRenderTarget, NULL, DDBLT_WAIT, NULL);
+	if (m_bInitialized) {
+		if (bf_render_backup() == BF_GFX_OK)
+			m_bHasBackup = TRUE;
 	}
 }
 
 void C3dDevice :: RestoreFrame()
 {
-	if (m_pddsRenderTarget && m_pddsRenderBackup) {
-		if (m_pddsRenderTarget->Blt(NULL, m_pddsRenderBackup, NULL, DDBLT_ASYNC, NULL) < 0)
-			m_pddsRenderTarget->Blt(NULL, m_pddsRenderBackup, NULL, DDBLT_WAIT, NULL);
+	if (m_bInitialized) {
+		if (m_bHasBackup)
+			bf_render_restore();
+		else
+			ClearRender(BF_GFX_CLEAR_COLOR, 0xFF000000, m_dwRenderWidth, m_dwRenderHeight);   // the backup surface as made: black
 	}
 }
 

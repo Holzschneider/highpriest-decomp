@@ -42,6 +42,15 @@ const	DWORD COLORKEY_B = 10;
 
 class C3dDevice;
 
+// The display mode SetupDriver2 asks for (full screen): the fields it filled
+// of a DDSURFACEDESC2 (M11.9).
+struct DisplayMode {
+	unsigned int width;
+	unsigned int height;
+	unsigned int bitCount;
+	unsigned int refreshRate;
+};
+
 // A vertex buffer in CPU memory (M11.9: the gfx module draws from caller memory).
 class CDynamicVB {
 public:
@@ -68,7 +77,7 @@ class C3dDevice {
 public:
 	C3dDevice();
 	~C3dDevice();
-	int Init(HWND__* hwnd, _GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned int dwFlags);
+	int Init(HWND__* hwnd, const void* pDriverGUID, const void* pDeviceGUID, DisplayMode* pMode, unsigned int dwFlags);
 	int DestroyObjects();
 	int IsFullscreen() { return m_bIsFullscreen; }
 	void EnableClipper(int bEnable);
@@ -93,11 +102,7 @@ public:
 	int EnableGDIObject(int bGDI){ return m_bIsGDIObject = bGDI; }
 	void EnableMipmap();
 	void AdjustTextureSize(unsigned int* w, unsigned int* h);
-	IDirectDraw7* GetDirectDraw() { return m_pDD; }
-	IDirectDrawSurface7* GetFrontBuffer() { return m_pddsFrontBuffer; }
-	IDirectDrawSurface7* GetBackBuffer() { return m_pddsBackBuffer; }
-	IDirectDrawSurface7* GetRenderSurface() { return m_pddsRenderTarget; }
-	_DDSURFACEDESC2* GetFrameBufferDesc() { return &m_ddsdFrameBuffer; }
+	int IsInitialized() const { return m_bInitialized; }   // the buffers and the device are made
 	unsigned char GetBltStretchState() { return m_bSupportBltStretch; }
 	unsigned int GetRBitMask() { return m_pfRBitMask; }
 	unsigned int GetGBitMask() { return m_pfGBitMask; }
@@ -130,27 +135,22 @@ public:
 	void GetMaterialDiffuse( float* r, float* g, float* b ) { *r = m_fMaterialDiffuseR, *g = m_fMaterialDiffuseG, *b = m_fMaterialDiffuseB; }
 	void GetMaterialAmbient( float* r, float* g, float* b ) { *r = m_fMaterialAmbientR, *g = m_fMaterialAmbientG, *b = m_fMaterialAmbientB; }
 private:
-	int CreateBuffers(_DDSURFACEDESC2* pddsd, unsigned int dwFlags);
-	int CreateDirectDraw(_GUID* pDriverGUID, unsigned int dwFlags);
-	int CreateEnvironment(_GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned int dwFlags);
+	int CreateBuffers(DisplayMode* pddsd, unsigned int dwFlags);
+	int CreateDirectDraw(const void* pDriverGUID, unsigned int dwFlags);
+	int CreateEnvironment(const void* pDriverGUID, const void* pDeviceGUID, DisplayMode* pMode, unsigned int dwFlags);
 	int FlipToGDISurface(int bDrawFrame);
 	HWND__* m_hWnd;
 	unsigned int m_dwRenderWidth;
 	unsigned int m_dwRenderHeight;
 	tagRECT m_rcScreenRect;
 	tagRECT m_rcViewportRect;
-	IDirectDrawSurface7* m_pddsFrontBuffer;
-	IDirectDrawSurface7* m_pddsBackBuffer;
-	IDirectDrawSurface7* m_pddsRenderTarget;
-	IDirectDraw7* m_pDD;
+	int m_bHasBackup;   // BackupFrame has saved the target since the buffers were made
 	bf_gfx_state m_state;
 	int m_bInitialized;
 	int Draw(D3DPRIMITIVETYPE type, unsigned int fvf, const void* verts, unsigned int numVerts, const unsigned short* indices, unsigned int numIndices);
-	_DDSURFACEDESC2 m_ddsdFrameBuffer;
 	int m_bIsFullscreen;
 	int m_bIsGDIObject;
 	int m_windowBitCount;
-	IDirectDrawSurface7* m_pddsRenderBackup;
 	int m_pfRShiftR;
 	int m_pfRShiftL;
 	int m_pfGShiftR;

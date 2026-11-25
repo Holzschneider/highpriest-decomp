@@ -9,8 +9,8 @@
 
 struct Registry {
 public:
-	_GUID guidDevice;
-	_GUID guidDriver;
+	unsigned int guidDevice[4];   // a GUID, as the setup program stored it (M11.9: 16 bytes, read only)
+	unsigned int guidDriver[4];
 	char deviceName[40];
 	unsigned int isFullScreenMode;
 	unsigned int isLowResSprite;
@@ -30,8 +30,8 @@ public:
 
 struct Registry2 {
 public:
-	_GUID m_guidDevice;
-	_GUID m_guidDriver;
+	unsigned int m_guidDevice[4];   // a GUID, as the setup program stored it (M11.9: 16 bytes, read only)
+	unsigned int m_guidDriver[4];
 	char m_deviceName[40];
 	unsigned int m_isFullScreenMode;
 	unsigned int m_width;

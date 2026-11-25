@@ -5,7 +5,6 @@
 #include "../resource/Sprite.h"
 
 #include <windows.h>
-#include <ddraw.h>
 
 typedef std::list<CTexture *>::iterator     texListIter;
 
@@ -26,8 +25,8 @@ CDCSurface :: CDCSurface(DWORD w, DWORD h)
 }
 
 
-CDCSurface :: CDCSurface(DWORD w, DWORD h, IDirectDrawSurface7 * surface)
-:	m_surface(w,h, surface)
+CDCSurface :: CDCSurface(DWORD w, DWORD h, int renderTarget)
+:	m_surface(w,h, renderTarget)
 {
 }
 
@@ -37,20 +36,13 @@ CDCSurface :: ~CDCSurface()
 
 bool	CDCSurface :: GetDC(bf_text_canvas** canvas)
 {
-	IDirectDrawSurface7 * pddsSurface = m_surface.GetDDSurface();
-
-	// A surface's DC is a canvas over a staging bitmap of the surface
-	// (port/compat/d3d's GetDC, until M11.9).
-	if(pddsSurface)
-		return SUCCEEDED(pddsSurface->GetDC((HDC*)canvas)) ? true : false;
-	else
-		return false;
+	// A surface's DC is a canvas over a staging bitmap of the surface (CSurface::GetDC).
+	return m_surface.GetDC(canvas);
 }
 
 void	CDCSurface :: ReleaseDC(bf_text_canvas* canvas)
 {
-	if (m_surface.GetDDSurface())
-		m_surface.GetDDSurface()->ReleaseDC((HDC)canvas);
+	m_surface.ReleaseDC(canvas);
 }
 
 void	CDCSurface :: ClearSurface(tagRECT* rect, DWORD color)
@@ -72,15 +64,15 @@ void	CDCSurface :: CopyRect(int x, int y, int width, int height, CDC* surface)
 	r.right = width;
 	r.bottom = height;
 
-	m_surface.GetDDSurface()->BltFast(x, y, ((CDCSurface*)surface)->m_surface.GetDDSurface(), &r, DDBLTFAST_SRCCOLORKEY|DDBLTFAST_WAIT);
+	RECT d = { x, y, x + width, y + height };
+	BfBltSurface(&m_surface, d, &((CDCSurface*)surface)->m_surface, r, true);   // BltFast with the source colour key
 }
 
 void	CDCSurface :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, int width, int height, int xflip, int zoomx, int zoomy)
 {
 	if(!src) return;
 
-	IDirectDrawSurface7 *	pddsSurface = m_surface.GetDDSurface();
-	if(!pddsSurface) return;
+	if(!m_surface.m_isTarget && !m_surface.m_bits) return;
 
 	int						i, j;
 	bf_gfx_texture *		srcSurface;
@@ -100,14 +92,19 @@ void	CDCSurface :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, 
 	if(!lpSrcSurfacePtr) return;
 	lSrcPitch = lSrcPitch / 2;
 
-	DDSURFACEDESC2	destDesc = { sizeof(DDSURFACEDESC2), 0 };
-	if(FAILED(pddsSurface->Lock(NULL, &destDesc, DDLOCK_WAIT, NULL))) {
-		bf_gfx_texture_unlock(srcSurface, &none);
-		return;
+	// The surface: the render target (its lazy lock, bf_render.h) or the
+	// offscreen surface's memory.
+	if(m_surface.m_isTarget) {
+		lpDestSurfacePtr = (WORD*)bf_render_lock(0, &lDestPitch);
+		if(!lpDestSurfacePtr) {
+			bf_gfx_texture_unlock(srcSurface, &none);
+			return;
+		}
+	} else {
+		lpDestSurfacePtr = (WORD*)m_surface.m_bits;
+		lDestPitch = m_surface.m_w * 4;
 	}
-
-	lpDestSurfacePtr = (WORD*)destDesc.lpSurface;
-	lDestPitch = destDesc.lPitch / 2;
+	lDestPitch = lDestPitch / 2;
 
 	if(src->GetPixelFormat() == PF_A1R5G5B5) {
 		if(xflip) {
@@ -149,7 +146,8 @@ void	CDCSurface :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, 
 		}
 	}
 
-	pddsSurface->Unlock(NULL);
+	if(m_surface.m_isTarget)
+		bf_render_unlock();
 	bf_gfx_texture_unlock(srcSurface, &none);
 }
 

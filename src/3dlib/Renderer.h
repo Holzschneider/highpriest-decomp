@@ -166,7 +166,7 @@ public:
 
 class CDCSurface : public CDC {
 public:
-	CDCSurface(unsigned int w, unsigned int h, IDirectDrawSurface7* surface);
+	CDCSurface(unsigned int w, unsigned int h, int renderTarget);
 	CDCSurface(unsigned int w, unsigned int h);
 	virtual ~CDCSurface();
 	virtual void Resize(int w, int h);
@@ -365,7 +365,7 @@ public:
 private:
 	friend class C3dDevice;
 	C3dDevice* m_device;
-	IDirectDrawSurface7* m_lpSurface;
+	void* m_lpSurface;   // unused (a DirectDraw surface in 2008)
 	unsigned int m_dwScreenWidth;
 	unsigned int m_dwScreenHeight;
 	PixelFormat m_pf;

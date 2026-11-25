@@ -759,19 +759,19 @@ int SetupDriver2()
 		}
 	}
 
-	DDSURFACEDESC2 ddsd;
+	DisplayMode ddsd;
 	DWORD dwFlags = 6;
 	if (g_registry.m_isFullScreenMode) dwFlags = 7;
 
-	ddsd.dwWidth  = g_registry.m_width;
-	ddsd.dwHeight = g_registry.m_height;
-	ddsd.ddpfPixelFormat.dwRGBBitCount = g_registry.m_bitPerPixel;
-	ddsd.dwMipMapCount = 0;
+	ddsd.width  = g_registry.m_width;
+	ddsd.height = g_registry.m_height;
+	ddsd.bitCount = g_registry.m_bitPerPixel;
+	ddsd.refreshRate = 0;
 
 	if (g_3dDevice.Init(g_hMainWnd,
-						(_GUID*)&g_registry.m_guidDriver,
-						(_GUID*)&g_registry.m_guidDevice,
-						(_DDSURFACEDESC2*)&ddsd,
+						&g_registry.m_guidDriver,
+						&g_registry.m_guidDevice,
+						&ddsd,
 						dwFlags) < 0)
 	{
 		ErrorMsg("Cannot init d3d OR grf file has problem.");

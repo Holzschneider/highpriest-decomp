@@ -32,11 +32,6 @@
 
 
 
-VOID D3DUtil_InitSurfaceDesc(DDSURFACEDESC2& ddsd, DWORD dwFlags=0,
-                              DWORD dwCaps=0);
-
-VOID D3DUtil_InitViewport(D3DVIEWPORT7&	vdViewData, DWORD dwWidth=0,
-                           DWORD dwHeight=0);
 
 
 

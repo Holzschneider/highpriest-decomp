@@ -1046,7 +1046,6 @@ void C3dGrannyModelRes :: CreateTexture(GrannyTexture *Texture, int TextureIndex
 
 CTexture* C3dGrannyModelRes :: CreateRGBATexture(int TextureIndex, int ImageIndex)
 {
-  LPDIRECTDRAWSURFACE7 D3DTexture = NULL;
 	CTexture* RetD3DTexture = NULL;
 
   const bf_granny_texture *GrannyTexture = bf_granny_get_texture(m_Scene.LoadedFile, TextureIndex);

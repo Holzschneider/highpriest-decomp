@@ -6,7 +6,6 @@
 
 
 #include <windows.h>
-#include <ddraw.h>
 #include "CBink.h"
 #if defined(BF_PORT)
 // The movie player of the port (port/client, bf_movie.h) in place of the
@@ -35,23 +34,6 @@ extern BinkSleepState g_binkSleep;
 extern unsigned __int64 g_binkFrequency;
 extern int g_binkGotFrequency;
 
-namespace {
-// The pixel format of a DirectDraw 7 surface for bf_movie_copy, as the Bink
-// SDK's BinkDDSurfaceType named it: 32-bit X8R8G8B8, 16-bit 5:6:5 and 5:5:5;
-// -1 for anything else.
-int MovieSurfaceFormat(LPDIRECTDRAWSURFACE7 s)
-{
-    DDPIXELFORMAT pf;
-    if (!s) return -1;
-    memset(&pf, 0, sizeof pf);
-    pf.dwSize = sizeof pf;
-    if (FAILED(s->GetPixelFormat(&pf)) || !(pf.dwFlags & DDPF_RGB)) return -1;
-    if (pf.dwRGBBitCount == 32 && pf.dwRBitMask == 0xFF0000 && pf.dwBBitMask == 0xFF) return BF_MOVIE_BGRA8888;
-    if (pf.dwRGBBitCount == 16 && pf.dwGBitMask == 0x07E0) return BF_MOVIE_RGB565;
-    if (pf.dwRGBBitCount == 16 && pf.dwGBitMask == 0x03E0) return BF_MOVIE_XRGB1555;
-    return -1;
-}
-}
 
 
 
@@ -66,41 +48,24 @@ int CBink::BinkShowNextFrame(bf_movie* bink, HWND__* window)
 {
     bf_movie_decode(bink);
 
-    LPDIRECTDRAWSURFACE7 lpSurfaceDest = g_3dDevice.GetFrontBuffer();
-    LPDIRECTDRAWSURFACE7 lpSurfaceSrc  = g_3dDevice.GetBackBuffer();
-    DDSURFACEDESC2       ddsd         = { sizeof(DDSURFACEDESC2), 0, };
-    int                  surface_type;
     RECT                 src          = { 0, 0, 0x200, 0x15b };
-    RECT                 dest;
+    int                  pitch, width, height;
+    void*                bits;
 
-    surface_type = MovieSurfaceFormat(lpSurfaceSrc);
-#if defined(BF_PORT)
-    // Bink only writes: without WRITEONLY the adapter would read the whole
-    // target back first (port/compat/d3d, "Lazy render-target lock").
-    if (FAILED(lpSurfaceSrc->Lock(NULL, &ddsd, DDLOCK_WAIT | DDLOCK_WRITEONLY, NULL))) {
-#else
-    if (FAILED(lpSurfaceSrc->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL))) {
-#endif
+    // The back buffer is the render target (bf_render.h, M11.9), 32-bit
+    // X8R8G8B8 (the Bink SDK's BinkDDSurfaceType of it: BGRA8888). Bink only
+    // writes: a write-only lock reads nothing back.
+    if (!g_3dDevice.IsInitialized() || (bits = bf_render_lock(1, &pitch)) == NULL) {
         return 0;
     }
-    bf_movie_copy(bink, ddsd.lpSurface, ddsd.lPitch, ddsd.dwHeight, 0, 0, surface_type);
-    lpSurfaceSrc->Unlock(NULL);
+    bf_render_size(&width, &height);
+    bf_movie_copy(bink, bits, pitch, height, 0, 0, BF_MOVIE_BGRA8888);
+    bf_render_unlock();
 
-#if defined(BF_PORT)
-    // The client area in logical pixels; "screen" coordinates are the client's.
-    int destW, destH;
-    bf_input_client_size(&destW, &destH);
-    dest.left = 0;
-    dest.top = 0;
-    dest.right = destW;
-    dest.bottom = destH;
-#else
-    GetClientRect(g_hMainWnd, &dest);
-    ClientToScreen(g_hMainWnd, (POINT*)&dest.left);
-    ClientToScreen(g_hMainWnd, (POINT*)&dest.right);
-#endif
-
-    lpSurfaceDest->Blt(&dest, lpSurfaceSrc, &src, DDBLT_WAIT, NULL);
+    // The movie's rectangle into the window's client area: DirectDraw
+    // stretched it there; the window shows the whole target, so it is
+    // stretched over the target and presented.
+    bf_render_present_part(src.left, src.top, src.right - src.left, src.bottom - src.top);
 
     if (bf_movie_frame(bink) == bf_movie_frames(bink)) {
         return 0;

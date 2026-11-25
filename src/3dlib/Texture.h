@@ -2,6 +2,7 @@
 #define HIGHPRIEST_3DLIB_TEXTURE_H
 
 #include "Device.h"
+#include "bf_text.h"
 
 struct SprImg;
 class CSurface;
@@ -10,17 +11,21 @@ class CTexture;
 class CSurface {
 	friend class CDCSurface;
 public:
-	CSurface() : m_pddsSurface(0), m_gfxTex(0) {}
-	CSurface(unsigned int w, unsigned int h, IDirectDrawSurface7* surface);
+	CSurface() : m_isTarget(0), m_bits(0), m_gfxTex(0), m_dcBits(0) {}
+	CSurface(unsigned int w, unsigned int h, int renderTarget);   // the render target (M11.9)
 	CSurface(unsigned int w, unsigned int h);
 	virtual ~CSurface();
 	virtual void Update(int x, int y, int width, int height, unsigned int* image, bool blackkey, int lPitch);
 	virtual void ClearSurface(tagRECT* rect, unsigned int color);
 	virtual void DrawSurface(int x, int y, int width, int height, unsigned int color);
 	virtual void DrawSurfaceStretch(int x, int y, int width, int height);
-	IDirectDrawSurface7* GetDDSurface() const { return m_pddsSurface; }
 	bf_gfx_texture* GetGfxTexture() const { return m_gfxTex; }   // a texture's (CTexture), else NULL
+	int IsRenderTarget() const { return m_isTarget; }
 	bool Create(unsigned int w, unsigned int h);
+	// The surface's DC (CDCSurface, M11.9): a canvas over a staging bitmap;
+	// what is drawn on it goes into the surface on ReleaseDC.
+	bool GetDC(bf_text_canvas** canvas);
+	void ReleaseDC(bf_text_canvas* canvas);
 #if defined(BF_PORT)
 	unsigned int GetSurfaceWidth() const { return m_w; }    // the UI pass's texel test (Renderer.cpp)
 	unsigned int GetSurfaceHeight() const { return m_h; }
@@ -28,9 +33,23 @@ public:
 protected:
 	unsigned int m_w;
 	unsigned int m_h;
-	IDirectDrawSurface7* m_pddsSurface;
+	// What a DirectDraw surface was (M11.9): the render target (the gfx
+	// target), an offscreen surface (32-bit X8R8G8B8 in memory, source colour
+	// key magenta), or a texture of port/native/gfx (CTexture).
+	int m_isTarget;
+	unsigned int* m_bits;
 	bf_gfx_texture* m_gfxTex;
+	unsigned int* m_dcBits;
+	bf_text_canvas m_dcCanvas;
+	friend bool BfReadSurface(const CSurface* s, const tagRECT& r, unsigned int* out, unsigned char* keyed);
+	friend bool BfWriteSurface(CSurface* s, const tagRECT& r, const unsigned int* px, const unsigned char* skip);
+	friend bool BfBltSurface(CSurface* dst, const tagRECT& dr, const CSurface* src, const tagRECT& sr, bool keysrc);
 };
+
+// The pixel paths of the surfaces (Texture.cpp, M11.9).
+bool BfReadSurface(const CSurface* s, const tagRECT& r, unsigned int* out, unsigned char* keyed);
+bool BfWriteSurface(CSurface* s, const tagRECT& r, const unsigned int* px, const unsigned char* skip);
+bool BfBltSurface(CSurface* dst, const tagRECT& dr, const CSurface* src, const tagRECT& sr, bool keysrc);
 
 class CSurfaceWallpaper : public CSurface {
 public:

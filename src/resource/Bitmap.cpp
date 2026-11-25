@@ -678,7 +678,6 @@ bool	CBitmapRes :: LoadJPGData(const BYTE* bitmap, int size)
 {
 	const BYTE *		temp = bitmap;
 	BYTE *				pColorMap;
-	JPEG_CORE_PROPERTIES	JPGimg;
 	int					len = size;
 	int					i, j;
 
@@ -698,6 +697,7 @@ bool	CBitmapRes :: LoadJPGData(const BYTE* bitmap, int size)
 		return false;
 	}
 #else
+	JPEG_CORE_PROPERTIES	JPGimg;
 	memset(&JPGimg, 0, sizeof(JPEG_CORE_PROPERTIES));
 
 	if (ijlInit(&JPGimg) != IJL_OK) return false;

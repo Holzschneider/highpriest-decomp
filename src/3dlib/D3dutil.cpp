@@ -4,28 +4,13 @@
 #define OUTPUTSTR
 
 #include <windows.h>
-#include <ddraw.h>
-#include <d3d.h>
 #include <math.h>
 #include <stdio.h>
 
 
-VOID D3DUtil_InitSurfaceDesc(_DDSURFACEDESC2& ddsd, DWORD dwFlags, DWORD dwCaps)
-{
-	ZeroMemory(&ddsd, sizeof(_DDSURFACEDESC2));
-	ddsd.dwSize         = sizeof(_DDSURFACEDESC2);
-	ddsd.dwFlags        = dwFlags;
-	ddsd.ddsCaps.dwCaps = dwCaps;
-	ddsd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-}
-
-VOID D3DUtil_InitViewport(_D3DVIEWPORT7& vp, DWORD dwWidth, DWORD dwHeight)
-{
-	ZeroMemory(&vp, sizeof(_D3DVIEWPORT7));
-	vp.dwWidth  = dwWidth;
-	vp.dwHeight = dwHeight;
-	vp.dvMaxZ   = 1.0f;
-}
+// D3DUtil_InitSurfaceDesc and D3DUtil_InitViewport filled DirectDraw surface
+// descriptions and the Direct3D viewport; neither exists on the gfx module
+// (M11.9).
 
 HRESULT D3DUtil_SetProjectionMatrix(D3DMATRIX& mat, FLOAT fFOV, FLOAT fAspect,
                                     FLOAT fNearPlane, FLOAT fFarPlane)
@@ -52,18 +37,11 @@ HRESULT D3DUtil_SetProjectionMatrix(D3DMATRIX& mat, FLOAT fFOV, FLOAT fAspect,
 HRESULT _DbgOut(TCHAR* strFile, DWORD dwLine, HRESULT hr, TCHAR* strMsg)
 {
 #ifdef OUTPUTSTR
-	TCHAR buffer[256];
-	sprintf(buffer, "%s(%ld): ", strFile, (long)dwLine);
-	OutputDebugString(buffer);
-	OutputDebugString(strMsg);
-
+	// The debugger's output: one trace line (M11.5).
 	if (hr)
-	{
-		sprintf(buffer, "(hr=%08lx)\n", (unsigned long)hr);
-		OutputDebugString(buffer);
-	}
-
-	OutputDebugString("\n");
+		BF_TRACE(BFT_GFX, "%s(%ld): %s(hr=%08lx)", strFile, (long)dwLine, strMsg, (unsigned long)hr);
+	else
+		BF_TRACE(BFT_GFX, "%s(%ld): %s", strFile, (long)dwLine, strMsg);
 #endif
 	return hr;
 }
