@@ -8,6 +8,7 @@
 #include "bf_trace.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <ftw.h>
 #include <limits.h>
 #include <mach-o/dyld.h>
@@ -20,6 +21,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
+#include <algorithm>
 #include <atomic>
 #include <string>
 #include <vector>
@@ -541,6 +543,60 @@ uint32_t ResolveMany(void *raw)
 	return 0;
 }
 
+// A game folder whose path is 1000 bytes (PATH_MAX is 1024): the folder
+// itself is a path the kernel takes, its files are not (ENAMETOOLONG), and
+// bf_file reaches them through the folder (the *at calls).
+void TestLongPaths(const std::string &root, const std::string &game)
+{
+	std::string folder = root + "/long";
+	mkdir(folder.c_str(), 0755);
+	while (folder.size() < 1000) {
+		folder += "/" + std::string(std::min<size_t>(200, 1000 - folder.size() - 1), 'L');
+		mkdir(folder.c_str(), 0755);
+	}
+	mkdir((folder + "/Data").c_str(), 0755);
+	int dirfd = open(folder.c_str(), O_RDONLY | O_DIRECTORY);
+	mkdirat(dirfd, "Data/luafiles514", 0755);
+	mkdirat(dirfd, "Data/luafiles514/lua files", 0755);
+	int fd = openat(dirfd, "Data/luafiles514/lua files/msgStringTable.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	bool made = fd >= 0 && write(fd, "long-table", 10) == 10;
+	if (fd >= 0)
+		close(fd);
+	close(dirfd);
+	std::string file = folder + "/Data/luafiles514/lua files/msgStringTable.txt";
+	struct stat st;
+	Check(folder.size() == 1000 && made && stat(file.c_str(), &st) != 0 && errno == ENAMETOOLONG,
+	      Format("long paths: a 1000-byte folder; its file's %zu-byte path is refused by stat (ENAMETOOLONG)", file.size()).c_str());
+
+	bf_file_set_game_folder(folder.c_str());
+	const char *client = "data\\LUAFILES514\\Lua Files\\msgstringtable.txt";
+	bf_file_info info;
+	Check(bf_file_stat(client, &info) == 1 && info.size == 10 && info.read_only == 1,
+	      "long paths: bf_file_stat finds the file, in any case");
+	size_t size = 0;
+	char *data = (char *)bf_file_read_all(client, &size);
+	Check(data && size == 10 && memcmp(data, "long-table", 10) == 0, "long paths: bf_file_read_all reads it");
+	bf_file_free(data);
+	FILE *fp = bf_file_fopen(client, "rb");
+	char text[16] = {0};
+	Check(fp && fread(text, 1, 10, fp) == 10 && strcmp(text, "long-table") == 0, "long paths: bf_file_fopen reads it");
+	if (fp)
+		fclose(fp);
+	bf_file_mapping *map = bf_file_map(client);
+	Check(map && bf_file_mapping_size(map) == 10, "long paths: bf_file_map maps it");
+	bf_file_unmap(map);
+	bf_file_find *find = bf_file_find_first("data\\luafiles514\\lua files\\*.txt", &info);
+	Check(find && strcmp(info.name_utf8, "msgStringTable.txt") == 0, "long paths: bf_file_find_first lists it");
+	bf_file_find_close(find);
+	char out[2048];
+	Check(bf_file_resolve(client, BF_RESOLVE_READ, out, sizeof out) == (int)file.size() && file == out,
+	      "long paths: bf_file_resolve gives the whole path");
+	errno = 0;
+	Check(bf_file_resolve(client, BF_RESOLVE_READ, out, 1024) == -1 && errno == ENAMETOOLONG,
+	      "long paths: into a PATH_MAX buffer it does not fit (ENAMETOOLONG)");
+	bf_file_set_game_folder(game.c_str());
+}
+
 void TestConcurrentLookups()
 {
 	std::string expected = Resolve("data\\clientinfo.xml", BF_RESOLVE_READ);
@@ -804,6 +860,7 @@ int main()
 	TestRefusal(game);
 	TestWritePaths(game);
 	TestConcurrentLookups();
+	TestLongPaths(root, game);
 	TestSettings(home, game);
 	TestKeychain();
 	TestShell();

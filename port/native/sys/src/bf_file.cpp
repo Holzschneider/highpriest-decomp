@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,130 @@ struct bf_file_find {
 };
 
 namespace {
+
+// ---- Long paths ------------------------------------------------------------
+// The kernel refuses a path of PATH_MAX (1024) bytes or more (ENAMETOOLONG),
+// but a folder whose own path is shorter may hold files whose paths are not:
+// a game folder of 1000 bytes and its data/msgStringTable.txt. Every call on
+// a path below goes through these: a path that long is opened in two steps,
+// its head (shorter than PATH_MAX) as a folder and the rest relative to it
+// with the *at calls. Shorter paths go to the kernel as they are.
+
+class At {
+public:
+	explicit At(const std::string &path) : m_fd(AT_FDCWD), m_rel(path.c_str()), m_own(false)
+	{
+		if (path.size() < PATH_MAX)
+			return;
+		size_t cut = path.rfind('/', PATH_MAX - 1);
+		if (cut == std::string::npos || cut == 0 || path.size() - cut - 1 >= PATH_MAX)
+			return;   // the kernel's ENAMETOOLONG
+		m_fd = open(path.substr(0, cut).c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+		m_rel = path.c_str() + cut + 1;
+		m_own = true;
+	}
+	~At()
+	{
+		if (m_own && m_fd >= 0) {
+			int error = errno;
+			close(m_fd);
+			errno = error;
+		}
+	}
+	bool ok() const { return m_fd != -1; }   // false: the head did not open, errno says why
+	int fd() const { return m_fd; }
+	const char *rel() const { return m_rel; }
+
+private:
+	int m_fd;
+	const char *m_rel;
+	bool m_own;
+};
+
+int StatPath(const std::string &path, struct stat *st)
+{
+	At at(path);
+	return at.ok() ? fstatat(at.fd(), at.rel(), st, 0) : -1;
+}
+
+int LstatPath(const std::string &path, struct stat *st)
+{
+	At at(path);
+	return at.ok() ? fstatat(at.fd(), at.rel(), st, AT_SYMLINK_NOFOLLOW) : -1;
+}
+
+int OpenPath(const std::string &path, int oflags, mode_t mode)
+{
+	At at(path);
+	return at.ok() ? openat(at.fd(), at.rel(), oflags, mode) : -1;
+}
+
+DIR *OpenFolder(const std::string &path)
+{
+	int fd = OpenPath(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC, 0);
+	if (fd < 0)
+		return NULL;
+	DIR *dir = fdopendir(fd);
+	if (!dir) {
+		int error = errno;
+		close(fd);
+		errno = error;
+	}
+	return dir;
+}
+
+int MakeFolderPath(const std::string &path, mode_t mode)
+{
+	At at(path);
+	return at.ok() ? mkdirat(at.fd(), at.rel(), mode) : -1;
+}
+
+int AccessPath(const std::string &path, int mode)
+{
+	At at(path);
+	return at.ok() ? faccessat(at.fd(), at.rel(), mode, 0) : -1;
+}
+
+int UnlinkPath(const std::string &path, int flags)
+{
+	At at(path);
+	return at.ok() ? unlinkat(at.fd(), at.rel(), flags) : -1;
+}
+
+int RenamePath(const std::string &from, const std::string &to)
+{
+	At a(from), b(to);
+	return a.ok() && b.ok() ? renameat(a.fd(), a.rel(), b.fd(), b.rel()) : -1;
+}
+
+// fopen's mode ("r", "w+", "ab", "wx" ...) on OpenPath.
+FILE *FopenPath(const std::string &path, const char *mode)
+{
+	if (path.size() < PATH_MAX)
+		return fopen(path.c_str(), mode);
+	int oflags;
+	switch (mode[0]) {
+	case 'r': oflags = 0; break;
+	case 'w': oflags = O_CREAT | O_TRUNC; break;
+	case 'a': oflags = O_CREAT | O_APPEND; break;
+	default: errno = EINVAL; return NULL;
+	}
+	bool plus = strchr(mode, '+') != NULL;
+	oflags |= plus ? O_RDWR : mode[0] == 'r' ? O_RDONLY : O_WRONLY;
+	if (strchr(mode, 'x'))
+		oflags |= O_EXCL;
+	int fd = OpenPath(path, oflags | O_CLOEXEC, 0666);
+	if (fd < 0)
+		return NULL;
+	FILE *file = fdopen(fd, mode);
+	if (!file) {
+		int error = errno;
+		close(fd);
+		errno = error;
+	}
+	return file;
+}
+
 
 // ---- State ------------------------------------------------------------------
 
@@ -304,12 +429,12 @@ const std::string &Home()
 bool MakeFolders(const std::string &path)
 {
 	struct stat st;
-	if (stat(path.c_str(), &st) == 0)
+	if (StatPath(path, &st) == 0)
 		return S_ISDIR(st.st_mode);
 	size_t slash = path.rfind('/');
 	if (slash != std::string::npos && slash > 0 && !MakeFolders(path.substr(0, slash)))
 		return false;
-	return mkdir(path.c_str(), 0755) == 0 || errno == EEXIST;
+	return MakeFolderPath(path, 0755) == 0 || errno == EEXIST;
 }
 
 const std::string &GameFolder()
@@ -404,13 +529,13 @@ const WriteRule *RuleFor(const std::string &firstPart)
 const Listing *ListFolder(const std::string &folder)
 {
 	struct stat st;
-	if (stat(folder.c_str(), &st) != 0 || !S_ISDIR(st.st_mode))
+	if (StatPath(folder, &st) != 0 || !S_ISDIR(st.st_mode))
 		return NULL;
 	std::unordered_map<std::string, Listing>::iterator it = g_listings.find(folder);
 	if (it != g_listings.end() && it->second.modified.tv_sec == st.st_mtimespec.tv_sec
 	    && it->second.modified.tv_nsec == st.st_mtimespec.tv_nsec)
 		return &it->second;
-	DIR *dir = opendir(folder.c_str());
+	DIR *dir = OpenFolder(folder);
 	if (!dir)
 		return NULL;
 	Listing listing;
@@ -444,7 +569,7 @@ bool FindEntry(const std::string &folder, const std::string &name, std::string *
 	}
 	struct stat st;
 	std::string direct = folder + "/" + name;
-	if (lstat(direct.c_str(), &st) == 0) {
+	if (LstatPath(direct, &st) == 0) {
 		*actual = name;
 		return true;
 	}
@@ -461,7 +586,7 @@ bool Walk(const std::string &root, const std::vector<std::string> &parts, size_t
 	std::string current = root;
 	if (mode == kRead && first >= parts.size()) {
 		struct stat st;
-		if (stat(root.c_str(), &st) != 0) {
+		if (StatPath(root, &st) != 0) {
 			errno = ENOENT;
 			return false;
 		}
@@ -487,7 +612,7 @@ bool Walk(const std::string &root, const std::vector<std::string> &parts, size_t
 				errno = ENOENT;
 				return false;
 			}
-			if (mkdir(current.c_str(), 0755) != 0 && errno != EEXIST)
+			if (MakeFolderPath(current, 0755) != 0 && errno != EEXIST)
 				return false;
 		}
 	}
@@ -539,7 +664,7 @@ bool Resolve(const char *clientPath, Mode mode, Resolved *result)
 			result->foreign = true;
 			if (mode == kRead) {
 				struct stat st;
-				if (stat(path.c_str(), &st) != 0)
+				if (StatPath(path, &st) != 0)
 					return false;
 			}
 			return true;
@@ -603,7 +728,7 @@ void FillInfo(const std::string &path, const struct stat &st, bf_location locati
 	info->modified = (int64_t)st.st_mtimespec.tv_sec;
 	info->is_folder = S_ISDIR(st.st_mode) ? 1 : 0;
 	if (foreign)
-		info->read_only = access(path.c_str(), W_OK) == 0 ? 0 : 1;
+		info->read_only = AccessPath(path, W_OK) == 0 ? 0 : 1;
 	else
 		info->read_only = location == BF_LOCATION_GAME ? 1 : 0;
 }
@@ -742,7 +867,7 @@ extern "C" bf_file *bf_file_open(const char *client_path, unsigned flags)
 	if (flags & BF_FILE_APPEND)
 		oflags |= O_APPEND;
 
-	int fd = open(path.c_str(), oflags, 0644);
+	int fd = OpenPath(path, oflags, 0644);
 	if (fd < 0) {
 		int error = errno;
 		BF_TRACE(BFT_FILE, "file: open %s: %s", path.c_str(), strerror(error));
@@ -886,7 +1011,7 @@ extern "C" FILE *bf_file_fopen(const char *client_path, const char *mode)
 		if (*m != 't')
 			native[n++] = *m;
 	native[n] = 0;
-	FILE *file = fopen(resolved, native);
+	FILE *file = FopenPath(resolved, native);
 	BF_TRACE(BFT_FILE, "fopen(%s, %s) = %s%s", client_path, mode, resolved, file ? "" : " (failed)");
 	return file;
 }
@@ -953,7 +1078,7 @@ extern "C" int bf_file_stat(const char *client_path, bf_file_info *info)
 	if (!Resolve(client_path, kRead, &r))
 		return 0;
 	struct stat st;
-	if (stat(r.path.c_str(), &st) != 0)
+	if (StatPath(r.path, &st) != 0)
 		return 0;
 	if (info)
 		FillInfo(r.path, st, r.location, r.foreign, info);
@@ -978,7 +1103,7 @@ extern "C" bf_file_find *bf_file_find_first(const char *client_pattern, bf_file_
 	if (!HasWildcard(last)) {
 		Resolved r;
 		struct stat st;
-		if (!last.empty() && Resolve(client_pattern, kRead, &r) && stat(r.path.c_str(), &st) == 0) {
+		if (!last.empty() && Resolve(client_pattern, kRead, &r) && StatPath(r.path, &st) == 0) {
 			bf_file_info entry;
 			FillInfo(r.path, st, r.location, r.foreign, &entry);
 			find->entries.push_back(entry);
@@ -1002,7 +1127,7 @@ extern "C" bf_file_find *bf_file_find_first(const char *client_pattern, bf_file_
 			else
 				found = false;
 		}
-		DIR *dir = found ? opendir(r.path.c_str()) : NULL;
+		DIR *dir = found ? OpenFolder(r.path) : NULL;
 		if (dir) {
 			std::map<std::string, bf_file_info> sorted;
 			while (struct dirent *e = readdir(dir)) {
@@ -1013,7 +1138,7 @@ extern "C" bf_file_find *bf_file_find_first(const char *client_pattern, bf_file_
 					continue;
 				std::string full = r.path + "/" + name;
 				struct stat st;
-				if (stat(full.c_str(), &st) != 0)
+				if (StatPath(full, &st) != 0)
 					continue;
 				bf_file_info entry;
 				FillInfo(full, st, r.location, r.foreign, &entry);
@@ -1061,11 +1186,11 @@ extern "C" int bf_file_make_folder(const char *client_path)
 	// location itself (<game>\ScreenShot is Pictures/<name>) would then be
 	// reported as existing on the call that made it (CMode::ScreenShot gives
 	// up when _mkdir fails, so the first screenshot was lost).
-	if (Resolve(client_path, kRead, &r) && stat(r.path.c_str(), &st) == 0)
+	if (Resolve(client_path, kRead, &r) && StatPath(r.path, &st) == 0)
 		return S_ISDIR(st.st_mode) ? 0 : (errno = EEXIST, -1);
 	if (!Resolve(client_path, kWrite, &r))
 		return -1;
-	if (stat(r.path.c_str(), &st) == 0)
+	if (StatPath(r.path, &st) == 0)
 		return S_ISDIR(st.st_mode) ? 1 : (errno = EEXIST, -1);
 	if (!MakeFolders(r.path))
 		return -1;
@@ -1078,7 +1203,7 @@ extern "C" int bf_file_remove(const char *client_path)
 	Resolved r;
 	if (!Resolve(client_path, kWriteNoCreate, &r))
 		return -1;
-	return unlink(r.path.c_str()) == 0 ? 0 : -1;
+	return UnlinkPath(r.path, 0) == 0 ? 0 : -1;
 }
 
 extern "C" int bf_file_remove_folder(const char *client_path)
@@ -1087,7 +1212,7 @@ extern "C" int bf_file_remove_folder(const char *client_path)
 	Resolved r;
 	if (!Resolve(client_path, kWriteNoCreate, &r))
 		return -1;
-	if (rmdir(r.path.c_str()) != 0)
+	if (UnlinkPath(r.path, AT_REMOVEDIR) != 0)
 		return -1;
 	g_listings.erase(r.path);
 	return 0;
@@ -1099,7 +1224,7 @@ extern "C" int bf_file_rename(const char *from_client_path, const char *to_clien
 	Resolved from, to;
 	if (!Resolve(from_client_path, kWriteNoCreate, &from) || !Resolve(to_client_path, kWrite, &to))
 		return -1;
-	return rename(from.path.c_str(), to.path.c_str()) == 0 ? 0 : -1;
+	return RenamePath(from.path, to.path) == 0 ? 0 : -1;
 }
 
 extern "C" void bf_file_flush_cache(void)

@@ -39,6 +39,13 @@
  * home folder for the three write locations (tests write under the build
  * directory with it); the default game folder always uses the real home.
  *
+ * Long paths: a folder (the game folder, a write location) may have any
+ * path the kernel takes, up to PATH_MAX (1024 bytes) less one; a file in it
+ * whose whole path is longer is still reached by every function here (they
+ * open it relative to a folder above, with the *at calls). A resolved path
+ * of PATH_MAX or more (bf_file_resolve, bf_file_path) works only with these
+ * functions, not with the C library or another framework.
+ *
  * Every function may be called from any thread. Paths returned as
  * `const char *` stay valid until the process ends.
  */
