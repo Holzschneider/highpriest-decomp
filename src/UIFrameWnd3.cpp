@@ -2710,7 +2710,7 @@ INT_PTR UIMemorialDunWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, I
 			break;
 		case ID_CANCEL: {
 			PACKET_CZ_MEMORIALDUNGEON_COMMAND p;
-			p.PacketType = 0x2cf;
+			p.PacketType = HEADER_CZ_MEMORIALDUNGEON_COMMAND;
 			if (g_session.m_dunState == 0)
 				p.Command = PACKET_CZ_MEMORIALDUNGEON_COMMAND::COMMAND_SUBSCRIPTION_CANCEL;
 			else if (g_session.m_dunState == 1)

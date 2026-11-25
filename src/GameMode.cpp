@@ -2768,7 +2768,7 @@ void	CGameMode :: SynchronizeTimeWithServer(bool syncNow)
 	m_syncRequestTime = timeGetTime();
 
 	PACKET_CZ_REQUEST_TIME p;
-	p.PacketType = 0x89;
+	p.PacketType = HEADER_CZ_REQUEST_TIME;
 	SetPaddingValue(p.pad, sizeof(p.pad));
 	p.clientTime = timeGetTime();
 	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
@@ -2803,7 +2803,7 @@ void	CGameMode :: RequestActorName(DWORD aid)
 	m_actorNameReqTimer[aid] = timeGetTime();
 
 	PACKET_CZ_REQNAME p;
-	p.PacketType = 0x8c;
+	p.PacketType = HEADER_CZ_REQNAME;
 	SetPaddingValue(p.pad, sizeof(p.pad));
 	p.AID = aid;
 	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
@@ -2853,7 +2853,7 @@ void	CGameMode :: RequestActorNameByGID(DWORD gid)
 	m_actorNameByGIDReqTimer[gid] = timeGetTime();
 
 	PACKET_CZ_REQNAME_BYGID p;
-	p.PacketType = 0xa2;
+	p.PacketType = HEADER_CZ_REQNAME_BYGID;
 	SetPaddingValue(p.pad, sizeof(p.pad));
 	p.GID = gid;
 	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);

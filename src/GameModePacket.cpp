@@ -2411,7 +2411,7 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 		CRagConnection::instanceR().SetDelay(1000);
 
 		PACKET_CZ_ENTER p;
-		p.PacketType = 0x9b;
+		p.PacketType = HEADER_CZ_ENTER;
 		SetPaddingValue(p.pad, 2);
 		SetPaddingValue(p.pad2, 1);
 		SetPaddingValue(p.pad3, 4);
@@ -14261,1275 +14261,1275 @@ void CGameMode::PollNetworkStatus()
 	while (CRagConnection::instanceR().RecvPacket(buf)) {
 		int packetType = CRagConnection::instanceR().GetPacketType(buf);
 		switch (packetType) {
-		case 117:
+		case HEADER_ZC_NOTIFY_INITCHAR:
 			break;
-		case 118:
+		case HEADER_ZC_NOTIFY_UPDATECHAR:
 			break;
-		case 119:
+		case HEADER_ZC_NOTIFY_UPDATEPLAYER:
 			break;
-		case 777:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 819; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M01:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M01; ReassemblyCertify(p); }
 			break;
-		case 120:
+		case HEADER_ZC_NOTIFY_STANDENTRY:
 			Zc_Notify_Standentry(buf);
 			break;
-		case 756:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M1:
 			Zc_Item_Fall_Entry2(buf);
 			break;
-		case 124:
+		case HEADER_ZC_NOTIFY_STANDENTRY_NPC:
 			Zc_Notify_Standentry_Npc(buf);
 			break;
-		case 122:
+		case HEADER_ZC_NOTIFY_ACTENTRY:
 			Zc_Notify_Actentry(buf);
 			break;
-		case 123:
+		case HEADER_ZC_NOTIFY_MOVEENTRY:
 			Zc_Notify_Moveentry(buf);
 			break;
-		case 778:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 820; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M02:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M02; ReassemblyCertify(p); }
 			break;
-		case 128:
+		case HEADER_ZC_NOTIFY_VANISH:
 			Zc_Notify_Vanish(buf);
 			break;
-		case 771:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M2:
 			Zc_Notify_Npc_Standentry__m2(buf);
 			break;
-		case 131:
+		case HEADER_ZC_ACCEPT_QUIT:
 			Zc_Accept_Quit(buf);
 			break;
-		case 129:
+		case HEADER_SC_NOTIFY_BAN:
 			Sc_Notify_Ban(buf);
 			break;
-		case 132:
+		case HEADER_ZC_REFUSE_QUIT:
 			Zc_Refuse_Quit(buf);
 			break;
-		case 779:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 821; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M03:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M03; ReassemblyCertify(p); }
 			break;
-		case 134:
+		case HEADER_ZC_NOTIFY_MOVE:
 			Zc_Notify_Move(buf);
 			break;
-		case 135:
+		case HEADER_ZC_NOTIFY_PLAYERMOVE:
 			Zc_Notify_Playermove(buf);
 			break;
-		case 138:
+		case HEADER_ZC_NOTIFY_ACT:
 			{
 				PACKET_ZC_NOTIFY_ACT *p = (PACKET_ZC_NOTIFY_ACT *)buf;
 				Zc_Notify_Act(p->GID, p->targetGID, p->startTime, p->attackMT, p->attackedMT, p->damage, p->count, p->action, p->leftDamage);
 			}
 			break;
-		case 780:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 822; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M04:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M04; ReassemblyCertify(p); }
 			break;
-		case 737:
+		case HEADER_ZC_NOTIFY_ACT2:
 			{
 				PACKET_ZC_NOTIFY_ACT2 *p = (PACKET_ZC_NOTIFY_ACT2 *)buf;
 				Zc_Notify_Act(p->GID, p->targetGID, p->startTime, p->attackMT, p->attackedMT, p->damage, p->count, p->action, p->leftDamage);
 			}
 			break;
-		case 142:
+		case HEADER_ZC_NOTIFY_PLAYERCHAT:
 			Zc_Notify_Playerchat(buf);
 			break;
-		case 141:
+		case HEADER_ZC_NOTIFY_CHAT:
 			Zc_Notify_Chat(buf);
 			break;
-		case 781:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 823; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M05:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M05; ReassemblyCertify(p); }
 			break;
-		case 127:
+		case HEADER_ZC_NOTIFY_TIME:
 			Zc_Notify_Time(buf);
 			break;
-		case 774:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M5:
 			Zc_Notify_Npc_Standentry__m5(buf);
 			break;
-		case 145:
+		case HEADER_ZC_NPCACK_MAPMOVE:
 			Zc_Npcack_Mapmove(buf);
-		case 147:
+		case HEADER_ZC_NPCACK_ENABLE:
 			Zc_Npcack_Enable(buf);
 			break;
-		case 782:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 824; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M06:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M06; ReassemblyCertify(p); }
 			break;
-		case 146:
+		case HEADER_ZC_NPCACK_SERVERMOVE:
 			Zc_Npcack_Servermove(buf);
 			break;
-		case 115:
+		case HEADER_ZC_ACCEPT_ENTER:
 			Zc_Accept_Enter(buf);
 			break;
-		case 764:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M2:
 			Zc_Notify_Moveentry5__m2(buf);
 			break;
-		case 747:
+		case HEADER_ZC_ACCEPT_ENTER2:
 			Zc_Accept_Enter2(buf);
 			break;
-		case 783:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 825; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M07:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M07; ReassemblyCertify(p); }
 			break;
-		case 149:
+		case HEADER_ZC_ACK_REQNAME:
 			Zc_Ack_Reqname(buf); RAG_BUDGET_SITES(14)
 			break;
-		case 765:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M3:
 			Zc_Notify_Moveentry5__m1(buf);
 			break;
-		case 154:
+		case HEADER_ZC_BROADCAST:
 			Zc_Broadcast(buf);
 			break;
-		case 151:
+		case HEADER_ZC_WHISPER:
 			Zc_Whisper(buf);
 			break;
-		case 784:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 826; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M08:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M08; ReassemblyCertify(p); }
 			break;
-		case 152:
+		case HEADER_ZC_ACK_WHISPER:
 			Zc_Ack_Whisper(buf);
 			break;
-		case 156:
+		case HEADER_ZC_CHANGE_DIRECTION:
 			Zc_Change_Direction(buf);
 			break;
-		case 205:
+		case HEADER_ZC_ACK_DISCONNECT_CHARACTER:
 			Zc_Ack_Disconnect_Character(buf);
 			break;
-		case 772:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M3:
 			Zc_Notify_Npc_Standentry__m2(buf);
 			break;
-		case 157:
+		case HEADER_ZC_ITEM_ENTRY:
 			Zc_Item_Entry(buf);
 			break;
-		case 160:
+		case HEADER_ZC_ITEM_PICKUP_ACK:
 			Zc_Item_Pickup_Ack(buf);
 			break;
-		case 785:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 827; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M09:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M09; ReassemblyCertify(p); }
 			break;
-		case 161:
+		case HEADER_ZC_ITEM_DISAPPEAR:
 			Zc_Item_Disappear(buf);
 			break;
-		case 163:
+		case HEADER_ZC_NORMAL_ITEMLIST:
 			Zc_Normal_Itemlist(buf);
 			break;
-		case 494:
+		case HEADER_ZC_NORMAL_ITEMLIST2:
 			Zc_Normal_Itemlist2(buf);
 			break;
-		case 744:
+		case HEADER_ZC_NORMAL_ITEMLIST3:
 			Zc_Normal_Itemlist3(buf);
 			break;
-		case 786:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 828; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M10:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M10; ReassemblyCertify(p); }
 			break;
-		case 164:
+		case HEADER_ZC_EQUIPMENT_ITEMLIST:
 			Zc_Equipment_Itemlist(buf);
 			break;
-		case 158:
+		case HEADER_ZC_ITEM_FALL_ENTRY:
 			Zc_Item_Fall_Entry(buf);
 			break;
-		case 136:
+		case HEADER_ZC_STOPMOVE:
 			Zc_Stopmove(buf);
 			break;
-		case 787:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 829; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M11:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M11; ReassemblyCertify(p); }
 			break;
-		case 511:
+		case HEADER_ZC_HIGHJUMP:
 			Zc_HighJump(buf);
 			break;
-		case 176:
+		case HEADER_ZC_PAR_CHANGE:
 			Zc_Par_Change(buf);
 			break;
-		case 177:
+		case HEADER_ZC_LONGPAR_CHANGE:
 			Zc_Longpar_Change(buf);
 			break;
-		case 788:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 830; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M12:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M12; ReassemblyCertify(p); }
 			break;
-		case 168:
+		case HEADER_ZC_USE_ITEM_ACK:
 			Zc_Use_Item_Ack(buf);
 			break;
-		case 170:
+		case HEADER_ZC_REQ_WEAR_EQUIP_ACK:
 			Zc_Req_Wear_Equip_Ack(buf);
 			break;
-		case 172:
+		case HEADER_ZC_REQ_TAKEOFF_EQUIP_ACK:
 			Zc_Req_Takeoff_Equip_Ack(buf);
 			break;
-		case 175:
+		case HEADER_ZC_ITEM_THROW_ACK:
 			Zc_Item_Throw_Ack(buf);
 			break;
-		case 789:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 831; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M13:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M13; ReassemblyCertify(p); }
 			break;
-		case 180:
+		case HEADER_ZC_SAY_DIALOG:
 			Zc_Say_Dialog(buf);
 			break;
-		case 181:
+		case HEADER_ZC_WAIT_DIALOG:
 			Zc_Wait_Dialog(buf);
 			break;
-		case 182:
+		case HEADER_ZC_CLOSE_DIALOG:
 			Zc_Close_Dialog(buf);
 			break;
-		case 183:
+		case HEADER_ZC_MENU_LIST:
 			Zc_Menu_List(buf);
 			break;
-		case 790:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 832; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M14:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M14; ReassemblyCertify(p); }
 			break;
-		case 179:
+		case HEADER_ZC_RESTART_ACK:
 			Zc_Restart_Ack(buf);
 			break;
-		case 188:
+		case HEADER_ZC_STATUS_CHANGE_ACK:
 			Zc_Status_Change_Ack(buf);
 			break;
-		case 189:
+		case HEADER_ZC_STATUS:
 			Zc_Status(buf);
 			break;
-		case 190:
+		case HEADER_ZC_STATUS_CHANGE:
 			Zc_Status_Change(buf);
 			break;
-		case 192:
+		case HEADER_ZC_EMOTION:
 			Zc_Emotion(buf);
 			break;
-		case 194:
+		case HEADER_ZC_USER_COUNT:
 			Zc_User_Count(buf);
 			break;
-		case 537:
+		case HEADER_ZC_BLACKSMITH_RANK:
 			ZC_BLACKSMITH_RANK(buf);
 			break;
-		case 791:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 833; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M15:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M15; ReassemblyCertify(p); }
 			break;
-		case 538:
+		case HEADER_ZC_ALCHEMIST_RANK:
 			ZC_ALCHEMIST_RANK(buf);
 			break;
-		case 550:
+		case HEADER_ZC_TAEKWON_RANK:
 			ZC_TAEKWON_RANK(buf);
 			break;
-		case 642:
+		case HEADER_ZC_GANGSI_RANK:
 			ZC_GANGSI_RANK(buf);
 			break;
-		case 539:
+		case HEADER_ZC_BLACKSMITH_POINT:
 			ZC_BLACKSMITH_POINT(buf);
 			break;
-		case 540:
+		case HEADER_ZC_ALCHEMIST_POINT:
 			ZC_ALCHEMIST_POINT(buf);
 			break;
-		case 792:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 834; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M16:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M16; ReassemblyCertify(p); }
 			break;
-		case 548:
+		case HEADER_ZC_TAEKWON_POINT:
 			ZC_TAEKWON_POINT(buf);
 			break;
-		case 640:
+		case HEADER_ZC_GANGSI_POINT:
 			ZC_GANGSI_POINT(buf);
 			break;
-		case 645:
+		case HEADER_ZC_DEATH_QUESTION:
 			ZC_DEATH_QUESTION(buf);
 			break;
-		case 770:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M1:
 			Zc_Notify_Npc_Standentry__m1(buf);
 			break;
-		case 121:
+		case HEADER_ZC_NOTIFY_NEWENTRY:
 			Zc_Notify_Newentry(buf);
 			break;
-		case 793:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 835; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M17:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M17; ReassemblyCertify(p); }
 			break;
-		case 195:
+		case HEADER_ZC_SPRITE_CHANGE:
 			Zc_Sprite_Change(buf);
 			break;
-		case 196:
+		case HEADER_ZC_SELECT_DEALTYPE:
 			Zc_Select_Dealtype(buf);
 			break;
-		case 198:
+		case HEADER_ZC_PC_PURCHASE_ITEMLIST:
 			Zc_Pc_Purchase_Itemlist(buf);
 			break;
-		case 199:
+		case HEADER_ZC_PC_SELL_ITEMLIST:
 			Zc_Pc_Sell_Itemlist(buf);
 			break;
-		case 794:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 836; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M18:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M18; ReassemblyCertify(p); }
 			break;
-		case 202:
+		case HEADER_ZC_PC_PURCHASE_RESULT:
 			Zc_Pc_Purchase_Result(buf);
 			break;
-		case 203:
+		case HEADER_ZC_PC_SELL_RESULT:
 			Zc_Pc_Sell_Result(buf);
 			break;
-		case 758:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M3:
 			Zc_Item_Fall_Entry2(buf);
 			break;
-		case 795:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 837; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M19:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M19; ReassemblyCertify(p); }
 			break;
-		case 209:
+		case HEADER_ZC_SETTING_WHISPER_PC:
 			Zc_Setting_Whisper_Pc(buf);
 			break;
-		case 210:
+		case HEADER_ZC_SETTING_WHISPER_STATE:
 			Zc_Setting_Whisper_State(buf);
 			break;
-		case 212:
+		case HEADER_ZC_WHISPER_LIST:
 			Zc_Whisper_List(buf);
 			break;
-		case 796:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 838; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M20:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M20; ReassemblyCertify(p); }
 			break;
-		case 214:
+		case HEADER_ZC_ACK_CREATE_CHATROOM:
 			Zc_Ack_Create_Chatroom(buf);
 			break;
-		case 215:
+		case HEADER_ZC_ROOM_NEWENTRY:
 			Zc_Room_Newentry(buf);
 			break;
-		case 797:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 839; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M21:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M21; ReassemblyCertify(p); }
 			break;
-		case 216:
+		case HEADER_ZC_DESTROY_ROOM:
 			Zc_Destroy_Room(buf);
 			break;
-		case 219:
+		case HEADER_ZC_ENTER_ROOM:
 			Zc_Enter_Room(buf);
 			break;
-		case 220:
+		case HEADER_ZC_MEMBER_NEWENTRY:
 			Zc_Member_Newentry(buf);
 			break;
-		case 798:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 840; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M22:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M22; ReassemblyCertify(p); }
 			break;
-		case 221:
+		case HEADER_ZC_MEMBER_EXIT:
 			Zc_Member_Exit(buf);
 			break;
-		case 225:
+		case HEADER_ZC_ROLE_CHANGE:
 			Zc_Role_Change(buf);
 			break;
-		case 799:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 841; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M23:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M23; ReassemblyCertify(p); }
 			break;
-		case 218:
+		case HEADER_ZC_REFUSE_ENTER_ROOM:
 			Zc_Refuse_Enter_Room(buf);
 			break;
-		case 223:
+		case HEADER_ZC_CHANGE_CHATROOM:
 			Zc_Change_Chatroom(buf);
 			break;
-		case 800:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 842; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M24:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M24; ReassemblyCertify(p); }
 			break;
-		case 229:
+		case HEADER_ZC_REQ_EXCHANGE_ITEM:
 			Zc_Req_Exchange_Item(buf);
 			break;
-		case 500:
+		case HEADER_ZC_REQ_EXCHANGE_ITEM2:
 			Zc_Req_Exchange_Item2(buf);
 			break;
-		case 801:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 843; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M25:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M25; ReassemblyCertify(p); }
 			break;
-		case 231:
+		case HEADER_ZC_ACK_EXCHANGE_ITEM:
 			Zc_Ack_Exchange_Item(buf);
 			break;
-		case 501:
+		case HEADER_ZC_ACK_EXCHANGE_ITEM2:
 			Zc_Ack_Exchange_Item2(buf);
 			break;
-		case 233:
+		case HEADER_ZC_ADD_EXCHANGE_ITEM:
 			Zc_Add_Exchange_Item(buf);
 			break;
-		case 802:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 844; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M26:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M26; ReassemblyCertify(p); }
 			break;
-		case 234:
+		case HEADER_ZC_ACK_ADD_EXCHANGE_ITEM:
 			Zc_Ack_Add_Exchange_Item(buf);
 			break;
-		case 236:
+		case HEADER_ZC_CONCLUDE_EXCHANGE_ITEM:
 			Zc_Conclude_Exchange_Item(buf);
 			break;
-		case 238:
+		case HEADER_ZC_CANCEL_EXCHANGE_ITEM:
 			Zc_Cancel_Exchange_Item(buf);
 			break;
-		case 240:
+		case HEADER_ZC_EXEC_EXCHANGE_ITEM:
 			Zc_Exec_Exchange_Item(buf);
 			break;
-		case 803:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 845; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M27:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M27; ReassemblyCertify(p); }
 			break;
-		case 241:
+		case HEADER_ZC_EXCHANGEITEM_UNDO:
 			Zc_Exchangeitem_Undo(buf);
 			break;
-		case 165:
+		case HEADER_ZC_STORE_NORMAL_ITEMLIST:
 			Zc_Store_Normal_Itemlist(buf);
 			break;
-		case 496:
+		case HEADER_ZC_STORE_NORMAL_ITEMLIST2:
 			Zc_Store_Normal_Itemlist2(buf);
 			break;
-		case 804:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 846; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M28:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M28; ReassemblyCertify(p); }
 			break;
-		case 746:
+		case HEADER_ZC_STORE_NORMAL_ITEMLIST3:
 			Zc_Store_Normal_Itemlist3(buf);
 			break;
-		case 166:
+		case HEADER_ZC_STORE_EQUIPMENT_ITEMLIST:
 			Zc_Store_Equipment_Itemlist(buf);
 			break;
-		case 244:
+		case HEADER_ZC_ADD_ITEM_TO_STORE:
 			Zc_Add_Item_To_Store(buf);
 			break;
-		case 805:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 847; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M29:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M29; ReassemblyCertify(p); }
 			break;
-		case 246:
+		case HEADER_ZC_DELETE_ITEM_FROM_STORE:
 			Zc_Delete_Item_From_Store(buf);
 			break;
-		case 248:
+		case HEADER_ZC_CLOSE_STORE:
 			Zc_Close_Store(buf);
 			break;
-		case 242:
+		case HEADER_ZC_NOTIFY_STOREITEM_COUNTINFO:
 			Zc_Notify_Storeitem_Countinfo(buf);
 			break;
-		case 250:
+		case HEADER_ZC_ACK_MAKE_GROUP:
 			Zc_Ack_Make_Group(buf);
 			break;
-		case 806:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 848; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M30:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M30; ReassemblyCertify(p); }
 			break;
-		case 251:
+		case HEADER_ZC_GROUP_LIST:
 			Zc_Group_List(buf);
 			break;
-		case 253:
-		case 709:
+		case HEADER_ZC_ACK_REQ_JOIN_GROUP:
+		case HEADER_ZC_PARTY_JOIN_REQ_ACK:
 			Zc_Ack_Req_Join_Group(buf);
 			break;
-		case 254:
-		case 710:
+		case HEADER_ZC_REQ_JOIN_GROUP:
+		case HEADER_ZC_PARTY_JOIN_REQ:
 			Zc_Req_Join_Group(buf);
 			break;
-		case 482:
+		case HEADER_ZC_REQ_COUPLE:
 			Zc_Req_Couple(buf);
 			break;
-		case 807:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 849; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M31:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M31; ReassemblyCertify(p); }
 			break;
-		case 502:
+		case HEADER_ZC_REQ_BABY:
 			Zc_Req_Baby(buf);
 			break;
-		case 595:
+		case HEADER_ZC_STARPLACE:
 			Zc_StarPlace(buf);
 			break;
-		case 723:
+		case HEADER_ZC_NOTIFY_BIND_ON_EQUIP:
 			Zc_NotifyBindOnEquip(buf);
 			break;
-		case 733:
+		case HEADER_ZC_BATTLEFIELD_NOTIFY_CAMPINFO:
 			Zc_Battlefield_Notify_Campinfo(buf);
 			break;
-		case 751:
+		case HEADER_ZC_NOTIFY_FONT:
 			Zc_Notify_Font(buf);
 			break;
-		case 752:
+		case HEADER_ZC_PROGRESS:
 			Zc_Progress(buf);
 			break;
-		case 775:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M6:
 			Zc_Notify_Npc_Standentry__m5(buf);
 			break;
-		case 754:
+		case HEADER_ZC_PROGRESS_CANCEL:
 			Zc_Progress_Cancel(buf);
 			break;
-		case 808:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 850; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M32:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M32; ReassemblyCertify(p); }
 			break;
-		case 732:
+		case HEADER_ZC_BATTLEFIELD_CHAT:
 			Zc_Battlefield_Chat(buf);
 			break;
-		case 734:
+		case HEADER_ZC_BATTLEFIELD_NOTIFY_POINT:
 			Zc_Battlefield_Notify_Point(buf);
 			break;
-		case 735:
+		case HEADER_ZC_BATTLEFIELD_NOTIFY_POSITION:
 			Zc_Battlefield_Notify_Position(buf);
 			break;
-		case 736:
+		case HEADER_ZC_BATTLEFIELD_NOTIFY_HP:
 			Zc_Battlefield_Notify_Hp(buf);
 			break;
-		case 809:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 851; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M33:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M33; ReassemblyCertify(p); }
 			break;
-		case 526:
+		case HEADER_ZC_STARSKILL:
 			Zc_StarSkill(buf);
 			break;
-		case 532:
+		case HEADER_ZC_ACK_STATUS_GM:
 			Zc_Ack_Status_GM(buf);
 			break;
-		case 260:
+		case HEADER_ZC_ADD_MEMBER_TO_GROUP:
 			Zc_Add_Member_To_Group(buf);
 			break;
-		case 810:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 852; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M34:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M34; ReassemblyCertify(p); }
 			break;
-		case 489:
+		case HEADER_ZC_ADD_MEMBER_TO_GROUP2:
 			Zc_Add_Member_To_Group2(buf);
 			break;
-		case 261:
+		case HEADER_ZC_DELETE_MEMBER_FROM_GROUP:
 			Zc_Delete_Member_From_Group(buf);
 			break;
-		case 811:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 853; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M35:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M35; ReassemblyCertify(p); }
 			break;
-		case 262:
+		case HEADER_ZC_NOTIFY_HP_TO_GROUPM:
 			Zc_Notify_Hp_To_Groupm(buf);
 			break;
-		case 263:
+		case HEADER_ZC_NOTIFY_POSITION_TO_GROUPM:
 			Zc_Notify_Position_To_Groupm(buf);
 			break;
-		case 491:
+		case HEADER_ZC_NOTIFY_POSITION_TO_GUILDM:
 			Zc_Notify_Position_To_Guildm(buf);
 			break;
-		case 492:
+		case HEADER_ZC_GUILD_MEMBER_MAP_CHANGE:
 			Zc_Guild_Member_Map_Change(buf);
 			break;
-		case 265:
+		case HEADER_ZC_NOTIFY_CHAT_PARTY:
 			Zc_Notify_Chat_Party(buf);
 			break;
-		case 812:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 854; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M36:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M36; ReassemblyCertify(p); }
 			break;
-		case 266:
+		case HEADER_ZC_MVP_GETTING_ITEM:
 			Zc_Mvp_Getting_Item(buf);
 			break;
-		case 267:
+		case HEADER_ZC_MVP_GETTING_SPECIAL_EXP:
 			Zc_Mvp_Getting_Special_Exp(buf);
 			break;
-		case 268:
+		case HEADER_ZC_MVP:
 			Zc_Mvp(buf);
 			break;
-		case 269:
+		case HEADER_ZC_THROW_MVPITEM:
 			Zc_Throw_Mvpitem(buf);
 			break;
-		case 270:
-		case 569:
-		case 670:
+		case HEADER_ZC_SKILLINFO_UPDATE:
+		case HEADER_ZC_HOSKILLINFO_UPDATE:
+		case HEADER_ZC_MER_SKILLINFO_UPDATE:
 			Zc_Skillinfo_Update(buf);
 			break;
-		case 271:
-		case 565:
-		case 669:
+		case HEADER_ZC_SKILLINFO_LIST:
+		case HEADER_ZC_HOSKILLINFO_LIST:
+		case HEADER_ZC_MER_SKILLINFO_LIST:
 			Zc_Skillinfo_List(buf);
 			break;
-		case 689:
+		case HEADER_ZC_ALL_QUEST_LIST:
 			Zc_All_Quest_List(buf);
 			break;
-		case 690:
+		case HEADER_ZC_ALL_QUEST_MISSION:
 			Zc_All_Quest_Mission(buf);
 			break;
-		case 693:
+		case HEADER_ZC_UPDATE_MISSION_HUNT:
 			Zc_Update_Mission_Hunt(buf);
 			break;
-		case 813:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 855; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M37:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M37; ReassemblyCertify(p); }
 			break;
-		case 695:
+		case HEADER_ZC_ACTIVE_QUEST:
 			Zc_Active_Quest(buf);
 			break;
-		case 691:
+		case HEADER_ZC_ADD_QUEST:
 			Zc_Add_Quest(buf);
 			break;
-		case 761:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M6:
 			Zc_Item_Fall_Entry2(buf);
 			break;
-		case 814:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 856; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M38:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M38; ReassemblyCertify(p); }
 			break;
-		case 692:
+		case HEADER_ZC_DEL_QUEST:
 			Zc_Del_Quest(buf);
 			break;
-		case 272:
+		case HEADER_ZC_ACK_TOUSESKILL:
 			Zc_Ack_Touseskill(buf);
 			break;
-		case 533:
+		case HEADER_ZC_SKILLMSG:
 			Zc_SKILLMSG(buf);
 			break;
-		case 534:
+		case HEADER_ZC_BABYMSG:
 			Zc_BABYMSG(buf);
 			break;
-		case 273:
+		case HEADER_ZC_ADD_SKILL:
 			Zc_Add_Skill(buf);
 			break;
-		case 276:
+		case HEADER_ZC_NOTIFY_SKILL:
 			Zc_Notify_Skill(buf);
 			break;
-		case 815:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 857; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M39:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M39; ReassemblyCertify(p); }
 			break;
-		case 279:
+		case HEADER_ZC_NOTIFY_GROUNDSKILL:
 			Zc_Notify_Groundskill(buf);
 			break;
-		case 281:
+		case HEADER_ZC_STATE_CHANGE:
 			Zc_State_Change(buf);
 			break;
-		case 553:
+		case HEADER_ZC_STATE_CHANGE3:
 			Zc_State_Change3(buf);
 			break;
-		case 282:
+		case HEADER_ZC_USE_SKILL:
 			Zc_Use_Skill(buf);
 			break;
-		case 287:
+		case HEADER_ZC_SKILL_ENTRY:
 			Zc_Skill_Entry(buf);
 			break;
-		case 288:
+		case HEADER_ZC_SKILL_DISAPPEAR:
 			Zc_Skill_Disappear(buf);
 			break;
-		case 139:
+		case HEADER_ZC_NOTIFY_ACT_POSITION:
 			Zc_Notify_Act_Position(buf);
 			break;
-		case 277:
+		case HEADER_ZC_NOTIFY_SKILL_POSITION:
 			Zc_Notify_Skill_Position(buf);
 			break;
-		case 284:
+		case HEADER_ZC_WARPLIST:
 			Zc_Warplist(buf);
 			break;
-		case 286:
+		case HEADER_ZC_ACK_REMEMBER_WARPPOINT:
 			Zc_Ack_Remember_Warppoint(buf);
 			break;
-		case 816:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 858; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M40:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M40; ReassemblyCertify(p); }
 			break;
-		case 289:
+		case HEADER_ZC_NOTIFY_CARTITEM_COUNTINFO:
 			Zc_Notify_Cartitem_Countinfo(buf);
 			break;
-		case 291:
+		case HEADER_ZC_CART_NORMAL_ITEMLIST:
 			Zc_Cart_Normal_Itemlist(buf);
 			break;
-		case 495:
+		case HEADER_ZC_CART_NORMAL_ITEMLIST2:
 			Zc_Cart_Normal_Itemlist2(buf);
 			break;
-		case 745:
+		case HEADER_ZC_CART_NORMAL_ITEMLIST3:
 			Zc_Cart_Normal_Itemlist3(buf);
 			break;
-		case 290:
+		case HEADER_ZC_CART_EQUIPMENT_ITEMLIST:
 			Zc_Cart_Equipment_Itemlist(buf);
 			break;
-		case 299:
+		case HEADER_ZC_CARTOFF:
 			Zc_Cartoff(buf);
 			break;
-		case 817:
-			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = 859; ReassemblyCertify(p); }
+		case HEADER_ZC_REASSEMBLY_CERTIFY__M41:
+			{ PACKET_CZ_REASSEMBLY_IDENTITY p = {0}; p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY__M41; ReassemblyCertify(p); }
 			break;
-		case 300:
+		case HEADER_ZC_ACK_ADDITEM_TO_CART:
 			Zc_Ack_Additem_To_Cart(buf);
 			break;
-		case 292:
+		case HEADER_ZC_ADD_ITEM_TO_CART:
 			Zc_Add_Item_To_Cart(buf);
 			break;
-		case 293:
+		case HEADER_ZC_DELETE_ITEM_FROM_CART:
 			Zc_Delete_Item_From_Cart(buf);
 			break;
-		case 301:
+		case HEADER_ZC_OPENSTORE:
 			Zc_openstore(buf);
 			break;
-		case 305:
+		case HEADER_ZC_STORE_ENTRY:
 			Zc_store_entry(buf);
 			break;
-		case 306:
+		case HEADER_ZC_DISAPPEAR_ENTRY:
 			Zc_disappear_entry(buf);
 			break;
-		case 307:
+		case HEADER_ZC_PC_PURCHASE_ITEMLIST_FROMMC:
 			Zc_pc_purchase_itemlist_frommc(buf);
 			break;
-		case 309:
+		case HEADER_ZC_PC_PURCHASE_RESULT_FROMMC:
 			Zc_pc_purchase_result_frommc(buf);
 			break;
-		case 310:
+		case HEADER_ZC_PC_PURCHASE_MYITEMLIST:
 			Zc_pc_purchase_myitemlist(buf);
 			break;
-		case 311:
+		case HEADER_ZC_DELETEITEM_FROM_MCSTORE:
 			Zc_deleteitem_from_mcstore(buf);
 			break;
-		case 313:
+		case HEADER_ZC_ATTACK_FAILURE_FOR_DISTANCE:
 			Zc_attack_failure_for_distance(buf);
 			break;
-		case 314:
+		case HEADER_ZC_ATTACK_RANGE:
 			Zc_attack_range(buf);
 			break;
-		case 315:
+		case HEADER_ZC_ACTION_FAILURE:
 			Zc_action_failure(buf);
 			break;
-		case 316:
+		case HEADER_ZC_EQUIP_ARROW:
 			Zc_equip_arrow(buf);
 			break;
-		case 317:
+		case HEADER_ZC_RECOVERY:
 			Zc_recovery(buf);
 			break;
-		case 318:
+		case HEADER_ZC_USESKILL_ACK:
 			Zc_useskill_ack(buf);
 			break;
-		case 257:
+		case HEADER_ZC_GROUPINFO_CHANGE:
 			Zc_groupinfo_change(buf);
 			break;
-		case 321:
+		case HEADER_ZC_COUPLESTATUS:
 			Zc_couplestatus(buf);
 			break;
-		case 322:
+		case HEADER_ZC_OPEN_EDITDLG:
 			Zc_open_editdlg(buf);
 			break;
-		case 324:
+		case HEADER_ZC_COMPASS:
 			Zc_compass(buf);
 			break;
-		case 325:
+		case HEADER_ZC_SHOW_IMAGE:
 			Zc_show_image(buf);
 			break;
-		case 435:
+		case HEADER_ZC_SHOW_IMAGE2:
 			Zc_show_image2(buf);
 			break;
-		case 327:
+		case HEADER_ZC_AUTORUN_SKILL:
 			Zc_autorun_skill(buf);
 			break;
-		case 328:
+		case HEADER_ZC_RESURRECTION:
 			Zc_resurrection(buf);
 			break;
-		case 338:
+		case HEADER_ZC_GUILD_EMBLEM_IMG:
 			Zc_guild_emblem_img(buf);
 			break;
-		case 336:
+		case HEADER_ZC_GUILD_INFO:
 			Zc_guild_info(buf);
 			break;
-		case 356:
+		case HEADER_ZC_OTHER_GUILD_LIST:
 			Zc_other_guild_list(buf);
 			break;
-		case 359:
+		case HEADER_ZC_RESULT_MAKE_GUILD:
 			Zc_result_make_guild(buf);
 			break;
-		case 361:
+		case HEADER_ZC_ACK_REQ_JOIN_GUILD:
 			Zc_ack_req_join_guild(buf);
 			break;
-		case 362:
+		case HEADER_ZC_REQ_JOIN_GUILD:
 			Zc_req_join_guild(buf);
 			break;
-		case 332:
+		case HEADER_ZC_MYGUILD_BASIC_INFO:
 			Zc_myguild_basic_info(buf);
 			break;
-		case 334:
+		case HEADER_ZC_ACK_GUILD_MENUINTERFACE:
 			Zc_ack_guild_menuinterface(buf);
 			break;
-		case 340:
+		case HEADER_ZC_MEMBERMGR_INFO:
 			Zc_membermgr_info(buf);
 			break;
-		case 342:
+		case HEADER_ZC_ACK_REQ_CHANGE_MEMBERS:
 			Zc_ack_req_change_members(buf);
 			break;
-		case 344:
+		case HEADER_ZC_ACK_OPEN_MEMBER_INFO:
 			Zc_ack_open_member_info(buf);
 			break;
-		case 346:
+		case HEADER_ZC_ACK_LEAVE_GUILD:
 			Zc_ack_leave_guild(buf);
 			break;
-		case 348:
+		case HEADER_ZC_ACK_BAN_GUILD:
 			Zc_ack_ban_guild(buf);
 			break;
-		case 350:
+		case HEADER_ZC_ACK_DISORGANIZE_GUILD_RESULT:
 			Zc_ack_disorganize_guild_result(buf);
 			break;
-		case 351:
+		case HEADER_ZC_ACK_DISORGANIZE_GUILD:
 			Zc_ack_disorganize_guild(buf);
 			break;
-		case 352:
+		case HEADER_ZC_POSITION_INFO:
 			Zc_position_info(buf);
 			break;
-		case 355:
+		case HEADER_ZC_BAN_LIST:
 			Zc_ban_list(buf);
 			break;
-		case 358:
+		case HEADER_ZC_POSITION_ID_NAME_INFO:
 			Zc_position_id_name_info(buf);
 			break;
-		case 364:
+		case HEADER_ZC_UPDATE_GDID:
 			Zc_update_gdid(buf);
 			break;
-		case 365:
+		case HEADER_ZC_UPDATE_CHARSTAT:
 			Zc_update_charstat(buf);
 			break;
-		case 498:
+		case HEADER_ZC_UPDATE_CHARSTAT2:
 			Zc_update_charstat2(buf);
 			break;
-		case 330:
+		case HEADER_ZC_ACK_GIVE_MANNER_POINT:
 			Zc_ack_give_manner_point(buf);
 			break;
-		case 331:
+		case HEADER_ZC_NOTIFY_MANNER_POINT_GIVEN:
 			Zc_notify_manner_point_given(buf);
 			break;
-		case 367:
+		case HEADER_ZC_GUILD_NOTICE:
 			Zc_guild_notice(buf);
 			break;
-		case 383:
+		case HEADER_ZC_GUILD_CHAT:
 			Zc_guild_chat(buf);
 			break;
-		case 369:
+		case HEADER_ZC_REQ_ALLY_GUILD:
 			Zc_req_ally_guild(buf);
 			break;
-		case 371:
+		case HEADER_ZC_ACK_REQ_ALLY_GUILD:
 			Zc_ack_req_ally_guild(buf);
 			break;
-		case 372:
+		case HEADER_ZC_ACK_CHANGE_GUILD_POSITIONINFO:
 			Zc_ack_change_guild_positioninfo(buf);
 			break;
-		case 375:
+		case HEADER_ZC_ITEMIDENTIFY_LIST:
 			Zc_itemidentify_list(buf);
 			break;
-		case 377:
+		case HEADER_ZC_ACK_ITEMIDENTIFY:
 			Zc_ack_itemidentify(buf);
 			break;
-		case 379:
+		case HEADER_ZC_ITEMCOMPOSITION_LIST:
 			Zc_itemcomposition_list(buf);
 			break;
-		case 381:
+		case HEADER_ZC_ACK_ITEMCOMPOSITION:
 			Zc_ack_itemcomposition(buf);
 			break;
-		case 385:
+		case HEADER_ZC_ACK_REQ_HOSTILE_GUILD:
 			Zc_ack_req_hostile_guild(buf);
 			break;
-		case 386:
+		case HEADER_ZC_MEMBER_ADD:
 			Zc_member_add(buf);
 			break;
-		case 388:
+		case HEADER_ZC_DELETE_RELATED_GUILD:
 			Zc_delete_related_guild(buf);
 			break;
-		case 389:
+		case HEADER_ZC_ADD_RELATED_GUILD:
 			Zc_add_related_guild(buf);
 			break;
-		case 392:
+		case HEADER_ZC_ACK_ITEMREFINING:
 			Zc_ack_itemrefining(buf);
 			break;
-		case 391:
+		case HEADER_PING:
 			break;
-		case 393:
+		case HEADER_ZC_NOTIFY_MAPINFO:
 			Zc_notify_mapinfo(buf);
 			break;
-		case 395:
+		case HEADER_ZC_ACK_REQ_DISCONNECT:
 			Zc_ack_req_disconnect(buf);
 			break;
-		case 396:
+		case HEADER_ZC_MONSTER_INFO:
 			Zc_monster_info(buf);
 			break;
-		case 397:
+		case HEADER_ZC_MAKABLEITEMLIST:
 			Zc_makable_item_list(buf);
 			break;
-		case 508:
+		case HEADER_ZC_REPAIRITEMLIST:
 			Zc_repair_item_list(buf);
 			break;
-		case 545:
+		case HEADER_ZC_NOTIFY_WEAPONITEMLIST:
 			Zc_notify_weapon_item_list(buf);
 			break;
-		case 547:
+		case HEADER_ZC_ACK_WEAPONREFINE:
 			Zc_ack_weaponrefine(buf);
 			break;
-		case 510:
+		case HEADER_ZC_ACK_ITEMREPAIR:
 			Zc_ack_itemrepair(buf);
 			break;
-		case 399:
+		case HEADER_ZC_ACK_REQMAKINGITEM:
 			Zc_ack_req_itemmaking(buf);
 			break;
-		case 401:
+		case HEADER_ZC_TALKBOX_CHATCONTENTS:
 			Zc_talkbox_chat_contents(buf);
 			break;
-		case 763:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M1:
 			Zc_Notify_Moveentry5__m1(buf);
 			break;
-		case 402:
+		case HEADER_ZC_UPDATE_MAPINFO:
 			Zc_update_mapinfo(buf);
 			break;
-		case 773:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY__M4:
 			Zc_Notify_Npc_Standentry__m2(buf);
 			break;
-		case 404:
+		case HEADER_ZC_ACK_REQNAME_BYGID:
 			Zc_Ack_Reqname_bygid(buf);
 			break;
-		case 405:
+		case HEADER_ZC_ACK_REQNAMEALL:
 			Zc_Ack_Reqnameall(buf);
 			break;
-		case 406:
+		case HEADER_ZC_MSG_STATE_CHANGE:
 			Zc_Msg_State_Change(buf);
 			break;
-		case 650:
+		case HEADER_ZC_NPC_SHOWEFST_UPDATE:
 			Zc_Npc_Showefst_Update(buf);
 			break;
-		case 409:
+		case HEADER_ZC_NOTIFY_MAPPROPERTY:
 			Zc_Notify_Mapproperty(buf);
 			break;
-		case 410:
+		case HEADER_ZC_NOTIFY_RANKING:
 			Zc_Notify_Ranking(buf);
 			break;
-		case 762:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5:
 			Zc_Notify_Moveentry5(buf);
 			break;
-		case 411:
+		case HEADER_ZC_NOTIFY_EFFECT:
 			Zc_Notify_Effect(buf);
 			break;
-		case 499:
+		case HEADER_ZC_NOTIFY_EFFECT2:
 			Zc_Notify_Effect2(buf);
 			break;
-		case 767:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M5:
 			Zc_Notify_Moveentry5__m1(buf);
 			break;
-		case 644:
+		case HEADER_ZC_NOTIFY_EFFECT3:
 			Zc_Notify_Effect3(buf);
 			break;
-		case 414:
+		case HEADER_ZC_START_CAPTURE:
 			Zc_Start_Capture(buf);
 			break;
-		case 484:
+		case HEADER_ZC_START_COUPLE:
 			Zc_Start_Couple(buf);
 			break;
-		case 504:
+		case HEADER_ZC_START_BABY:
 			Zc_Start_Baby(buf);
 			break;
-		case 486:
+		case HEADER_ZC_COUPLENAME:
 			Zc_CoupleName(buf);
 			break;
-		case 490:
+		case HEADER_ZC_CONGRATULATION:
 			Zc_Congratulation(buf);
 			break;
-		case 416:
+		case HEADER_ZC_TRYCAPTURE_MONSTER:
 			Zc_TryCapture_Monster(buf);
 			break;
-		case 422:
+		case HEADER_ZC_PETEGG_LIST:
 			Zc_PetEgg_List(buf);
 			break;
-		case 420:
+		case HEADER_ZC_CHANGESTATE_PET:
 			Zc_Change_Pet_Status(buf);
 			break;
-		case 418:
+		case HEADER_ZC_PROPERTY_PET:
 			Zc_Property_Pet(buf);
 			break;
-		case 760:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M5:
 			Zc_Item_Fall_Entry2__m5(buf);
 			break;
-		case 419:
-		case 559:
+		case HEADER_ZC_FEED_PET:
+		case HEADER_ZC_FEED_MER:
 			Zc_Feed_Pet(buf);
 			break;
-		case 426:
+		case HEADER_ZC_PET_ACT:
 			Zc_Pet_Act(buf);
 			break;
-		case 427:
+		case HEADER_ZC_PAR_CHANGE_USER:
 			Zc_Par_Change_User(buf);
 			break;
-		case 428:
+		case HEADER_ZC_SKILL_UPDATE:
 			Zc_Skill_Update(buf);
 			break;
-		case 429:
+		case HEADER_ZC_MAKINGARROW_LIST:
 			Zc_MakingArrowList(buf);
 			break;
-		case 602:
+		case HEADER_ZC_MAKINGITEM_LIST:
 			Zc_MakingItemList(buf);
 			break;
-		case 432:
+		case HEADER_ZC_NPCSPRITE_CHANGE:
 			Zc_NpcSpriteChange(buf);
 			break;
-		case 433:
+		case HEADER_ZC_SHOWDIGIT:
 			Zc_ShowDigit(buf);
 			break;
-		case 436:
+		case HEADER_ZC_CHANGE_GUILD:
 			Zc_ChangeGuild(buf);
 			break;
-		case 438:
+		case HEADER_ZC_GUILD_INFO2:
 			Zc_GuildInfo2(buf);
 			break;
-		case 440:
+		case HEADER_ZC_GUILD_ZENY_ACK:
 			Zc_GuildZenyAck(buf);
 			break;
-		case 441:
+		case HEADER_ZC_DISPEL:
 			Zc_Dispel(buf);
 			break;
-		case 449:
+		case HEADER_ZC_REPLY_REMAINTIME:
 			Zc_Reply_RemainTime(buf);
 			break;
-		case 450:
+		case HEADER_ZC_INFO_REMAINTIME:
 			Zc_Info_RemainTime(buf);
 			break;
-		case 451:
+		case HEADER_ZC_BROADCAST2:
 			Zc_Broadcast2(buf);
 			break;
-		case 354:
+		case HEADER_ZC_GUILD_SKILLINFO:
 			Zc_GuildSkillInfo(buf);
 			break;
-		case 452:
+		case HEADER_ZC_ADD_ITEM_TO_STORE2:
 			Zc_AddItemToStore2(buf);
 			break;
-		case 453:
+		case HEADER_ZC_ADD_ITEM_TO_CART2:
 			Zc_Add_Item_To_Cart2(buf);
 			break;
-		case 455:
+		case HEADER_SC_ACK_ENCRYPTION:
 			Sc_Ack_Encryption(buf);
 			break;
-		case 456:
+		case HEADER_ZC_USE_ITEM_ACK2:
 			Zc_Use_Item_Ack2(buf);
 			break;
-		case 457:
+		case HEADER_ZC_SKILL_ENTRY2:
 			Zc_Skill_Entry2(buf);
 			break;
-		case 460:
+		case HEADER_ZC_MONSTER_TALK:
 			Zc_Monster_Talk(buf);
 			break;
-		case 766:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M4:
 			Zc_Notify_Moveentry5__m4(buf);
 			break;
-		case 461:
+		case HEADER_ZC_AUTOSPELLLIST:
 			Zc_AutoSpellList(buf);
 			break;
-		case 463:
+		case HEADER_ZC_DEVOTIONLIST:
 			Zc_DevotionList(buf);
 			break;
-		case 464:
+		case HEADER_ZC_SPIRITS:
 			Zc_Spirits(buf);
 			break;
-		case 481:
+		case HEADER_ZC_SPIRITS2:
 			Zc_Spirits2(buf);
 			break;
-		case 465:
+		case HEADER_ZC_BLADESTOP:
 			Zc_BladeStop(buf);
 			break;
-		case 466:
+		case HEADER_ZC_COMBODELAY:
 			Zc_ComboDelay(buf);
 			break;
-		case 467:
+		case HEADER_ZC_SOUND:
 			Zc_Sound(buf);
 			break;
-		case 468:
+		case HEADER_ZC_OPEN_EDITDLGSTR:
 			Zc_Open_EditDlgStr(buf);
 			break;
-		case 470:
+		case HEADER_ZC_NOTIFY_MAPPROPERTY2:
 			Zc_Notify_Mapproperty2(buf);
 			break;
-		case 471:
+		case HEADER_ZC_SPRITE_CHANGE2:
 			Zc_Sprite_Change2(buf);
 			break;
-		case 472:
+		case HEADER_ZC_NOTIFY_STANDENTRY2:
 			Zc_Notify_Standentry2(buf);
 			break;
-		case 473:
+		case HEADER_ZC_NOTIFY_NEWENTRY2:
 			Zc_Notify_Newentry2(buf);
 			break;
-		case 474:
+		case HEADER_ZC_NOTIFY_MOVEENTRY2:
 			Zc_Notify_Moveentry2(buf);
 			break;
-		case 554:
+		case HEADER_ZC_NOTIFY_STANDENTRY3:
 			Zc_Notify_Standentry3(buf);
 			break;
-		case 750:
+		case HEADER_ZC_NOTIFY_STANDENTRY4:
 			Zc_Notify_Standentry4(buf);
 			break;
-		case 555:
+		case HEADER_ZC_NOTIFY_NEWENTRY3:
 			Zc_Notify_Newentry3(buf);
 			break;
-		case 749:
+		case HEADER_ZC_NOTIFY_NEWENTRY4:
 			Zc_Notify_Newentry4(buf);
 			break;
-		case 556:
+		case HEADER_ZC_NOTIFY_MOVEENTRY3:
 			Zc_Notify_Moveentry3(buf);
 			break;
-		case 748:
+		case HEADER_ZC_NOTIFY_MOVEENTRY4:
 			Zc_Notify_Moveentry4(buf);
 			break;
-		case 478:
+		case HEADER_ZC_NOTIFY_SKILL2:
 			Zc_Notify_Skill2(buf);
 			break;
-		case 480:
+		case HEADER_ZC_ACK_ACCOUNTNAME:
 			Zc_Ack_AccountName(buf);
 			break;
-		case 513:
+		case HEADER_ZC_FRIENDS_LIST:
 			Zc_Friends_List(buf);
 			break;
-		case 519:
+		case HEADER_ZC_REQ_ADD_FRIENDS:
 			Zc_Req_Join_Friend(buf);
 			break;
-		case 521:
+		case HEADER_ZC_ADD_FRIENDS_LIST:
 			Zc_Add_Friends_List(buf);
 			break;
-		case 522:
+		case HEADER_ZC_DELETE_FRIENDS:
 			Zc_Req_Delete_Friend(buf);
 			break;
-		case 518:
+		case HEADER_ZC_FRIENDS_STATE:
 			Zc_Friends_State(buf);
 			break;
-		case 517:
+		case HEADER_ZC_DIVORCE:
 			Zc_Divorce(buf);
 			break;
-		case 528:
+		case HEADER_ZC_ACK_PVPPOINT:
 			Zc_Ack_PvpPoint(buf);
 			break;
-		case 543:
+		case HEADER_ZC_NOTIFY_PKINFO:
 			Zc_Notify_PKinfo(buf);
 			break;
-		case 544:
+		case HEADER_ZC_NOTIFY_CRAZYKILLER:
 			Zc_Notify_CrazyKiller(buf);
 			break;
-		case 551:
+		case HEADER_ZC_GAME_GUARD:
 			Zc_Game_Guard(buf);
 			break;
-		case 560:
+		case HEADER_ZC_CHANGESTATE_MER:
 			Zc_Change_Mer_Status(buf);
 			break;
-		case 558:
+		case HEADER_ZC_PROPERTY_HOMUN:
 			Zc_Property_Homun(buf);
 			break;
-		case 667:
+		case HEADER_ZC_MER_INIT:
 			Zc_Mer_Init(buf);
 			break;
-		case 674:
+		case HEADER_ZC_MER_PAR_CHANGE:
 			Zc_Mer_Par_Change(buf);
 			break;
-		case 759:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M4:
 			Zc_Item_Fall_Entry2__m4(buf);
 			break;
-		case 566:
+		case HEADER_ZC_KILLER_POINT:
 			ZC_KILLER_POINT(buf);
 			break;
-		case 568:
+		case HEADER_ZC_KILLER_RANK:
 			ZC_KILLER_RANK(buf);
 			break;
-		case 634:
+		case HEADER_ZC_HUNTINGLIST:
 			Zc_HuntingList(buf);
 			break;
-		case 635:
+		case HEADER_ZC_PCBANG_EFFECT:
 			Zc_Pcbang_Effect(buf);
 			break;
-		case 643:
+		case HEADER_ZC_AID:
 			Zc_Aid(buf);
 			break;
-		case 576:
+		case HEADER_ZC_MAIL_REQ_GET_LIST:
 			Zc_Mail_Req_Get_List(buf);
 			break;
-		case 578:
+		case HEADER_ZC_MAIL_REQ_OPEN:
 			Zc_Mail_Req_Open(buf);
 			break;
-		case 581:
+		case HEADER_ZC_MAIL_REQ_GET_ITEM:
 			Zc_Mail_Req_Get_Item(buf);
 			break;
-		case 585:
+		case HEADER_ZC_MAIL_REQ_SEND:
 			Zc_Mail_Req_Send(buf);
 			break;
-		case 586:
+		case HEADER_ZC_MAIL_RECEIVE:
 			Zc_Mail_Receive(buf);
 			break;
-		case 597:
+		case HEADER_ZC_ACK_MAIL_ADD_ITEM:
 			Zc_Ack_Mail_Add_Item(buf);
 			break;
-		case 599:
+		case HEADER_ZC_ACK_MAIL_DELETE:
 			Zc_Ack_Mail_Delete(buf);
 			break;
-		case 608:
+		case HEADER_ZC_MAIL_WINDOWS:
 			Zc_Mail_Windows(buf);
 			break;
-		case 628:
+		case HEADER_ZC_ACK_MAIL_RETURN:
 			Zc_Ack_Mail_Return(buf);
 			break;
-		case 598:
+		case HEADER_ZC_ACK_AUCTION_ADD_ITEM:
 			Zc_Ack_Auction_Add_Item(buf);
 			break;
-		case 592:
+		case HEADER_ZC_AUCTION_RESULT:
 			Zc_Auction_Result(buf);
 			break;
-		case 594:
+		case HEADER_ZC_AUCTION_ITEM_REQ_SEARCH:
 			Zc_Auction_Item_Req_Search(buf);
 			break;
-		case 605:
+		case HEADER_CZ_AUCTION_REQ_MY_SELL_STOP:
 			Zc_Auction_My_Sell_Stop(buf);
 			break;
-		case 607:
+		case HEADER_ZC_AUCTION_WINDOWS:
 			Zc_Auction_Windows(buf);
 			break;
-		case 647:
+		case HEADER_ZC_PC_CASH_POINT_ITEMLIST:
 			Zc_Pc_Cash_Point_ItemList(buf);
 			break;
-		case 649:
+		case HEADER_ZC_PC_CASH_POINT_UPDATE:
 			Zc_Pc_Cash_Point_Update(buf);
 			break;
-		case 659:
+		case HEADER_ZC_BOSS_INFO:
 			Zc_Boss_Info(buf);
 			break;
-		case 657:
+		case HEADER_ZC_MSG:
 			Zc_Msg(buf);
 			break;
-		case 660:
+		case HEADER_ZC_READ_BOOK:
 			Zc_Read_Book(buf);
 			break;
-		case 661:
+		case HEADER_ZC_EQUIPMENT_ITEMLIST2:
 			Zc_Equipment_Itemlist2(buf);
 			break;
-		case 662:
+		case HEADER_ZC_STORE_EQUIPMENT_ITEMLIST2:
 			Zc_Store_Equipment_Itemlist2(buf);
 			break;
-		case 663:
+		case HEADER_ZC_CART_EQUIPMENT_ITEMLIST2:
 			Zc_Cart_Equipment_Itemlist2(buf);
 			break;
-		case 664:
+		case HEADER_ZC_CASH_TIME_COUNTER:
 			Zc_Cash_Time_Counter(buf);
 			break;
-		case 665:
+		case HEADER_ZC_CASH_ITEM_DELETE:
 			Zc_Cash_Item_Delete(buf);
 			break;
-		case 666:
+		case HEADER_ZC_ITEM_PICKUP_ACK2:
 			Zc_Item_Pickup_Ack2(buf);
 			break;
-		case 720:
+		case HEADER_ZC_EQUIPMENT_ITEMLIST3:
 			Zc_Equipment_Itemlist3(buf);
 			break;
-		case 721:
+		case HEADER_ZC_STORE_EQUIPMENT_ITEMLIST3:
 			Zc_Store_Equipment_Itemlist3(buf);
 			break;
-		case 722:
+		case HEADER_ZC_CART_EQUIPMENT_ITEMLIST3:
 			Zc_Cart_Equipment_Itemlist3(buf);
 			break;
-		case 724:
+		case HEADER_ZC_ITEM_PICKUP_ACK3:
 			Zc_Item_Pickup_Ack3(buf);
 			break;
-		case 757:
+		case HEADER_ZC_ITEM_FALL_ENTRY2__M2:
 			Zc_Item_Fall_Entry2__m2(buf);
 			break;
-		case 696:
+		case HEADER_ZC_ITEM_PICKUP_PARTY:
 			Zc_Item_Pickup_Party(buf);
 			break;
-		case 699:
+		case HEADER_ZC_EQUIPITEM_DAMAGED:
 			Zc_EquipItem_Damaged(buf);
 			break;
-		case 697:
+		case HEADER_ZC_SHORTCUT_KEY_LIST:
 			Zc_ShortCut_Key_List(buf);
 			break;
-		case 705:
+		case HEADER_ZC_NPC_CHAT:
 			Zc_Npc_Chat(buf);
 			break;
-		case 706:
+		case HEADER_ZC_FORMATSTRING_MSG:
 			Zc_Formatstring_Msg(buf);
 			break;
-		case 713:
+		case HEADER_ZC_PARTY_CONFIG:
 			Zc_Party_Config(buf);
 			break;
-		case 715:
+		case HEADER_ZC_MEMORIALDUNGEON_SUBSCRIPTION_INFO:
 			Zc_MemorialDungeon_Subscription_Info(buf);
 			break;
-		case 716:
+		case HEADER_ZC_MEMORIALDUNGEON_SUBSCRIPTION_NOTIFY:
 			Zc_MemorialDungeon_Subscription_Notify(buf);
 			break;
-		case 717:
+		case HEADER_ZC_MEMORIALDUNGEON_INFO:
 			Zc_MemorialDungeon_Info(buf);
 			break;
-		case 718:
+		case HEADER_ZC_MEMORIALDUNGEON_NOTIFY:
 			Zc_MemorialDungeon_Notify(buf);
 			break;
-		case 725:
+		case HEADER_ZC_ISVR_DISCONNECT:
 			Zc_Isvr_Disconnect(buf);
 			break;
-		case 727:
+		case HEADER_ZC_EQUIPWIN_MICROSCOPE:
 			Zc_EquipwinMicroscope(buf);
 			break;
-		case 729:
+		case HEADER_ZC_CONFIG:
 			Zc_Config(buf);
 			break;
-		case 730:
+		case HEADER_ZC_CONFIG_NOTIFY:
 			Zc_Config_Notify(buf);
 			break;
-		case 743:
+		case HEADER_ZC_MAPPROPERTY:
 			Zc_Mapproperty(buf);
 			break;
-		case 755:
+		case HEADER_ZC_ITEM_FALL_ENTRY2:
 			Zc_Item_Fall_Entry2(buf);
 			break;
-		case 768:
+		case HEADER_ZC_NOTIFY_MOVEENTRY5__M6:
 			Zc_Notify_Moveentry5__m6(buf);
 			break;
-		case 769:
+		case HEADER_ZC_NOTIFY_NPC_STANDENTRY:
 			Zc_Notify_Npc_Standentry(buf);
 			break;
-		case 776:
+		case HEADER_ZC_REASSEMBLY_CERTIFY:
 			{
 				PACKET_CZ_REASSEMBLY_IDENTITY p = {0};
-				p.PacketType = 818;
+				p.PacketType = HEADER_CZ_REASSEMBLY_IDENTITY;
 				p.PacketLength = sizeof(PACKET_CZ_REASSEMBLY_IDENTITY);
 				p.bImportAddressTableModify = !CRagConnection::instanceR().CheckModulePt();
 				CRagConnection::instanceR().SendPacket(p.PacketLength, (char *)&p);

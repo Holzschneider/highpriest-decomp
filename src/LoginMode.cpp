@@ -840,7 +840,7 @@ void CLoginMode::OnChangeState(int state)
 		if (m_isConnected) {
 			Trace("PACKET_CZ_ENTER");
 			PACKET_CZ_ENTER p;
-			p.PacketType = 0x9b;
+			p.PacketType = HEADER_CZ_ENTER;
 			SetPaddingValue(p.pad, 2);
 			SetPaddingValue(p.pad2, 1);
 			SetPaddingValue(p.pad3, 4);

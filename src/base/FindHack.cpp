@@ -349,7 +349,7 @@ BOOL CALLBACK NPGameMonCallback(DWORD dwMsg, DWORD dwArg)
 		break;
 	case 1017:
 		PACKET_CZ_ACK_GAME_GUARD p;
-		p.PacketType = 0x228;
+		p.PacketType = HEADER_CZ_ACK_GAME_GUARD;
 		memcpy(p.AuthData, (void*)dwArg, sizeof(_GG_AUTH_DATA));
 		CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char*)(&p));
 		return true;

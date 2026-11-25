@@ -1102,7 +1102,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			int		numItem = val2;
 
 			PACKET_CZ_ITEM_THROW	packet;
-			packet.PacketType	= 0x116;
+			packet.PacketType	= HEADER_CZ_ITEM_THROW;
 			SetPaddingValue(packet.pad, 3);
 			SetPaddingValue(packet.pad2, 1);
 			packet.Index		= itemIndex;
@@ -1131,7 +1131,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			m_waitingUseItemAck = true;
 
 			PACKET_CZ_USE_ITEM p;
-			p.PacketType = 0x9f;
+			p.PacketType = HEADER_CZ_USE_ITEM;
 			SetPaddingValue(p.pad, 2);
 			SetPaddingValue(p.pad2, 4);
 			p.AID = g_session.GetAid();
@@ -1417,7 +1417,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			unsigned int chatSize = strlen(chat);
 			g_windowMgr.ClearChatMsg();
 			PACKET_CZ_REQUEST_CHAT p;
-			p.PacketType   = 0xf3;
+			p.PacketType   = HEADER_CZ_REQUEST_CHAT;
 			p.PacketLength = sizeof(p) + chatSize + 1;
 			char packet[1024];
 			memcpy(packet, &p, sizeof(p));
@@ -1804,27 +1804,27 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_ADD_ITEM_TO_STORE: {
 		PACKET_CZ_MOVE_ITEM_FROM_BODY_TO_STORE p;
-		p.PacketType = 0x94;
+		p.PacketType = HEADER_CZ_MOVE_ITEM_FROM_BODY_TO_STORE;
 		SetPaddingValue(p.pad, 5);
 		SetPaddingValue(p.pad2, 1);
 		p.index = (short)val1;
 		p.count = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(0x94), (const char *)&p);
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_MOVE_ITEM_FROM_BODY_TO_STORE), (const char *)&p);
 		break;
 	}
 	case MM_MOVE_ITEM_FROM_STORE_TO_BODY: {
 		PACKET_CZ_MOVE_ITEM_FROM_STORE_TO_BODY p;
-		p.PacketType = 0xf7;
+		p.PacketType = HEADER_CZ_MOVE_ITEM_FROM_STORE_TO_BODY;
 		SetPaddingValue(p.pad, 12);
 		SetPaddingValue(p.pad2, 2);
 		p.index = (short)val1;
 		p.count = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(0xf7), (const char *)&p);
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_MOVE_ITEM_FROM_STORE_TO_BODY), (const char *)&p);
 		break;
 	}
 	case MM_CLOSE_STORE: {
-		PACKET_CZ_CLOSE_STORE p; p.PacketType = 0x193;
-		g_connection.SendPacket(g_connection.GetPacketSize(0x193), (const char *)&p);
+		PACKET_CZ_CLOSE_STORE p; p.PacketType = HEADER_CZ_CLOSE_STORE;
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_CLOSE_STORE), (const char *)&p);
 		break;
 	}
 	case MM_MOVE_ITEM_FROM_BODY_TO_CART: {
@@ -2120,14 +2120,14 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			g_windowMgr.MakeWindow(WID_SELECTCARTWND);
 		}
 		PACKET_CZ_USE_SKILL p;
-		p.PacketType = 0x72;
+		p.PacketType = HEADER_CZ_USE_SKILL;
 		SetPaddingValue(p.pad, 4);
 		SetPaddingValue(p.pad2, 2);
 		SetPaddingValue(p.pad3, 9);
 		p.selectedLevel = (short)skillUseLevel;
 		p.SKID = (unsigned short)SKID;
 		p.targetID = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(0x72), (const char *)&p);
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL), (const char *)&p);
 		break;
 	}
 	case MM_USE_SKILL_TOGROUND: {
@@ -2140,7 +2140,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			skillUseLevel = g_session.GetSkillItemInfoBySkillId(SKID).level;
 
 		PACKET_CZ_USE_SKILL_TOGROUND	p;
-		p.PacketType	= 275;
+		p.PacketType	= HEADER_CZ_USE_SKILL_TOGROUND;
 		SetPaddingValue(p.pad, 3);
 		SetPaddingValue(p.pad2, 2);
 		SetPaddingValue(p.pad3, 1);
@@ -2148,13 +2148,13 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		p.SKID			= SKID;
 		p.xPos			= xPos;
 		p.yPos			= yPos;
-		g_connection.SendPacket(g_connection.GetPacketSize(275), (const char *)(&p));
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL_TOGROUND), (const char *)(&p));
 		break;
 	}
 	case MM_USE_SKILL_TOGROUND_WITH_TALKBOX: {
 		INT_PTR *values = (INT_PTR *)val1;
 		PACKET_CZ_USE_SKILL_TOGROUND_WITHTALKBOX p;
-		p.PacketType    = 126;
+		p.PacketType    = HEADER_CZ_USE_SKILL_TOGROUND_WITHTALKBOX;
 		p.selectedLevel = (short)values[3];
 		p.SKID          = (unsigned short)values[0];
 		p.xPos          = (short)values[1];
@@ -2167,7 +2167,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		}
 		if (p.selectedLevel == 0)
 			p.selectedLevel = g_session.GetSkillItemInfoBySkillId(p.SKID).level;
-		g_connection.SendPacket(g_connection.GetPacketSize(126), (const char *)&p);
+		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL_TOGROUND_WITHTALKBOX), (const char *)&p);
 		break;
 	}
 	case MM_CANCEL_LOCKON: {
@@ -2567,7 +2567,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			short PacketType;
 			short PacketLength;
 		} packet;
-		packet.PacketType = 0xf3;
+		packet.PacketType = HEADER_CZ_REQUEST_CHAT;
 		packet.PacketLength = 2;
 		g_connection.SendPacket(sizeof(DWORD), (const char *)&packet);
 		break;
@@ -2711,7 +2711,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_ITEMPICKUP: {
 		PACKET_CZ_ITEM_PICKUP p;
-		p.PacketType = 0xf5;
+		p.PacketType = HEADER_CZ_ITEM_PICKUP;
 		SetPaddingValue(p.pad, 2);
 		p.ITAID = val1;
 		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
@@ -2719,7 +2719,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_REQUEST_ACT: {
 		PACKET_CZ_REQUEST_ACT p;
-		p.PacketType = 0x190;
+		p.PacketType = HEADER_CZ_REQUEST_ACT;
 		SetPaddingValue(p.pad, 3);
 		SetPaddingValue(p.pad2, 9);
 		p.action = (unsigned char)val1;
@@ -2729,7 +2729,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_REQUEST_MOVE: {
 		PACKET_CZ_REQUEST_MOVE p;
-		p.PacketType = 0xa7;
+		p.PacketType = HEADER_CZ_REQUEST_MOVE;
 		SetPaddingValue(p.pad, 3);
 		EncodePosDir(val1, val2, 0, p.dest);
 		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
@@ -2737,7 +2737,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_CHANGE_DIRECTION: {
 		PACKET_CZ_CHANGE_DIRECTION p;
-		p.PacketType = 0x85;
+		p.PacketType = HEADER_CZ_CHANGE_DIRECTION;
 		SetPaddingValue(p.pad, 5);
 		SetPaddingValue(p.pad2, 1);
 		p.dir = (unsigned char)val1;
@@ -3013,7 +3013,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		g_windowMgr.ClearChatMsg();
 
 		PACKET_CZ_REQUEST_CHAT p;
-		p.PacketType   = 0xf3;
+		p.PacketType   = HEADER_CZ_REQUEST_CHAT;
 		p.PacketLength = (short)(sizeof(p) + chatSize + 1);
 		char packet[1024];
 		memcpy(packet, &p, sizeof(p));
