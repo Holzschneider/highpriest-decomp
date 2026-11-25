@@ -7,7 +7,7 @@
 // logical pixels with right-drag, the clipboard in CP1252.
 // port/client/src/README.md ("bf_input") documents them.
 //
-// Compiled with bf_compat_flags: the Windows names here are the message ids,
+// Compiled with bf_port_flags: the Windows names here are the message ids,
 // virtual keys and their parameters (WM_*, VK_*, HTCLIENT, WA_*, SIZE_*,
 // MK_*, WHEEL_DELTA), numbers the client keeps as its own.
 #include "bf_types.h"

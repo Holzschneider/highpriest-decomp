@@ -192,48 +192,23 @@ function(bf_client_flags target tree)
 		C_STANDARD 90 C_STANDARD_REQUIRED ON C_EXTENSIONS ON)
 endfunction()
 
-# ---------------------------------------------------------------- adapters
-# port/compat/<area>: the Win32-shaped adapters of stage A, which M11 deletes.
-# Each area's CMakeLists.txt defines a static library bf_compat_<area> and a
-# test program bifrost-compat-<area>-test, and calls bf_compat_flags on its
-# targets so that it compiles against exactly the declarations the client
-# sees (the prefix header, the port's includes, the Windows headers), but as
-# C++17 and without the game's tree. Areas own disjoint sets of Win32 names:
-#   win32  the kernel32 names base/FindHack.cpp still calls (on port/native/sys)
-# BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
-# C library's file names (fopen, access, remove, ...) keep their own meaning
-# there instead of going through the game-folder translation of the win32 area.
-function(bf_compat_flags target)
-	target_compile_definitions(${target} PRIVATE ${BF_CLIENT_DEFINES} BF_COMPAT_ADAPTER)
+# ---------------------------------------------------------------- port code
+# bf_port_flags(<target>): port code that is compiled with the declarations
+# the client sees (the prefix header, the port's includes), but as C++17 and
+# without the game's tree: the entry point, the bindings, the tests of
+# port/client. BF_PORT_CODE tells the prefix header that the source is port
+# code: the C library's file names (fopen, access, remove, rename) keep their
+# own meaning there instead of going through bf_crt.h's game-folder
+# translation. (The Win32-shaped adapters of port/compat, which used these
+# flags as bf_port_flags, are gone since M11.11.)
+function(bf_port_flags target)
+	target_compile_definitions(${target} PRIVATE ${BF_CLIENT_DEFINES} BF_PORT_CODE)
 	target_compile_options(${target} PRIVATE ${BF_CLIENT_OPTIONS}
 		"SHELL:-include ${BF_CLIENT_PREFIX}")
 	target_include_directories(${target} BEFORE PRIVATE ${BF_CLIENT_INCLUDES})
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32)
-set(BF_COMPAT_LIBS)
-add_custom_target(compat)
-foreach(area IN LISTS BF_COMPAT_AREAS)
-	if(NOT EXISTS ${BF_ROOT}/port/compat/${area}/CMakeLists.txt)
-		message(STATUS "adapter ${area}: not in this tree, skipped")
-		continue()
-	endif()
-	add_subdirectory(port/compat/${area} compat/${area})
-	list(APPEND BF_COMPAT_LIBS bf_compat_${area})
-	add_dependencies(compat bf_compat_${area})
-	set(test ${BF_EXE}-compat-${area}-test)
-	if(TARGET ${test})
-		add_dependencies(compat ${test})
-		get_target_property(test_dir ${test} BINARY_DIR)
-		add_test(NAME compat-${area} COMMAND ${test} WORKING_DIRECTORY ${test_dir})
-		set_tests_properties(compat-${area} PROPERTIES LABELS headless TIMEOUT 300
-			ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${test_dir}")
-	endif()
-endforeach()
-
-add_dependencies(check compat)
-add_dependencies(check-headless compat)
 
 # ---------------------------------------------------------------- the client
 # The units of sources.mk's GAME list, in link order, minus the exclusions.
@@ -329,7 +304,7 @@ set(BF_CLIENT_PORT_SOURCES
 	port/client/src/bf_client_game.cpp
 	port/client/src/bf_replay.cpp)
 # The entry point and the start-up glue (main, the zlib wrappers, the C
-# runtime names macOS lacks), compiled as port code (bf_compat_flags) with the
+# runtime names macOS lacks), compiled as port code (bf_port_flags) with the
 # native modules' headers. main is pulled out of the library by the linker.
 add_library(bf_port_main STATIC
 	port/client/src/bf_main.cpp
@@ -344,7 +319,7 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_crt.cpp
 	port/client/src/bf_setting_key.cpp
 	port/client/src/bf_port_shell.cpp)
-bf_compat_flags(bf_port_main)
+bf_port_flags(bf_port_main)
 target_link_libraries(bf_port_main PRIVATE bf_instrument ${BF_NATIVE_LIBS})
 # bifrost-movie-test: the movie player (bf_movie.h) through CBink's call
 # sequences, with its own clock and the sound engine offline (headless).
@@ -375,7 +350,7 @@ set_tests_properties(render PROPERTIES LABELS headless TIMEOUT 300
 # (bf_input.h, M11.7). Opens a window and injects every event (label window: fastcheck
 # builds it but does not run it).
 add_executable(${BF_EXE}-input-test port/client/test/input_test.cpp port/client/src/bf_input.cpp)
-bf_compat_flags(${BF_EXE}-input-test)
+bf_port_flags(${BF_EXE}-input-test)
 target_compile_options(${BF_EXE}-input-test PRIVATE -Wall -Wextra -Wno-unused-parameter)
 target_link_libraries(${BF_EXE}-input-test PRIVATE bf_app bf_view bf_text bf_instrument)
 add_dependencies(native ${BF_EXE}-input-test)
@@ -390,7 +365,7 @@ bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # only (LINK_ONLY): their usage requirements (C++17, their include paths)
 # must not reach the game's units, which stay gnu++14 with the census's paths.
 set(bf_link)
-foreach(lib IN LISTS BF_COMPAT_LIBS BF_NATIVE_LIBS)
+foreach(lib IN LISTS BF_NATIVE_LIBS)
 	list(APPEND bf_link $<LINK_ONLY:${lib}>)
 endforeach()
 target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_port_main> $<LINK_ONLY:bf_instrument> ${bf_link} z)
@@ -398,13 +373,29 @@ target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_port_main> $<LINK_ONLY:bf
 # bifrost-setting-key-test: the client's settings keys (port/client, M11.4)
 # on bf_settings, and the Settings.plist they leave. Built with the client.
 add_executable(${BF_EXE}-setting-key-test port/client/test/setting_key_test.cpp port/client/src/bf_setting_key.cpp)
-bf_compat_flags(${BF_EXE}-setting-key-test)
+bf_port_flags(${BF_EXE}-setting-key-test)
 target_compile_options(${BF_EXE}-setting-key-test PRIVATE -Wall -Wextra)
 target_link_libraries(${BF_EXE}-setting-key-test PRIVATE bf_sys bf_text bf_instrument)
 add_dependencies(${BF_EXE} ${BF_EXE}-setting-key-test)
 add_test(NAME setting-key COMMAND ${BF_EXE}-setting-key-test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 set_tests_properties(setting-key PROPERTIES LABELS headless TIMEOUT 300
 	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${CMAKE_CURRENT_BINARY_DIR}")
+
+# bifrost-crt-test: the C runtime names of bf_crt.cpp (bf_crt.h's file calls
+# on client paths, the Visual C++ helpers) called as the client calls them:
+# crt_client_calls.cpp is compiled with the client's flags (headless).
+add_library(bf_crt_client_calls OBJECT port/client/test/crt_client_calls.cpp)
+bf_client_flags(bf_crt_client_calls ${BF_ROOT}/port/client/test)
+add_executable(${BF_EXE}-crt-test port/client/test/crt_test.cpp port/client/src/bf_crt.cpp
+	$<TARGET_OBJECTS:bf_crt_client_calls>)
+bf_port_flags(${BF_EXE}-crt-test)
+target_compile_options(${BF_EXE}-crt-test PRIVATE -Wall -Wextra)
+target_link_libraries(${BF_EXE}-crt-test PRIVATE bf_sys bf_text bf_instrument)
+add_dependencies(native ${BF_EXE}-crt-test)
+get_target_property(bf_crt_test_dir ${BF_EXE}-crt-test BINARY_DIR)
+add_test(NAME crt COMMAND ${BF_EXE}-crt-test WORKING_DIRECTORY ${bf_crt_test_dir})
+set_tests_properties(crt PROPERTIES LABELS headless TIMEOUT 300
+	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${bf_crt_test_dir}")
 
 # ---------------------------------------------------------------- probes
 # bifrost-packetlen and bifrost-netprobe compile the game's packet.cpp,

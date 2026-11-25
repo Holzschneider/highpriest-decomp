@@ -11,6 +11,6 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 SRC=${BF_SRC:-$ROOT/src}
 . "$ROOT/port/tools/flags.sh"
 OUT=$ROOT/build/port/bin; mkdir -p "$OUT"
-clang++ -std=gnu++14 -O1 $BF_TARGET $BF_DEFINES -DBF_COMPAT_ADAPTER $BF_INCLUDES -I"$SRC" -isystem "$WIN_HEADERS" \
+clang++ -std=gnu++14 -O1 $BF_TARGET $BF_DEFINES -DBF_PORT_CODE $BF_INCLUDES -I"$SRC" -isystem "$WIN_HEADERS" \
 	"$ROOT/port/tools/packetbuild_test.cpp" "$SRC/packet.cpp" -o "$OUT/bifrost-packetbuild-test"
 "$OUT/bifrost-packetbuild-test"

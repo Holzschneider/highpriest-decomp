@@ -1,14 +1,12 @@
 // The Visual C++ runtime names the client calls that the C library of macOS
-// does not have (M3.2). Declared by bf_prefix.h (itoa, _ltoa, strlwr, ...)
-// and process.h (spawnl). These are the real functions, except spawnl,
-// whose caller starts a Windows program (findhack.exe for GameGuard) and
-// gets "not started".
+// does not have (M3.2), declared by bf_prefix.h (itoa, _ltoa, strlwr, ...):
+// the real functions.
 //
 // And the C library's file calls on client paths (bf_crt.h): the functions
-// behind the macros fopen, access, remove, rename, unlink, rmdir and the
-// Visual C++ names _mkdir and _chmod, on port/native/sys (bf_file.h). They
-// were the win32 adapter's until M11.3; call sites that move to bf_file.h
-// directly no longer need them.
+// behind the macros fopen, access, remove and rename, on port/native/sys
+// (bf_file.h). They were the win32 adapter's until M11.3; call sites that
+// move to bf_file.h directly no longer need them. bifrost-crt-test
+// (port/client/test) calls both as the client does.
 #include "bf_types.h"
 #include <ctype.h>
 #include <errno.h>
@@ -100,16 +98,6 @@ unsigned int _lrotr(unsigned int value, int shift)
 
 }  // extern "C"
 
-intptr_t spawnl(int mode, const char *path, const char *arg0, ...)
-{
-	(void)mode;
-	(void)arg0;
-	BF_STUB();
-	bf_tracef(BFT_W32, "spawnl(%s): Windows programs are not started", path ? path : "");
-	errno = ENOENT;
-	return -1;
-}
-
 // ---- The C library on client paths (bf_crt.h) ----------------------------------
 // Reads find the file in the game folder (or in a write location first);
 // writes go to the write locations and are refused in the game folder (EACCES).
@@ -141,46 +129,7 @@ extern "C" int bf_crt_remove(const char *path)
 	return bf_file_remove(path);
 }
 
-extern "C" int bf_crt_unlink(const char *path)
-{
-	return bf_file_remove(path);
-}
-
-extern "C" int bf_crt_rmdir(const char *path)
-{
-	return bf_file_remove_folder(path);
-}
-
 extern "C" int bf_crt_rename(const char *from, const char *to)
 {
 	return bf_file_rename(from, to);
-}
-
-// _chmod(path, _S_IWRITE) before deleting a cached file (Session.cpp,
-// WinMain.cpp): applies in the write locations; the game folder is refused.
-extern "C" int bf_crt_chmod(const char *path, int mode)
-{
-	if (!path) {
-		errno = EINVAL;
-		return -1;
-	}
-	char resolved[2048];
-	if (bf_file_resolve(path, BF_RESOLVE_READ, resolved, sizeof(resolved)) < 0)
-		return -1;
-	if (bf_file_write_location(path) == BF_LOCATION_GAME) {
-		errno = EACCES;
-		return -1;
-	}
-	return chmod(resolved, (mode & _S_IWRITE) ? 0644 : 0444);
-}
-
-// 0 created; -1 with EEXIST if it is there already, as the Visual C++ one.
-extern "C" int _mkdir(const char *path)
-{
-	int r = bf_file_make_folder(path);
-	if (r == 1)
-		return 0;
-	if (r == 0)
-		errno = EEXIST;
-	return -1;
 }

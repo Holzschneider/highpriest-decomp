@@ -68,7 +68,7 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 #include "bf_clock.h"
 
 /* The C library's file names on client paths: game folder, write locations
-   (port/compat/win32). */
+   (bf_crt.h, port/client/src/bf_crt.cpp). */
 #include "bf_crt.h"
 
 #ifdef __cplusplus

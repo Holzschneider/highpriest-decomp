@@ -1,6 +1,6 @@
 // The control socket's `coverage` part (PROTOCOL.md section 3) and the
 // coverage report file of M9.5 (port/native/strings, bf_coverage.h): what of
-// a session was not English. Port code (bf_compat_flags, in bf_port_main);
+// a session was not English. Port code (bf_port_flags, in bf_port_main);
 // bf_main.cpp calls it.
 #ifndef BF_CONTROL_COVERAGE_H
 #define BF_CONTROL_COVERAGE_H

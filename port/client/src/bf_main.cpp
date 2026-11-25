@@ -28,7 +28,7 @@
 // still holds it), then the requests are carried out (bf_control_poll; the
 // events injected earlier have been handled during the previous frame).
 //
-// Compiled with bf_compat_flags (the prefix and the Windows headers, C++17,
+// Compiled with bf_port_flags (the prefix and bf_types.h, C++17,
 // the C library's own file names) into the library bf_port_main.
 #include "bf_types.h"
 

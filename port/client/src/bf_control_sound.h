@@ -1,6 +1,6 @@
 // The control socket's `sound` part and `sound` event (PROTOCOL.md sections
 // 3 and 5), read from the sound module's counters and its ring of recent
-// voices (port/native/audio, bf_audio.h). Port code (bf_compat_flags, in
+// voices (port/native/audio, bf_audio.h). Port code (bf_port_flags, in
 // bf_port_main); bf_main.cpp calls it.
 #ifndef BF_CONTROL_SOUND_H
 #define BF_CONTROL_SOUND_H

@@ -1,11 +1,11 @@
-// Compiled with the client's flags (see CMakeLists.txt): the C library's
-// file calls here are the client's, through bf_crt.h. The patterns are
-// those of the client's call sites (named in each function), not its code.
-// The standard headers are included after the prefix to show that the
-// renaming macros leave them usable (std::remove, std::list::remove, <fstream>).
-#include <windows.h>
-#include <direct.h>
-#include <io.h>
+// Compiled with the client's flags (bf_client_flags in the root
+// CMakeLists.txt): the C library's file calls here are the client's, through
+// bf_crt.h. The patterns are those of the client's call sites (named in each
+// function), not its code. The standard headers are included after the
+// prefix to show that the renaming macros leave them usable (std::remove,
+// std::list::remove, <fstream>).
+#include "bf_types.h"
+#include "bf_file.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -18,13 +18,13 @@
 #include <string.h>
 
 extern "C" int __cdecl access(const char *, int);   // as GameMode.cpp declares it
-extern "C" int __cdecl _mkdir(const char *);
 
-static char s_baseDir3[128];   // g_baseDir3: GetCurrentDirectoryA(0x80, g_baseDir3) in InitApp
+static char s_baseDir3[128];   // g_baseDir3, as InitApp fills it under BF_PORT
 
 extern "C" int client_init_base_dir(void)
 {
-	return GetCurrentDirectoryA(0x80, s_baseDir3) > 0 && s_baseDir3[0] == '/';
+	strcpy(s_baseDir3, bf_file_location(BF_LOCATION_GAME));
+	return s_baseDir3[0] == '/';
 }
 
 // PingLog.txt appended in text mode (LoginMode.cpp, GameModePacket.cpp).
@@ -45,7 +45,7 @@ extern "C" int client_write_chat_log(const char *title, char *path_out, int path
 	char tmp[256];
 	sprintf(tmp, "%s\\Chat", s_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) < 0)
 			return 0;
 	}
 	int n = 0;
@@ -67,7 +67,7 @@ extern "C" int client_write_screenshot(char *path_out, int path_size)
 	char tmp[256];
 	sprintf(tmp, "%s\\ScreenShot", s_baseDir3);
 	if (access(tmp, 0))
-		_mkdir(tmp);
+		bf_file_make_folder(tmp);
 	int captureCnt = 0;
 	sprintf(tmp, "%s\\ScreenShot\\screen%03d.jpg", s_baseDir3, captureCnt++);
 	while (access(tmp, 0) == 0)
@@ -106,21 +106,11 @@ extern "C" int client_write_into_game_folder(int *error)
 	return 0;
 }
 
-// Cache clean-up as base/Util.cpp DeleteDirectory: _chmod, _unlink, _rmdir,
-// and rename/remove as Lua's os.rename and os.remove.
+// rename and remove as Lua's os.rename and os.remove, below a write location.
 extern "C" int client_cache_cleanup(void)
 {
-	char tmp[256];
-	sprintf(tmp, "%s\\_tmpskin_", s_baseDir3);   // as skin.cpp
-	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
-			return 0;
-	}
-	strcat(tmp, "\\test");
-	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
-			return 0;
-	}
+	if (bf_file_make_folder("_tmpskin_\\test") < 0)
+		return 0;
 	FILE *f = fopen("_tmpskin_\\test\\a.txt", "w");
 	if (!f)
 		return 0;
@@ -129,18 +119,9 @@ extern "C" int client_cache_cleanup(void)
 		return 0;
 	if (access("_tmpskin_\\test\\b.txt", 0) != 0 || access("_tmpskin_\\test\\a.txt", 0) == 0)
 		return 0;
-	_chmod("_tmpskin_\\test\\b.txt", _S_IWRITE);
-	if (_unlink("_tmpskin_\\test\\b.txt") != 0)
+	if (remove("_tmpskin_\\test\\b.txt") != 0)
 		return 0;
-	f = fopen("_tmpskin_\\test\\c.txt", "w");
-	if (!f)
-		return 0;
-	fclose(f);
-	if (remove("_tmpskin_\\test\\c.txt") != 0)
-		return 0;
-	if (_rmdir(tmp) != 0)
-		return 0;
-	return access(tmp, 0) != 0;
+	return access("_tmpskin_\\test\\b.txt", 0) != 0;
 }
 
 // The standard library still works under the renaming macros.
@@ -155,4 +136,23 @@ extern "C" int client_std_library(void)
 	// is instantiated in libc++.dylib, which calls the C library's fopen. The
 	// client uses no iostreams on files.
 	return v.size() == 2 && l.size() == 1;
+}
+
+// The Visual C++ helpers of bf_prefix.h (bf_crt.cpp), on the values the
+// client gives them: item ids, colours, hash rotations, file names.
+extern "C" int client_helpers(void)
+{
+	char buf[40];
+	char name[] = "Data\\Texture\\BMP.Bmp";
+	char upper[] = "abc\xC0\xAF";
+	return strcmp(itoa(-1234, buf, 10), "-1234") == 0
+		&& strcmp(_itoa(255, buf, 16), "ff") == 0
+		&& strcmp(_itoa(-1, buf, 16), "ffffffff") == 0
+		&& strcmp(_ltoa(-7, buf, 10), "-7") == 0
+		&& strcmp(itoa(5, buf, 2), "101") == 0
+		&& strcmp(strlwr(name), "data\\texture\\bmp.bmp") == 0
+		&& strcmp(_strlwr(name), "data\\texture\\bmp.bmp") == 0
+		&& strcmp(strupr(upper), "ABC\xC0\xAF") == 0
+		&& _lrotl(0x80000001u, 1) == 0x00000003u && _lrotl(0x12345678u, 32) == 0x12345678u
+		&& _lrotr(0x00000003u, 1) == 0x80000001u;
 }

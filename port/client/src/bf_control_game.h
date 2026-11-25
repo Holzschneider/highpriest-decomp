@@ -1,7 +1,7 @@
 // The control socket's game parts and events (PROTOCOL.md section 3: `map`,
 // `self`, `actors`, `pointer`; section 5: `map`, `chat`), written as JSON
 // from what bf_client_game.cpp reads out of the client. Port code
-// (bf_compat_flags, in bf_port_main); bf_main.cpp calls it.
+// (bf_port_flags, in bf_port_main); bf_main.cpp calls it.
 #ifndef BF_CONTROL_GAME_H
 #define BF_CONTROL_GAME_H
 
