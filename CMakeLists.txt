@@ -342,6 +342,7 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_control_game.cpp
 	port/client/src/bf_control_sound.cpp
 	port/client/src/bf_control_movie.cpp
+	port/client/src/bf_movie.cpp
 	port/client/src/bf_control_coverage.cpp
 	port/client/src/bf_zlib.cpp
 	port/client/src/bf_crt.cpp
@@ -349,6 +350,18 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_port_shell.cpp)
 bf_compat_flags(bf_port_main)
 target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_compat_bink bf_instrument ${BF_NATIVE_LIBS})
+# bifrost-movie-test: the movie player (bf_movie.h) through CBink's call
+# sequences, with its own clock and the sound engine offline (headless).
+add_executable(${BF_EXE}-movie-test port/client/test/movie_test.cpp port/client/src/bf_movie.cpp)
+target_include_directories(${BF_EXE}-movie-test PRIVATE ${BF_ROOT}/port/client/include)
+target_compile_options(${BF_EXE}-movie-test PRIVATE -Wall -Wextra)
+set_target_properties(${BF_EXE}-movie-test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+target_link_libraries(${BF_EXE}-movie-test PRIVATE bf_bink bf_audio bf_sys bf_instrument)
+add_dependencies(native ${BF_EXE}-movie-test)
+get_target_property(bf_movie_test_dir ${BF_EXE}-movie-test BINARY_DIR)
+add_test(NAME movie COMMAND ${BF_EXE}-movie-test WORKING_DIRECTORY ${bf_movie_test_dir})
+set_tests_properties(movie PROPERTIES LABELS headless TIMEOUT 300
+	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${bf_movie_test_dir}")
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
 bf_client_flags(${BF_EXE} ${BF_ROOT}/src)
 # Apple frameworks and zlib only (technical plan 3.1, 9): the native modules
