@@ -91,7 +91,7 @@ A group is a dictionary; inside it a dictionary is a subgroup and anything else 
 - `CRITICAL_SECTION`: store the `bf_sys_mutex *` in the structure (Wine's is 40 bytes); `InitializeCriticalSection` creates it.
 - `Interlocked*`: compiler atomics on the `LONG`; this module has none.
 - `CreateThread`/`_beginthreadex`: the thread function returns `uint32_t`; the handle is a `bf_sys_thread *`; `WaitForSingleObject` = `bf_sys_thread_wait`, `CloseHandle` = `bf_sys_thread_release`. There is no `TerminateThread`.
-- `timeGetTime`/`GetTickCount` = `bf_clock_ms`, `QueryPerformanceCounter` = `bf_clock_us` at 1 MHz, `Sleep` = `bf_clock_sleep_ms`, `GetLocalTime`/`GetSystemTime` = `bf_clock_local_time`/`bf_clock_utc_time`.
+- `timeGetTime`/`GetTickCount` = `bf_clock_ticks` (`bf_clock_ms` plus an hour), `QueryPerformanceCounter` = `bf_clock_us` at 1 MHz, `Sleep` = `bf_clock_sleep_ms`, `GetLocalTime`/`GetSystemTime` = `bf_clock_local_time`/`bf_clock_utc_time`.
 - The first call into `bf_file` or `bf_settings` should happen on one thread at start-up (the game folder may be read from the settings, and the settings file's place from the file module).
 
 ## Untested here

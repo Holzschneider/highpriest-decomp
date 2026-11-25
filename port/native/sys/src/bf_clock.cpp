@@ -86,6 +86,11 @@ extern "C" uint32_t bf_clock_ms(void)
 	return (uint32_t)(bf_clock_us() / 1000);
 }
 
+extern "C" uint32_t bf_clock_ticks(void)
+{
+	return bf_clock_ms() + BF_CLOCK_TICKS_AT_START;
+}
+
 extern "C" void bf_clock_sleep_us(uint64_t us)
 {
 	if (g_hasSource.load(std::memory_order_acquire)) {

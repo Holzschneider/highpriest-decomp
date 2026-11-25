@@ -387,6 +387,8 @@ add_library(bf_probe_game STATIC
 	${bf_probe_tree}/device/Connection.cpp
 	port/client/src/bf_replay.cpp)
 bf_client_flags(bf_probe_game ${bf_probe_tree})
+# Connection.cpp reads the clock (bf_clock_ticks); link only, as for the client.
+target_link_libraries(bf_probe_game INTERFACE $<LINK_ONLY:bf_sys>)
 add_executable(${BF_EXE}-packetlen port/probe/packetlen.cpp)
 bf_client_flags(${BF_EXE}-packetlen ${bf_probe_tree})
 target_link_libraries(${BF_EXE}-packetlen PRIVATE bf_probe_game)

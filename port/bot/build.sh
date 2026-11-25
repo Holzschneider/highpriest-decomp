@@ -33,9 +33,10 @@ compile "$OBJ/bf_packet_names.cpp" &
 compile "$ROOT/port/probe/probe_support.cpp" &
 compile "$ROOT/port/bot/bot.cpp" &
 $PLAIN -c "$ROOT/port/bot/bot_io.cpp" -o "$OBJ/bot_io.o" &
+$PLAIN -I"$ROOT/port/native/sys/include" -c "$ROOT/port/native/sys/src/bf_clock.cpp" -o "$OBJ/bf_clock.o" &
 for job in $(jobs -p); do wait "$job"; done
 
 clang++ -target arm64-apple-macos14 \
 	"$OBJ/bot.o" "$OBJ/bot_io.o" "$OBJ/Connection.o" "$OBJ/bf_replay.o" "$OBJ/PacketQueue.o" "$OBJ/packet.o" \
-	"$OBJ/bf_trace.o" "$OBJ/bf_packet_names.o" "$OBJ/probe_support.o" -o "$OUT/bin/bifrost-bot"
+	"$OBJ/bf_trace.o" "$OBJ/bf_packet_names.o" "$OBJ/probe_support.o" "$OBJ/bf_clock.o" -o "$OUT/bin/bifrost-bot"
 file "$OUT/bin/bifrost-bot"

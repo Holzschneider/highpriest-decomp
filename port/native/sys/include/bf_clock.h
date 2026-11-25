@@ -25,8 +25,19 @@ extern "C" {
 /* Microseconds since the process started (or since the installed source's zero). */
 uint64_t bf_clock_us(void);
 
-/* Milliseconds since start, wrapping at 2^32 like timeGetTime. */
+/* Milliseconds since start, wrapping at 2^32. */
 uint32_t bf_clock_ms(void);
+
+/*
+ * The client's tick count (its timeGetTime and GetTickCount): bf_clock_ms()
+ * plus one hour, wrapping at 2^32 (after 48.7 more days). A system clock
+ * never starts near 0, and the client subtracts its expiry times from it
+ * unsigned (the sprite cache's EXPIRETIME / 4 = 3750 ms in
+ * CRenderer::AddSpriteIndex), which on a clock starting at 0 gives 0 for the
+ * first 3750 ms and then never finds a free slot. Follows an installed source.
+ */
+#define BF_CLOCK_TICKS_AT_START (3600u * 1000u)
+uint32_t bf_clock_ticks(void);
 
 /*
  * Blocks the calling thread for at least ms milliseconds (or microseconds).

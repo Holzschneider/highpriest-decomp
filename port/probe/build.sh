@@ -28,11 +28,12 @@ compile "$ROOT/port/client/src/bf_replay.cpp"
 compile "$ROOT/port/instrument/bf_trace.cpp"
 compile "$OUT/obj/bf_packet_names.cpp"
 compile "$ROOT/port/probe/probe_support.cpp"
+clang++ -std=c++17 -O1 -g -target arm64-apple-macos14 -I"$ROOT/port/native/sys/include" -c "$ROOT/port/native/sys/src/bf_clock.cpp" -o "$OUT/obj/bf_clock.o"
 compile "$ROOT/port/probe/packetlen.cpp"
 compile "$ROOT/port/probe/netprobe.cpp"
 
 link() { clang++ -target arm64-apple-macos14 "$@"; }
 link "$OUT/obj/packetlen.o" "$OUT/obj/packet.o" -o "$OUT/bin/bifrost-packetlen"
 link "$OUT/obj/netprobe.o" "$OUT/obj/Connection.o" "$OUT/obj/bf_replay.o" "$OUT/obj/PacketQueue.o" "$OUT/obj/packet.o" \
-     "$OUT/obj/bf_trace.o" "$OUT/obj/bf_packet_names.o" "$OUT/obj/probe_support.o" -o "$OUT/bin/bifrost-netprobe"
+     "$OUT/obj/bf_trace.o" "$OUT/obj/bf_packet_names.o" "$OUT/obj/probe_support.o" "$OUT/obj/bf_clock.o" -o "$OUT/bin/bifrost-netprobe"
 file "$OUT/bin/bifrost-packetlen" "$OUT/bin/bifrost-netprobe"

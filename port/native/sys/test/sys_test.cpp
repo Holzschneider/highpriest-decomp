@@ -158,6 +158,8 @@ void TestClock()
 	uint64_t us = bf_clock_us();
 	uint32_t ms = bf_clock_ms();
 	Check(ms >= us / 1000 && ms <= us / 1000 + 5, "clock: milliseconds agree with microseconds");
+	uint32_t ticks = bf_clock_ticks();
+	Check(ticks - ms >= 3600000u && ticks - ms <= 3600005u, "clock: ticks are milliseconds plus an hour");
 
 	bool accurate = true;
 	std::string detail;
@@ -179,7 +181,7 @@ void TestClock()
 	bf_clock_source source = { FakeNow, FakeSleep, NULL };
 	g_fakeNow = 5000000;
 	bf_clock_set_source(&source);
-	bool followed = bf_clock_ms() == 5000 && bf_clock_us() == 5000000;
+	bool followed = bf_clock_ms() == 5000 && bf_clock_us() == 5000000 && bf_clock_ticks() == 3605000u;
 	start = bf_clock_us();
 	bf_clock_sleep_ms(16);
 	followed = followed && g_fakeSlept == 16000 && bf_clock_us() - start == 16000;

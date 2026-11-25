@@ -63,6 +63,10 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 }
 #endif
 
+/* The one clock (port/native/sys): bf_clock_ticks is the client's tick
+   count, bf_clock_sleep_ms its sleep (M11.1). */
+#include "bf_clock.h"
+
 /* The C library's file names on client paths: game folder, write locations
    (port/compat/win32). */
 #include "bf_crt.h"
