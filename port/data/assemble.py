@@ -27,6 +27,9 @@ What goes there, and why:
                     each in the version whose image size equals the
                     archive file's (see TEXTURE_SETS); --list names the
                     source of every file and why others were left out.
+                    The Escape menu's "Exit to Windows" button (esc_03a/b/c)
+                    is cut to "Exit" (TEXTURE_EDITED): a macOS client does
+                    not exit to Windows.
   tipOfTheday_e.txt the tip of the day, in the game folder itself (not data/):
                     the English service's CTipOfTheDay::Load opens it there
                     with fopen when data\\tipofday.txt does not exist (the
@@ -195,6 +198,83 @@ def texture_candidates(roe):
     return found
 
 
+def first_word_only(data):
+    """A 24-bit BMP button label cut to its first word, centred where the
+    whole label was: "Exit to Windows" -> "Exit". The label's columns are
+    those that differ from the button face; the face under the label is the
+    blend of the plain columns just left and right of it. Words are split at
+    gaps of 3 plain columns; the first word is moved as its difference from
+    the face, so no seam of the old background goes with it. Returns the data
+    unchanged if it is not a plain 24-bit BMP or no two words are found."""
+    import struct
+    if data[:2] != b'BM' or len(data) < 54:
+        return data
+    off, = struct.unpack_from('<I', data, 10)
+    w, h, _, bpp, comp = struct.unpack_from('<iiHHI', data, 18)
+    if bpp != 24 or comp != 0 or w <= 0 or h == 0:
+        return data
+    stride = (w * 3 + 3) & ~3
+    rows = [bytearray(data[off + r * stride: off + r * stride + w * 3]) for r in range(abs(h))]
+    px = lambda r, x: rows[r][3 * x: 3 * x + 3]
+
+    def blend(r, x, xl, xr):
+        t = (x - xl) / float(xr - xl)
+        a, b = px(r, xl), px(r, xr)
+        return [a[i] + (b[i] - a[i]) * t for i in range(3)]
+
+    # A first guess of the face (inside the rounded ends) finds the label...
+    el, er = w // 8, w - 1 - w // 8
+    cols = [x for x in range(el + 1, er)
+            if any(sum(abs(p - q) for p, q in zip(px(r, x), blend(r, x, el, er))) > 60 for r in range(len(rows)))]
+    if not cols:
+        return data
+    words, start, prev = [], cols[0], cols[0]
+    for x in cols[1:] + [None]:
+        if x is None or x - prev > 3:
+            words.append((start, prev))
+            if x is not None:
+                start = x
+        if x is not None:
+            prev = x
+    if len(words) < 2:
+        return data
+    # ...and the plain columns beside it give the face under it.
+    (a, b), lo, hi = words[0], cols[0], cols[-1]
+    # The label's faint halo reaches past its ink: widen while a column
+    # differs from the one beyond it.
+    same = lambda x, y: all(sum(abs(p - q) for p, q in zip(px(r, x), px(r, y))) <= 6 for r in range(len(rows)))
+    while lo - 2 > el and not same(lo - 1, lo - 2):
+        lo -= 1
+    while hi + 2 < er and not same(hi + 1, hi + 2):
+        hi += 1
+    fl, fr = lo - 1, hi + 1
+    delta = [[[px(r, x)[i] - blend(r, x, fl, fr)[i] for i in range(3)] for x in range(a, b + 1)]
+             for r in range(len(rows))]
+    at = (lo + hi + 1) // 2 - (b - a + 1) // 2
+    for r in range(len(rows)):
+        for x in range(lo, hi + 1):
+            f = blend(r, x, fl, fr)
+            if at <= x <= at + b - a:
+                f = [f[i] + delta[r][x - at][i] for i in range(3)]
+            rows[r][3 * x: 3 * x + 3] = bytes(max(0, min(255, int(round(v)))) for v in f)
+    out = bytearray(data)
+    for r, row in enumerate(rows):
+        out[off + r * stride: off + r * stride + w * 3] = row
+    return bytes(out)
+
+
+# ROenglishRE textures changed before they are placed: client path -> (edit, reason).
+# The Escape menu's exit button (UIQuitWnd, UIRestartWnd: esc_03a/b/c) says
+# "Exit to Windows"; a macOS client leaves to the desktop, not to Windows, so
+# the label is cut to "Exit" (the word of the message table's own quit
+# prompts), the button image otherwise as it is.
+TEXTURE_EDITED = {
+    b'data\\texture\\\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\esc_03' + s + b'.bmp':
+        (first_word_only, '"Exit to Windows" cut to "Exit"')
+    for s in (b'a', b'b', b'c')
+}
+
+
 def choose_textures(game, roe):
     """[(client path, content, source)] and the files left out with why."""
     import grfaudit
@@ -214,7 +294,14 @@ def choose_textures(game, roe):
             with open(full, 'rb') as f:
                 data = f.read()
             if image_size(data) == want:
-                chosen.append((key, data, 'ROenglishRE/%s/%s' % (TRANS, s)))
+                source = 'ROenglishRE/%s/%s' % (TRANS, s)
+                if key in TEXTURE_EDITED:
+                    edit, why = TEXTURE_EDITED[key]
+                    edited = edit(data)
+                    if edited != data:
+                        source += ' (edited: %s)' % why
+                    data = edited
+                chosen.append((key, data, source))
                 break
         else:
             sizes = ', '.join('%s %s' % (s, image_size(open(f, 'rb').read())) for s, f in cands)
