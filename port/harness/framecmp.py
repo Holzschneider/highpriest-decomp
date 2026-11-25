@@ -26,12 +26,15 @@ What "match" means (the definition, written before the reference was taken):
    and its two samples, 400 ms apart, together spanning more than the 500 ms
    half-period of the edit caret). A frame's mask is every pixel in which
    any of these six captures differs from another, by any amount, widened
-   by 3 device pixels. Nothing is masked by hand. What the masks hold, read
+   by 3 device pixels. Added to it: the rectangles the capturing script
+   names in <name>.json with a reason (one so far: the date and time
+   CMode::ScreenShot stamps on the read-back, which changes every second
+   and every day). What the masks hold, read
    from the reference's masks: the caret of the focused edit field
    (UIEditCtrl::OnDraw blinks it on timeGetTime()/500), the animated game
    cursor and the cell marker under it, animated models and sprites, water,
-   effects (chimney smoke, the potion), the date and time the client stamps
-   on its screenshot; reference.json lists each frame's masked share.
+   effects (chimney smoke, the potion), the read-back's stamp;
+   reference.json lists each frame's masked share.
 3. Regions. A frame's capture records the mode and the open UI windows
    (control socket `state`, a <name>.json beside the PNG). Strict region:
    the whole frame outside game mode, the windows' rectangles in game mode.
@@ -52,8 +55,11 @@ What "match" means (the definition, written before the reference was taken):
    pixels: the mean colour of the masked pixels within the range of the six
    reference captures' means of that tile, widened by 24 per channel (an
    animated thing that vanishes, turns black or magenta, or is blended
-   wrongly). Judged in the strict region; in the world region counted and
-   reported only (random particles move tile means by more).
+   wrongly). Judged in the strict region; counted and reported only in the
+   world region (random particles move tile means by more) and in the box
+   of 48x56 logical pixels around the pointer (the cursor animates in some
+   modes, and its unseen phases move a tile's mean; a moved cursor still
+   fails point 4 or 5).
 7. Anywhere: no pixel of placeholder magenta (R and B at least 240, G at
    most 16) where the reference has none.
 8. Same size in device pixels, or the frame fails. A frame whose mask
@@ -300,24 +306,32 @@ def frame_sets(d):
     return {k: [p for _, p in sorted(v)] for k, v in sets.items()}
 
 
-def regions(png_path, w, h):
-    """(strict rectangles in device pixels, world: bool) from the capture's
-    <name>.json (mode, scale, windows); without it the whole frame is strict."""
-    side = Path(png_path).with_suffix(".json")
+def sidecar(png_path):
     try:
-        info = json.loads(side.read_text())
+        return json.loads(Path(png_path).with_suffix(".json").read_text())
     except (OSError, ValueError):
-        return [[0, 0, w, h]], False
-    if info.get("mode") != "game":
-        return [[0, 0, w, h]], False
+        return {}
+
+
+def device_rect(r, sc, w, h):
+    x0, y0 = max(0, r[0] * sc), max(0, r[1] * sc)
+    x1, y1 = min(w, (r[0] + r[2]) * sc), min(h, (r[1] + r[3]) * sc)
+    return [x0, y0, x1 - x0, y1 - y0] if x1 > x0 and y1 > y0 else None
+
+
+def regions(png_path, w, h):
+    """(strict rectangles, world: bool, cursor box or None, named masks) in
+    device pixels, from the capture's <name>.json (mode, scale, windows,
+    pointer, masks); without it the whole frame is strict."""
+    info = sidecar(png_path)
     sc = info.get("scale") or 1
-    rects = []
-    for x, y, rw, rh in info.get("windows", []):
-        x0, y0 = max(0, x * sc), max(0, y * sc)
-        x1, y1 = min(w, (x + rw) * sc), min(h, (y + rh) * sc)
-        if x1 > x0 and y1 > y0:
-            rects.append([x0, y0, x1 - x0, y1 - y0])
-    return rects, True
+    p = info.get("pointer")
+    cursor = device_rect([p[0] - 8, p[1] - 8, 48, 56], sc, w, h) if p else None
+    masks = [dict(m, device=device_rect(m["rect"], sc, w, h)) for m in info.get("masks", [])]
+    if info.get("mode") != "game":
+        return [[0, 0, w, h]], False, cursor, masks
+    rects = [r for r in (device_rect(r, sc, w, h) for r in info.get("windows", [])) if r]
+    return rects, True, cursor, masks
 
 
 def rect_rows(rects, w, h):
@@ -360,6 +374,11 @@ def build_reference(dirs, out, commit=None, log=print):
                 if rows[y] != base[y]:
                     mask[y] |= bits_of(differing_pixels(base[y], rows[y]))
         raw = sum(bin(m).count("1") for m in mask)
+        strict, world, cursor, named = regions(paths[0], w, h)
+        for m in named:
+            if m["device"]:
+                for y, bits in enumerate(rect_rows([m["device"]], w, h)):
+                    mask[y] |= bits
         mask = dilate(mask, w, DILATE)
         masked = sum(bin(m).count("1") for m in mask)
         tiles = {}
@@ -377,9 +396,9 @@ def build_reference(dirs, out, commit=None, log=print):
             mask_rows_to_png(out / (name + ".mask.png"), w, mask)
         elif (out / (name + ".mask.png")).exists():
             (out / (name + ".mask.png")).unlink()
-        strict, world = regions(paths[0], w, h)
         ref["frames"][name] = {"width": w, "height": h, "captures": len(paths), "varying_px": raw,
-                               "strict": strict, "world": world,
+                               "strict": strict, "world": world, "cursor": cursor,
+                               "named_masks": [{"rect": m["device"], "reason": m.get("reason")} for m in named],
                                "masked_px": masked, "masked_share": round(masked / float(w * h), 6),
                                "weak": masked > WEAK_SHARE * w * h,
                                "tiles": {k: [round(v, 2) for v in t[1] + t[2]] for k, t in tiles.items()}}
@@ -433,7 +452,9 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
             continue
         tx, ty = (int(v) for v in k.split(","))
         cx, cy = min(w - 1, tx * TILE + TILE // 2), min(h - 1, ty * TILE + TILE // 2)
-        if world and not (strict[cy] >> cx) & 1:
+        cb = info.get("cursor")
+        in_cursor = cb and cb[0] <= cx < cb[0] + cb[2] and cb[1] <= cy < cb[1] + cb[3]
+        if in_cursor or (world and not (strict[cy] >> cx) & 1):
             tiles_world += 1
             continue
         tiles_bad.append({"tile": k, "mean": [round(v, 1) for v in rgb] if n >= TILE_MIN else None,

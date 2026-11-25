@@ -120,13 +120,21 @@ def reference_dir(t):
     return Path(t.param("reference") or paths.client_dir() / "test" / "reference" / "m11")
 
 
-def regions_of(ctl, scale=None):
+def regions_of(ctl, scale=None, masks=()):
     """What framecmp needs to tell the strict region from the world: the
-    mode, the UI scale and the open windows' rectangles (logical)."""
-    st = ctl.state("mode", "view", "windows")
+    mode, the UI scale, the open windows' rectangles and the pointer
+    (logical), and masks named with their reason."""
+    st = ctl.state("mode", "view", "windows", "pointer")
     v = st.get("view") or {}
+    p = st.get("pointer") or {}
     return {"mode": st.get("mode"), "scale": scale or v.get("scale"), "logical": v.get("logical"),
-            "windows": [w["rect"] for w in st.get("windows", [])]}
+            "windows": [w["rect"] for w in st.get("windows", [])],
+            "pointer": [p["x"], p["y"]] if "x" in p else None, "masks": list(masks)}
+
+
+# The date and time CMode::ScreenShot stamps at the bottom left of its
+# picture ("2026/11/25/Wednesday 02:48:00"): logical, the picture at 1024x768.
+STAMP = {"rect": [0, 744, 240, 24], "reason": "date and time stamped by CMode::ScreenShot"}
 
 
 def write_regions(t, name, info):
@@ -507,7 +515,7 @@ def readback(t):
         pics = t.run_dir / "home" / "Pictures" / paths.app_name()
         ctl.move(*GROUND)
         ctl.wait({"frames": 10}, timeout=20)
-        info = regions_of(ctl, scale=1)      # the picture is the logical screen
+        info = regions_of(ctl, scale=1, masks=[STAMP])      # the picture is the logical screen
         for k in range(SAMPLES + 1):
             name = "readback" if k == 0 else "readback.s%d" % k
             before = set(pics.glob("*.bmp")) if pics.exists() else set()

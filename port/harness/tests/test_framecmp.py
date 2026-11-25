@@ -146,6 +146,17 @@ class FrameCmp(unittest.TestCase):
         self.assertFalse(s["passed"])
         self.assertEqual(s["results"][0]["magenta"], 1)
 
+    def test_named_mask(self):
+        import json
+        a = self.run_dir("a", {"f": scene(0)})
+        b = self.run_dir("b", {"f": scene(0)})
+        (a / "f.json").write_text(json.dumps({"mode": "login", "scale": 1,
+                                              "masks": [{"rect": [0, 0, 8, 8], "reason": "clock"}]}))
+        ref = framecmp.build_reference([a, b], self.tmp / "ref", "test", log=lambda *_: None)
+        self.assertEqual(ref["frames"]["f"]["named_masks"][0]["reason"], "clock")
+        self.assertTrue(self.compare(self.poke(scene(0), [(3, 3)], (0, 0, 0)))["passed"])
+        self.assertFalse(self.compare(self.poke(scene(0), [(30, 3)], (0, 0, 0)))["passed"])
+
     def test_bmp_reader(self):
         rows = scene(0)
         stride = (W * 3 + 3) & ~3
