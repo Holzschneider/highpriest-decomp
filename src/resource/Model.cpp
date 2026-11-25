@@ -81,28 +81,6 @@ C3dGrannyBoneRes g_GrannyBoneRes;
 extern CSession g_session;
 
 
-#ifndef GrannyColorMapTextureType
-#define GrannyColorMapTextureType 0
-#endif
-#ifndef GrannyDiffuseColorTexture
-#define GrannyDiffuseColorTexture 2
-#endif
-#ifdef GrannyDeformPositionNormal
-#undef GrannyDeformPositionNormal
-#endif
-#define GrannyDeformPositionNormal 2
-#ifndef GrannyStandardRigidVertexSection
-#define GrannyStandardRigidVertexSection 1
-#endif
-#ifndef GrannyStandardRigidIndexSection
-#define GrannyStandardRigidIndexSection 2
-#endif
-#ifndef GrannyStandardDeformableIndexSection
-#define GrannyStandardDeformableIndexSection 4
-#endif
-#ifndef GrannyStandardTextureSection
-#define GrannyStandardTextureSection 5
-#endif
 
 
 
@@ -880,11 +858,6 @@ bool C3dGrannyModelRes :: Load( const char* fName )
   bool Result = false;
 	GrannyModel *Model;
 
-  if(!GrannyVersionsMatch) {
-	ErrorMsg("doesn't match the .h file used during compilation");
-	return false;
-  }
-
   m_pBoneRes = &g_GrannyBoneRes;
   m_Scene.ModelCount = 0;
   m_Scene.MaxBoneCount = 0;
@@ -914,25 +887,25 @@ bool C3dGrannyModelRes :: Load( const char* fName )
 		return	false;
 	}
 
-	m_Scene.LoadedFile = GrannyReadEntireFileFromMemory(fp.GetLength (), (void*)fp.GetBuf ());
+	m_Scene.LoadedFile = bf_granny_open((void*)fp.GetBuf (), fp.GetLength (), NULL, 0);
 	fp.Close();
   if(m_Scene.LoadedFile)
   {
-	granny_file_info *FileInfo = GrannyGetFileInfo(m_Scene.LoadedFile);
+	const bf_granny_info *FileInfo = bf_granny_get_info(m_Scene.LoadedFile);
 	  strcpy( m_Scene.BaseFileName, fName);
 
 	if(FileInfo) {
-		m_Scene.TextureCount = FileInfo->TextureCount;
+		m_Scene.TextureCount = FileInfo->texture_count;
 		m_Scene.Textures = new GrannyTexture[m_Scene.TextureCount];
 		{
 					for(int TextureIndex = 0;TextureIndex < m_Scene.TextureCount;TextureIndex++)
 		  {
 						m_Scene.Textures[TextureIndex].tex = NULL;
-			CreateTexture(&m_Scene.Textures[TextureIndex], FileInfo->Textures[TextureIndex]);
+			CreateTexture(&m_Scene.Textures[TextureIndex], TextureIndex);
 					}
 				}
 
-		m_Scene.ModelCount = FileInfo->ModelCount;
+		m_Scene.ModelCount = FileInfo->model_count;
 
 		sAssert(m_Scene.Model == NULL);
 
@@ -941,14 +914,14 @@ bool C3dGrannyModelRes :: Load( const char* fName )
 
 		{
 
-		  granny_model *GrannyModel = FileInfo->Models[0];
+		  const bf_granny_model *GrannyModel = bf_granny_get_model(m_Scene.LoadedFile, 0);
 		  Model = m_Scene.Model;
-		  CreateModel(Model, GrannyModel);
-					m_pSkeleton = FileInfo->Skeletons[0];
+		  CreateModel(Model, 0);
+					m_pSkeleton = bf_granny_get_skeleton(m_Scene.LoadedFile, 0);
 					m_pModel = GrannyModel;
 		}
 
-		m_Scene.SharedLocalPose = GrannyNewLocalPose(m_Scene.MaxBoneCount);
+		m_Scene.SharedLocalPose = new bf_granny_transform[m_Scene.MaxBoneCount];
 
 		if(m_Scene.MaxMutableVertexBufferSize)
 		{
@@ -961,15 +934,6 @@ bool C3dGrannyModelRes :: Load( const char* fName )
 	  {
 		ErrorMsg("Unable to access file data .gr2");
 	  }
-
-	  GrannyFreeFileSection(m_Scene.LoadedFile,
-							GrannyStandardRigidVertexSection);
-	  GrannyFreeFileSection(m_Scene.LoadedFile,
-							GrannyStandardRigidIndexSection);
-	  GrannyFreeFileSection(m_Scene.LoadedFile,
-							GrannyStandardDeformableIndexSection);
-	  GrannyFreeFileSection(m_Scene.LoadedFile,
-							GrannyStandardTextureSection);
   }
   else
   {
@@ -999,27 +963,27 @@ bool C3dGrannyModelRes :: Load( const char* fName )
   return(Result);
 }
 
-granny_control* C3dGrannyModelRes :: ActAnimation( int idx, granny_model_instance* instance, granny_control* control, int nLoop )
+bf_granny_control* C3dGrannyModelRes :: ActAnimation( int idx, bf_granny_instance* instance, bf_granny_control* control, int nLoop )
 {
 	if ( control==NULL ) {
-		granny_animation* animation = m_pBoneRes->GetAnimation(m_nBoneType, idx);
+		const bf_granny_file* animation = m_pBoneRes->GetAnimation(m_nBoneType, idx);
 		if( animation==NULL ) return NULL;
-		control = GrannyPlayControlledAnimation(0.0f, animation, instance);
+		control = bf_granny_play(instance, 0.0f, animation, 0);
 		if( control==NULL ) return NULL;
-		GrannySetControlLoopCount(control, nLoop);
+		bf_granny_set_loop_count(control, nLoop);
 
 	}
 	else {
-		GrannySetControlActive(control, true);
+		bf_granny_set_active(control, true);
 	}
 	return control;
 }
 
-void C3dGrannyModelRes :: DeActAnimation( granny_control* control )
+void C3dGrannyModelRes :: DeActAnimation( bf_granny_control* control )
 {
 	if( control ) {
-		GrannySetControlActive(control, false);
-		GrannyFreeControl(control);
+		bf_granny_set_active(control, false);
+		bf_granny_free_control(control);
 
 	}
 }
@@ -1035,16 +999,15 @@ void C3dGrannyModelRes :: Release()
 	{
 	  GrannyMesh &Mesh = Model->Meshes[MeshIndex];
 
-	  GrannyFreeMeshBinding(Mesh.Binding);
-	  GrannyFreeMeshDeformer(Mesh.Deformer);
+	  bf_granny_free_mesh_binding(Mesh.Binding);
 
 	  delete [] Mesh.TextureReferences;
 			delete Mesh.VerIdx ;
 			if( Mesh.Vertices ) delete Mesh.Vertices ;
 	}
 
-	GrannyFreeModelInstance(Model->GrannyInstance);
-	GrannyFreeWorldPose(Model->WorldPose);
+	bf_granny_free_instance(Model->GrannyInstance);
+	bf_granny_free_world_pose(Model->WorldPose);
 	delete [] Model->Meshes;
   }
 
@@ -1055,22 +1018,24 @@ void C3dGrannyModelRes :: Release()
 	}
 	delete [] m_Scene.Textures;
 
-  GrannyFreeLocalPose(m_Scene.SharedLocalPose);
-  GrannyFreeFile(m_Scene.LoadedFile);
+  delete [] m_Scene.SharedLocalPose;
+  bf_granny_close(m_Scene.LoadedFile);
 
   delete m_Scene.Model;
 	m_Scene.Model = NULL;
 }
 
-void C3dGrannyModelRes :: CreateTexture(GrannyTexture *Texture, granny_texture *GrannyTexture)
+void C3dGrannyModelRes :: CreateTexture(GrannyTexture *Texture, int TextureIndex)
 {
-  Texture->Name = GrannyTexture->FromFileName;
+  const bf_granny_texture *GrannyTexture = bf_granny_get_texture(m_Scene.LoadedFile, TextureIndex);
+  Texture->Name = GrannyTexture->file_name;
 
-  if((GrannyTexture->TextureType == GrannyColorMapTextureType) && (GrannyTexture->ImageCount == 1))
+  // a colour map (texture type 0) of one image
+  if((GrannyTexture->texture_type == 0) && (GrannyTexture->image_count == 1))
   {
 
 	{
-	  Texture->tex = CreateRGBATexture(GrannyTexture, 0);
+	  Texture->tex = CreateRGBATexture(TextureIndex, 0);
 	}
   }
   else
@@ -1079,112 +1044,95 @@ void C3dGrannyModelRes :: CreateTexture(GrannyTexture *Texture, granny_texture *
   }
 }
 
-CTexture* C3dGrannyModelRes :: CreateRGBATexture(granny_texture *GrannyTexture, int ImageIndex)
+CTexture* C3dGrannyModelRes :: CreateRGBATexture(int TextureIndex, int ImageIndex)
 {
   LPDIRECTDRAWSURFACE7 D3DTexture = NULL;
 	CTexture* RetD3DTexture = NULL;
 
-  BYTE HasAlpha = GrannyTextureHasAlpha(GrannyTexture);
-  int Width = GrannyTexture->Width;
-  int Height = GrannyTexture->Height;
-	unsigned char *PixelBuffer = new BYTE[Width * Height * 4];
+  const bf_granny_texture *GrannyTexture = bf_granny_get_texture(m_Scene.LoadedFile, TextureIndex);
+  int HasAlpha = 0;
+  int Width = GrannyTexture->width;
+  int Height = GrannyTexture->height;
   unsigned char *PixelBuffer2 = new BYTE[Width * Height * 4];
-	BYTE	r, g, b, a;
 
-  GrannyCopyTextureImage(GrannyTexture, 0, 0, GrannyRGBA8888PixelFormat,
-						 Width, Height, Width * 4, PixelBuffer);
+	// B, G, R, A: the 2008 client swapped GrannyCopyTextureImage's RGBA8888
+	// into this order; the reader decodes into it. A texture it cannot
+	// decode is black (and opaque below), as granny2.dll left the copy.
+	if( !bf_granny_texture_pixels(m_Scene.LoadedFile, TextureIndex, PixelBuffer2, &HasAlpha) ) {
+		bf_count("granny.texture_failed", 1);
+		memset(PixelBuffer2, 0, Width * Height * 4);
+		HasAlpha = 0;
+	}
 
-	int sidx=0, didx=0;;
+	int didx=0;
 
 	if( HasAlpha ) {
-		for( int i=0;i<Height;i++ ) {
-			for( int j=0;j<Width;j++ ) {
-
-				r = PixelBuffer[sidx+0];
-				g = PixelBuffer[sidx+1];
-				b = PixelBuffer[sidx+2];
-				a = PixelBuffer[sidx+3];
- 				PixelBuffer2[didx+0] =  b;
-				PixelBuffer2[didx+1] = 	g;
-				PixelBuffer2[didx+2] = 	r;
-				PixelBuffer2[didx+3] =  a;
-				didx+=4, sidx+=4;
-			}
-		}
-
 		RetD3DTexture = g_texMgr.CreateTexture( Width, Height, (DWORD*)PixelBuffer2, PF_A4R4G4B4, 0 );
 	}
 	else {
 		for( int i=0;i<Height;i++ ) {
 			for( int j=0;j<Width;j++ ) {
-
-				r = PixelBuffer[sidx+0];
-				g = PixelBuffer[sidx+1];
-				b = PixelBuffer[sidx+2];
-				a = PixelBuffer[sidx+3];
- 				PixelBuffer2[didx+0] =  b;
-				PixelBuffer2[didx+1] = 	g;
-				PixelBuffer2[didx+2] = 	r;
 				PixelBuffer2[didx+3] =  255;
-				didx+=4, sidx+=4;
+				didx+=4;
 			}
 		}
 		RetD3DTexture = g_texMgr.CreateTexture( Width, Height, (DWORD*)PixelBuffer2, PF_A1R5G5B5, 0 );
 	}
 
 	delete [] PixelBuffer2;
-	delete [] PixelBuffer;
 
   return(RetD3DTexture);
 }
 
-void C3dGrannyModelRes :: CreateModel(GrannyModel *Model, granny_model *GrannyModel)
+void C3dGrannyModelRes :: CreateModel(GrannyModel *Model, int ModelIndex)
 {
-  int BoneCount = GrannyModel->Skeleton->BoneCount;
+  const bf_granny_model *GrannyModel = bf_granny_get_model(m_Scene.LoadedFile, ModelIndex);
+  int BoneCount = bf_granny_get_skeleton(m_Scene.LoadedFile, GrannyModel->skeleton)->bone_count;
   if(m_Scene.MaxBoneCount < BoneCount)
   {
 	m_Scene.MaxBoneCount = BoneCount;
   }
 
-  Model->GrannyInstance = GrannyInstantiateModel(GrannyModel);
+  Model->GrannyInstance = bf_granny_new_instance(m_Scene.LoadedFile, ModelIndex);
 
-  Model->WorldPose = GrannyNewWorldPose(BoneCount);
+  Model->WorldPose = bf_granny_new_world_pose(BoneCount);
 
-  Model->MeshCount = GrannyModel->MeshBindingCount;
+  Model->MeshCount = GrannyModel->mesh_count;
   Model->Meshes = new GrannyMesh[Model->MeshCount];
   for(int MeshIndex = 0;MeshIndex < Model->MeshCount;MeshIndex++)
   {
-	CreateMesh(&Model->Meshes[MeshIndex], GrannyModel->MeshBindings[MeshIndex].Mesh, Model->GrannyInstance);
+	CreateMesh(&Model->Meshes[MeshIndex], GrannyModel->meshes[MeshIndex], Model->GrannyInstance);
   }
 }
 
-void C3dGrannyModelRes :: CreateMesh(GrannyMesh *Mesh, granny_mesh *GrannyMesh, granny_model_instance *InModel)
+void C3dGrannyModelRes :: CreateMesh(GrannyMesh *Mesh, int MeshIndex, bf_granny_instance *InModel)
 {
+  const bf_granny_mesh *GrannyMesh = bf_granny_get_mesh(m_Scene.LoadedFile, MeshIndex);
   Mesh->Mesh = GrannyMesh;
+  Mesh->Index = MeshIndex;
 
-  granny_skeleton *Skeleton = GrannyGetSourceSkeleton(InModel);
-  Mesh->Binding = GrannyNewMeshBinding(GrannyMesh, Skeleton, Skeleton);
+  const bf_granny_skeleton *Skeleton = bf_granny_instance_skeleton(InModel);
+  Mesh->Binding = bf_granny_bind_mesh(GrannyMesh, Skeleton);
 
-  int IndexCount = GrannyGetMeshIndexCount(GrannyMesh);
+  int IndexCount = GrannyMesh->index_count;
   int IndexBufferSize = sizeof(unsigned short) * IndexCount;
 
   Mesh->VerIdx = new WORD[IndexCount];
 
   if(IndexCount) {
-	  BYTE *Indices = (BYTE*)Mesh->VerIdx;
-	  GrannyCopyMeshIndices(GrannyMesh, sizeof(WORD), Indices);
+	  bf_granny_copy_indices16(GrannyMesh, Mesh->VerIdx);
   }
 
-  int VertexCount = GrannyGetMeshVertexCount(GrannyMesh);
-  int VertexBufferSize = VertexCount * sizeof(granny_pnt332_vertex);
+  int VertexCount = GrannyMesh->vertex_count;
+  int VertexBufferSize = VertexCount * sizeof(bf_granny_pnt332);
 
 	Mesh->Vertices = NULL;
 
-  if(GrannyMeshIsRigid(GrannyMesh)) {
-		Mesh->Vertices = new BYTE[sizeof(granny_pnt332_vertex)*VertexCount];
-		GrannyCopyMeshVertices(GrannyMesh, GrannyPNT332VertexType, Mesh->Vertices);
+  if(GrannyMesh->rigid) {
+		Mesh->Vertices = new BYTE[sizeof(bf_granny_pnt332)*VertexCount];
+		bf_granny_copy_vertices(GrannyMesh, (bf_granny_pnt332*)Mesh->Vertices);
 
-	Mesh->Deformer = 0;
+	Mesh->Deformer = false;
   }
   else
   {
@@ -1192,26 +1140,25 @@ void C3dGrannyModelRes :: CreateMesh(GrannyMesh *Mesh, granny_mesh *GrannyMesh, 
 		m_Scene.MaxMutableVertexBufferSize = VertexBufferSize;
 	}
 
-	Mesh->Deformer = GrannyNewMeshDeformer(
-		GrannyGetMeshVertexType(GrannyMesh), GrannyPNT332VertexType, GrannyDeformPositionNormal);
-
-	if(!Mesh->Deformer){
-	  ErrorMsg("Granny didn't find a matching deformer for the vertex format used by mesh");
-	}
+	// bf_granny_deform skins position and normal into PNT332, as the
+	// deformer granny2.dll made for it
+	Mesh->Deformer = true;
   }
 
-  Mesh->TextureCount = GrannyMesh->MaterialBindingCount;
+  Mesh->TextureCount = GrannyMesh->material_count;
   Mesh->TextureReferences = new GrannyTexture *[Mesh->TextureCount];
   for(int TextureIndex = 0;TextureIndex < Mesh->TextureCount;TextureIndex++) {
-	Mesh->TextureReferences[TextureIndex] = FindTexture(GrannyMesh->MaterialBindings[TextureIndex].Material);
+	Mesh->TextureReferences[TextureIndex] = FindTexture(GrannyMesh->materials[TextureIndex]);
   }
 }
 
-GrannyTexture* C3dGrannyModelRes :: FindTexture(granny_material *GrannyMaterial)
+GrannyTexture* C3dGrannyModelRes :: FindTexture(int Material)
 {
 	GrannyTexture *Texture = NULL;
 
-  granny_texture *GrannyTexture = GrannyGetMaterialTextureByType(GrannyMaterial, GrannyDiffuseColorTexture);
+  // the material's diffuse colour map
+  const bf_granny_material *GrannyMaterial = bf_granny_get_material(m_Scene.LoadedFile, Material);
+  const bf_granny_texture *GrannyTexture = GrannyMaterial ? bf_granny_get_texture(m_Scene.LoadedFile, GrannyMaterial->diffuse_texture) : NULL;
 
   if(GrannyTexture)
   {
@@ -1219,7 +1166,7 @@ GrannyTexture* C3dGrannyModelRes :: FindTexture(granny_material *GrannyMaterial)
 		for(int TextureIndex = 0;TextureIndex < m_Scene.TextureCount;TextureIndex++)
 	{
 	  Texture = &m_Scene.Textures[TextureIndex];
-	  if(strcmp(Texture->Name, GrannyTexture->FromFileName) == 0) {
+	  if(strcmp(Texture->Name, GrannyTexture->file_name) == 0) {
 		return(Texture);
 	  }
 		}
@@ -1232,27 +1179,26 @@ void C3dGrannyModelRes :: SetProjectZ(float fClip)
 	m_ProjectZ = fClip + fClip / 5.0f;
 }
 
-granny_world_pose*  C3dGrannyModelRes :: UpdateAni(float GameClock, granny_model_instance* instance)
+bf_granny_world_pose*  C3dGrannyModelRes :: UpdateAni(float GameClock, bf_granny_instance* instance)
 {
 
   GrannyModel *Model = m_Scene.Model;
 	if( Model==NULL ) return NULL;
 
-	granny_skeleton *Skeleton = GrannyGetSourceSkeleton(instance);
+	const bf_granny_skeleton *Skeleton = bf_granny_instance_skeleton(instance);
 
-  int BoneCount = Skeleton->BoneCount;
+  int BoneCount = Skeleton->bone_count;
 
-  GrannySetModelClock(instance, GameClock);
-  GrannySampleModelAnimations(instance, 0, BoneCount, m_Scene.SharedLocalPose);
-  GrannyBuildWorldPose( Skeleton, 0, BoneCount, m_Scene.SharedLocalPose, 0, Model->WorldPose);
-  GrannyFreeCompletedModelControls(instance);
+  bf_granny_set_clock(instance, GameClock);
+  bf_granny_sample_instance(instance, m_Scene.SharedLocalPose, m_Scene.MaxBoneCount);
+  bf_granny_build_world_pose( Skeleton, m_Scene.SharedLocalPose, m_Scene.MaxBoneCount, Model->WorldPose);
 
 
 	return Model->WorldPose;
 }
 
 VOID* C3dGrannyModelRes :: RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat,
-																			granny_world_pose* pWorldpose )
+																			bf_granny_world_pose* pWorldpose )
 {
   return RenderModel(m_Scene.Model, nMeshIdx, RetTex, RetFaceArr, nIndexNo, poseMat, pWorldpose );
 }
@@ -1261,7 +1207,7 @@ VOID* C3dGrannyModelRes :: GetRigidMesh( int nMeshIdx )
 {
 	GrannyMesh *Mesh;
 	Mesh = &m_Scene.Model->Meshes[nMeshIdx];
-	if(GrannyMeshIsRigid(Mesh->Mesh)) {
+	if(Mesh->Mesh->rigid) {
 		return (VOID*)Mesh->Vertices;
 	}
 	return NULL;
@@ -1274,7 +1220,7 @@ bool C3dGrannyModelRes :: SetHairAndHeadMesh( void )
 	for( int i=0;i<m_Scene.Model->MeshCount;i++ ) {
 		GrannyMesh* Mesh = &m_Scene.Model->Meshes[i];
 
-		if( strstr(Mesh->Mesh->Name, "hair_pivot") ) {
+		if( strstr(Mesh->Mesh->name, "hair_pivot") ) {
 			m_hair->nSubMeshIdx = i;
 			return true;
 		}
@@ -1283,7 +1229,7 @@ bool C3dGrannyModelRes :: SetHairAndHeadMesh( void )
 }
 
 VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo,
-																			 matrix* poseMat, granny_world_pose* pWorldpose )
+																			 matrix* poseMat, bf_granny_world_pose* pWorldpose )
 {
 	GrannyMesh *Mesh;
 	VOID*	ret = NULL;
@@ -1295,7 +1241,7 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR
 	if( pWorldpose==NULL ) {
 		pWorldpose = Model->WorldPose;
 	}
-  granny_matrix_4x4 *CompositeBuffer = GrannyGetWorldPoseComposite4x4Array(pWorldpose);
+  float *CompositeBuffer = bf_granny_world_pose_composite(pWorldpose, 0);
 
 
   {
@@ -1303,22 +1249,22 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR
 
 
 
-	int *ToBoneIndices = GrannyGetMeshBindingToBoneIndices(Mesh->Binding);
-		int VertexCount = GrannyGetMeshVertexCount(Mesh->Mesh);
-		granny_tri_material_group *Group = GrannyGetMeshTriangleGroups(Mesh->Mesh);
+	int *ToBoneIndices = Mesh->Binding;
+		int VertexCount = Mesh->Mesh->vertex_count;
+		const bf_granny_tri_group *Group = Mesh->Mesh->groups;
 
 		// read only within the mesh's materials (a mesh without any has an empty array)
-		GrannyTexture *Texture = Mesh->TextureCount>Group->MaterialIndex ? Mesh->TextureReferences[Group->MaterialIndex] : NULL;
-		if(Texture && Mesh->TextureCount>Group->MaterialIndex) {
+		GrannyTexture *Texture = Mesh->TextureCount>Group->material ? Mesh->TextureReferences[Group->material] : NULL;
+		if(Texture && Mesh->TextureCount>Group->material) {
 			*RetTex = (INT_PTR)Texture->tex;
 		}
 		else {
 			*RetTex = NULL;
 		}
 
-		if(GrannyMeshIsRigid(Mesh->Mesh)) {
+		if(Mesh->Mesh->rigid) {
 
-		float* Transform = (float*)GrannyGetWorldPoseComposite4x4(Model->WorldPose, ToBoneIndices[0]);
+		float* Transform = bf_granny_world_pose_composite(Model->WorldPose, ToBoneIndices[0]);
 
 				poseMat->SetRow1(Transform[0],Transform[1],Transform[2]);
 				poseMat->SetRow2(Transform[4],Transform[5],Transform[6]);
@@ -1327,10 +1273,10 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR
 
 				ret = (VOID*)Mesh->Vertices;
 				*RetFaceArr = (INT_PTR)Mesh->VerIdx;
-				*nIndexNo = GrannyGetMeshIndexCount(Mesh->Mesh)/3;
+				*nIndexNo = Mesh->Mesh->index_count/3;
 
-				if( strstr(Mesh->Mesh->Name, "hair_pivot") ) {
-					granny_pnt332_vertex* srcVert = (granny_pnt332_vertex*)Mesh->Vertices;
+				if( strstr(Mesh->Mesh->name, "hair_pivot") ) {
+					bf_granny_pnt332* srcVert = (bf_granny_pnt332*)Mesh->Vertices;
 					if( m_hair ) {
 
 
@@ -1343,18 +1289,13 @@ VOID* C3dGrannyModelRes :: RenderModel(GrannyModel *Model, int nMeshIdx, INT_PTR
 		else
 	if(Mesh->Deformer) {
 
-	  GrannyDeformVertices(Mesh->Deformer,
-						   ToBoneIndices, (float *)CompositeBuffer,
-						   VertexCount,
-						   GrannyGetMeshVertices(Mesh->Mesh),
+	  bf_granny_deform(m_Scene.LoadedFile, Mesh->Index,
+						   ToBoneIndices, CompositeBuffer,
 						   m_Scene.MatVer);
-
-	  	int IndexSize = GrannyGetMeshBytesPerIndex(Mesh->Mesh);
-			unsigned char *Indices = (unsigned char *)GrannyGetMeshIndices(Mesh->Mesh);
 
 			ret = (VOID*)m_Scene.MatVer;
 			*RetFaceArr = (INT_PTR)Mesh->VerIdx;
-			*nIndexNo = GrannyGetMeshIndexCount(Mesh->Mesh)/3;
+			*nIndexNo = Mesh->Mesh->index_count/3;
 
 			poseMat->MakeIdentity();
 	}
@@ -1411,7 +1352,7 @@ bool C3dGrannyModelRes :: CalculateHitArea(RENDER_INFO_RECT &info, matrix &view,
 	return	TRUE;
 }
 
-granny_file* C3dGrannyModelRes :: LoadFile(char const *BaseFileName, char const *Suffix)
+bf_granny_file* C3dGrannyModelRes :: LoadFile(char const *BaseFileName, char const *Suffix)
 {
 	static char FileNameBuffer[512];
 	sprintf(FileNameBuffer, "%s%s.gr2", BaseFileName, Suffix);
@@ -1421,7 +1362,7 @@ granny_file* C3dGrannyModelRes :: LoadFile(char const *BaseFileName, char const 
 			ErrorMsg((string("Cannot find File : ") + string(FileNameBuffer)).c_str());
 			return	NULL;
 		}
-		granny_file *File = GrannyReadEntireFileFromMemory(fp.GetLength (), (void*)fp.GetBuf ());
+		bf_granny_file *File = bf_granny_open((void*)fp.GetBuf (), fp.GetLength (), NULL, 0);
 		fp.Close();
 
 	return(File);
@@ -1429,7 +1370,7 @@ granny_file* C3dGrannyModelRes :: LoadFile(char const *BaseFileName, char const 
 
 int C3dGrannyModelRes :: GetMeshIndexCount( int nMeshNo )
 {
-	return GrannyGetMeshIndexCount(m_Scene.Model->Meshes[nMeshNo].Mesh)/3;
+	return m_Scene.Model->Meshes[nMeshNo].Mesh->index_count/3;
 }
 
 void C3dGrannyModelRes :: BindMeshToSkeleton( C3dGrannyModelRes* pDstRes )
@@ -1438,9 +1379,9 @@ void C3dGrannyModelRes :: BindMeshToSkeleton( C3dGrannyModelRes* pDstRes )
 
 	for( int i=0;i<GetMeshNo();i++ ) {
 		GrannyMesh* mesh = &pSrcModel->Meshes[i];
-		granny_mesh* pMesh = mesh->Mesh;
-	GrannyFreeMeshBinding(mesh->Binding);
-		mesh->Binding = GrannyNewMeshBinding(mesh->Mesh, GetSkeleton(), pDstRes->GetSkeleton() );
+		const bf_granny_mesh* pMesh = mesh->Mesh;
+	bf_granny_free_mesh_binding(mesh->Binding);
+		mesh->Binding = bf_granny_bind_mesh(mesh->Mesh, pDstRes->GetSkeleton() );
 	}
 }
 
@@ -1468,11 +1409,6 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
   bool Result = false;
 	GrannyModel *Model;
 
-  if(!GrannyVersionsMatch) {
-	ErrorMsg("doesn't match the .h file used during compilation");
-	return false;
-  }
-
   m_Scene.ModelCount = 0;
   m_Scene.MaxBoneCount = 0;
   m_Scene.TextureCount = 0;
@@ -1482,16 +1418,16 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
 	CFile	fp;
 
 	if (fp.Open(fName, CFile::modeRead)) {
-		m_Scene.LoadedFile = GrannyReadEntireFileFromMemory(fp.GetLength (), (void*)fp.GetBuf ());
+		m_Scene.LoadedFile = bf_granny_open((void*)fp.GetBuf (), fp.GetLength (), NULL, 0);
 		fp.Close();
 
 		if(m_Scene.LoadedFile) {
-			granny_file_info *FileInfo = GrannyGetFileInfo(m_Scene.LoadedFile);
+			const bf_granny_info *FileInfo = bf_granny_get_info(m_Scene.LoadedFile);
 			strcpy( m_Scene.BaseFileName, fName );
 
 			if(FileInfo) {
-				m_Scene.TextureCount = FileInfo->TextureCount;
-				m_Scene.ModelCount = FileInfo->ModelCount;
+				m_Scene.TextureCount = FileInfo->texture_count;
+				m_Scene.ModelCount = FileInfo->model_count;
 
 				if( m_Scene.Model ) {
 					FreeModel();
@@ -1501,26 +1437,25 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
 
 				{
 
-					granny_model *GrannyModel = FileInfo->Models[0];
 					Model = m_Scene.Model;
-					CreateModel(Model, GrannyModel);
+					CreateModel(Model, 0);
 
-					if(FileInfo->AnimationCount)
+					if(FileInfo->animation_count)
 					{
 
-						granny_animation *Animation = 0;
+						bf_granny_file *Animation = 0;
 						char *c = (char*)strchr(m_Scene.BaseFileName, '.');
 						if( c!=NULL ) *c = 0;
 
-						granny_file *File = LoadFile(m_Scene.BaseFileName, "");
+						bf_granny_file *File = LoadFile(m_Scene.BaseFileName, "");
 						if(File)
 						{
-							granny_file_info *FileInfo = GrannyGetFileInfo(File);
+							const bf_granny_info *FileInfo = bf_granny_get_info(File);
 							if(FileInfo)
 							{
-								if(Model->GrannyInstance && (FileInfo->AnimationCount == 1))
+								if(Model->GrannyInstance && (FileInfo->animation_count == 1))
 								{
-									Animation = FileInfo->Animations[0];
+									Animation = File;
 								}
 								else
 								{
@@ -1534,7 +1469,7 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
 					}
 				}
 
-				m_Scene.SharedLocalPose = GrannyNewLocalPose(m_Scene.MaxBoneCount);
+				m_Scene.SharedLocalPose = new bf_granny_transform[m_Scene.MaxBoneCount];
 
 				if(m_Scene.MaxMutableVertexBufferSize)
 				{
@@ -1548,11 +1483,6 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
 				ErrorMsg("Unable to access file data .gr2");
 			}
 
-			GrannyFreeFileSection(m_Scene.LoadedFile, GrannyStandardRigidVertexSection);
-			GrannyFreeFileSection(m_Scene.LoadedFile, GrannyStandardRigidIndexSection);
-			GrannyFreeFileSection(m_Scene.LoadedFile, GrannyStandardDeformableIndexSection);
-			GrannyFreeFileSection(m_Scene.LoadedFile, GrannyStandardTextureSection);
-
 			SetProjectZ(1600.0f);
 			return Result;
 		}
@@ -1561,9 +1491,9 @@ bool C3dGrannyBoneRes :: AddBone( const char* fName, int nType, int nAniIdx )
 	return false;
 }
 
-granny_animation* C3dGrannyBoneRes :: GetAnimation( int nType, int nAniIdx )
+const bf_granny_file* C3dGrannyBoneRes :: GetAnimation( int nType, int nAniIdx )
 {
-	granny_animation **pAni = &m_Animation[nType][nAniIdx];
+	bf_granny_file **pAni = &m_Animation[nType][nAniIdx];
 	if ( *pAni == NULL )
 	{
 		const int MAX_ANIIDX = 5;
@@ -1612,14 +1542,13 @@ void C3dGrannyBoneRes :: FreeModel( void )
 	{
 	  GrannyMesh &Mesh = Model->Meshes[MeshIndex];
 
-	  GrannyFreeMeshBinding(Mesh.Binding);
-	  GrannyFreeMeshDeformer(Mesh.Deformer);
+	  bf_granny_free_mesh_binding(Mesh.Binding);
 
 			delete Mesh.VerIdx ;
 	}
 
-	GrannyFreeModelInstance(Model->GrannyInstance);
-	GrannyFreeWorldPose(Model->WorldPose);
+	bf_granny_free_instance(Model->GrannyInstance);
+	bf_granny_free_world_pose(Model->WorldPose);
 	delete [] Model->Meshes;
   }
   delete m_Scene.Model;
@@ -1639,53 +1568,55 @@ void C3dGrannyBoneRes :: Release()
 		}
 	}
 
-  GrannyFreeLocalPose(m_Scene.SharedLocalPose);
-  GrannyFreeFile(m_Scene.LoadedFile);
+  delete [] m_Scene.SharedLocalPose;
+  bf_granny_close(m_Scene.LoadedFile);
 	}
 
-void C3dGrannyBoneRes :: CreateModel(GrannyModel *Model, granny_model *GrannyModel)
+void C3dGrannyBoneRes :: CreateModel(GrannyModel *Model, int ModelIndex)
 {
-  int BoneCount = GrannyModel->Skeleton->BoneCount;
+  const bf_granny_model *GrannyModel = bf_granny_get_model(m_Scene.LoadedFile, ModelIndex);
+  int BoneCount = bf_granny_get_skeleton(m_Scene.LoadedFile, GrannyModel->skeleton)->bone_count;
   if(m_Scene.MaxBoneCount < BoneCount)
   {
 	m_Scene.MaxBoneCount = BoneCount;
   }
 
-  Model->GrannyInstance = GrannyInstantiateModel(GrannyModel);
+  Model->GrannyInstance = bf_granny_new_instance(m_Scene.LoadedFile, ModelIndex);
 
-  Model->WorldPose = GrannyNewWorldPose(BoneCount);
+  Model->WorldPose = bf_granny_new_world_pose(BoneCount);
 
-  Model->MeshCount = GrannyModel->MeshBindingCount;
+  Model->MeshCount = GrannyModel->mesh_count;
   Model->Meshes = new GrannyMesh[Model->MeshCount];
   for(int MeshIndex = 0;MeshIndex < Model->MeshCount;MeshIndex++)
   {
-	CreateMesh(&Model->Meshes[MeshIndex], GrannyModel->MeshBindings[MeshIndex].Mesh, Model->GrannyInstance);
+	CreateMesh(&Model->Meshes[MeshIndex], GrannyModel->meshes[MeshIndex], Model->GrannyInstance);
   }
 }
 
-void C3dGrannyBoneRes :: CreateMesh(GrannyMesh *Mesh, granny_mesh *GrannyMesh, granny_model_instance *InModel)
+void C3dGrannyBoneRes :: CreateMesh(GrannyMesh *Mesh, int MeshIndex, bf_granny_instance *InModel)
 {
+  const bf_granny_mesh *GrannyMesh = bf_granny_get_mesh(m_Scene.LoadedFile, MeshIndex);
   Mesh->Mesh = GrannyMesh;
+  Mesh->Index = MeshIndex;
 
-  granny_skeleton *Skeleton = GrannyGetSourceSkeleton(InModel);
-  Mesh->Binding = GrannyNewMeshBinding(GrannyMesh, Skeleton, Skeleton);
+  const bf_granny_skeleton *Skeleton = bf_granny_instance_skeleton(InModel);
+  Mesh->Binding = bf_granny_bind_mesh(GrannyMesh, Skeleton);
 
-  int IndexCount = GrannyGetMeshIndexCount(GrannyMesh);
+  int IndexCount = GrannyMesh->index_count;
   int IndexBufferSize = sizeof(unsigned short) * IndexCount;
 
   Mesh->VerIdx = new WORD[IndexCount];
 
   if(IndexCount) {
-	  BYTE *Indices = (BYTE*)Mesh->VerIdx;
-	  GrannyCopyMeshIndices(GrannyMesh, sizeof(WORD), Indices);
+	  bf_granny_copy_indices16(GrannyMesh, Mesh->VerIdx);
   }
 
-  int VertexCount = GrannyGetMeshVertexCount(GrannyMesh);
-  int VertexBufferSize = VertexCount * sizeof(granny_pnt332_vertex);
+  int VertexCount = GrannyMesh->vertex_count;
+  int VertexBufferSize = VertexCount * sizeof(bf_granny_pnt332);
 
-  if(GrannyMeshIsRigid(GrannyMesh)) {
+  if(GrannyMesh->rigid) {
 
-	  Mesh->Deformer = 0;
+	  Mesh->Deformer = false;
   }
   else
   {
@@ -1693,12 +1624,9 @@ void C3dGrannyBoneRes :: CreateMesh(GrannyMesh *Mesh, granny_mesh *GrannyMesh, g
 		m_Scene.MaxMutableVertexBufferSize = VertexBufferSize;
 	}
 
-	Mesh->Deformer = GrannyNewMeshDeformer(
-		GrannyGetMeshVertexType(GrannyMesh), GrannyPNT332VertexType, GrannyDeformPositionNormal);
-
-	if(!Mesh->Deformer){
-	  ErrorMsg("Granny didn't find a matching deformer for the vertex format used by mesh");
-	}
+	// bf_granny_deform skins position and normal into PNT332, as the
+	// deformer granny2.dll made for it
+	Mesh->Deformer = true;
   }
 }
 
@@ -1707,22 +1635,22 @@ void C3dGrannyBoneRes :: SetProjectZ(float fClip)
 	m_ProjectZ = fClip + fClip / 5.0f;
 }
 
-granny_animation* C3dGrannyBoneRes :: LoadAnimation(GrannyModel *Model, char const *BaseFileName, char const *Suffix)
+bf_granny_file* C3dGrannyBoneRes :: LoadAnimation(GrannyModel *Model, char const *BaseFileName, char const *Suffix)
 {
-  granny_animation *Animation = 0;
+  bf_granny_file *Animation = 0;
 
   char *c = (char*)strchr(BaseFileName, '.');
 	if( c!=NULL ) *c = 0;
 
-  granny_file *File = LoadFile(BaseFileName, Suffix);
+  bf_granny_file *File = LoadFile(BaseFileName, Suffix);
   if(File)
   {
-	granny_file_info *FileInfo = GrannyGetFileInfo(File);
+	const bf_granny_info *FileInfo = bf_granny_get_info(File);
 	if(FileInfo)
 	{
-	  if(Model->GrannyInstance && (FileInfo->AnimationCount == 1))
+	  if(Model->GrannyInstance && (FileInfo->animation_count == 1))
 	  {
-		Animation = FileInfo->Animations[0];
+		Animation = File;
 	  }
 	  else
 	  {
@@ -1734,7 +1662,7 @@ granny_animation* C3dGrannyBoneRes :: LoadAnimation(GrannyModel *Model, char con
   return(Animation);
 }
 
-granny_file* C3dGrannyBoneRes :: LoadFile(char const *BaseFileName, char const *Suffix)
+bf_granny_file* C3dGrannyBoneRes :: LoadFile(char const *BaseFileName, char const *Suffix)
 {
   static char FileNameBuffer[512];
 	CFile	fp;
@@ -1745,7 +1673,7 @@ granny_file* C3dGrannyBoneRes :: LoadFile(char const *BaseFileName, char const *
 		return	NULL;
 	}
 
-	granny_file *File = GrannyReadEntireFileFromMemory(fp.GetLength (), (void*)fp.GetBuf ());
+	bf_granny_file *File = bf_granny_open((void*)fp.GetBuf (), fp.GetLength (), NULL, 0);
 	fp.Close();
   return(File);
 }

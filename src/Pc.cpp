@@ -3337,11 +3337,11 @@ void	CGrannyPc :: SetSprAct(int job, int sex, int head, int weapon, int accessor
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_rp[i] = new RPMesh;
 		m_rp[i]->AllocVerts(m_GrannyActorRes->GetMeshIndexCount(i));
-		m_matVer[i] = (granny_pnt332_vertex *)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+		m_matVer[i] = (bf_granny_pnt332 *)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 	}
 
-	m_fLastAniCnt = GrannyGetSystemSeconds();
+	m_fLastAniCnt = bf_clock_us();
 	m_GameClock = 0;
 	m_actorType = 0;
 	char *str;
@@ -3362,8 +3362,8 @@ void	CGrannyPc :: SetSprAct(int job, int sex, int head, int weapon, int accessor
 		for (i = 0; i < m_GrannyPartRes[1]->GetMeshNo(); i++) {
 			m_rpPart[1][i] = new RPMesh;
 			m_rpPart[1][i]->AllocVerts(m_GrannyPartRes[1]->GetMeshIndexCount(i));
-			m_matVerPart[1][i] = (granny_pnt332_vertex *)operator new(m_GrannyPartRes[1]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-			memset(m_matVerPart[1][i], 0, m_GrannyPartRes[1]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+			m_matVerPart[1][i] = (bf_granny_pnt332 *)operator new(m_GrannyPartRes[1]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+			memset(m_matVerPart[1][i], 0, m_GrannyPartRes[1]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 		}
 
 		str[1] = 'b';
@@ -3373,8 +3373,8 @@ void	CGrannyPc :: SetSprAct(int job, int sex, int head, int weapon, int accessor
 		for (i = 0; i < m_GrannyPartRes[2]->GetMeshNo(); i++) {
 			m_rpPart[2][i] = new RPMesh;
 			m_rpPart[2][i]->AllocVerts(m_GrannyPartRes[2]->GetMeshIndexCount(i));
-			m_matVerPart[2][i] = (granny_pnt332_vertex *)operator new(m_GrannyPartRes[2]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-			memset(m_matVerPart[2][i], 0, m_GrannyPartRes[2]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+			m_matVerPart[2][i] = (bf_granny_pnt332 *)operator new(m_GrannyPartRes[2]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+			memset(m_matVerPart[2][i], 0, m_GrannyPartRes[2]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 		}
 
 		str[1] = 'p';
@@ -3384,8 +3384,8 @@ void	CGrannyPc :: SetSprAct(int job, int sex, int head, int weapon, int accessor
 		for (i = 0; i < m_GrannyPartRes[3]->GetMeshNo(); i++) {
 			m_rpPart[3][i] = new RPMesh;
 			m_rpPart[3][i]->AllocVerts(m_GrannyPartRes[3]->GetMeshIndexCount(i));
-			m_matVerPart[3][i] = (granny_pnt332_vertex *)operator new(m_GrannyPartRes[3]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-			memset(m_matVerPart[3][i], 0, m_GrannyPartRes[3]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+			m_matVerPart[3][i] = (bf_granny_pnt332 *)operator new(m_GrannyPartRes[3]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+			memset(m_matVerPart[3][i], 0, m_GrannyPartRes[3]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 		}
 
 		str[1] = 'l';
@@ -3395,8 +3395,8 @@ void	CGrannyPc :: SetSprAct(int job, int sex, int head, int weapon, int accessor
 		for (i = 0; i < m_GrannyPartRes[4]->GetMeshNo(); i++) {
 			m_rpPart[4][i] = new RPMesh;
 			m_rpPart[4][i]->AllocVerts(m_GrannyPartRes[4]->GetMeshIndexCount(i));
-			m_matVerPart[4][i] = (granny_pnt332_vertex *)operator new(m_GrannyPartRes[4]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-			memset(m_matVerPart[4][i], 0, m_GrannyPartRes[4]->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+			m_matVerPart[4][i] = (bf_granny_pnt332 *)operator new(m_GrannyPartRes[4]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+			memset(m_matVerPart[4][i], 0, m_GrannyPartRes[4]->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 		}
 
 		if (m_GrannyPartRes[1]) {
@@ -4122,14 +4122,14 @@ void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrann
 {
 	RPMesh* rp;
 	INT_PTR pTex;
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	float oow;
 	matrix revView;
 	unsigned char isHairMesh;
 	unsigned int vertOffs;
 	INT_PTR pFaceArr;
 	RPMesh** rpArr;
-	granny_world_pose* pWorldPose;
+	bf_granny_world_pose* pWorldPose;
 	float y;
 	RENDER_INFO_RECT info;
 	int i;
@@ -4196,7 +4196,7 @@ void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrann
 		else
 			pModelRes->SetMatVer(m_matVerPart[nPartMeshIdx][i]);
 
-		srcVert = (granny_pnt332_vertex*)pModelRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, pWorldPose);
+		srcVert = (bf_granny_pnt332*)pModelRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, pWorldPose);
 
 		if (!srcVert || !pTex)
 			continue;
@@ -4217,20 +4217,20 @@ void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrann
 			for (int k = 0; k < 3; k++) {
 				int vertNo = indices[vertOffs];
 				tlvertex3d* verts = &rp->verts[vertOffs++];
-				granny_pnt332_vertex* src = &srcVert[vertNo];
-				vec.x = src->Position[0];
-				vec.y = src->Position[1];
-				vec.z = src->Position[2];
+				bf_granny_pnt332* src = &srcVert[vertNo];
+				vec.x = src->position[0];
+				vec.y = src->position[1];
+				vec.z = src->position[2];
 				if (isHairMesh == 1)
 					if (i > 0)
 						vec.MatrixMult(vec, poseMat);
 				g_renderer->ProjectVertex(vec, final, verts);
-				verts->tu = src->UV[0];
-				verts->tv = src->UV[1];
+				verts->tu = src->uv[0];
+				verts->tv = src->uv[1];
 				vector3d normal;
-				normal.x = src->Normal[0];
-				normal.y = src->Normal[1];
-				normal.z = src->Normal[2];
+				normal.x = src->normal[0];
+				normal.y = src->normal[1];
+				normal.z = src->normal[2];
 
 				float dot = normal.DotProduct(revEyeVec);
 				float light = 1.0f - dot;
@@ -4272,7 +4272,7 @@ void CGrannyPc::RenderAndAni(matrix &vtm, GrannyLightInfo *grannyLInfo, C3dGrann
 
 void CGrannyPc::RenderBak(matrix& vtm, int nPartMeshIdx, C3dGrannyModelRes* pModelRes)
 {
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	float oow;
 	unsigned char isHairMesh;
 	float y;
@@ -4320,7 +4320,7 @@ void CGrannyPc::RenderBak(matrix& vtm, int nPartMeshIdx, C3dGrannyModelRes* pMod
 	}
 
 	for (i = 0; i < pModelRes->GetMeshNo(); i++) {
-		if (!(srcVert = (granny_pnt332_vertex*)pModelRes->GetRigidMesh(i))) {
+		if (!(srcVert = (bf_granny_pnt332*)pModelRes->GetRigidMesh(i))) {
 			if (nPartMeshIdx == 0)
 				srcVert = m_matVer[i];
 			else
@@ -4346,9 +4346,9 @@ void CGrannyPc::RenderBak(matrix& vtm, int nPartMeshIdx, C3dGrannyModelRes* pMod
 			for (int k = 0; k < 3; k++) {
 				tlvertex3d* verts = &rp->verts[vertOffs];
 				int vertNo = indices[vertOffs++];
-				vec.x = srcVert[vertNo].Position[0];
-				vec.y = srcVert[vertNo].Position[1];
-				vec.z = srcVert[vertNo].Position[2];
+				vec.x = srcVert[vertNo].position[0];
+				vec.y = srcVert[vertNo].position[1];
+				vec.z = srcVert[vertNo].position[2];
 				if (isHairMesh == 1)
 					if (i > 0)
 						vec.MatrixMult(vec, m_matPose[i]);
@@ -4479,11 +4479,11 @@ const std::vector<std::string> CGrannyPc::GetActNames()
 	return ttt;
 }
 
-granny_world_pose* CGrannyPc::ProcessAni(C3dGrannyModelRes* pRes)
+bf_granny_world_pose* CGrannyPc::ProcessAni(C3dGrannyModelRes* pRes)
 {
 	if (!pRes) pRes = m_GrannyActorRes;
-	m_fAniCnt = GrannyGetSystemSeconds();
-	float dt = GrannyGetSecondsElapsed(&m_fLastAniCnt, &m_fAniCnt);
+	m_fAniCnt = bf_clock_us();
+	float dt = (float)((double)(m_fAniCnt - m_fLastAniCnt) / 1.0e6);
 	m_fLastAniCnt = m_fAniCnt;
 	m_GameClock += dt + dt;
 	if (pRes != m_GrannyActorRes) {
@@ -4491,7 +4491,7 @@ granny_world_pose* CGrannyPc::ProcessAni(C3dGrannyModelRes* pRes)
 		return pRes->UpdateAni(m_GameClock, pRes->GetModelInstance());
 	}
 	if (m_nLastActAnimation == 2) {
-		if (m_Control[2] && GrannyGetControlDurationLeft(m_Control[2]) <= 0.0) {
+		if (m_Control[2] && bf_granny_time_left(m_Control[2]) <= 0.0) {
 			m_nLastActAnimation = 0;
 			m_Control[m_nLastActAnimation] = pRes->ActAnimation(m_nLastActAnimation, pRes->GetModelInstance(), m_Control[m_nLastActAnimation], 0);
 		}
@@ -4502,7 +4502,7 @@ granny_world_pose* CGrannyPc::ProcessAni(C3dGrannyModelRes* pRes)
 void CGrannyPc::ProcessMotion()
 {
 	if (m_stateId == 2) {
-		if (GrannyGetControlDurationLeft(m_Control[2]) >= 0.1f) {
+		if (bf_granny_time_left(m_Control[2]) >= 0.1f) {
 			m_isMotionFinished = 0;
 			return;
 		}

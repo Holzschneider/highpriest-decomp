@@ -46,7 +46,7 @@ C3dGrannyGameActor::C3dGrannyGameActor(char* strJobFn)
 C3dGrannyGameActor::~C3dGrannyGameActor() {
 	for (int i = 0; i < 20; i++) {
 		if (m_Control[i]) {
-			GrannyFreeControl(m_Control[i]);
+			bf_granny_free_control(m_Control[i]);
 			m_Control[i] = 0;
 		}
 	}
@@ -58,7 +58,7 @@ C3dGrannyGameActor::~C3dGrannyGameActor() {
 			m_matVer[j] = 0;
 		}
 	}
-	GrannyFreeModelInstance(m_Instance);
+	bf_granny_free_instance(m_Instance);
 	if (m_emblemTex) delete m_emblemTex;
 	if (m_shadowTex) delete m_shadowTex;
 }
@@ -74,11 +74,11 @@ void C3dGrannyGameActor::SetSprAct(int job, int sex)
 	for (int i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_rp[i] = new RPMesh;
 		m_rp[i]->AllocVerts(m_GrannyActorRes->GetMeshIndexCount(i));
-		m_matVer[i] = (granny_pnt332_vertex*)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+		m_matVer[i] = (bf_granny_pnt332*)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 	}
 
-	m_fLastAniCnt = GrannyGetSystemSeconds();
+	m_fLastAniCnt = bf_clock_us();
 	m_GameClock = 0;
 	if (job == 0x49d || job == 0x504) {
 		m_actorType = 1;
@@ -152,13 +152,13 @@ void C3dGrannyGameActor::Render(matrix& view) {
 }
 
 bool C3dGrannyGameActor::ProcessAni() {
-	m_fAniCnt = GrannyGetSystemSeconds();
-	float dt = GrannyGetSecondsElapsed(&m_fLastAniCnt, &m_fAniCnt) * 2.0f;
+	m_fAniCnt = bf_clock_us();
+	float dt = (float)((double)(m_fAniCnt - m_fLastAniCnt) / 1.0e6) * 2.0f;
 	m_GameClock += dt;
 	m_GrannyActorRes->UpdateAni(m_GameClock, m_Instance);
 	m_fLastAniCnt = m_fAniCnt;
 	if (m_nLastActAnimation == 2 && m_Control[2]) {
-		if (GrannyGetControlDurationLeft(m_Control[2]) <= 0.0) {
+		if (bf_granny_time_left(m_Control[2]) <= 0.0) {
 			m_nLastActAnimation = 0;
 			m_Control[m_nLastActAnimation] =
 				m_GrannyActorRes->ActAnimation(0, m_Instance, m_Control[m_nLastActAnimation], 0);
@@ -170,7 +170,7 @@ bool C3dGrannyGameActor::ProcessAni() {
 void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo)
 {
 	RPMesh* rp;
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	INT_PTR pTex = 0;
 	INT_PTR pFaceArr = 0;
 
@@ -223,7 +223,7 @@ void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo
 	int i;
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_GrannyActorRes->SetMatVer(m_matVer[i]);
-		srcVert = (granny_pnt332_vertex*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
+		srcVert = (bf_granny_pnt332*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
 
 		if (!srcVert || !pTex)
 			continue;
@@ -242,19 +242,19 @@ void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo
 				vector3d normal;
 				tlvertex3d* verts = &rp->verts[vertOffs];
 				int vertNo = indices[vertOffs++];
-				granny_pnt332_vertex* src = &srcVert[vertNo];
+				bf_granny_pnt332* src = &srcVert[vertNo];
 
-				vec.x = src->Position[0];
-				vec.y = src->Position[1];
-				vec.z = src->Position[2];
+				vec.x = src->position[0];
+				vec.y = src->position[1];
+				vec.z = src->position[2];
 
 				g_renderer->ProjectVertex(vec, final, verts);
 
-				verts->tu = src->UV[0];
-				verts->tv = src->UV[1];
-				normal.x = src->Normal[0];
-				normal.y = src->Normal[1];
-				normal.z = src->Normal[2];
+				verts->tu = src->uv[0];
+				verts->tv = src->uv[1];
+				normal.x = src->normal[0];
+				normal.y = src->normal[1];
+				normal.z = src->normal[2];
 
 				float light = revEyeVec.DotProduct(normal);
 				if (light > 1.0f) light = 1.0f;
@@ -287,7 +287,7 @@ void C3dGrannyGameActor::RenderNormal(matrix& view, GrannyLightInfo* grannyLInfo
 void C3dGrannyGameActor::RenderBak(matrix &vtm)
 {
 	RPMesh* rp;
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	float oow;
 	float y;
 	RENDER_INFO_RECT info;
@@ -327,7 +327,7 @@ void C3dGrannyGameActor::RenderBak(matrix &vtm)
 	info.oow = oow;
 
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
-		srcVert = (granny_pnt332_vertex*)m_GrannyActorRes->GetRigidMesh(i);
+		srcVert = (bf_granny_pnt332*)m_GrannyActorRes->GetRigidMesh(i);
 		if (!srcVert)
 			srcVert = m_matVer[i];
 
@@ -346,9 +346,9 @@ void C3dGrannyGameActor::RenderBak(matrix &vtm)
 				tlvertex3d* verts = &rp->verts[vertOffs];
 				int vertNo = indices[vertOffs++];
 
-				vec.x = srcVert[vertNo].Position[0];
-				vec.y = srcVert[vertNo].Position[1];
-				vec.z = srcVert[vertNo].Position[2];
+				vec.x = srcVert[vertNo].position[0];
+				vec.y = srcVert[vertNo].position[1];
+				vec.z = srcVert[vertNo].position[2];
 				g_renderer->ProjectVertex(vec, final, verts);
 			}
 		}
@@ -422,10 +422,10 @@ void C3dGrannyGameActor::RenderGuildMark(matrix& view)
 	int j;
 	int i;
 	int nIndexNo;
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_GrannyActorRes->SetMatVer(m_matVer[i]);
-		srcVert = (granny_pnt332_vertex*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
+		srcVert = (bf_granny_pnt332*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
 		if (!srcVert)
 			continue;
 
@@ -437,20 +437,20 @@ void C3dGrannyGameActor::RenderGuildMark(matrix& view)
 			for (int k = 0; k < 3; k++) {
 				int vertNo = indices[vertOffs];
 				tlvertex3d* verts = &rp->verts[vertOffs++];
-				granny_pnt332_vertex* src = &srcVert[vertNo];
+				bf_granny_pnt332* src = &srcVert[vertNo];
 
-				vec.x = src->Position[0];
-				vec.y = src->Position[1];
-				vec.z = src->Position[2];
+				vec.x = src->position[0];
+				vec.y = src->position[1];
+				vec.z = src->position[2];
 
 				g_renderer->ProjectVertex(vec, final, verts);
 
-				verts->tu = src->UV[0];
-				verts->tv = src->UV[1];
+				verts->tu = src->uv[0];
+				verts->tv = src->uv[1];
 				vector3d normal;
-				normal.x = src->Normal[0];
-				normal.y = src->Normal[1];
-				normal.z = src->Normal[2];
+				normal.x = src->normal[0];
+				normal.y = src->normal[1];
+				normal.z = src->normal[2];
 
 				float light = eyeVec.DotProduct(normal);
 				if (light > 1.0f) light = 1.0f;
@@ -502,13 +502,13 @@ CTexture* C3dGrannyGameActor::GetEmblemTexture() {
 	return m_emblemTex;
 }
 
-void C3dGrannyGameActor::RenderEffect(int nMesh, granny_pnt332_vertex* vertArr, vector3d tv) {
+void C3dGrannyGameActor::RenderEffect(int nMesh, bf_granny_pnt332* vertArr, vector3d tv) {
 	if (m_job == 0x49d) {
 		if (nMesh == 28) {
 			vector3d fDeltaPos;
-			fDeltaPos.x = vertArr[64].Position[0];
-			fDeltaPos.y = vertArr[64].Position[1];
-			fDeltaPos.z = vertArr[64].Position[2];
+			fDeltaPos.x = vertArr[64].position[0];
+			fDeltaPos.y = vertArr[64].position[1];
+			fDeltaPos.z = vertArr[64].position[2];
 			LaunchEffect(0x175, fDeltaPos, -m_fCurRot);
 		}
 	}
@@ -615,13 +615,13 @@ void C3dGrannyGameActor::ProcessMotion() {
 		m_isMotionFinished = true;
 	if (m_stateId == 2) {
 		if (m_modifyFactorOfmotionSpeed2 < 1.0f) {
-			m_fAniCnt = GrannyGetSystemSeconds();
-			float dt = GrannyGetSecondsElapsed(&m_fLastAniCnt, &m_fAniCnt) * 2.0f;
+			m_fAniCnt = bf_clock_us();
+			float dt = (float)((double)(m_fAniCnt - m_fLastAniCnt) / 1.0e6) * 2.0f;
 			m_GameClock += dt / m_modifyFactorOfmotionSpeed2;
 			m_GrannyActorRes->UpdateAni(m_GameClock, m_Instance);
 			m_fLastAniCnt = m_fAniCnt;
 			if (m_nLastActAnimation == 2 && m_Control[2]) {
-				if (GrannyGetControlDurationLeft(m_Control[2]) <= 0.0) {
+				if (bf_granny_time_left(m_Control[2]) <= 0.0) {
 					m_nLastActAnimation = 0;
 					m_Control[m_nLastActAnimation] =
 						m_GrannyActorRes->ActAnimation(0, m_Instance, m_Control[m_nLastActAnimation], 0);
@@ -711,11 +711,11 @@ void CGrannyCorpse3d::OnInit()
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_rp[i] = new RPMesh;
 		m_rp[i]->AllocVerts(m_GrannyActorRes->GetMeshIndexCount(i));
-		m_matVer[i] = (granny_pnt332_vertex*)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
-		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(granny_pnt332_vertex));
+		m_matVer[i] = (bf_granny_pnt332*)operator new(m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
+		memset(m_matVer[i], 0, m_GrannyActorRes->GetMeshIndexCount(i) * 3 * sizeof(bf_granny_pnt332));
 	}
 
-	m_fLastAniCnt = GrannyGetSystemSeconds();
+	m_fLastAniCnt = bf_clock_us();
 	m_GameClock = 0;
 	m_nStateCnt = 0;
 	m_Control = m_GrannyActorRes->ActAnimation(3, m_Instance, m_Control, 1);
@@ -731,7 +731,7 @@ void CGrannyCorpse3d::OnExit() {
 			m_matVer[i] = 0;
 		}
 	}
-	GrannyFreeModelInstance(m_Instance);
+	bf_granny_free_instance(m_Instance);
 }
 
 bool CGrannyCorpse3d::OnProcess() {
@@ -742,8 +742,8 @@ bool CGrannyCorpse3d::OnProcess() {
 }
 
 bool CGrannyCorpse3d::ProcessAni() {
-	m_fAniCnt = GrannyGetSystemSeconds();
-	float dt = GrannyGetSecondsElapsed(&m_fLastAniCnt, &m_fAniCnt) * 2.0f;
+	m_fAniCnt = bf_clock_us();
+	float dt = (float)((double)(m_fAniCnt - m_fLastAniCnt) / 1.0e6) * 2.0f;
 	m_GameClock += dt;
 	m_GrannyActorRes->UpdateAni(m_GameClock, m_Instance);
 	m_fLastAniCnt = m_fAniCnt;
@@ -754,7 +754,7 @@ void CGrannyCorpse3d::Render(matrix &view)
 {
 	RPMesh* rp;
 	INT_PTR pTex = 0;
-	granny_pnt332_vertex* srcVert;
+	bf_granny_pnt332* srcVert;
 	float oow;
 	matrix revView;
 	unsigned int vertOffs;
@@ -801,7 +801,7 @@ void CGrannyCorpse3d::Render(matrix &view)
 
 	for (i = 0; i < m_GrannyActorRes->GetMeshNo(); i++) {
 		m_GrannyActorRes->SetMatVer(m_matVer[i]);
-		srcVert = (granny_pnt332_vertex*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
+		srcVert = (bf_granny_pnt332*)m_GrannyActorRes->RenderMesh(i, &pTex, &pFaceArr, &nIndexNo, &poseMat, 0);
 		if (!srcVert || !pTex)
 			continue;
 
@@ -817,18 +817,18 @@ void CGrannyCorpse3d::Render(matrix &view)
 			for (int k = 0; k < 3; k++) {
 				tlvertex3d* verts = &rp->verts[vertOffs];
 				int vertNo = indices[vertOffs++];
-				granny_pnt332_vertex* src = &srcVert[vertNo];
-				vec.x = src->Position[0];
-				vec.y = src->Position[1];
-				vec.z = src->Position[2];
+				bf_granny_pnt332* src = &srcVert[vertNo];
+				vec.x = src->position[0];
+				vec.y = src->position[1];
+				vec.z = src->position[2];
 				g_renderer->ProjectVertex(vec, final, verts);
-				verts->tu = src->UV[0];
-				verts->tv = src->UV[1];
+				verts->tu = src->uv[0];
+				verts->tv = src->uv[1];
 
 				vector3d normal;
-				normal.x = src->Normal[0];
-				normal.y = src->Normal[1];
-				normal.z = src->Normal[2];
+				normal.x = src->normal[0];
+				normal.y = src->normal[1];
+				normal.z = src->normal[2];
 
 				float light = eyeVec.DotProduct(normal);
 				if (light > 1.0f)

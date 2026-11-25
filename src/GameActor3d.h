@@ -4,9 +4,9 @@
 #include "GameActor.h"
 #include "resource/Model.h"
 
-struct granny_control;
-struct granny_model_instance;
-struct granny_world_pose;
+struct bf_granny_control;
+struct bf_granny_instance;
+struct bf_granny_world_pose;
 class C3dGrannyGameActor;
 class CGrannyCorpse3d;
 
@@ -32,16 +32,16 @@ protected:
 	void RenderNormalFast(matrix& view);
 	void RenderCell(matrix& view);
 	void RenderGuildMark(matrix& view);
-	void RenderEffect(int nMesh, granny_pnt332_vertex* vertArr, vector3d tv);
+	void RenderEffect(int nMesh, bf_granny_pnt332* vertArr, vector3d tv);
 	void RenderShadow(matrix& vtm, vector3d lv, bool isBakRender);
 protected:
 	CTexture* m_emblemTex;
 	C3dGrannyModelRes* m_GrannyActorRes;
-	granny_model_instance* m_Instance;
+	bf_granny_instance* m_Instance;
 	RPMesh* m_rp[30];
-	granny_pnt332_vertex* m_matVer[30];
-	granny_system_clock m_fAniCnt;
-	granny_system_clock m_fLastAniCnt;
+	bf_granny_pnt332* m_matVer[30];
+	uint64_t m_fAniCnt;
+	uint64_t m_fLastAniCnt;
 	float m_GameClock;
 	int m_curAction;
 	int m_baseAction;
@@ -53,14 +53,14 @@ protected:
 	char m_strJobFn[260];
 	int m_nRenderType;
 	CTexture* m_pCellTex;
-	granny_control* m_Control[20];
+	bf_granny_control* m_Control[20];
 	unsigned char m_isFirstProcess;
 	CTexture* m_pTex[30];
 	void* m_pFaceArr[30];
 	int m_nIndexNo[30];
 	matrix m_matPose[30];
 private:
-	granny_world_pose* m_pWorldPose;
+	bf_granny_world_pose* m_pWorldPose;
 	CTexture* m_shadowTex;
 	std::vector<vector3d> m_shadowDotList;
 };
@@ -79,12 +79,12 @@ public:
 protected:
 	vector3d m_pos;
 	C3dGrannyModelRes* m_GrannyActorRes;
-	granny_model_instance* m_Instance;
-	granny_control* m_Control;
+	bf_granny_instance* m_Instance;
+	bf_granny_control* m_Control;
 	RPMesh* m_rp[30];
-	granny_pnt332_vertex* m_matVer[30];
-	granny_system_clock m_fAniCnt;
-	granny_system_clock m_fLastAniCnt;
+	bf_granny_pnt332* m_matVer[30];
+	uint64_t m_fAniCnt;
+	uint64_t m_fLastAniCnt;
 	float m_GameClock;
 	int m_nStandAngle;
 	int m_nStateCnt;

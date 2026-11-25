@@ -8,7 +8,7 @@
 #include "../3dlib/Device.h"
 #include "../base/File.h"
 #include "../base/Res.h"
-#include "../granny/granny.h"
+#include "bf_granny.h"
 
 struct GrannyMesh;
 struct GrannyModel;
@@ -153,9 +153,10 @@ struct GrannyTexture
 
 struct GrannyMesh
 {
-	granny_mesh* Mesh;
-	granny_mesh_binding* Binding;
-	granny_mesh_deformer* Deformer;
+	const bf_granny_mesh* Mesh;
+	int Index;
+	int* Binding;
+	bool Deformer;
 	WORD* VerIdx;
 	BYTE* Vertices;
 	int TextureCount;
@@ -164,26 +165,25 @@ struct GrannyMesh
 
 struct GrannyModel
 {
-	granny_model_instance* GrannyInstance;
-	granny_world_pose* WorldPose;
+	bf_granny_instance* GrannyInstance;
+	bf_granny_world_pose* WorldPose;
 	int MeshCount;
 	GrannyMesh* Meshes;
 };
 
 struct GrannyScene
 {
-	granny_camera Camera;
-	granny_file* LoadedFile;
+	bf_granny_file* LoadedFile;
 	int TextureCount;
 	GrannyTexture* Textures;
 	int ModelCount;
 	GrannyModel* Model;
 	int MaxBoneCount;
-	granny_local_pose* SharedLocalPose;
+	bf_granny_transform* SharedLocalPose;
 	int MaxMutableVertexBufferSize;
 	int MaxMutableVertexBufferCount;
 	int MutableVertexBufferIndex;
-	granny_pnt332_vertex* MatVer;
+	bf_granny_pnt332* MatVer;
 	char BaseFileName[MAX_PATH];
 };
 
@@ -212,38 +212,38 @@ public:
 	void Release();
 	virtual void Reset() { Release(); }
 	virtual bool Load(const char* fName);
-	granny_control* ActAnimation(int idx, granny_model_instance* instance, granny_control* control, int nLoop);
-	void DeActAnimation(granny_control* control);
-	granny_world_pose* UpdateAni(float GameClock, granny_model_instance* instance);
-	void* RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
+	bf_granny_control* ActAnimation(int idx, bf_granny_instance* instance, bf_granny_control* control, int nLoop);
+	void DeActAnimation(bf_granny_control* control);
+	bf_granny_world_pose* UpdateAni(float GameClock, bf_granny_instance* instance);
+	void* RenderMesh(int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, bf_granny_world_pose* pWorldpose);
 	void* GetRigidMesh(int nMeshIdx);
 	bool CalculateHitArea(RENDER_INFO_RECT& info, matrix& view, matrix& dispTrans, vector3d& cam);
 	int GetMeshNo() { return m_Scene.Model->MeshCount; }
-	granny_mesh_binding* GetMeshBinding(int idx) { return m_Scene.Model->Meshes[idx].Binding; }
+	int* GetMeshBinding(int idx) { return m_Scene.Model->Meshes[idx].Binding; }
 	int GetMeshIndexCount(int nMeshNo);
 	void SetHairInfo(HairInfo* pInfo) { m_hair = pInfo; }
 	bool SetHairAndHeadMesh();
 	void SetHitRad(float fx, float fy) { m_HitRadx = fx, m_HitRady = fy; }
-	unsigned char IsAnimationFinished(granny_control*);
-	granny_model_instance* GetModelInstance() { return GrannyInstantiateModel(m_pModel); }
-	void SetMatVer(granny_pnt332_vertex* p) { m_Scene.MatVer = p; }
-	void* GetWorldMatrix(matrix*, granny_world_pose*);
+	unsigned char IsAnimationFinished(bf_granny_control*);
+	bf_granny_instance* GetModelInstance() { return m_pModel ? bf_granny_new_instance(m_Scene.LoadedFile, 0) : NULL; }
+	void SetMatVer(bf_granny_pnt332* p) { m_Scene.MatVer = p; }
+	void* GetWorldMatrix(matrix*, bf_granny_world_pose*);
 	void BindMeshToSkeleton(C3dGrannyModelRes* pDstRes);
-	granny_skeleton* GetSkeleton() { return m_pSkeleton; }
+	const bf_granny_skeleton* GetSkeleton() { return m_pSkeleton; }
 protected:
-	void GrannyError(granny_log_message_type, granny_log_message_origin, const char*, void*);
-	void CreateTexture(GrannyTexture* Texture, granny_texture* GrannyTexture);
-	CTexture* CreateRGBATexture(granny_texture* GrannyTexture, int g);
-	void CreateModel(GrannyModel* Model, granny_model* GrannyModel);
-	void CreateMesh(GrannyMesh* Mesh, granny_mesh* GrannyMesh, granny_model_instance* InModel);
-	void* RenderModel(GrannyModel* Model, int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, granny_world_pose* pWorldpose);
+	void GrannyError(int, int, const char*, void*);
+	void CreateTexture(GrannyTexture* Texture, int TextureIndex);
+	CTexture* CreateRGBATexture(int TextureIndex, int g);
+	void CreateModel(GrannyModel* Model, int ModelIndex);
+	void CreateMesh(GrannyMesh* Mesh, int MeshIndex, bf_granny_instance* InModel);
+	void* RenderModel(GrannyModel* Model, int nMeshIdx, INT_PTR* RetTex, INT_PTR* RetFaceArr, int* nIndexNo, matrix* poseMat, bf_granny_world_pose* pWorldpose);
 	void SetProjectZ(float fClip);
-	GrannyTexture* FindTexture(granny_material* GrannyMaterial);
-	granny_file* LoadFile(const char* BaseFileName, const char* Suffix);
+	GrannyTexture* FindTexture(int Material);
+	bf_granny_file* LoadFile(const char* BaseFileName, const char* Suffix);
 protected:
 	float m_ProjectZ;
 	GrannyScene m_Scene;
-	granny_model* m_pModel;
+	const bf_granny_model* m_pModel;
 	vector3d m_HitareaPos;
 	float m_HitRadx;
 	float m_HitRady;
@@ -251,7 +251,7 @@ protected:
 	int m_nBoneType;
 private:
 	HairInfo* m_hair;
-	granny_skeleton* m_pSkeleton;
+	const bf_granny_skeleton* m_pSkeleton;
 };
 
 struct C3dFrameState {
@@ -273,20 +273,21 @@ public:
 	void Release();
 	void Reset();
 	bool AddBone(const char* fName, int nType, int nAniIdx);
-	granny_animation* GetAnimation(int nType, int nAniIdx);
+	const bf_granny_file* GetAnimation(int nType, int nAniIdx);
 	void UpdateAni(float fClip);
 	int GetMeshNo();
 protected:
-	void GrannyError(granny_log_message_type, granny_log_message_origin, const char*, void*);
-	void CreateModel(GrannyModel* Model, granny_model* GrannyModel);
-	void CreateMesh(GrannyMesh* Mesh, granny_mesh* GrannyMesh, granny_model_instance* InModel);
+	void GrannyError(int, int, const char*, void*);
+	void CreateModel(GrannyModel* Model, int ModelIndex);
+	void CreateMesh(GrannyMesh* Mesh, int MeshIndex, bf_granny_instance* InModel);
 	void SetProjectZ(float fClip);
-	granny_animation* LoadAnimation(GrannyModel* Model, const char* BaseFileName, const char* Suffix);
-	granny_file* LoadFile(const char* BaseFileName, const char* Suffix);
+	bf_granny_file* LoadAnimation(GrannyModel* Model, const char* BaseFileName, const char* Suffix);
+	bf_granny_file* LoadFile(const char* BaseFileName, const char* Suffix);
 protected:
 	float m_ProjectZ;
 	GrannyScene m_Scene;
-	granny_animation* m_Animation[100][20];
+	// An animation is the file that holds it, as its only animation (index 0).
+	bf_granny_file* m_Animation[100][20];
 };
 extern C3dGrannyBoneRes g_GrannyBoneRes;
 

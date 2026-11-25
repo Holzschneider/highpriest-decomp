@@ -6,7 +6,6 @@
 #include "resource/Sprite.h"
 #include "resource/Action.h"
 #include "resource/Model.h"
-#include "granny/granny.h"
 #include "PathFinder.h"
 #include "Session.h"
 #include "window/UISys.h"
@@ -891,7 +890,7 @@ public:
 	int GetHeadPalette();
 	std::string GetHeadPaletteName();
 protected:
-	granny_world_pose* ProcessAni(C3dGrannyModelRes* pRes);
+	bf_granny_world_pose* ProcessAni(C3dGrannyModelRes* pRes);
 	void SetGrannyAction(int weapon);
 	void RenderAndAni(matrix& vtm, GrannyLightInfo* grannyLInfo, C3dGrannyModelRes* pModelRes, int nPartMeshIdx, C3dGrannyModelRes* pAniModelRes);
 	void RenderBak(matrix& vtm, int nPartMeshIdx, C3dGrannyModelRes* pModelRes);
@@ -916,13 +915,13 @@ protected:
 	int m_pk_total;
 	C3dGrannyModelRes* m_GrannyActorRes;
 	C3dGrannyModelRes* m_GrannyPartRes[10];
-	granny_model_instance* m_Instance;
+	bf_granny_instance* m_Instance;
 	RPMesh* m_rp[30];
 	RPMesh* m_rpPart[10][30];
-	granny_pnt332_vertex* m_matVer[30];
-	granny_pnt332_vertex* m_matVerPart[10][30];
-	granny_system_clock m_fAniCnt;
-	granny_system_clock m_fLastAniCnt;
+	bf_granny_pnt332* m_matVer[30];
+	bf_granny_pnt332* m_matVerPart[10][30];
+	uint64_t m_fAniCnt;
+	uint64_t m_fLastAniCnt;
 	float m_GameClock;
 	int m_curAction;
 	int m_baseAction;
@@ -934,7 +933,7 @@ protected:
 	char m_strJobFn[260];
 	int m_nRenderType;
 	CTexture* m_pCellTex;
-	granny_control* m_Control[20];
+	bf_granny_control* m_Control[20];
 	unsigned char m_isFirstProcess;
 	int m_nUpdateAniFlag;
 	CTexture* m_pTex[10][30];
@@ -945,7 +944,7 @@ protected:
 	char m_strPartSymbol[8][30];
 	char m_strBoneSymbol[3];
 private:
-	granny_world_pose* m_pWorldPose;
+	bf_granny_world_pose* m_pWorldPose;
 	CTexture* m_shadowTex;
 	std::vector<vector3d> m_shadowDotList;
 	HairInfo m_hair;
