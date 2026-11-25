@@ -175,6 +175,17 @@ CRagEffect :: CRagEffect()
 	m_iCurLayer = 0;
 	ZeroMemory(m_aiCurAniKey, sizeof(int) * 128);
 	ZeroMemory(m_rp, sizeof(m_rp));
+#if defined(BF_PORT)
+	// The 2008 constructor (0x5EF870) leaves m_isLayerDrawn and
+	// m_actXformData as the heap hands them over, and an effect is drawn
+	// before its first ProcessEZ2STR whenever it starts in a frame without a
+	// game tick (OnProcess returns early while g_isSkipFrame is 0); Render
+	// (0x5F8A90) then drew the layers a freed effect left marked, with its
+	// animation frames: KAC_LAYER::GetTexture (0x42E7B0) gave the dummy
+	// texture for a frame past the layer's textures, which the port's
+	// sAssert reports. No layer is drawn before the first ProcessEZ2STR.
+	memset(m_isLayerDrawn, 0, sizeof(m_isLayerDrawn));
+#endif
 }
 
 CRagEffect :: ~CRagEffect()
