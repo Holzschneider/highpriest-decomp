@@ -1027,6 +1027,9 @@ void UIChatHisBox::AddItem2(char const *txt, unsigned int itemRGB, char const *n
 		strcpy(line, strings[i].c_str());
 		line[len] = 0;
 		AddItem(line, itemRGB, name);
+#if defined(BF_PORT)
+		delete[] line;	// the copy was never freed; one per line drawn into the chat (M8.6 soak, leaks)
+#endif
 	}
 }
 
@@ -2229,6 +2232,10 @@ void UIChatHisBox3::AddItem2(char const *txt, unsigned int itemRGB, char const *
 		char* item = new char[strlen(line) + strlen(tab) + 1];
 		sprintf(item, "%s%s", tab, line);
 		AddItem(item, itemRGB);
+#if defined(BF_PORT)
+		delete[] item;	// the copy was never freed; one per line drawn into the chat (M8.6 soak, leaks)
+		delete[] line;
+#endif
 	}
 }
 

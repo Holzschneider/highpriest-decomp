@@ -1049,6 +1049,9 @@ void	UIWindow :: PolishText3 ( const char * text, std::vector<std::string> &stri
 				buf[line] = 0 ;
 
 				strings.push_back ( buf ) ;
+#if defined(BF_PORT)
+				delete[] buf ;	// never freed: one per line of every wrapped text (M8.6 soak, leaks)
+#endif
 
 				if ( enter )
 					enters.push_back ( true ) ;
@@ -1126,6 +1129,9 @@ void	UIWindow :: PolishText4 ( const char * text, std::vector<std::string> &stri
 
 						if ( !strcmp ( buf, "^000000" ) )
 							lineW -= ( GetTextWidth ( "^000000", 0, 0, 12, false ) ) ;
+#if defined(BF_PORT)
+						delete[] buf ;	// never freed (M8.6 soak, leaks)
+#endif
 					}
 				}
 
@@ -1151,6 +1157,9 @@ void	UIWindow :: PolishText4 ( const char * text, std::vector<std::string> &stri
 					strings.push_back ( " " ) ;
 				else
 					strings.push_back ( buf ) ;
+#if defined(BF_PORT)
+				delete[] buf ;	// never freed: one per line of every chat message (M8.6 soak, leaks)
+#endif
 
 				index += line ;
 			}
