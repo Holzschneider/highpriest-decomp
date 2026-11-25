@@ -64,6 +64,7 @@
 extern "C" const char *bf_port_mode(const char **detail);   // bf_client_state.cpp
 extern "C" int bf_client_view_changed(int w, int h);         // WinMain.cpp, the client's resize path; 0: no renderer yet
 extern "C" int bf_client_modal_frame(void);                  // WinMain.cpp
+extern "C" int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);   // WinMain.cpp, C linkage as common.h declares it
 extern "C" void *objc_autoreleasePoolPush(void);            // libobjc: the frame's autorelease pool
 extern "C" void objc_autoreleasePoolPop(void *pool);
 
@@ -654,7 +655,10 @@ int main(int argc, char **argv)
 		OpenControl(control);
 
 	std::string cmd = command_line;   // WinMain may write into it
-	int result = WinMain(GetModuleHandleA(NULL), NULL, &cmd[0], SW_SHOWNORMAL);
+	// The instance handle is only a token here: nothing asks Windows about
+	// it. 1 is SW_SHOWNORMAL, which InitApp does not read under BF_PORT.
+	static HINSTANCE__ module;
+	int result = WinMain(&module, NULL, &cmd[0], 1);
 
 	BF_TRACE(BFT_MODE, "exit: WinMain returned %d", result);
 	bf_control_close("quit");

@@ -92,8 +92,8 @@ bool Connect(ProbeConnection &conn, const char *ip, int port)
 // connection, -1 on a header the client does not know.
 int Wait(ProbeConnection &conn, char *buf, int timeoutMs)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
-	while (timeGetTime() < deadline) {
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
+	while (bf_clock_ticks() < deadline) {
 		bool alive = conn.Poll();
 		int header = 0;
 		switch (conn.Next(buf, &header)) {
@@ -120,9 +120,9 @@ int Wait(ProbeConnection &conn, char *buf, int timeoutMs)
 // game's dispatch does with packets it has no use for in that state.
 int WaitFor(ProbeConnection &conn, char *buf, int timeoutMs, int first, int second)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
 	for (;;) {
-		int remaining = (int)(deadline - timeGetTime());
+		int remaining = (int)(deadline - bf_clock_ticks());
 		int header = remaining > 0 ? Wait(conn, buf, remaining) : 0;
 		if (header <= 0 || header == first || header == second)
 			return header;
@@ -134,8 +134,8 @@ int WaitFor(ProbeConnection &conn, char *buf, int timeoutMs, int first, int seco
 // the account id, ahead of the first packet.
 bool WaitRaw(ProbeConnection &conn, char *buf, int size, int timeoutMs)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
-	while (timeGetTime() < deadline) {
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
+	while (bf_clock_ticks() < deadline) {
 		bool alive = conn.Poll();
 		if (conn.Recv(buf, size, true))
 			return true;
@@ -264,15 +264,15 @@ int Run(const Options &o)
 	cz.AID = accept.AID;
 	cz.GID = zone.GID;
 	cz.AuthCode = accept.AuthCode;
-	cz.clientTime = timeGetTime();
+	cz.clientTime = bf_clock_ticks();
 	cz.Sex = accept.Sex;
 	conn.SendPacket(conn.GetPacketSize(cz.PacketType), (char *)&cz);
 
 	bool entered = false;
 	std::map<int, int> seen;
 	int total = 0;
-	DWORD until = timeGetTime() + 5000;
-	while (timeGetTime() < until) {
+	DWORD until = bf_clock_ticks() + 5000;
+	while (bf_clock_ticks() < until) {
 		header = Wait(conn, buf, 250);
 		if (header < 0)
 			return Fail("the packet stream from the zone server cannot be followed past this point (%d packets read before it)", total);
@@ -296,7 +296,7 @@ int Run(const Options &o)
 			PACKET_CZ_NOTIFY_ACTORINIT loaded;
 			loaded.PacketType = HEADER_CZ_NOTIFY_ACTORINIT;
 			conn.SendPacket(conn.GetPacketSize(loaded.PacketType), (char *)&loaded);
-			until = timeGetTime() + o.listenMs;
+			until = bf_clock_ticks() + o.listenMs;
 		}
 	}
 	if (!entered)

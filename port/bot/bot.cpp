@@ -373,8 +373,8 @@ bool Bot::Fail(const char *stage, const char *format, ...)
 // connection, -1 on a packet that cannot be framed.
 int Bot::Wait(char *b, int timeoutMs)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
-	while (timeGetTime() < deadline) {
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
+	while (bf_clock_ticks() < deadline) {
 		bool alive = conn.Poll();
 		int header = 0, size = 0;
 		switch (conn.Next(b, sizeof(buf), &header, &size)) {
@@ -400,9 +400,9 @@ int Bot::Wait(char *b, int timeoutMs)
 
 int Bot::WaitFor(char *b, int timeoutMs, int first, int second)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
 	for (;;) {
-		int remaining = (int)(deadline - timeGetTime());
+		int remaining = (int)(deadline - bf_clock_ticks());
 		int header = remaining > 0 ? Wait(b, remaining) : 0;
 		if (header <= 0 || header == first || header == second)
 			return header;
@@ -412,8 +412,8 @@ int Bot::WaitFor(char *b, int timeoutMs, int first, int second)
 
 bool Bot::WaitRaw(char *b, int size, int timeoutMs)
 {
-	DWORD deadline = timeGetTime() + timeoutMs;
-	while (timeGetTime() < deadline) {
+	DWORD deadline = bf_clock_ticks() + timeoutMs;
+	while (bf_clock_ticks() < deadline) {
 		bool alive = conn.Poll();
 		if (conn.Recv(b, size, true))
 			return true;
@@ -586,15 +586,15 @@ bool Bot::EnterZone(const std::string &ip, int port)
 	cz.AID = aid;
 	cz.GID = gid;
 	cz.AuthCode = authCode;
-	cz.clientTime = timeGetTime();
+	cz.clientTime = bf_clock_ticks();
 	cz.Sex = sex;
 	conn.SendFixed(&cz);
 
 	// The zone server answers with the account id as four bare bytes, then
 	// ZC_ACCEPT_ENTER2; anything ahead of that is dispatched as usual.
-	DWORD deadline = timeGetTime() + 8000;
-	while (timeGetTime() < deadline) {
-		int header = Wait(buf, (int)(deadline - timeGetTime()));
+	DWORD deadline = bf_clock_ticks() + 8000;
+	while (bf_clock_ticks() < deadline) {
+		int header = Wait(buf, (int)(deadline - bf_clock_ticks()));
 		if (header <= 0)
 			break;
 		if (header == HEADER_ZC_REFUSE_ENTER)
@@ -621,7 +621,7 @@ bool Bot::EnterZone(const std::string &ip, int port)
 
 void Bot::Tick(bool now)
 {
-	DWORD t = timeGetTime();
+	DWORD t = bf_clock_ticks();
 	if (!now && t - lastTimeSync < 12000)
 		return;
 	lastTimeSync = t;
@@ -688,9 +688,9 @@ void Bot::Quit()
 		conn.SendFixed(&q);
 		// The server answers ZC_ACK_REQ_DISCONNECT and closes; it refuses
 		// for a while after login, and closing the socket logs out anyway.
-		DWORD deadline = timeGetTime() + 1500;
-		while (timeGetTime() < deadline && conn.IsConnect()) {
-			int header = Wait(buf, (int)(deadline - timeGetTime()));
+		DWORD deadline = bf_clock_ticks() + 1500;
+		while (bf_clock_ticks() < deadline && conn.IsConnect()) {
+			int header = Wait(buf, (int)(deadline - bf_clock_ticks()));
 			if (header <= 0 || header == HEADER_ZC_ACK_REQ_DISCONNECT)
 				break;
 		}
@@ -733,7 +733,7 @@ void Bot::SeeActor(DWORD id, int job, int ax, int ay, bool pcLook)
 
 void Bot::UpdateMovement()
 {
-	if (moving && (int)(timeGetTime() - moveEnd) >= 0) {
+	if (moving && (int)(bf_clock_ticks() - moveEnd) >= 0) {
 		moving = false;
 		x = destX;
 		y = destY;
@@ -930,7 +930,7 @@ void Bot::Dispatch(const char *p, int size)
 		destY = by;
 		int dx = abs(bx - ax), dy = abs(by - ay);
 		int diag = dx < dy ? dx : dy, straight = (dx > dy ? dx : dy) - diag;
-		moveStart = timeGetTime();
+		moveStart = bf_clock_ticks();
 		moveEnd = moveStart + (DWORD)((diag * 14 + straight * 10) * speed / 10);
 		moving = true;
 		Event("position").S("map", map).I("x", x).I("y", y).I("dest_x", destX).I("dest_y", destY)

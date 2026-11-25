@@ -46,6 +46,9 @@ typedef		DWORD		SYSTEMPALETTE;
 void	CheckSystemMessage();
 int    CheckDevice() ;
 BOOL    InitApp(HINSTANCE hInstance, int nCmdShow);
+#if defined(BF_PORT)
+extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);	// as winbase.h declared it; main calls it
+#endif
 void    ExitApp();
 
 #if defined(BF_PORT)
