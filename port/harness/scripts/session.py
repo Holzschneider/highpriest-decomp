@@ -48,7 +48,13 @@ NEEDS_SERVER = True
 START = (155, 183)
 BOT_CELLS = [(160, 186), (160, 180)]
 WINDOWS = [("e", "item"), ("q", "equipment"), ("s", "skill"), ("a", "status"), ("o", "option")]
-BASE_WINDOWS = ("CHATWND", "BASICINFOWND", "SHORTENITEMWND", "MINIMAPZOOMWND", "TRANSBALLOONTEXT", "NAMEBALLOONTEXT")
+# PCGAGE is the HP gauge under a player, opened by the server's
+# ZC_NOTIFY_HP_TO_GROUPM (0x106; GameModePacket.cpp Zc_Notify_Hp_To_Groupm ->
+# CPc AM_UPDATEGAGE), never by a click: rAthena sends it to a party member
+# and to a character whose group may view HP meters (group 99, which the
+# M8 helpers' fresh accounts have) for each player it sees and for itself
+BASE_WINDOWS = ("CHATWND", "BASICINFOWND", "SHORTENITEMWND", "MINIMAPZOOMWND", "TRANSBALLOONTEXT", "NAMEBALLOONTEXT",
+                "PCGAGE")
 WALKS = [(110, 70), (-110, 90), (60, 120), (-70, 100)]   # south of the start, away from the NPCs
 
 
@@ -64,6 +70,22 @@ class Tally:
             self.bad.append({"action": what, "detail": detail})
 
 
+def settled_pick(ctl, x, y, tries=12):
+    """The pointer at (x, y) and the cell under it once the view has come to
+    rest: the camera follows the character smoothly and is still gliding
+    for a moment after it arrives, so a cell read at once can be a
+    neighbour of the cell the click a few frames later picks."""
+    ctl.move(x, y)
+    prev = None
+    for _ in range(tries):
+        ctl.wait({"frames": 5}, timeout=10)
+        st = ctl.state("pointer", "windows")
+        if prev is not None and st["pointer"]["cell"] == prev:
+            break
+        prev = st["pointer"]["cell"]
+    return st
+
+
 def walk(ctl, tally, dx, dy):
     """Click a ground cell near the offset from the centre, away from actors
     (a click on an NPC talks to it, which is not this script's business)."""
@@ -71,9 +93,7 @@ def walk(ctl, tally, dx, dy):
     actors = [a for a in ctl.state("actors")["actors"] if a["type"] != "item"]
     for kx, ky in ((0, 0), (40, 0), (-40, 0), (0, 40), (0, -40), (60, 60), (-60, 60), (60, -60), (-60, -60)):
         x, y = v["logical"]["w"] // 2 + dx + kx, v["logical"]["h"] // 2 + dy + ky
-        ctl.move(x, y)
-        ctl.wait({"frames": 3}, timeout=10)
-        st = ctl.state("pointer", "windows")
+        st = settled_pick(ctl, x, y)
         cell = st["pointer"]["cell"]
         # The client shows an actor's name balloon while the pointer is on it.
         over = any(w["name"] == "NAMEBALLOONTEXT" for w in st["windows"])
