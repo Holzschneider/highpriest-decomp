@@ -4,11 +4,8 @@
 
 
 
-#define DIRECTINPUT_VERSION 0x0700
-#include <windows.h>
-#include <mmsystem.h>
+#include "bf_types.h"
 #ifndef BF_PORT
-#include <dinput.h>
 #endif
 #include "bf_input.h"
 

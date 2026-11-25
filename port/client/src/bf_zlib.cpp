@@ -4,7 +4,7 @@
 // on macOS, so linking the client's declarations straight against libz would
 // let zlib write 8 bytes into a 4-byte length. common.h maps both names to
 // these under BF_PORT.
-#include <windows.h>
+#include "bf_types.h"
 #include <limits.h>
 #include <type_traits>
 

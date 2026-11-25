@@ -5,7 +5,6 @@
 
 #include "../LoginMode.h"
 #include "../Session.h"
-#include <shellapi.h>
 
 enum WINDOWID : int {
 	WID_BASICINFOWND = 0,

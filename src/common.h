@@ -10,31 +10,20 @@
 #ifndef	__COMMON
 #define	__COMMON
 
-#define	DIRECTINPUT_VERSION		0x700
 
-#define		WIN32_LEAN_AND_MEAN
-#include	<windows.h>
+#include	"bf_types.h"
 #include	<math.h>
 #include	<stdio.h>
 #include	<string.h>
 #include	<stdarg.h>
 #include	<stdlib.h>
 #include	<fcntl.h>
-#include	<io.h>
 #include	<string>
 #include	<strstream>
 #include	<map>
 #include	<algorithm>
 #include	<vector>
 #include	<list>
-#include	<direct.h>
-#include	<mmsystem.h>
-#define		D3D_OVERLOADS
-#include	<d3d.h>
-#include	<dsound.h>
-#include	<dinput.h>
-#include	<process.h>
-#include	<shlwapi.h>
 #include	<stack>
 
 using namespace	std;

@@ -9,8 +9,7 @@
 // Visual C++ names _mkdir and _chmod, on port/native/sys (bf_file.h). They
 // were the win32 adapter's until M11.3; call sites that move to bf_file.h
 // directly no longer need them.
-#include <windows.h>
-#include <process.h>
+#include "bf_types.h"
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>

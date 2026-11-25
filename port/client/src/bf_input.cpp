@@ -10,7 +10,7 @@
 // Compiled with bf_compat_flags: the Windows names here are the message ids,
 // virtual keys and their parameters (WM_*, VK_*, HTCLIENT, WA_*, SIZE_*,
 // MK_*, WHEEL_DELTA), numbers the client keeps as its own.
-#include <windows.h>
+#include "bf_types.h"
 
 #include <math.h>
 #include <stdlib.h>

@@ -4,7 +4,7 @@
 
 #include <ctype.h>
 #include <string.h>
-#include <windows.h>
+#include "bf_types.h"
 #include "bf_text.h"
 
 extern DWORD g_codePage;

@@ -20,7 +20,6 @@
 #include "resource/Bitmap.h"
 #include "skin.h"
 
-#include <mmsystem.h>
 
 extern UIWindowMgr g_windowMgr;
 extern CModeMgr    g_modeMgr;

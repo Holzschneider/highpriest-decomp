@@ -2,7 +2,7 @@
 #include "Prim.h"
 #include "Anim.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #include <math.h>
 
 

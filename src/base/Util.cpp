@@ -7,9 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <io.h>
-#include <direct.h>
-#include <windows.h>
+#include "bf_types.h"
 #include <istream>
 
 enum	lexMode {

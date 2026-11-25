@@ -11,24 +11,17 @@
 #include "../resource/Action.h"
 #include "../LoginMode.h"
 #include "../Mode.h"
-#include <direct.h>
-#include <io.h>
-#include <process.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #ifndef BF_PORT
-#include <tlhelp32.h>
 #endif
-#include <windows.h>
+#include "bf_types.h"
 #ifndef BF_PORT
-#include <shellapi.h>
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400
 #endif
-#include "../WinCrypt.h"
 #include "../rdefk.h"
-#include "../NPGameLib.h"
 #endif
 
 extern ServiceType g_serviceType;

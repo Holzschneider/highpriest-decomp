@@ -6,7 +6,7 @@
 #include "../window/UISys.h"
 #include "bf_coverage.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #include <algorithm>
 
 

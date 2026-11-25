@@ -30,7 +30,7 @@
 //
 // Compiled with bf_compat_flags (the prefix and the Windows headers, C++17,
 // the C library's own file names) into the library bf_port_main.
-#include <windows.h>
+#include "bf_types.h"
 
 #include <stdarg.h>
 #include <stdint.h>

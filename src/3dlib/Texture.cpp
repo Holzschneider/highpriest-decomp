@@ -5,7 +5,7 @@
 #include "Renderer.h"
 #include "../resource/Sprite.h"
 
-#include <windows.h>
+#include "bf_types.h"
 
 #include <vector>
 

@@ -5,7 +5,7 @@
 
 
 
-#include <windows.h>
+#include "bf_types.h"
 #include "CBink.h"
 #if defined(BF_PORT)
 // The movie player of the port (port/client, bf_movie.h) in place of the

@@ -6,7 +6,7 @@
 // bf_app_post_event, as the control socket does, so it runs on the locked
 // screen of the unattended Mac. One line per check; exit status 1 on any
 // failure.
-#include <windows.h>
+#include "bf_types.h"
 
 #include <math.h>
 #include <stdio.h>

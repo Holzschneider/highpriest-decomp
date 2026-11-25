@@ -13,7 +13,7 @@
 // It is never called on macOS; the call itself compiles against the Wine
 // headers and is linked to the Win32 adapter's stub (port/compat/win32).
 // Compiled with the client's flags (bf_client_flags in CMakeLists.txt).
-#include <windows.h>
+#include "bf_types.h"
 #include <execinfo.h>
 #include <signal.h>
 #include <stdlib.h>

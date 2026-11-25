@@ -3,7 +3,6 @@
 #include "Bitmap.h"
 #include "../base/File.h"
 #include "../3dlib/Device.h"
-#include "../ijl.h"
 #if defined(BF_PORT)
 #include "bf_port.h"
 #endif

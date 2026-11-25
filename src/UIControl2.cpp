@@ -7,7 +7,6 @@
 #include "resource/Bitmap.h"
 #include "skin.h"
 #include "device/Control.h"
-#include "WinCrypt.h"
 
 extern UIWindowMgr g_windowMgr;
 extern CModeMgr g_modeMgr;

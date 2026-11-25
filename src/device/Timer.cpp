@@ -1,7 +1,6 @@
 #include "common.h"
 
-#include <windows.h>
-#include <mmsystem.h>
+#include "bf_types.h"
 
 extern BOOL g_frameskip;
 static DWORD frameTime;

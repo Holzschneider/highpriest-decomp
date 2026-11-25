@@ -27,9 +27,7 @@
 #include "../resource/Sprite.h"
 #include "../resource/PaletteRes.h"
 #include "../movie/CBink.h"
-#include <windows.h>
-#include <shellapi.h>
-#include <mmsystem.h>
+#include "bf_types.h"
 #include <time.h>
 
 extern UIWindowMgr g_windowMgr;

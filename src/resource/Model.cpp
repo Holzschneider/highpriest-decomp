@@ -84,8 +84,7 @@ extern CSession g_session;
 
 
 
-#include <windows.h>
-#include <ddraw.h>
+#include "bf_types.h"
 
 
 #ifndef sprintf_s

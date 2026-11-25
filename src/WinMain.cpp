@@ -4,10 +4,8 @@
 #include "framework/Locale.h"
 #include "device/Sound.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #include <ctype.h>
-#include <ddraw.h>
-#include <io.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -30,8 +28,6 @@
 #include "RagEffectPrim.h"
 #include "resource/Model.h"
 #include "skin.h"
-#include <shellapi.h>
-#include <tlhelp32.h>
 #include "GameMode.h"
 #if defined(BF_PORT)
 #include "LoginMode.h"

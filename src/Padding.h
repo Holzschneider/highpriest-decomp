@@ -1,7 +1,7 @@
 #ifndef __PADDING_H_ 
 #define	__PADDING_H_ 
 
-#include <windows.h>
+#include "bf_types.h"
 #include <vector>
 
 using namespace std;

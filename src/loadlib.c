@@ -87,7 +87,7 @@ static int loadlib(lua_State *L)
 * This is an implementation of loadlib for Windows using native functions.
 */
 
-#include <windows.h>
+#include "bf_types.h"
 
 static void pusherror(lua_State *L)
 {

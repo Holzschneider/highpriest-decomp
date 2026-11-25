@@ -1,5 +1,5 @@
 #include "common.h"
-#include <windows.h>
+#include "bf_types.h"
 #include "../base/File.h"
 #include "../3dlib/Renderer.h"
 #include "Attr.h"

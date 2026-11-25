@@ -3,7 +3,7 @@
 
 #define OUTPUTSTR
 
-#include <windows.h>
+#include "bf_types.h"
 #include <math.h>
 #include <stdio.h>
 

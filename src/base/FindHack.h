@@ -5,7 +5,6 @@
 // (base/FindHack.cpp): not in the port.
 #ifndef BF_PORT
 
-#include <tlhelp32.h>
 
 typedef VOID (WINAPI *FEnumModuleCallback)(HMODULE hMod, PVOID pUserData);
 

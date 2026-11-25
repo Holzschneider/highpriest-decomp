@@ -1,7 +1,7 @@
 #include "common.h"
 #include "bf_setting_key.h"
 #include "../MsgStrings.h"
-#include <windows.h>
+#include "bf_types.h"
 #include "UIEmotionWnd.h"
 #include "../UIControl.h"
 #include "../UIRectInfo.h"

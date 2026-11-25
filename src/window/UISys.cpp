@@ -9,7 +9,7 @@
 #include "../pdb_enums.h"
 #include "../ItemInfo.h"
 
-#include <windows.h>
+#include "bf_types.h"
 
 extern CModeMgr	g_modeMgr;
 extern UIWindowMgr g_windowMgr;

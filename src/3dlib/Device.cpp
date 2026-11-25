@@ -8,7 +8,7 @@
 #include "../base/Util.h"
 #include "../resource/Bitmap.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #include <stdio.h>
 #include "../pdb_shared.h"
 

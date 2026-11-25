@@ -26,7 +26,7 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
+#include "bf_types.h"
 
 
 

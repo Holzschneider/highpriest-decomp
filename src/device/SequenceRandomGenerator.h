@@ -2,7 +2,7 @@
 #define HIGHPRIEST_DEVICE_SEQUENCERANDOMGENERATOR_H
 
 
-#include <windows.h>
+#include "bf_types.h"
 #include <stdio.h>
 
 class CSequenceRandomGenerator;

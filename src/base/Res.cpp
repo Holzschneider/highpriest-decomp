@@ -9,8 +9,7 @@
 #include "../3dlib/DrawUtil.h"
 #include "File.h"
 #include "../window/UISys.h"
-#include <windows.h>
-#include <mmsystem.h>
+#include "bf_types.h"
 #include <stdio.h>
 
 

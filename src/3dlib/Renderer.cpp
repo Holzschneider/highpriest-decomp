@@ -8,7 +8,6 @@
 #include "D3dutil.h"
 #include "Renderer.h"
 #include "DrawUtil.h"
-#include "../ijl.h"
 #if defined(BF_PORT)
 #include "bf_port.h"
 #endif
@@ -17,8 +16,7 @@
 #include "../GameActor.h"
 
 #include <algorithm>
-#include <windows.h>
-#include <mmsystem.h>
+#include "bf_types.h"
 #include <math.h>
 #include <stdio.h>
 

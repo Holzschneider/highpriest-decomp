@@ -2,7 +2,7 @@
 #include "MsgStrings.h"
 #include "framework/Locale.h"
 #include "device/Sound.h"
-#include <windows.h>
+#include "bf_types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +60,6 @@ extern const char* g_accountAddr;
 extern const char* g_accountPort;
 
 #ifndef BF_PORT
-#include <Nb30.h>
 #endif
 
 #if defined(BF_PORT)

@@ -6,11 +6,9 @@
 #include "../base/Res.h"
 #include "bf_input.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #ifndef BF_PORT
-#include <imm.h>
 #endif
-#include <minmax.h>
 #include <string>
 #include <list>
 

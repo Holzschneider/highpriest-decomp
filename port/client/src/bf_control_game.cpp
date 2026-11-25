@@ -9,7 +9,7 @@
 //   camera   {longitude, latitude, distance, dest: {...}} of the game view
 // The events: `map` when game mode enters a map, `chat` per chat line,
 // `damage` per number drawn over an actor.
-#include <windows.h>
+#include "bf_types.h"
 
 #include <math.h>
 #include <stdint.h>

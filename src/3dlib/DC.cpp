@@ -4,7 +4,7 @@
 #include "../resource/Action.h"
 #include "../resource/Sprite.h"
 
-#include <windows.h>
+#include "bf_types.h"
 
 typedef std::list<CTexture *>::iterator     texListIter;
 

@@ -3,7 +3,7 @@
 #include "File.h"
 #include "hash.h"
 
-#include <windows.h>
+#include "bf_types.h"
 #include <stdlib.h>
 #include <string.h>
 #include <list>

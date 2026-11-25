@@ -3,8 +3,6 @@
 #include "MsgStrings.h"
 #include "framework/Locale.h"
 #include "device/Sound.h"
-#include <direct.h>
-#include <io.h>
 #include <sys/stat.h>
 #include "Session.h"
 #include "base/Util.h"

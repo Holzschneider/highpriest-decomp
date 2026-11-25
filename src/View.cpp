@@ -12,7 +12,7 @@
 #include "ItemInfo.h"
 #include <math.h>
 #include <stdio.h>
-#include <windows.h>
+#include "bf_types.h"
 
 
 

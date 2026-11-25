@@ -1,4 +1,4 @@
-#include <windows.h>
+#include "bf_types.h"
 #include "SequenceRandomGenerator.h"
 #include <stdlib.h>
 

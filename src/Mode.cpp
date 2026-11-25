@@ -1,10 +1,8 @@
 #include "common.h"
 #include "framework/Locale.h"
 #include "device/Sound.h"
-#include <direct.h>
-#include <io.h>
 #include <stdio.h>
-#include <windows.h>
+#include "bf_types.h"
 
 int g_mustPumpOutReceiveQueue = 0;
 #include "bf_sys.h"

@@ -3,10 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <io.h>
-#include <direct.h>
-#include <process.h>
-#include <windows.h>
+#include "bf_types.h"
 
 #include "base/Res.h"
 #include "resource/Bitmap.h"
