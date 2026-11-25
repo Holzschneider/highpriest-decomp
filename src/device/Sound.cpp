@@ -11,9 +11,79 @@
 #include "../pdb_enums.h"
 #include "Sound.h"
 #include "../3dlib/Prim.h"
+#include "bf_file.h"
 #include <mutex>
 
 void CloseStream();
+
+// The sound module (port/native/audio, bf_audio.h) in place of Miles (M11.6).
+// What the Miles adapter of stage A (port/compat/miles) decided is done here:
+// a sample handle is a CMssSample whose voice is done when the module no
+// longer plays it; volumes are Miles' 0..127 over 127; there is no 3D
+// provider, so Play3DDigital falls back to PlayDigital; the music file is
+// found in the game folder by its client name. The sound a wave decodes to is
+// kept by the wave (resource/Wave.cpp).
+
+static void StopSample(CMssSample &sample)
+{
+	if (sample.voice)
+		bf_audio_voice_stop(sample.voice);
+	sample.voice = 0;
+}
+
+static float UnitVolume(int volume)
+{
+	if (volume < 0)
+		volume = 0;
+	if (volume > 127)
+		volume = 127;
+	return float(volume) / 127.0f;
+}
+
+// Miles' open digital driver: the module on the output device. A module that
+// already runs (the intro movie's, CBink.cpp, or a test's) is adopted, and one
+// that fell back to SILENT is still a driver, so that voices and the stream
+// keep being counted.
+static bool OpenDigitalDriver()
+{
+	if (bf_audio_mode() < 0) {
+		bf_audio_config config = { BF_AUDIO_MODE_DEVICE, BF_AUDIO_DEFAULT_VOICES, 0 };
+		int mode = bf_audio_start(&config);
+		if (mode < 0) {
+			BF_TRACE(BFT_SND, "sound: open digital driver: the sound engine did not start");
+			return false;
+		}
+		BF_TRACE(BFT_SND, "sound: open digital driver(%d, %d, %d): engine mode %d at %d Hz",
+				 g_mssVar.digitalrate, g_mssVar.digitalbits, g_mssVar.digitalchannels, mode, bf_audio_sample_rate());
+	}
+	return true;
+}
+
+// The client's name ("bgm\\01.mp3") relative to the game folder, in any letter
+// case (BGM/). A file that is not there is still handed to the module, so that
+// it counts the failure.
+static bool OpenStream(const char *streamFileName)
+{
+	char path[2048];
+	if (bf_file_resolve(streamFileName, BF_RESOLVE_READ, path, sizeof path) < 0) {
+		const char *game = bf_file_location(BF_LOCATION_GAME);
+		size_t n = 0;
+		if (streamFileName[0] != '/')
+			n = snprintf(path, sizeof path, "%s/", game ? game : ".");
+		for (const char *c = streamFileName; *c && n + 1 < sizeof path; ++c)
+			path[n++] = *c == '\\' ? '/' : *c;
+		path[n] = 0;
+	}
+	if (!g_mssVar.hDigital) {
+		BF_TRACE(BFT_SND, "sound: open stream(%s) with no driver open", streamFileName);
+		return false;
+	}
+	if (bf_audio_stream_open(path) != 0) {
+		BF_TRACE(BFT_SND, "sound: open stream: %s (%s) cannot be opened", streamFileName, path);
+		return false;
+	}
+	return true;
+}
 
 // The fade thread (FadeBgm in Mode.cpp) and the main thread both use the
 // stream and its volume. Recursive: PlayStream calls CloseStream.
@@ -25,18 +95,11 @@ inline CMssVariables::CMssVariables()
 	numSamples = MAXSAMPLE;
 	num3DSamples = MAX3DSAMPLE;
 	int i;
-	for (i = 0; i < MAXSAMPLE; ++i)
-		hSamples[i] = 0;
-	provider_default = 0;
-	for (i = 0; i < MAX_PROVIDERS; ++i) {
-		provider_names[i] = NULL;
-		provider_handles[i] = 0;
+	for (i = 0; i < MAXSAMPLE; ++i) {
+		hSamples[i].allocated = false;
+		hSamples[i].voice = 0;
+		hSamples[i].volume = 127;
 	}
-	enum3D = HPROENUM_FIRST;
-	for (i = 0; i < MAX3DSAMPLE; ++i)
-		h3DSamples[i] = 0;
-	hListener = 0;
-	usingEAX = 0;
 	roomType = ENVIRONMENT_GENERIC;
 	streamVolume = 100;
 	digital2DVolume = 100;
@@ -84,9 +147,6 @@ bool InitMSS()
 	g_mssVar.volumeMaxDist = VOLUMEMAXDIST;
 	g_mssVar.volumeMinDist = VOLUMEMINDIST;
 
-	AIL_set_redist_directory(".\\");
-	AIL_startup();
-
 	sAssert(g_mssVar.hDigital == 0);
 
 	if (g_registry.m_soundMode == 1)
@@ -105,84 +165,43 @@ bool InitMSS()
 		default: g_mssVar.digitalbits = 8;  break;
 	}
 
-	AIL_set_preference(DIG_USE_WAVEOUT, g_registry.m_useWaveout);
-	g_mssVar.hDigital = AIL_open_digital_driver(g_mssVar.digitalrate,
-												g_mssVar.digitalbits,
-												g_mssVar.digitalchannels,
-												AIL_OPEN_DIGITAL_FORCE_PREFERENCE);
-	if (g_mssVar.hDigital == 0)
+	g_mssVar.hDigital = OpenDigitalDriver();
+	if (!g_mssVar.hDigital)
 		return false;
 
 	if (g_mssVar.hDigitalStream) {
-		AIL_close_stream(g_mssVar.hDigitalStream);
-		g_mssVar.hDigitalStream = 0;
+		bf_audio_stream_close();
+		g_mssVar.hDigitalStream = false;
 	}
 
 	if (g_registry.m_soundMode == 1) {
 		for (int i = 0; i < g_mssVar.numSamples; i++) {
-			g_mssVar.hSamples[i] = AIL_allocate_sample_handle(g_mssVar.hDigital);
-			if (g_mssVar.hSamples[i] == 0)
-				break;
+			g_mssVar.hSamples[i].allocated = true;
+			g_mssVar.hSamples[i].voice = 0;
+			g_mssVar.hSamples[i].volume = 127;
 		}
 	} else if (g_registry.m_soundMode == 2) {
-		unsigned int provider_count = 0;
+		// No 3D provider here (2008: "Miles Fast 2D Positional Audio"), so no
+		// 3D handles; and no 2D handles either in this mode, as in 2008.
 		strcpy(g_registry.m_providerName, "Miles Fast 2D Positional Audio");
-		while (AIL_enumerate_3D_providers(&g_mssVar.enum3D,
-										  &g_mssVar.provider_handles[provider_count],
-										  &g_mssVar.provider_names[provider_count])) {
-			if (strcmp(g_mssVar.provider_names[provider_count], g_registry.m_providerName) == 0) {
-				Trace("3d Audio Success!!");
-				g_mssVar.provider_default = g_mssVar.provider_handles[provider_count];
-				break;
-			}
-			provider_count++;
-		}
-		if (g_mssVar.provider_default) {
-			if (AIL_open_3D_provider(g_mssVar.provider_default))
-				return false;
-			if (AIL_3D_speaker_type(g_mssVar.provider_default) != -1)
-				AIL_set_3D_speaker_type(g_mssVar.provider_default, g_registry.m_speakerType);
-			g_mssVar.hListener = AIL_open_3D_listener(g_mssVar.provider_default);
-			if (g_mssVar.hListener == 0)
-				return false;
-			for (int i = 0; i < g_mssVar.num3DSamples; i++) {
-				g_mssVar.h3DSamples[i] = AIL_allocate_3D_sample_handle(g_mssVar.provider_default);
-				if (g_mssVar.h3DSamples[i] == 0)
-					break;
-			}
-		}
 	}
 	return true;
 }
 
 void UnInitMSS()
 {
-	if (g_mssVar.provider_default) {
-		for (int i = 0; i < MAX3DSAMPLE; i++) {
-			if (g_mssVar.h3DSamples[i]) {
-				AIL_release_3D_sample_handle(g_mssVar.h3DSamples[i]);
-				g_mssVar.h3DSamples[i] = 0;
-			}
-		}
-		AIL_close_3D_listener(g_mssVar.hListener);
-		AIL_close_3D_provider(g_mssVar.provider_default);
-		g_mssVar.provider_default = 0;
-	}
-
 	CloseStream();
 
 	for (int i = 0; i < MAXSAMPLE; i++) {
-		if (g_mssVar.hSamples[i]) {
-			AIL_release_sample_handle(g_mssVar.hSamples[i]);
-			g_mssVar.hSamples[i] = 0;
+		if (g_mssVar.hSamples[i].allocated) {
+			StopSample(g_mssVar.hSamples[i]);
+			g_mssVar.hSamples[i].allocated = false;
 		}
 	}
 	if (g_mssVar.hDigital) {
-		AIL_close_digital_driver(g_mssVar.hDigital);
-		g_mssVar.hDigital = 0;
+		bf_audio_stop();	// whoever started it
+		g_mssVar.hDigital = false;
 	}
-
-	AIL_shutdown();
 }
 
 void CloseStream()
@@ -190,8 +209,8 @@ void CloseStream()
 	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	memset(g_mssVar.streamFileName, 0, sizeof(g_mssVar.streamFileName));
 	if (g_mssVar.hDigitalStream) {
-		AIL_close_stream(g_mssVar.hDigitalStream);
-		g_mssVar.hDigitalStream = 0;
+		bf_audio_stream_close();
+		g_mssVar.hDigitalStream = false;
 	}
 }
 
@@ -210,7 +229,7 @@ void SetStreamVolume(int volume)
 		volume = 0;
 	g_mssVar.streamVolume = volume;
 	if (g_mssVar.hDigitalStream)
-		AIL_set_stream_volume(g_mssVar.hDigitalStream, g_mssVar.streamVolume);
+		bf_audio_stream_set_volume(UnitVolume(g_mssVar.streamVolume));
 }
 
 int Get2DVolume()
@@ -245,8 +264,7 @@ void PauseStream(int bgmIsPaused)
 {
 	std::lock_guard<std::recursive_mutex> lock(g_streamLock);
 	if (g_mssVar.hDigitalStream)
-		AIL_pause_stream(g_mssVar.hDigitalStream, bgmIsPaused);
-	AIL_stream_volume(g_mssVar.hDigitalStream);
+		bf_audio_stream_pause(bgmIsPaused ? 1 : 0);
 }
 
 void PlayStream(const char* streamFileName)
@@ -260,31 +278,26 @@ void PlayStream(const char* streamFileName)
 	CloseStream();
 
 	strcpy(g_mssVar.streamFileName, streamFileName);
-	g_mssVar.hDigitalStream = AIL_open_stream(g_mssVar.hDigital, streamFileName, 0);
-	sAssert(g_mssVar.hDigitalStream != NULL);
+	g_mssVar.hDigitalStream = OpenStream(streamFileName);
+	sAssert(g_mssVar.hDigitalStream);
 
-	AIL_set_stream_volume(g_mssVar.hDigitalStream, g_mssVar.streamVolume);
-	AIL_set_stream_loop_count(g_mssVar.hDigitalStream, 0);
-	AIL_start_stream(g_mssVar.hDigitalStream);
+	if (g_mssVar.hDigitalStream) {
+		bf_audio_stream_set_volume(UnitVolume(g_mssVar.streamVolume));
+		bf_audio_stream_set_loop_count(0);	// forever
+		bf_audio_stream_start();
+	}
 }
 
 void EndDigitalSound()
 {
 	for (int i = 0; i < MAXSAMPLE; i++) {
-		if (g_mssVar.hSamples[i]) {
-			AIL_end_sample(g_mssVar.hSamples[i]);
-		}
-	}
-	if (g_mssVar.provider_default) {
-		for (int i = 0; i < MAX3DSAMPLE; i++) {
-			if (g_mssVar.h3DSamples[i]) {
-				AIL_end_3D_sample(g_mssVar.h3DSamples[i]);
-			}
+		if (g_mssVar.hSamples[i].allocated) {
+			StopSample(g_mssVar.hSamples[i]);
 		}
 	}
 }
 
-bool PlayDigital(BYTE* fileImage, float& x, float& y, float& z,
+bool PlayDigital(bf_audio_sound* sound, float& x, float& y, float& z,
 				 int volumeMaxDist,
 				 int volumeMinDist,
 				 float vFactor)
@@ -305,12 +318,14 @@ bool PlayDigital(BYTE* fileImage, float& x, float& y, float& z,
 	volume = float(volume) * vFactor;
 
 	for (int i = 0; i < g_mssVar.numSamples; i++) {
-		if (g_mssVar.hSamples[i]) {
-			if (AIL_sample_status(g_mssVar.hSamples[i]) == SMP_DONE) {
-				AIL_init_sample(g_mssVar.hSamples[i]);
-				AIL_set_sample_file(g_mssVar.hSamples[i], fileImage, 0);
-				AIL_set_sample_volume(g_mssVar.hSamples[i], volume);
-				AIL_start_sample(g_mssVar.hSamples[i]);
+		CMssSample &sample = g_mssVar.hSamples[i];
+		if (sample.allocated) {
+			if (!bf_audio_voice_playing(sample.voice)) {
+				StopSample(sample);
+				sample.volume = volume;
+				// a wave that cannot be decoded takes the handle and plays nothing
+				if (sound)
+					sample.voice = bf_audio_play(sound, UnitVolume(sample.volume), 0.0f, 0);
 				return true;
 			}
 		}
@@ -319,56 +334,23 @@ bool PlayDigital(BYTE* fileImage, float& x, float& y, float& z,
 	return false;
 }
 
-bool Play3DDigital(BYTE* fileImage, float& x, float& y, float& z,
+bool Play3DDigital(bf_audio_sound* sound, float& x, float& y, float& z,
 				   int volumeMaxDist,
 				   int volumeMinDist,
 				   float vFactor)
 {
-	int volume = float(g_mssVar.digital3DVolume) * vFactor;
-	if (g_mssVar.provider_default) {
-		for (int i = 0; i < g_mssVar.num3DSamples; i++) {
-			if (g_mssVar.h3DSamples[i]) {
-				if (AIL_3D_sample_status(g_mssVar.h3DSamples[i]) == SMP_DONE) {
-					if (AIL_set_3D_sample_file(g_mssVar.h3DSamples[i], fileImage) == 0)
-						return false;
-
-					if (g_mssVar.roomType == ENVIRONMENT_GENERIC)
-						AIL_set_3D_sample_effects_level(g_mssVar.h3DSamples[i], 0.0f);
-					else
-						AIL_set_3D_sample_effects_level(g_mssVar.h3DSamples[i], 1.0f);
-
-					AIL_set_3D_position(g_mssVar.h3DSamples[i], x, y, z);
-					AIL_set_3D_orientation(g_mssVar.h3DSamples[i], -x, -y, -z, 0.0f, 1.0f, 0.0f);
-					AIL_set_3D_sample_volume(g_mssVar.h3DSamples[i], volume);
-					AIL_set_3D_sample_distances(g_mssVar.h3DSamples[i], volumeMaxDist, volumeMinDist);
-					AIL_start_3D_sample(g_mssVar.h3DSamples[i]);
-					return true;
-				}
-			}
-		}
-	} else {
-		if (PlayDigital(fileImage, x, y, z))
-			return true;
-	}
+	// no 3D provider: PlayDigital at its own distances, as in 2008 without one
+	if (PlayDigital(sound, x, y, z))
+		return true;
 	return false;
 }
 
 void SetRoomEffect(int val)
 {
-	if (g_mssVar.provider_default) {
-		int result = AIL_3D_room_type(g_mssVar.provider_default);
-		g_mssVar.usingEAX = (result != -1) ? 1 : 0;
-		if (g_mssVar.provider_default && g_mssVar.usingEAX)
-			AIL_set_3D_room_type(g_mssVar.provider_default, val);
-	}
+	// rooms are a 3D provider's (EAX); there is none
 }
 
 void SetListenerOrient(float roty)
 {
-	roty = 180 - roty;
-	float vx = GetSin(roty);
-	float vz = -GetCos(roty);
-	if (g_mssVar.hListener) {
-		AIL_set_3D_orientation(g_mssVar.hListener, vx, 0, vz, 0.0f, 1.0f, 0.0f);
-	}
+	// the listener is a 3D provider's; there is none
 }

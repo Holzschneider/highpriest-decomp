@@ -16,8 +16,11 @@ public:
 	void Play3d(float, int);
 	void PlayLooped();
 private:
+	bf_audio_sound* GetSound();
 	unsigned char* m_fileImage;
-	int m_isDecompress;
+	unsigned int m_fileLength;
+	bf_audio_sound* m_sound;	// made from m_fileImage on the first play (port/native/audio)
+	bool m_soundFailed;		// m_fileImage cannot be decoded: not tried again
 };
 
 void	PlayWave(const char *waveFileName, float x=0, float y=0, float z=0, int volumeMaxDist=VOLUMEMAXDIST, int volumeMinDist=VOLUMEMINDIST, float vFactor=1.0f);
