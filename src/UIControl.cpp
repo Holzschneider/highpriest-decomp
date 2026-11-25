@@ -314,8 +314,20 @@ void UICheckBox::OnDraw()
 	}
 	}
 
-	if (m_checkMsg.size())
+	if (m_checkMsg.size()) {
+#if defined(BF_PORT)
+		// The English service draws font 0 at 12 + 3 (DrawDC::SetFont: Arial,
+		// cell 15) into this 12-row control, so every descender fell below its
+		// DC ("Toaale", "Stranaers"). The cell is centred on the control
+		// instead (rounded up: the caps then line up with the box); at the
+		// Korean cell of 12 it stays at row 0, as in 2008.
+		int cell = GetTextHeight(m_checkMsg.c_str(), 0, 0, 12, false);
+		int textY = cell > m_h ? -((cell - m_h + 1) / 2) : 0;
+		TextOutA(11, textY, m_checkMsg.c_str(), 0, 0, 12, 0);
+#else
 		TextOutA(11, 0, m_checkMsg.c_str(), 0, 0, 12, 0);
+#endif
+	}
 }
 
 UISlotBitmap::UISlotBitmap(int nSlotID) {
