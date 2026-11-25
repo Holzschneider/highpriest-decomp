@@ -133,6 +133,16 @@ typedef enum bf_sys_alert_answer {
 bf_sys_alert_answer bf_sys_alert(const char *title, const char *message,
                                  bf_sys_alert_style style, bf_sys_alert_buttons buttons);
 
+/*
+ * bf_sys_alert for the client's own text: title and message are bytes in a
+ * Windows code page (949, 1252, ...; 0 means the user code page,
+ * bf_file_user_codepage) and are converted to UTF-8 by Foundation. Text the
+ * code page does not decode is read as Windows-1252, and failing that as Mac
+ * Roman, so it is never dropped. NULL is "". Same answers as bf_sys_alert.
+ */
+bf_sys_alert_answer bf_sys_alert_codepage(unsigned codepage, const char *title, const char *message,
+                                          bf_sys_alert_style style, bf_sys_alert_buttons buttons);
+
 /* 1 if alerts are shown, 0 if they are logged (see above). */
 int bf_sys_alerts_enabled(void);
 

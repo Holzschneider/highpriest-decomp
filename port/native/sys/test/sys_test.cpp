@@ -763,6 +763,13 @@ void TestShell()
 	           && bf_sys_alert("Test", "logged, not shown", BF_ALERT_WARNING, BF_ALERT_BUTTONS_YES_NO) == BF_ALERT_YES
 	           && bf_sys_alert("Test", "logged", BF_ALERT_CRITICAL, BF_ALERT_BUTTONS_OK_CANCEL) == BF_ALERT_OK;
 	Check(logged && bf_clock_us() - start < 1000000, "shell: with BF_NO_ALERTS an alert is logged and answered with its first button");
+	// The client's text: Korean in 949, Latin-1 in 1252, bytes 949 does not
+	// decode, the user code page (0), NULL.
+	logged = bf_sys_alert_codepage(949, "\xBF\xA1\xB7\xAF", "\xC7\xD1\xB1\xDB", BF_ALERT_INFO, BF_ALERT_BUTTONS_OK) == BF_ALERT_OK
+	      && bf_sys_alert_codepage(1252, "Error", "caf\xE9", BF_ALERT_INFO, BF_ALERT_BUTTONS_YES_NO) == BF_ALERT_YES
+	      && bf_sys_alert_codepage(949, "Error", "\xFF\x80\xC7", BF_ALERT_WARNING, BF_ALERT_BUTTONS_OK) == BF_ALERT_OK
+	      && bf_sys_alert_codepage(0, NULL, "user code page", BF_ALERT_CRITICAL, BF_ALERT_BUTTONS_OK_CANCEL) == BF_ALERT_OK;
+	Check(logged, "shell: an alert in a Windows code page is converted, logged and answered with its first button");
 
 	setenv("BF_NO_OPEN", "1", 1);
 	Check(bf_sys_open_url("https://example.com/") == 1 && bf_sys_open_url("not a url") == 0

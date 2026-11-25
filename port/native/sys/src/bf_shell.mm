@@ -7,6 +7,9 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 #include <stdlib.h>
+#include <string.h>
+
+#include <string>
 
 namespace {
 
@@ -28,6 +31,30 @@ bool Disabled(const char *variable)
 bf_sys_alert_answer FirstButton(bf_sys_alert_buttons buttons)
 {
 	return buttons == BF_ALERT_BUTTONS_YES_NO ? BF_ALERT_YES : BF_ALERT_OK;
+}
+
+// The client's bytes in a Windows code page as UTF-8: the code page, then
+// Windows-1252, then Mac Roman, which decodes any byte.
+std::string Utf8FromCodepage(unsigned codepage, const char *text)
+{
+	if (!text || !*text)
+		return std::string();
+	if (codepage == 0)
+		codepage = bf_file_user_codepage();
+	const CFStringEncoding tries[] = {
+		CFStringConvertWindowsCodepageToEncoding(codepage),
+		kCFStringEncodingWindowsLatin1,
+		kCFStringEncodingMacRoman,
+	};
+	for (CFStringEncoding encoding : tries) {
+		if (encoding == kCFStringEncodingInvalidId)
+			continue;
+		NSString *decoded = [[NSString alloc] initWithBytes:text length:strlen(text)
+		                                           encoding:CFStringConvertEncodingToNSStringEncoding(encoding)];
+		if (decoded)
+			return std::string(decoded.UTF8String);
+	}
+	return std::string();
 }
 
 } // namespace
@@ -78,6 +105,17 @@ extern "C" bf_sys_alert_answer bf_sys_alert(const char *title, const char *messa
 		default:                         return BF_ALERT_OK;
 		}
 	}
+}
+
+extern "C" bf_sys_alert_answer bf_sys_alert_codepage(unsigned codepage, const char *title, const char *message,
+                                                     bf_sys_alert_style style, bf_sys_alert_buttons buttons)
+{
+	std::string t, m;
+	@autoreleasepool {
+		t = Utf8FromCodepage(codepage, title);
+		m = Utf8FromCodepage(codepage, message);
+	}
+	return bf_sys_alert(t.c_str(), m.c_str(), style, buttons);
 }
 
 extern "C" int bf_sys_open_url(const char *url)
