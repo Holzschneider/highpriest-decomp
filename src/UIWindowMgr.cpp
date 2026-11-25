@@ -1079,7 +1079,14 @@ void UIWindowMgr::SetSize(int cx, int cy)
 // as much as that placement moves. The size is kept to tell a reused
 // address from the window that was recorded.
 struct BfMadeWindow { int id; int w; int h; };
-static std::map<UIWindow *, BfMadeWindow> g_bfMadeWindows;
+// Never destroyed: ~UIWindowMgr deletes its windows during static destruction.
+static std::map<UIWindow *, BfMadeWindow> &g_bfMadeWindows = *new std::map<UIWindow *, BfMadeWindow>;
+
+// A deleted window leaves the record (it kept every window ever made, M8.6).
+void UIWindowMgr::BfForgetWindow(UIWindow *window)
+{
+	g_bfMadeWindows.erase(window);
+}
 
 // Where MakeWindow puts a window on a screen of cx x cy, for the windows of
 // the login mode (the UIX, UIY and UICY of UISys.h at that size).

@@ -1759,6 +1759,7 @@ public:
 #if defined(BF_PORT)
 	void BfOnResize(int cx, int cy);
 	UIFrameWnd* BfMakeWindow(WINDOWID windowId);   // MakeWindow's body; MakeWindow records the id
+	void BfForgetWindow(UIWindow *window);         // ~UIWindow: drops MakeWindow's record of it
 #endif
 	void UpdateSnapInfo(UIWindow* snapWindow);
 	void GetDeltaSnap(UIWindow* snapWindow, int& isConnected, int& rdx, int rdy);

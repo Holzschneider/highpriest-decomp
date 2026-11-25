@@ -237,6 +237,9 @@ UIWindow :: ~UIWindow()
 	Destroy();
 
 	g_windowMgr.RemoveFromNameWaitingWindowList(this);
+#if defined(BF_PORT)
+	g_windowMgr.BfForgetWindow(this);
+#endif
 }
 
 
