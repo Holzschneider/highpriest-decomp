@@ -881,6 +881,68 @@ class AuctionMixin:
         return super().button_extra(button, down, x, y)
 
 
+# The option window's other controls and the option windows english_session
+# opens (M9): base (does nothing, as UIOptionWnd::SendMsg 0x478cd0), mini,
+# the skin list (COMBOBOXWND), and the chat window's option button, which
+# toggles the battle message options.
+WID.update({"COMBOBOXWND": 26, "BATTLEMSG_OPTIONWND": 139})
+
+
+class OptionPagesMixin:
+    def option_window(self):
+        super().option_window()
+        w = self.window("OPTIONWND")
+        if not w:
+            return
+        x, y = w.rect[0], w.rect[1]
+        if w.data.get("mini"):
+            w.controls = [c for c in w.controls if c["id"] == "close"]
+        w.controls += [ctl("base", "button", x + 3, y + 3, 11, 11), ctl("mini", "button", x + 252, y + 3, 11, 11)]
+        if not w.data.get("mini"):
+            w.controls.append(ctl("skinselectcombo", "button", x + 75, y + 64, 181, 16))
+
+    def option_click(self, c, x):
+        w = self.window("OPTIONWND")
+        if c["id"] == "base":
+            return
+        if c["id"] == "mini":
+            mini = not w.data.get("mini")
+            w.data["mini"] = mini
+            w.rect[3] = 17 if mini else 120
+            return
+        if c["id"] == "skinselectcombo":
+            if not self.close_window("COMBOBOXWND"):
+                self.open_window(Window("COMBOBOXWND", [w.rect[0] + 75, w.rect[1] + 81, 181, 16],
+                                        [ctl("item:0", "button", w.rect[0] + 75, w.rect[1] + 81, 181, 16,
+                                             "<Basic Skin>")]))
+            return
+        super().option_click(c, x)
+
+    def refresh_windows(self):
+        super().refresh_windows()
+        w = self.window("CHATWND")
+        if w and not w.control("option"):
+            w.controls.append(ctl("option", "button", w.rect[0] + w.rect[2] - 20, w.rect[1] + 2, 14, 12))
+
+    def button_extra(self, button, down, x, y):
+        if button == "left" and self.mode == "game":
+            for name in ("COMBOBOXWND", "CHATWND"):
+                w = self.window(name)
+                if not w:
+                    continue
+                c = w.hit(x, y)
+                if name == "COMBOBOXWND" and c:
+                    if not down:
+                        self.close_window(name)
+                    return True
+                if name == "CHATWND" and c and c["id"] == "option":
+                    if not down and not self.close_window("BATTLEMSG_OPTIONWND"):
+                        L = self.logical()
+                        self.open_window(Window("BATTLEMSG_OPTIONWND", [w.rect[0] + 200, L[1] - 320, 200, 180]))
+                    return True
+        return super().button_extra(button, down, x, y)
+
+
 class Conn:
     def __init__(self, sock):
         self.sock = sock
@@ -893,7 +955,7 @@ class Conn:
         self.out = b""
 
 
-class Mock(AltKeysMixin, AuctionMixin, SkillsOptionsMixin):
+class Mock(AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOptionsMixin):
     def __init__(self, path, db, trace):
         self.path = path
         self.db = db
