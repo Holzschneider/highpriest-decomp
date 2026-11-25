@@ -4,8 +4,8 @@
 // it replaces (port/compat/input, deleted in M11.7). It opens a window in its
 // own single-instance slot and injects every event through
 // bf_app_post_event, as the control socket does, so it runs on the locked
-// screen of the unattended Mac. It also calls the user32 names that other
-// client files still reach in port/compat/win32 (bf_win32_window.cpp). One
+// screen of the unattended Mac. It also calls the user32 names that
+// 3dlib/Device.cpp still reaches in port/compat/win32 (bf_win32_window.cpp). One
 // line per check; exit status 1 on any failure.
 #include <windows.h>
 
@@ -608,7 +608,7 @@ void Resize()
 	Run();
 }
 
-// What client files outside M11.7 still call in port/compat/win32.
+// What 3dlib/Device.cpp still calls in port/compat/win32.
 void Remaining()
 {
 	POINT pt = {5, 6};
@@ -619,22 +619,10 @@ void Remaining()
 	      "ShowWindow, SetWindowLong(GWL_STYLE), DrawMenuBar, RedrawWindow: accepted, nothing changes");
 	Down(BF_KEY_RSHIFT);
 	Run();
-	bool shift = HIBYTE(GetKeyState(VK_SHIFT)) && HIBYTE(GetKeyState(VK_RSHIFT)) && !HIBYTE(GetKeyState(VK_LSHIFT));
+	bool shift = Held(VK_SHIFT) && Held(VK_RSHIFT) && !Held(VK_LSHIFT);
 	Up(BF_KEY_RSHIFT);
 	Run();
-	Check(shift && !HIBYTE(GetKeyState(VK_SHIFT)), "GetKeyState: bf_input_key_state (right Shift as VK_SHIFT and VK_RSHIFT)");
-	char buf[64];
-	int n = wsprintfA(buf, "%d.%d.%d.%d", 127, 0, 0, 1);
-	DWORD code = 7;
-	char buf2[64];
-	wsprintf(buf2, "GameGuard Error: %lu", code);
-	Check(n == 9 && strcmp(buf, "127.0.0.1") == 0 && strcmp(buf2, "GameGuard Error: 7") == 0, "wsprintfA (its %lu is 32 bits)", std::string(buf) + " / " + buf2);
-	const char *t = "a\xe9" "b";
-	const char *k = "x\xb0\xa1y";   // CP949: x, one Hangul syllable, y
-	Check(CharNextExA(1252, t, 0) == t + 1 && CharNextExA(1252, t + 1, 0) == t + 2 && CharNextExA(1252, t + 3, 0) == t + 3,
-	      "CharNextExA(1252)");
-	Check(CharNextExA(949, k + 1, 0) == k + 3 && CharPrevExA(949, k, k + 3, 0) == k + 1 && CharPrevExA(949, k, k, 0) == k,
-	      "CharNextExA / CharPrevExA (949): a lead byte and its trail are one character");
+	Check(shift && !Held(VK_SHIFT), "key state: right Shift as VK_SHIFT and VK_RSHIFT");
 	unsigned scan = 0;
 	int ext = 0;
 	Check(bf_input_vk_for_key(BF_KEY_KP_ENTER, &scan, &ext) == VK_RETURN && scan == 0x1c && ext == 1, "keypad Enter: VK_RETURN, extended");

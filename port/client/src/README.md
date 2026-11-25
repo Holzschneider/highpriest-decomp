@@ -152,10 +152,11 @@ procedure (`bf_input_default_proc`) answers `TRUE` to `WM_NCCREATE` and
   keyboard language is English (US), `MAKELANGID(LANG_ENGLISH,
   SUBLANG_ENGLISH_US)`.
 
-The user32 names other client files still call (`3dlib/Device.cpp`,
-`UIControl.cpp`, `3dlib/DrawUtil.cpp`, the `wsprintf` callers) are in
-`port/compat/win32/src/bf_win32_window.cpp`, on these functions, until their
-callers change.
+The user32 names `3dlib/Device.cpp` still calls (`GetClientRect`,
+`ClientToScreen`, `ShowWindow`, `SetWindowLongA`, `DrawMenuBar`,
+`RedrawWindow`) are in `port/compat/win32/src/bf_win32_window.cpp`, on these
+functions, until M11.9 changes that file. `UIControl.cpp`'s Shift+Enter test
+reads `bf_input_key_state(VK_SHIFT)` too: one key state for the client.
 
 Untested: real keyboards and pointers (the unattended Mac's screen is
 locked; everything is injected), Korean input.
