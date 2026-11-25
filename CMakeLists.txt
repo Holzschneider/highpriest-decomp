@@ -199,7 +199,6 @@ endfunction()
 #   miles  mss32 (on port/native/audio)
 #   input  user32 windows, messages, keyboard, clipboard; DirectInput; imm32
 #          (on port/native/app)
-#   granny granny2 (on port/native/formats/granny)
 #   bink   the Bink SDK of src/movie/CBink.cpp (on port/native/formats/bink, audio)
 # BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
 # C library's file names (fopen, access, remove, ...) keep their own meaning
@@ -212,7 +211,7 @@ function(bf_compat_flags target)
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32 d3d gdi miles input granny bink)
+set(BF_COMPAT_AREAS win32 d3d gdi miles input bink)
 set(BF_COMPAT_LIBS)
 add_custom_target(compat)
 foreach(area IN LISTS BF_COMPAT_AREAS)
@@ -281,8 +280,8 @@ endif()
 # the port never compiles. Its four entry points (SetHwnd, SendID,
 # ExitFindHack, Auth2 in base/FindHack.cpp) are empty under BF_PORT.
 # Replaced behind their interfaces under BF_PORT, and so still built: the
-# Granny resource classes in resource/Model.cpp are built as they were; the
-# granny2 names they call come from port/compat/granny (M12.3a). movie/CBink
+# Granny resource classes in resource/Model.cpp are built as they were, on
+# port/native/formats/granny (M12.3a, M11.10). movie/CBink
 # plays through the bink adapter (port/compat/include/bf_bink_sdk.h instead
 # of the SDK headers, M12.4a).
 set(BF_CLIENT_EXCLUDE
