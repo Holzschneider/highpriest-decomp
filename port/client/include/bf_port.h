@@ -27,7 +27,7 @@ int bf_port_headless(void);
 
 /* After InitApp has created the window: creates the gfx device on the
    window's Metal layer at the view's logical size and UI scale and hands it
-   to the Direct3D adapter (bf_compat_d3d_set_device) and the view. Called
+   to the render target (bf_render_set_device, bf_render.h) and the view. Called
    before SetupDriver2. 0 on failure (traced). */
 int bf_port_start_graphics(void);
 

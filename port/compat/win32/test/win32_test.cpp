@@ -7,8 +7,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <process.h>
-#include <shellapi.h>
-#include <objbase.h>
 
 #include <atomic>
 #include <filesystem>
@@ -174,9 +172,6 @@ void TestMisc()
 	Check(!IsDBCSLeadByte(0xC0) && GetACP() == 1252
 	      && MultiByteToWideChar(CP_ACP, 0, "\xE9", 1, wide, 16) == 1 && wide[0] == 0xE9,
 	      "CP_ACP follows bf_file_set_user_codepage (1252)");
-	// WinMain's COM start-up.
-	Check(CoInitialize(NULL) == S_OK, "CoInitialize(NULL): S_OK");
-	CoUninitialize();
 	bf_file_set_user_codepage(949);
 	Check(MulDiv(10, 3, 4) == 8 && MulDiv(-10, 3, 4) == -8 && MulDiv(1, 2, 0) == -1, "MulDiv rounds, -1 for /0");
 	Check(lstrcmpiA("Gulim.BMP", "gulim.bmp") == 0 && lstrcmpiA("a", "B") < 0, "lstrcmpiA");
@@ -185,16 +180,6 @@ void TestMisc()
 	GlobalMemoryStatus(&ms);
 	Check(ms.dwTotalPhys > 163000000, "GlobalMemoryStatus: not a low-memory machine");
 	OutputDebugStringA("compat-win32 test\n");
-
-	DWORD start = bf_clock_ticks();
-	Check(MessageBoxA(NULL, "Window Creation Failed", "ERROR", 0) == IDOK
-	      && MessageBoxA(NULL, "patch.exe is changed. Press ok to restart", "Alert", MB_OKCANCEL | MB_ICONINFORMATION) == IDOK
-	      && MessageBoxA(NULL, "\xC0\xAF\xC0\xFA?", "Keycrypt", 0x1044) == IDYES && bf_clock_ticks() - start < 2000,
-	      "MessageBox with BF_NO_ALERTS: logged, answered with the first button at once");
-	Check((INT_PTR)ShellExecuteA(NULL, "open", "http://127.0.0.1/", NULL, NULL, SW_SHOWNORMAL) > 32,
-	      "ShellExecute(open, URL) with BF_NO_OPEN: done");
-	Check((INT_PTR)ShellExecuteA(NULL, "open", "data\\nothing.txt", NULL, NULL, SW_SHOWNORMAL) == SE_ERR_FNF,
-	      "ShellExecute of a missing file: SE_ERR_FNF");
 }
 
 }  // namespace

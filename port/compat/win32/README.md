@@ -1,4 +1,4 @@
-# compat/win32: kernel32, ShellExecute, MessageBox
+# compat/win32: kernel32
 
 The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics. Files, archive mappings, large blocks and the heap left with M11.3: the client calls `bf_file_*` (`port/native/sys`) and the C library; the C library's file names on client paths (`bf_crt.h`) are `port/client/src/bf_crt.cpp`'s. What is left of `bf_win32_file.cpp` is `FindFirstFileA` and `FindClose` for `base/FindHack.cpp`. The registry left with M11.4 (`bf_win32_registry.cpp`): the client calls `bf_setting_*` (`port/client/include/bf_setting_key.h`), which keeps its rules.
 
@@ -40,8 +40,6 @@ Kernel objects (folder listings) are registered handles: a handle the client nev
 | `MulDiv`, `lstrcmpiA`, `lstrcatA`, `lstrcpyA`, `lstrlenA` | arithmetic, `strcasecmp`, `strcat`... | |
 | `OutputDebugStringA` | `BF_TRACE(BFT_W32)` | |
 | `FormatMessageA` | "Error N." | `FROM_SYSTEM` only (with `ALLOCATE_BUFFER`); other forms: stub |
-| `MessageBoxA` | trace (`BFT_UI`) + `bf_sys_alert` | shown unless `BF_NO_ALERTS`, no window server or off the main thread; then the first button (`IDOK`/`IDYES`) |
-| `ShellExecuteA` | `bf_sys_open_url`, `bf_sys_open_path` | `open` of a URL or a resolved path; > 32 on success |
 
 Called by the client and deliberately failing (`BF_STUB()` or a trace line, with the value the callers handle):
 
@@ -55,19 +53,7 @@ Called by the client and deliberately failing (`BF_STUB()` or a trace line, with
 
 Not implemented because the client does not call them: events, `ExitThread`/`_endthreadex`, `TerminateThread`, `SetCurrentDirectory`, `CopyFile`, `_findfirst` (declared by `io.h`).
 
-ole32 and netapi32 (`src/bf_win32_misc.cpp`, M3.2):
-
-| Name | Returns | Caller |
-|---|---|---|
-| `CoInitialize`, `CoUninitialize` | `S_OK`, nothing: the client makes no COM object through ole32 (DirectX comes from the adapters' entry points) | `WinMain` |
-| `Netbios` | `NRC_SYSTEM` (`BF_STUB`): no machine identifier is handed out; the login code then sends `111111111111` | `CLoginMode` (Korean and PC-bang login packets) |
-
-The user32 names the input adapter (deleted in M11.7) left to `3dlib/Device.cpp`, in `src/bf_win32_window.cpp`, on `port/client`'s `bf_input` (they go with that caller, M11.9):
-
-| Name | Returns | Caller |
-|---|---|---|
-| `GetClientRect`, `ClientToScreen` | the logical client area at 0, 0; the identity ("screen" coordinates are the client's) | `3dlib/Device.cpp` |
-| `ShowWindow`, `SetWindowLongA` (`GWL_STYLE`), `DrawMenuBar`, `RedrawWindow` | accepted, nothing changes: macOS owns the window's state | `3dlib/Device.cpp` (fullscreen path) |
+M11.9 deleted `src/bf_win32_shell.cpp` (`MessageBoxA`, `ShellExecuteA`: the client calls `bf_port_alert`/`bf_sys_alert_codepage` and `bf_port_open`), `src/bf_win32_misc.cpp` (`CoInitialize`, `CoUninitialize`: `WinMain` calls them only outside `BF_PORT`) and `src/bf_win32_window.cpp` (the user32 names `3dlib/Device.cpp` called: it takes `bf_input_client_size`).
 
 ## The registry
 

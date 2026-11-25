@@ -193,8 +193,7 @@ endfunction()
 # targets so that it compiles against exactly the declarations the client
 # sees (the prefix header, the port's includes, the Windows headers), but as
 # C++17 and without the game's tree. Areas own disjoint sets of Win32 names:
-#   win32  kernel32, advapi32, winmm, shell32, MessageBox (on port/native/sys)
-#   d3d    DirectDraw 7, Direct3D 7 (on port/native/gfx)
+#   win32  the kernel32 names base/FindHack.cpp still calls (on port/native/sys)
 # BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
 # C library's file names (fopen, access, remove, ...) keep their own meaning
 # there instead of going through the game-folder translation of the win32 area.
@@ -206,7 +205,7 @@ function(bf_compat_flags target)
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32 d3d)
+set(BF_COMPAT_AREAS win32)
 set(BF_COMPAT_LIBS)
 add_custom_target(compat)
 foreach(area IN LISTS BF_COMPAT_AREAS)
@@ -340,7 +339,7 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_setting_key.cpp
 	port/client/src/bf_port_shell.cpp)
 bf_compat_flags(bf_port_main)
-target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_instrument ${BF_NATIVE_LIBS})
+target_link_libraries(bf_port_main PRIVATE bf_instrument ${BF_NATIVE_LIBS})
 # bifrost-movie-test: the movie player (bf_movie.h) through CBink's call
 # sequences, with its own clock and the sound engine offline (headless).
 add_executable(${BF_EXE}-movie-test port/client/test/movie_test.cpp port/client/src/bf_movie.cpp)
@@ -367,13 +366,12 @@ add_test(NAME render COMMAND ${BF_EXE}-render-test WORKING_DIRECTORY ${bf_render
 set_tests_properties(render PROPERTIES LABELS headless TIMEOUT 300
 	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${bf_render_test_dir}")
 # bifrost-input-test: the client's window, pump, keys, mouse and clipboard
-# (bf_input.h, M11.7), with the user32 names port/compat/win32 keeps for other
-# callers. Opens a window and injects every event (label window: fastcheck
+# (bf_input.h, M11.7). Opens a window and injects every event (label window: fastcheck
 # builds it but does not run it).
 add_executable(${BF_EXE}-input-test port/client/test/input_test.cpp port/client/src/bf_input.cpp)
 bf_compat_flags(${BF_EXE}-input-test)
 target_compile_options(${BF_EXE}-input-test PRIVATE -Wall -Wextra -Wno-unused-parameter)
-target_link_libraries(${BF_EXE}-input-test PRIVATE bf_compat_win32 bf_app bf_view bf_text bf_instrument)
+target_link_libraries(${BF_EXE}-input-test PRIVATE bf_app bf_view bf_text bf_instrument)
 add_dependencies(native ${BF_EXE}-input-test)
 get_target_property(bf_input_test_dir ${BF_EXE}-input-test BINARY_DIR)
 add_test(NAME input COMMAND ${BF_EXE}-input-test WORKING_DIRECTORY ${bf_input_test_dir})

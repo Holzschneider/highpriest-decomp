@@ -1,14 +1,9 @@
-# port/compat/win32: kernel32, shell32's ShellExecute and user32's
-# MessageBox, on port/native/sys and port/native/text (M3.1a); the user32
-# names the input adapter left to other callers (M11.7), on port/client's
-# bf_input.
+# port/compat/win32: the kernel32 names the client still calls, on
+# port/native/sys and port/native/text (M3.1a; what is left after M11.9).
 # Built only under the root project (bf_compat_flags, bf_sys, bf_text, bf_instrument).
 add_library(bf_compat_win32 STATIC
 	src/bf_win32_base.cpp
-	src/bf_win32_file.cpp
-	src/bf_win32_misc.cpp
-	src/bf_win32_shell.cpp
-	src/bf_win32_window.cpp)
+	src/bf_win32_file.cpp)
 bf_compat_flags(bf_compat_win32)
 target_compile_options(bf_compat_win32 PRIVATE -Wall -Wextra)
 target_link_libraries(bf_compat_win32 PUBLIC bf_sys bf_text bf_instrument)

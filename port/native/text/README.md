@@ -96,7 +96,8 @@ lowest row and accented capitals the top of the accent. Hangul fits.
 - Vertical text (`@` faces) is drawn horizontally; the client does not use
   it.
 - The render-target path of the client (`CDCSurface::GetDC`) draws on a
-  canvas over a staging bitmap that the d3d adapter keeps (until M11.9).
+  canvas over a staging bitmap that `CSurface` keeps (`src/3dlib/Texture.cpp`,
+  M11.9).
 
 ## For port/README.md
 

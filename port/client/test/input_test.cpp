@@ -4,9 +4,8 @@
 // it replaces (port/compat/input, deleted in M11.7). It opens a window in its
 // own single-instance slot and injects every event through
 // bf_app_post_event, as the control socket does, so it runs on the locked
-// screen of the unattended Mac. It also calls the user32 names that
-// 3dlib/Device.cpp still reaches in port/compat/win32 (bf_win32_window.cpp). One
-// line per check; exit status 1 on any failure.
+// screen of the unattended Mac. One line per check; exit status 1 on any
+// failure.
 #include <windows.h>
 
 #include <math.h>
@@ -593,30 +592,22 @@ void Resize()
 	bf_view_get(&m);
 	int w = 0, h = 0;
 	bf_input_client_size(&w, &h);
-	RECT rc = {};
-	BOOL got = GetClientRect(g_hwnd, &rc);   // 3dlib/Device.cpp's, in port/compat/win32
 	const Rec *sz = nullptr;
 	for (const Rec &r : v)
 		if (r.msg == WM_SIZE)
 			sz = &r;
 	Check(sz && LOWORD(sz->l) == m.logical_w && HIWORD(sz->l) == m.logical_h && w == m.logical_w && h == m.logical_h
-	      && got && rc.right == w && rc.bottom == h,
-	      "resize to 1280x800 pt: WM_SIZE, bf_input_client_size and GetClientRect give the new logical size",
+	      ,
+	      "resize to 1280x800 pt: WM_SIZE and bf_input_client_size give the new logical size",
 	      Fmt("logical %dx%d at scale %d", m.logical_w, m.logical_h, m.ui_scale));
 	bf_app_window_set_content_size(1024, 768);
 	bf_app_pump(50);
 	Run();
 }
 
-// What 3dlib/Device.cpp still calls in port/compat/win32.
+// The key state's corners.
 void Remaining()
 {
-	POINT pt = {5, 6};
-	Check(ClientToScreen(g_hwnd, &pt) && pt.x == 5 && pt.y == 6 && !ClientToScreen(NULL, &pt),
-	      "ClientToScreen: the identity on the window, FALSE for another");
-	Check(ShowWindow(g_hwnd, SW_MAXIMIZE) && SetWindowLongA(g_hwnd, GWL_STYLE, WS_POPUP) == 0x02CA0000
-	      && DrawMenuBar(g_hwnd) && RedrawWindow(g_hwnd, NULL, NULL, RDW_FRAME),
-	      "ShowWindow, SetWindowLong(GWL_STYLE), DrawMenuBar, RedrawWindow: accepted, nothing changes");
 	Down(BF_KEY_RSHIFT);
 	Run();
 	bool shift = Held(VK_SHIFT) && Held(VK_RSHIFT) && !Held(VK_LSHIFT);
@@ -685,7 +676,7 @@ int main(int argc, char **argv)
 	Check(g_recs.size() == 1 && g_recs[0].msg == WM_USER + 2, "bf_input_dispatch calls it directly");
 
 	bf_input_window_destroy();
-	Check(g_destroyed == 1 && bf_input_window() == NULL && !ClientToScreen(g_hwnd, nullptr), "bf_input_window_destroy: WM_DESTROY sent, window gone");
+	Check(g_destroyed == 1 && bf_input_window() == NULL, "bf_input_window_destroy: WM_DESTROY sent, window gone");
 	bf_app_shutdown();
 	printf("%s: %d failed\n", g_failures ? "FAIL" : "PASS", g_failures);
 	return g_failures ? 1 : 0;

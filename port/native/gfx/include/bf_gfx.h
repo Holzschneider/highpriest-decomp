@@ -6,9 +6,10 @@
  * draws them: one vertex shader maps logical screen positions to clip space,
  * fragment programs are specialised from the texture-stage state, and the
  * fixed-function state (blend, alpha test, depth, cull, fog) is set in native
- * terms. The DirectDraw/Direct3D adapter (port/compat) maps the Direct3D 7
- * calls onto it; port/native/gfx/D3D-USAGE.md lists every call and value the
- * client uses and how each maps here.
+ * terms. The client's src/3dlib calls it (M11.9; port/client's bf_render.h
+ * holds the render-target rules the stage-A DirectDraw/Direct3D adapter had);
+ * port/native/gfx/D3D-USAGE.md lists every call and value the client used
+ * and how each maps here.
  *
  * Enumerations carry the same numbers as the Direct3D 7 values of the same
  * meaning, so that numbers stored in game data (blend factors in .str effect

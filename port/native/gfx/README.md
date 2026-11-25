@@ -1,6 +1,6 @@
 # gfx: the Metal renderer
 
-Draws the client's pre-transformed vertices with Metal. Contract: [`include/bf_gfx.h`](include/bf_gfx.h). What the client calls and how each call maps onto the module: [`D3D-USAGE.md`](D3D-USAGE.md), the specification of the DirectDraw/Direct3D adapter (M4.4).
+Draws the client's pre-transformed vertices with Metal. Contract: [`include/bf_gfx.h`](include/bf_gfx.h). What the client calls and how each call maps onto the module: [`D3D-USAGE.md`](D3D-USAGE.md), the specification of the DirectDraw/Direct3D adapter (M4.4), which M11.9 replaced: `src/3dlib` calls the module directly, the render-target rules are `port/client`'s `bf_render.h`.
 
 ## What it offers
 
