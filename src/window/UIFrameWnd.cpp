@@ -785,8 +785,8 @@ void UILoginWnd::WriteToReg()
 			checkSave = 1;
 
 #if defined(BF_PORT)
-		// "Save" keeps the password too, in the Keychain (spec section 5; the
-		// registry adapter maps PASSWORD to the Keychain item of the account
+		// "Save" keeps the password too, in the Keychain (spec section 5;
+		// bf_setting_key maps PASSWORD to the Keychain item of the account
 		// in ID). Unchecked, the item is deleted while ID still names it.
 		if (m_isCheckOn) {
 			bf_setting_set_string(hKey, "ID", idName, 25);
