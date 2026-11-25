@@ -134,11 +134,17 @@ class FrameCmp(unittest.TestCase):
         self.game_reference()
         self.assertFalse(self.compare(scene(0, shift=1))["passed"])
 
-    def test_one_pixel_in_a_window_fails(self):
+    def test_isolated_pixel_in_a_window_passes(self):
         self.game_reference()
         s = self.compare(self.poke(scene(0), [(30, 30)], (90, 90, 90)))
+        self.assertTrue(s["passed"])
+        self.assertEqual(s["results"][0]["isolated"], 1)
+
+    def test_two_touching_pixels_in_a_window_fail(self):
+        self.game_reference()
+        s = self.compare(self.poke(scene(0), [(30, 30), (31, 31)], (90, 90, 90)))
         self.assertFalse(s["passed"])
-        self.assertEqual(s["results"][0]["pixels_beyond"], 1)
+        self.assertEqual(s["results"][0]["pixels_beyond"], 2)
 
     def test_magenta_in_the_world_fails(self):
         self.game_reference()
@@ -155,7 +161,7 @@ class FrameCmp(unittest.TestCase):
         ref = framecmp.build_reference([a, b], self.tmp / "ref", "test", log=lambda *_: None)
         self.assertEqual(ref["frames"]["f"]["named_masks"][0]["reason"], "clock")
         self.assertTrue(self.compare(self.poke(scene(0), [(3, 3)], (0, 0, 0)))["passed"])
-        self.assertFalse(self.compare(self.poke(scene(0), [(30, 3)], (0, 0, 0)))["passed"])
+        self.assertFalse(self.compare(self.poke(scene(0), [(30, 3), (31, 3), (30, 4)], (0, 0, 0)))["passed"])
 
     def test_pointer_box(self):
         import json
@@ -166,7 +172,7 @@ class FrameCmp(unittest.TestCase):
         s = self.compare(self.poke(scene(0), [(25, 25)], (0, 0, 0)))
         self.assertTrue(s["passed"])
         self.assertEqual(s["results"][0]["cursor_beyond"], 1)
-        self.assertFalse(self.compare(self.poke(scene(0), [(80, 25)], (0, 0, 0)))["passed"])
+        self.assertFalse(self.compare(self.poke(scene(0), [(80, 25), (81, 25), (80, 26)], (0, 0, 0)))["passed"])
 
     def test_bmp_reader(self):
         rows = scene(0)

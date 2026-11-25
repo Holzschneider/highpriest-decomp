@@ -41,10 +41,13 @@ What "match" means (the definition, written before the reference was taken):
    World region: the rest of a game-mode frame (ground, models, sprites,
    effects, name and chat balloons, the cursor over the world).
 4. Outside the mask, in the strict region: every pixel within 2 per channel
-   (0-255) of the reference, with no exception. A correct change may round
-   a blend differently by one step; a moved, filtered, re-keyed or
-   re-blended UI changes many pixels by far more, and one wrong glyph
-   changes dozens.
+   (0-255) of the reference, except at most 16 isolated pixels (none of
+   their 8 neighbours beyond the tolerance): the chat window is
+   translucent, and an animated world behind it (water at a shore) can
+   show a phase at a mask's edge that the reference did not see. A correct
+   change may round a blend differently by one step; a moved, filtered,
+   re-keyed or re-blended UI changes many pixels by far more, and one wrong
+   glyph changes a connected stroke.
 5. Outside the mask, in the world region: at most 1 % of the region's pixels
    beyond that tolerance. The world is not fully reproducible at the base
    commit: isolated polygon-edge pixels, random smoke puffs past the mask,
@@ -91,6 +94,7 @@ TILE = 32              # device pixels, the tile of the masked-region check
 TILE_MIN = 32          # masked pixels a tile needs to be checked
 TILE_MARGIN = 24       # per channel, around the reference's range of tile means
 WORLD_SHARE = 0.01     # share of the world region allowed beyond the tolerance
+ISOLATED = 16          # isolated pixels allowed beyond the tolerance in the strict region
 WEAK_SHARE = 0.10      # mask share above which a frame is reported as weak
 SAMPLE_RE = re.compile(r"^(?P<name>[A-Za-z0-9_-]+)(?:\.s(?P<k>\d+))?\.png$")
 
@@ -361,7 +365,8 @@ def build_reference(dirs, out, commit=None, log=print):
     ref = {"created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
            "commit": commit, "runs": [str(d) for d in dirs],
            "definition": {"tolerance": TOLERANCE, "dilate": DILATE, "tile": TILE, "tile_min": TILE_MIN,
-                          "tile_margin": TILE_MARGIN, "weak_share": WEAK_SHARE, "world_share": WORLD_SHARE},
+                          "tile_margin": TILE_MARGIN, "weak_share": WEAK_SHARE, "world_share": WORLD_SHARE,
+                          "isolated": ISOLATED},
            "frames": {}, "left_out": missing}
     for name in names:
         paths = [p for s in sets for p in s[name]]
@@ -429,7 +434,7 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
     world = info.get("world", False)
     world_px = w * h - sum(bin(r).count("1") for r in strict) if world else 0
     bad_strict = bad_world = bad_cursor = worst = magenta = 0
-    bad_px = []
+    bad_px, strict_px = [], set()
     cb = info.get("cursor")
     cursor = rect_rows([cb], w, h) if cb else [0] * h
     for y in range(h):
@@ -445,6 +450,7 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
                 continue
             if (strict[y] >> x) & 1:
                 bad_strict += 1
+                strict_px.add((x, y))
             else:
                 bad_world += 1
             o = 3 * x
@@ -471,8 +477,12 @@ def compare_frame(refdir, info, name, new_path, diff_path=None):
         tiles_bad.append({"tile": k, "mean": [round(v, 1) for v in rgb] if n >= TILE_MIN else None,
                           "ref": [lo, hi]})
     share = bad_world / float(world_px) if world_px else 0.0
-    ok = bad_strict == 0 and not tiles_bad and magenta == 0 and share <= WORLD_SHARE
-    res.update(verdict="PASS" if ok else "FAIL", pixels_beyond=bad_strict, world_beyond=bad_world,
+    isolated = sum(1 for (x, y) in strict_px
+                   if not any((x + i, y + j) in strict_px for i in (-1, 0, 1) for j in (-1, 0, 1) if i or j))
+    strict_ok = bad_strict == 0 or (isolated == bad_strict and isolated <= ISOLATED)
+    ok = strict_ok and not tiles_bad and magenta == 0 and share <= WORLD_SHARE
+    res.update(verdict="PASS" if ok else "FAIL", pixels_beyond=bad_strict, isolated=isolated,
+               world_beyond=bad_world,
                cursor_beyond=bad_cursor,
                world_share=round(share, 5), worst=worst, magenta=magenta,
                tiles_out_of_range=len(tiles_bad), tiles_world=tiles_world, tiles_checked=len(info["tiles"]),
@@ -522,9 +532,10 @@ def compare(refdir, frames_dir, out=None, only=None, log=print):
         if "reason" in r:
             log("%-24s FAIL  %s" % (name, r["reason"]))
         else:
-            log("%-15s %s  strict: %6d px beyond, %3d tiles out  world: %6.3f %% beyond (%d px), %3d tiles  "
+            log("%-15s %s  strict: %6d px beyond (%d isolated), %3d tiles out  world: %6.3f %% beyond (%d px), %3d tiles  "
                 "cursor box %4d px  worst %3d  magenta %d  masked %5.2f %%%s"
-                % (name, r["verdict"], r["pixels_beyond"], r["tiles_out_of_range"], 100 * r["world_share"],
+                % (name, r["verdict"], r["pixels_beyond"], r["isolated"], r["tiles_out_of_range"],
+                   100 * r["world_share"],
                    r["world_beyond"], r["tiles_world"], r["cursor_beyond"], r["worst"], r["magenta"],
                    100 * r["masked_share"],
                    "  weak" if r["weak"] else ""))
