@@ -181,10 +181,6 @@ void TestMisc()
 	Check(MulDiv(10, 3, 4) == 8 && MulDiv(-10, 3, 4) == -8 && MulDiv(1, 2, 0) == -1, "MulDiv rounds, -1 for /0");
 	Check(lstrcmpiA("Gulim.BMP", "gulim.bmp") == 0 && lstrcmpiA("a", "B") < 0, "lstrcmpiA");
 
-	HGLOBAL g = GlobalAlloc(GMEM_DDESHARE, 32);
-	char *p = (char *)GlobalLock(g);
-	Check(p && GlobalSize(g) == 32 && (strcpy(p, "clip"), true) && !GlobalUnlock(g) && GlobalFree(g) == NULL,
-	      "GlobalAlloc, GlobalLock, GlobalSize, GlobalUnlock, GlobalFree (the clipboard's text)");
 	MEMORYSTATUS ms;
 	GlobalMemoryStatus(&ms);
 	Check(ms.dwTotalPhys > 163000000, "GlobalMemoryStatus: not a low-memory machine");

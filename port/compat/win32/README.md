@@ -28,7 +28,7 @@ Kernel objects (folder listings) are registered handles: a handle the client nev
 |---|---|---|
 | `CloseHandle` | the object's release | the process pseudo-handle ignored |
 | `FindFirstFileA`, `FindClose` | `bf_file_find_*` | `*`/`?` without regard to case; `.` and `..` not listed; game files `FILE_ATTRIBUTE_READONLY` |
-| `GlobalAlloc/Lock/Unlock/Free/Size`, `LocalAlloc/Lock/Free` | `malloc` with a size header | the handle is the memory (as `GMEM_FIXED`); `GlobalSize` for the clipboard adapter; callers: `framework/Language.cpp` and the input adapter (clipboard), `FormatMessageA` for `base/FindHack.cpp` |
+| `LocalAlloc/Lock/Free` | `malloc` with a size header | the handle is the memory (as `LMEM_FIXED`); `FormatMessageA` for `base/FindHack.cpp`. `GlobalAlloc` and its kin left in M11.7 with their last callers (the clipboard's, in `framework/Language.cpp` and the input adapter) |
 | `GlobalMemoryStatus` | `sysctl hw.memsize` | |
 | `GetLastError`, `SetLastError` | thread-local | |
 | `GetCurrentDirectoryA`, `_getcwd` | `bf_file_location(BF_LOCATION_GAME)` | |

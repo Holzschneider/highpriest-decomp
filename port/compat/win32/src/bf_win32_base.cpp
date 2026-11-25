@@ -267,9 +267,9 @@ VOID WINAPI OutputDebugStringA(LPCSTR text)
 
 // ---- Memory -----------------------------------------------------------------------
 //
-// GlobalAlloc and LocalAlloc: the handle is the memory itself (as for
-// GMEM_FIXED), preceded by a header with the size, so GlobalSize works for
-// the clipboard adapter. GlobalLock returns the handle.
+// LocalAlloc: the handle is the memory itself (as for LMEM_FIXED), preceded
+// by a header with the size. LocalLock returns the handle. (GlobalAlloc and
+// its kin left with their last callers, the clipboard's, in M11.7.)
 namespace {
 const size_t kHeader = 16;
 
@@ -289,43 +289,7 @@ void BlockFree(void *memory)
 	if (memory)
 		free((char *)memory - kHeader);
 }
-
-SIZE_T BlockSize(void *memory)
-{
-	SIZE_T size = 0;
-	if (memory)
-		memcpy(&size, (char *)memory - kHeader, sizeof(size));
-	return size;
-}
 }  // namespace
-
-HGLOBAL WINAPI GlobalAlloc(UINT flags, SIZE_T size)
-{
-	return (HGLOBAL)BlockAlloc(flags, size, GMEM_ZEROINIT);
-}
-
-LPVOID WINAPI GlobalLock(HGLOBAL memory)
-{
-	return (LPVOID)memory;
-}
-
-BOOL WINAPI GlobalUnlock(HGLOBAL memory)
-{
-	(void)memory;
-	t_lastError = NO_ERROR;
-	return FALSE;   // "no longer locked", as for a fixed block
-}
-
-HGLOBAL WINAPI GlobalFree(HGLOBAL memory)
-{
-	BlockFree((void *)memory);
-	return NULL;
-}
-
-SIZE_T WINAPI GlobalSize(HGLOBAL memory)
-{
-	return BlockSize((void *)memory);
-}
 
 HLOCAL WINAPI LocalAlloc(UINT flags, SIZE_T size)
 {
