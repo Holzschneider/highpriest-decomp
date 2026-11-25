@@ -19,9 +19,6 @@
 #
 # The units the build excludes (BF_CLIENT_EXCLUDE in the root CMakeLists.txt)
 # are skipped and counted on the "excluded" line; BF_CENSUS_ALL=1 checks them.
-#
-# BF_WIN_HEADERS names the directory that holds windows.h, d3d.h and the rest
-# (default: port/compat/winheaders, the vendored Wine headers).
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 TREE=$ROOT/src; OUT=$ROOT/build/port/census; WARN=${BF_CENSUS_WARN:-}
@@ -35,7 +32,6 @@ while [ $# -gt 0 ]; do
   esac
 done
 . "$ROOT/port/tools/flags.sh"
-[ -f "$WIN_HEADERS/windows.h" ] || { echo "no windows.h in $WIN_HEADERS; set BF_WIN_HEADERS" >&2; exit 1; }
 mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd); find "$OUT" -name '*.log' -delete
 
 # The link order of sources.mk lists the game's translation units.
@@ -48,7 +44,7 @@ if [ -z "${BF_CENSUS_ALL:-}" ]; then
 fi
 
 [ -n "$WARN" ] && set -- -Wformat -Werror=format -Wno-format-security -Wformat-security "$@"
-FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE -isystem $WIN_HEADERS $*"
+FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE $*"
 export FLAGS TREE OUT
 
 check() {

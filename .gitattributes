@@ -3,4 +3,3 @@
 # Third-party headers stay byte-identical to their origins (CRLF, trailing spaces).
 src/DbgHelp.h -whitespace
 src/ijl.h -whitespace
-port/compat/winheaders/** -whitespace

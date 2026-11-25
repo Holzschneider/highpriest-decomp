@@ -2,7 +2,20 @@
 
 Everything the macOS port adds lives here. The documents are in [docs/port](../docs/port): the [specification](../docs/port/spec.md) says what the client must be, the [technical plan](../docs/port/technical-plan.md) how it is built and why, the [implementation plan](../docs/port/implementation-plan.md) in which order.
 
-Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. The scripts read the Windows headers vendored in `port/compat/winheaders` (Wine 11.0; `regenerate.sh` there rebuilds them); `BF_WIN_HEADERS` names another directory.
+Outputs go to `build/port/`, which is untracked. The scripts need Apple clang, Python 3 and, for the server, Docker. Nothing in the build reads a Windows or DirectX header (M11.11): the client's Windows-shaped types and constants are `port/client/include/bf_types.h`'s.
+
+**The Windows headers for reference work.** The Wine 11.0 headers the build used until M11.11 are in the history, not in the tree. The two references taken from them (`port/client/test/wine_types.ref` for `bf_types.h`, `port/tools/layout-win32.ref` for the 32-bit Windows record layouts) are rewritten with them back, which a new name in `bf_types.h` or a new record on the packet and file path needs:
+
+```bash
+mkdir -p build/port/winheaders-ref && git archive 8c7d211 port/compat/winheaders | tar -x -C build/port/winheaders-ref
+export BF_WIN_HEADERS=$PWD/build/port/winheaders-ref/port/compat/winheaders
+python3 port/client/test/gen_types_test.py --write-reference port/client/test/wine_types.ref
+mkdir -p build/port/layout/reftree && git archive 454ff09 src | tar -x -C build/port/layout/reftree
+python3 port/tools/layoutcheck.py --live --ref-tree build/port/layout/reftree/src --write-reference
+python3 port/tools/nowin.py --write-names      # port/tools/winheaders.txt, the header names nowin reports
+```
+
+`8c7d211` is the last commit with the headers; `454ff09` the last whose `src/` compiled for 32-bit Windows (before M11.1 put the native modules' headers in it); `--ref-tree` gives a tree with newer records instead. Then `git diff` shows what changed.
 
 ## Build and fast check
 
@@ -60,7 +73,7 @@ Compiles the packet and file-format headers for 32-bit Windows and for arm64 and
 
 `port/tools/refexe.sh --string TEXT | --addr 0xA | --func NAME | --callers 0xA | --refs 0xA` prints the decompilation of the matching function (`--refs` lists the reads and writes of a global) in the stock 2008-09-03a Sakexe (Ghidra project in `$BF_REFEXE_DIR`, default `~/Games/Bifrost/refexe`). Provenance, rebuild steps and anchors: [reference-exe.md](../docs/port/reference-exe.md). The executable is never run.
 
-`port/tools/nowin.py [--build DIR] [--units GLOB] [--summary]`: reruns every unit of `build/cmake/<preset>/compile_commands.json` (the presets export it; a hand-configured build needs `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`) with `clang -M` and lists each header read from the Wine tree, from `port/compat`, by a Windows/DirectX name, or from the Windows libraries' headers copied into `src/`; exit 0 only when there are none (M11.11 adds it to the fast check). `port/tools/winnames.py [--step ID] [--names] [--files N] [--json F]`: the Win32/DirectX names the built `src/` files still use, per M11 step, with file:count; group `keep` is what `port/client/include/bf_types.h` declares (its layout test against Wine: [client/README.md](client/README.md)). Each runs in under a minute. `port/tools/native_clock.py` rewrites `timeGetTime()`/`GetTickCount()`/`Sleep()` in the files the build reads to `bf_clock_ticks`/`bf_clock_sleep_ms` (M11.1); running it again changes nothing; it needs `build/cmake/debug/compile_commands.json`.
+`port/tools/nowin.py [--build DIR] [--units GLOB] [--summary]`: reruns every unit of `build/cmake/<preset>/compile_commands.json` (the presets export it; a hand-configured build needs `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`) with `clang -M` and lists each header read from a Wine tree (`BF_WIN_HEADERS`), from `port/compat`, by a Windows/DirectX name (`port/tools/winheaders.txt`), or from the Windows libraries' headers copied into `src/`; exit 0 only when there are none. `--ninja` reads the same from Ninja's dependency log of the last build (under a second); `--text` fails on any tracked `#include` line in `src/` or `port/` that names a Windows header. `port/tools/native_headers.py` is the M11.11 include rewrite (`--apply`, idempotent) and its proof (`--snapshot` before, `--check` after: preprocessed tokens and `nm` symbol lists unchanged). `port/tools/winnames.py [--step ID] [--names] [--files N] [--json F]`: the Win32/DirectX names the built `src/` files still use, per M11 step, with file:count; group `keep` is what `port/client/include/bf_types.h` declares (its layout test against Wine: [client/README.md](client/README.md)). Each runs in under a minute. `port/tools/native_clock.py` rewrites `timeGetTime()`/`GetTickCount()`/`Sleep()` in the files the build reads to `bf_clock_ticks`/`bf_clock_sleep_ms` (M11.1); running it again changes nothing; it needs `build/cmake/debug/compile_commands.json`.
 
 **M4 frames:** `BF_CLIENT=<absolute path to build/cmake/debug/bifrost> python3 port/harness/run.py m4_frames` captures the login screen at UI scale 1, 2, 3, 4:3 and wide into `<game folder>/test/frames/m4/`, checks clean blocks, placement and pacing, and writes the checksums to `port/harness/manifests/m4-frames.sha256`. Run clients with `BF_MULTI_INSTANCE=1` while another client is up.
 
@@ -104,13 +117,7 @@ cmake -S port/native/<module> -B build/native/<module> -G Ninja && cmake --build
 
 ## Adapters
 
-The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/<area>` maps the Windows names the client calls onto a native module and has its own test program (built and run by `cmake --build --preset debug --target check`; areas are listed in the root `CMakeLists.txt`).
-
-| Area | Windows names | On |
-|---|---|---|
-| [`win32`](compat/win32/README.md) | nothing the client calls any more (M11.9): `bf_win32_base.cpp` and `bf_win32_file.cpp` are reached only by their own test; M11.11 deletes the folder | `sys`, `text` |
-
-Left in M11 so far: `d3d` (M11.9: the client renders through `port/native/gfx`; the device, its texture registry, the lazy lock and the movie's present are `port/client/src/bf_render.cpp`, test `bifrost-render-test`), `input` and `gdi` (M11.7, M11.8: the client calls `port/client`'s `bf_input`, see "bf_input" in [client/src/README.md](client/src/README.md), test `bifrost-input-test`; text through `port/native/text`'s `bf_text_canvas`), `miles` (M11.6: `src/device/Sound.cpp` calls `port/native/audio`, see "The client" in [native/audio/README.md](native/audio/README.md)), `granny` and `bink` (M11.10: `port/native/formats/granny` also runs the client's Granny runtime, checked by `bifrost-granny-test`; the intro movie plays through `port/client/src/bf_movie.cpp` on formats/bink and audio, tested by `bifrost-movie-test`; in the client `port/harness/scripts/granny.py`, `intro.py`). The registry calls became `bf_setting_*` (`port/client/include/bf_setting_key.h`, M11.4); `port/tools/native_settings.py` is the rewrite that did it (idempotent; needs `build/cmake/debug/compile_commands.json`).
+The Win32-shaped layer of stage A (`port/compat/<area>`, each area mapping the Windows names the client called onto a native module) is gone: M11 moved every subsystem to the native modules, one step at a time, and M11.11 deleted the last area (`win32`), the CRT stand-ins (`port/compat/include`) and the Wine headers. Where each area's rules went: `d3d` (M11.9) to `port/client/src/bf_render.cpp` on `port/native/gfx` (test `bifrost-render-test`); `input` and `gdi` (M11.7, M11.8) to `port/client`'s `bf_input` (see "bf_input" in [client/src/README.md](client/src/README.md), test `bifrost-input-test`) and `port/native/text`'s `bf_text_canvas`; `miles` (M11.6) to `src/device/Sound.cpp` on `port/native/audio` (see "The client" in [native/audio/README.md](native/audio/README.md)); `granny` and `bink` (M11.10) to `port/native/formats/granny` (`bifrost-granny-test`) and `port/client/src/bf_movie.cpp` (`bifrost-movie-test`; in the client `port/harness/scripts/granny.py`, `intro.py`); the registry calls (M11.4) to `bf_setting_*` (`port/client/include/bf_setting_key.h`; `port/tools/native_settings.py` is the rewrite that did it); the C runtime's file names on client paths to `port/client/src/bf_crt.cpp` (`bifrost-crt-test`). The adapters' READMEs are in the history (`git log -- port/compat`).
 
 ## Test harness
 

@@ -1,7 +1,8 @@
 /*
  * bf_types.h: the Windows types, structures, macros and constants the client
- * keeps once every call it makes is native (M11.0b). It replaces, in M11.11,
- * the Windows and DirectX headers that src/common.h includes today.
+ * keeps once every call it makes is native (M11.0b). Since M11.11 it stands
+ * where src/common.h and the client's other include lines named the Windows
+ * and DirectX headers.
  *
  * What is here, and why it is the same as today:
  *   - the Win32 integer and pointer typedefs, the opaque handle types and the
@@ -17,13 +18,14 @@
  *     numbering, which the renderer keeps (technical plan 3.3, progress log
  *     "M11 planned").
  * Every type has exactly the underlying type, size, alignment and field
- * offsets the vendored Wine headers give it in this build (arm64, the flags
+ * offsets the Wine headers gave it in the build until M11.11 (arm64, the flags
  * of port/tools/flags.sh): INT_PTR, LONG_PTR, LPARAM and LRESULT are long
  * long, UINT_PTR and WPARAM unsigned long long, LONG, BOOL and HRESULT int,
  * DWORD unsigned int, WCHAR char16_t in C++ (unsigned short in C), handles
  * pointers to distinct one-int structures; NULL is 0LL in C++, as Wine
  * redefines it. Every constant has the same value and type. The layout test
- * port/client/test (bifrost-types-test) checks all of it against Wine.
+ * port/client/test (bifrost-types-test, -c) checks all of it against
+ * wine_types.ref, what Wine gave each name.
  * Names and values were enumerated from the built source (port/tools/
  * winnames.py, group "keep") and read from the Wine headers by a compiled
  * program; the full families of VK_*, D3DTA_*, D3DFVF_* and of the D3D enums

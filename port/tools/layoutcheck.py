@@ -208,8 +208,7 @@ def compilers(tree, ref_tree, mode):
         return {'arm64': arm}
     if mode == 'bare':
         return {'win32': win_target + ['-nostdinc', '-nostdinc++', '-I' + ref_tree], 'arm64': arm}
-    win_headers = os.environ.get('BF_WIN_HEADERS') or build_win_headers \
-        or os.path.join(ROOT, 'port', 'compat', 'winheaders')
+    win_headers = os.environ.get('BF_WIN_HEADERS') or build_win_headers
     if not os.path.isfile(os.path.join(win_headers, 'windows.h')):
         sys.exit(f'layoutcheck: no windows.h in {win_headers}; set BF_WIN_HEADERS (port/README.md)')
     crt = os.environ.get('BF_WIN_CRT_HEADERS')

@@ -16,7 +16,7 @@ OUT=$ROOT/build/port; OBJ=$OUT/obj/bot; mkdir -p "$OUT/bin" "$OBJ"
 
 # The bot opens no game files, so it keeps the C library's own file names
 # (port/client/include/bf_crt.h) and links no adapter.
-GAME="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_PORT_CODE $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
+GAME="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_PORT_CODE $BF_INCLUDES -I$SRC"
 # The command channel uses the POSIX socket headers and none of the game's.
 PLAIN="clang++ -std=c++14 -O1 -g -target arm64-apple-macos14 -Wall -Wextra -Wno-unused-parameter"
 

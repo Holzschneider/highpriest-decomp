@@ -26,8 +26,8 @@
              name is a Windows or DirectX header's (WINDOWS_NAMES below),
              unless it names one of OWN_HEADERS; lines in #if blocks count
              too. Lists `file:line<TAB>header`.
-  --write-names  rewrite WINDOWS_NAMES from a Wine tree (BF_WIN_HEADERS, or
-             the vendored port/compat/winheaders while it exists) and the
+  --write-names  rewrite WINDOWS_NAMES from a Wine tree (BF_WIN_HEADERS;
+             port/README.md says how to get it back from history) and the
              CRT stand-ins (STANDIN_NAMES)
 
 For every unit, the unit's own compile command is rerun with `-M` (clang's
@@ -35,10 +35,10 @@ dependency output: every header the preprocessor reads, system headers
 included; `-MM` would hide the Wine tree, which the build passes with
 -isystem). A header is reported when it is
 
-  wine    under the Wine tree (BF_WIN_HEADERS, or port/compat/winheaders
-          while it is vendored);
-  compat  anywhere else under port/compat (the adapters, the CRT stand-ins
-          in port/compat/include; the prefix header and the rest of the
+  wine    under the Wine tree (BF_WIN_HEADERS; port/compat/winheaders until
+          M11.11 removed it);
+  compat  anywhere under port/compat (the adapters and the CRT stand-ins
+          until M11.11 removed them; the prefix header and the rest of the
           port's own code, port/client, are not compat since M11.0d);
   name    elsewhere, but named like a Windows or DirectX header: its path
           ends in the path of a header of the Wine tree (windows.h, ddraw.h,
@@ -83,8 +83,8 @@ import subprocess
 import sys
 
 ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-WINE = os.path.realpath(os.environ.get('BF_WIN_HEADERS')
-                        or os.path.join(ROOT, 'port', 'compat', 'winheaders')) + os.sep
+WINE = os.path.realpath(os.environ['BF_WIN_HEADERS']) + os.sep if os.environ.get('BF_WIN_HEADERS') \
+    else os.path.join(ROOT, 'port', 'compat', 'winheaders') + os.sep   # gone since M11.11
 WINDOWS_NAMES = os.path.join(ROOT, 'port', 'tools', 'winheaders.txt')
 COMPAT = os.path.join(ROOT, 'port', 'compat') + os.sep
 # The CRT stand-ins port/compat/include held (M11.11 removed them).

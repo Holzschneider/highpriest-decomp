@@ -33,7 +33,7 @@ A generated unit describes every name as one line, `key<TAB>value`:
 
 --write-reference compiles that unit twice per language against the Wine
 headers (the flags of port/tools/flags.sh, the Windows includes src/common.h
-had before M11.11, BF_WIN_HEADERS or the vendored tree), runs it and writes
+had before M11.11, the Wine tree in BF_WIN_HEADERS), runs it and writes
 what Wine says: the reference, committed as port/client/test/wine_types.ref.
 The field names on the Wine side come from clang's record-layout dump.
 --reference writes the unit the test builds: bf_types.h alone, with a src/
@@ -439,7 +439,7 @@ def read_reference(path, lang):
 
 def wine_flags_from_build():
     """The flags of a src/ unit, from flags.sh, with the Wine headers."""
-    wine = os.environ.get('BF_WIN_HEADERS') or os.path.join(ROOT, 'port', 'compat', 'winheaders')
+    wine = os.environ.get('BF_WIN_HEADERS', '')
     if not os.path.isfile(os.path.join(wine, 'windows.h')):
         sys.exit('gen_types_test.py: no windows.h in %s; set BF_WIN_HEADERS (port/README.md says how '
                  'to get the Wine headers back from history)' % wine)

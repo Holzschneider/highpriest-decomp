@@ -1,7 +1,8 @@
 /*
  * Included ahead of every game source in the macOS build (-include).
- * It supplies what Visual C++ 6.0 and its C runtime provided implicitly and
- * the Windows headers do not declare.
+ * It supplies what Visual C++ 6.0 and its C runtime provided implicitly
+ * (the Windows-shaped types and constants the client keeps are bf_types.h's,
+ * which src/common.h includes).
  */
 #ifndef BF_PREFIX_H
 #define BF_PREFIX_H
@@ -13,12 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-
-/* The Windows headers must not pull in their own Winsock declarations: the
-   game's socket calls are BSD sockets (<sys/socket.h>, M11.2). */
-#define _WINSOCKAPI_
-#define _WINSOCK2API_
-#define __WINE_WINSOCKAPI_STDLIB_H
 
 /* Calling conventions do not exist on arm64. */
 #define __stdcall
@@ -83,8 +78,5 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 template <class T> inline typename std::enable_if<std::is_same<T, int>::value, time_t>::type time(T *value) { time_t now; ::time(&now); if (value) { int v = (int)now; __builtin_memcpy((void *)value, &v, sizeof v); } return now; }
 template <class T> inline typename std::enable_if<std::is_same<typename std::remove_const<T>::type, int>::value, struct tm *>::type localtime(T *value) { static time_t copy; int v; __builtin_memcpy(&v, (const void *)value, sizeof v); copy = (time_t)v; return ::localtime(&copy); }
 #endif
-
-/* Names the DirectX 7 SDK gives its enumerations and the Wine headers do not. */
-#define _D3DPRIMITIVETYPE D3DPRIMITIVETYPE
 
 #endif

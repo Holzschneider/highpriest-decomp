@@ -19,15 +19,12 @@ string(TOLOWER "${BF_APP_NAME}" BF_EXE)
 
 # ---------------------------------------------------------------- flags.sh
 # Every word of flags.sh, one per line, tagged with the variable it came from.
-# BF_WIN_HEADERS (cache or environment) names another Windows header directory.
-set(BF_WIN_HEADERS "$ENV{BF_WIN_HEADERS}" CACHE PATH
-	"Directory with windows.h, d3d.h and the rest (empty: port/compat/winheaders)")
 set(BF_FLAGS_SH ${BF_ROOT}/port/tools/flags.sh)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 	${BF_FLAGS_SH} ${BF_ROOT}/sources.mk ${BF_ROOT}/port/name.cmake)
 execute_process(
-	COMMAND env ROOT=${BF_ROOT} BF_WIN_HEADERS=${BF_WIN_HEADERS} /bin/bash -c
-		". \"$ROOT/port/tools/flags.sh\" && printf 'H %s\\n' \"$WIN_HEADERS\" && printf 'T %s\\n' $BF_TARGET && printf 'D %s\\n' $BF_DEFINES && printf 'I %s\\n' $BF_INCLUDES"
+	COMMAND env ROOT=${BF_ROOT} /bin/bash -c
+		". \"$ROOT/port/tools/flags.sh\" && printf 'T %s\\n' $BF_TARGET && printf 'D %s\\n' $BF_DEFINES && printf 'I %s\\n' $BF_INCLUDES"
 	OUTPUT_VARIABLE bf_flag_lines RESULT_VARIABLE bf_flag_result)
 if(NOT bf_flag_result EQUAL 0)
 	message(FATAL_ERROR "port/tools/flags.sh failed (${bf_flag_result})")
@@ -51,8 +48,6 @@ foreach(line IN LISTS bf_flag_lines)
 	elseif(bf_next STREQUAL "prefix")
 		set(BF_CLIENT_PREFIX "${word}")
 		set(bf_next)
-	elseif(tag STREQUAL "H")
-		set(BF_CLIENT_WIN_HEADERS "${word}")
 	elseif(tag STREQUAL "T" AND word STREQUAL "-target")
 		set(bf_next target)
 	elseif(tag STREQUAL "T")
@@ -73,9 +68,6 @@ endif()
 set(bf_macos ${CMAKE_MATCH_1})
 if(NOT bf_macos MATCHES "\\.")
 	set(bf_macos ${bf_macos}.0)
-endif()
-if(NOT EXISTS ${BF_CLIENT_WIN_HEADERS}/windows.h)
-	message(FATAL_ERROR "no windows.h in ${BF_CLIENT_WIN_HEADERS}; set BF_WIN_HEADERS")
 endif()
 
 # arm64 only, the deployment target of flags.sh (technical plan 3.1, 6).
@@ -178,7 +170,7 @@ add_custom_target(check-headless
 # ---------------------------------------------------------------- client flags
 # bf_client_flags(<target> <tree>): the flags of flags.sh for game sources
 # under <tree>, in census.sh's order: the prefix header, the port's -I paths,
-# the tree, then the Windows headers with -isystem. C++ is gnu++14 (the code
+# then the tree (no Windows headers since M11.11). C++ is gnu++14 (the code
 # uses pieces removed in C++17), C (Lua) is gnu89. -ferror-limit=0 lets the
 # build report every error, as the census does.
 function(bf_client_flags target tree)
@@ -186,7 +178,6 @@ function(bf_client_flags target tree)
 	target_compile_options(${target} PRIVATE ${BF_CLIENT_OPTIONS} -ferror-limit=0
 		"SHELL:-include ${BF_CLIENT_PREFIX}")
 	target_include_directories(${target} BEFORE PRIVATE ${BF_CLIENT_INCLUDES} ${tree})
-	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES
 		CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS ON
 		C_STANDARD 90 C_STANDARD_REQUIRED ON C_EXTENSIONS ON)
@@ -206,7 +197,6 @@ function(bf_port_flags target)
 	target_compile_options(${target} PRIVATE ${BF_CLIENT_OPTIONS}
 		"SHELL:-include ${BF_CLIENT_PREFIX}")
 	target_include_directories(${target} BEFORE PRIVATE ${BF_CLIENT_INCLUDES})
-	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
 
