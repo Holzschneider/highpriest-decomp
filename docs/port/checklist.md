@@ -141,7 +141,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 410e7d8 | M10.2 Handlers and senders name packets by enumerator | src | M10.1 |
 | [x] a37504e | M10.3 Version-dependent request packets built and parsed in one place each | src | M10.2 |
 | [x] 22e1c1b | M10.4 Note on adding a version | tools | M10.3 |
-| [ ] | M10 exit (verifier) | | M9 exit, M10.1–M10.4 |
+| [x] c9c8d92 | M10 exit (verifier) | | M9 exit, M10.1–M10.4 |
 
 ## M11. Native calls only
 
