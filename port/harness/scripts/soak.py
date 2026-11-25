@@ -527,6 +527,14 @@ class Soak:
             self.note("no drop to pick up (nothing dropped, or a Poring looted it)")
             return
         rows = wait_rows(lambda: t.logs.picked_up(self.char_id, item["job"], after=mark), timeout=15)
+        # Porings loot: on the busy arrival field one standing by takes a
+        # drop within a second (picklog L). Such a race is no try of the
+        # client's pick-up; a pick-up that never works still fails the
+        # "succeeded at least once" check.
+        looted = not rows and t.logs.items(None, item["job"], "L", mark, map=FIELD_NORTH[1])
+        if looted:
+            self.note("a drop looted by a monster before the pick-up (picklog L)")
+            return
         self.tally.record("pick up", bool(rows), None if rows else "round %d: no picklog P for %d" % (self.k,
                                                                                                     item["job"]))
 
