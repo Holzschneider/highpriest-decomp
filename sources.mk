@@ -14,7 +14,7 @@ GAME := \
   UIMessengerWnd window/UIMetalWorkWnd UIRectInfo window/UISys UIWindowMgr 3dActor 3dGround \
   game/Common ExceptionHandler framework/ftwbrk GameWorld framework/Language framework/Locale \
   mmgr Mode PathFinder Picker View GuildInfo Insult ItemInfo MsgStrings SkillInfo TipOfTheDay \
-  movie/CBink base/CDec base/File base/FindHack GenUserCode base/GPak base/hash base/RegMgr \
+  movie/CBink base/CDec base/File base/FindHack GenUserCode base/GPak base/hash \
   base/Res SimpleAssert base/Util base/xml CSRCryptoR2 CSRCryptoR2Client \
   CSRCryptoR2PacketConfiguration CSRPacketR2 CSRPacketR2Client CSRPacketR2Var Cipher CipherImpl \
   CReAssemblyPacket lapi lauxlib lbaselib lcode ldblib ldebug ldo ldump lfunc lgc liolib llex \

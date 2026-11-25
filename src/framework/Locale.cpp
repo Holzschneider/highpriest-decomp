@@ -2,7 +2,6 @@
 
 
 
-#include "../base/RegMgr.h"
 #include "../Session.h"
 #include "Language.h"
 #include "Locale.h"
