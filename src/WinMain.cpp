@@ -65,7 +65,9 @@ extern void          InitClientInfo(const char* clientInfo);
 extern void          ResetTimer();
 extern void          DeleteHack();
 extern void          SetHwnd();
+#ifndef BF_PORT
 extern LONG CALLBACK ExceptionFilter(struct _EXCEPTION_POINTERS*);
+#endif
 
 extern int  (__cdecl *MyInitialize)();
 extern int  (__cdecl *MyStartEncryption)();
@@ -192,12 +194,16 @@ void SetWindowActiveMode(BOOL active)
 	g_isAppActive = active;
 	if (active)
 	{
+#ifndef BF_PORT
 		SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+#endif
 		SetAcquire(TRUE);
 	}
 	else
 	{
+#ifndef BF_PORT
 		SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+#endif
 		SetAcquire(FALSE);
 	}
 }
@@ -310,7 +316,7 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		if (IsEnableOldKeycrypt())
 			MyCloseDriver();
 		if (g_serviceType == 0xb)
-			ShellExecuteA(g_hMainWnd, "open", "http://www.ragnarok.co.in/index.php", NULL, NULL, SW_SHOWNORMAL);
+			bf_port_open("http://www.ragnarok.co.in/index.php");
 		ExitFindHack();
 		return 0;
 
@@ -507,7 +513,7 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 								 NULL, NULL, hInstance, NULL);
 	if (!g_hMainWnd)
 	{
-		MessageBoxA(NULL, "Window Creation Failed", "ERROR", 0);
+		bf_port_alert("ERROR", "Window Creation Failed", BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 		return 0;
 	}
 
@@ -525,23 +531,23 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 				{
 					char temp[30] = {0};
 					if (MyGetAthKbdObject(temp))
-						MessageBoxA(NULL, temp, MsgStr(MSI_KEYCRYPT), 0x1040);
-					int chose = MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_INSTALL_KEYDRIVER), MsgStr(MSI_KEYCRYPT), 0x1044);
-					if (chose == IDYES)
+						bf_port_alert(MsgStr(MSI_KEYCRYPT), temp, BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
+					int chose = bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_INSTALL_KEYDRIVER), BF_ALERT_INFO, BF_ALERT_BUTTONS_YES_NO);
+					if (chose == BF_ALERT_YES)
 					{
 						if (MyInstallReg)
 						{
 							MyInstallReg();
-							MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_REBOOT),
-										MsgStr(MSI_KEYCRYPT), 0x1040);
+							bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_REBOOT),
+										BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 							return 0;
 						}
-						MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_INSTALLFAIL),
-									MsgStr(MSI_KEYCRYPT), 0x1040);
+						bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_INSTALLFAIL),
+									BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 						return 0;
 					}
-					MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_SKIPKEYCRYPT),
-								MsgStr(MSI_KEYCRYPT), 0x1040);
+					bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_SKIPKEYCRYPT),
+								BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 				}
 				MyRegisterHWNDForEdit(0x10, g_hMainWnd);
 				MyStartEncryption();
@@ -551,40 +557,43 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 				int err = MyGetInitError();
 				if (err == 1)
 				{
-					MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_NOKEYCRYPTFILE),
-								MsgStr(MSI_KEYCRYPT), 0x1040);
+					bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_NOKEYCRYPTFILE),
+								BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 				}
 				else if (err == 2 && GetKeyboardType(0) == 0x51)
 				{
-					int chose = MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_USBKEYBOARD), MsgStr(MSI_KEYCRYPT), 0x1044);
-					if (chose == IDYES)
+					int chose = bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_USBKEYBOARD), BF_ALERT_INFO, BF_ALERT_BUTTONS_YES_NO);
+					if (chose == BF_ALERT_YES)
 					{
 						if (MyInstallReg)
 						{
 							MyInstallReg();
-							MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_REBOOT),
-										MsgStr(MSI_KEYCRYPT), 0x1040);
+							bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_REBOOT),
+										BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 							return 0;
 						}
-						MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_INSTALLFAIL),
-									MsgStr(MSI_KEYCRYPT), 0x1040);
+						bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_INSTALLFAIL),
+									BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 						return 0;
 					}
-					MessageBoxA(NULL, MsgStr(MSI_KEYCRYPT_SKIPKEYCRYPT),
-								MsgStr(MSI_KEYCRYPT), 0x1040);
+					bf_port_alert(MsgStr(MSI_KEYCRYPT), MsgStr(MSI_KEYCRYPT_SKIPKEYCRYPT),
+								BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 				}
 			}
 		}
 	}
 
-	GetCurrentDirectoryA(0x80, g_baseDir3);
+	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 0x80)   // the game folder, if it fits
+		strcpy(g_baseDir3, bf_file_location(BF_LOCATION_GAME));
 	return 1;
 }
 
 void ExitApp()
 {
 	CheckSystemMessage();
+#ifndef BF_PORT
 	CoUninitialize();
+#endif
 	DestroyWindow(g_hMainWnd);
 }
 
@@ -745,10 +754,12 @@ bool UpdatePatch(const char* patch, const char* pactchup)
 	else
 		sprintf(buf, "%s is changed. Press ok to restart", patch);
 
-	if (MessageBox(NULL, buf, "Alert", MB_OKCANCEL | MB_ICONINFORMATION) == IDOK)
+	if (bf_port_alert("Alert", buf, BF_ALERT_INFO, BF_ALERT_BUTTONS_OK_CANCEL) == BF_ALERT_OK)
 	{
-		_chmod(patch, _S_IWRITE);
-		_unlink(patch);
+#ifndef BF_PORT
+		_chmod(patch, _S_IWRITE);   // macOS removes a file without write permission
+#endif
+		bf_file_remove(patch);
 		if (rename(pactchup, patch) == 0)
 		{
 			ExcuteProgram(patch);
@@ -764,6 +775,11 @@ HANDLE ExcuteProgram(const char* excutiveFile)
 
 	strcpy(excutiveFileName, excutiveFile);
 
+#if defined(BF_PORT)
+	// the patcher's restart: the port starts no other program
+	bf_tracef(BFT_ERR, "ExcuteProgram(%s): not supported", excutiveFileName);
+	return NULL;
+#else
 	STARTUPINFO si = {0, };
 	PROCESS_INFORMATION pi = { 0, };
 
@@ -774,6 +790,7 @@ HANDLE ExcuteProgram(const char* excutiveFile)
 	CreateProcess(NULL, excutiveFileName, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 
 	return pi.hProcess;
+#endif
 }
 
 // The archives, in search order, as later clients list them in DATA.INI in
@@ -823,7 +840,9 @@ void AddPaksFromDataIni()
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					 LPSTR lpCmdLine, int nCmdShow)
 {
+#ifndef BF_PORT
 	SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ExceptionFilter);
+#endif
 
 
 	if (strstr(lpCmdLine, "1rag1")  || strstr(lpCmdLine, "1sak1") ||
@@ -890,7 +909,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 
 	ResetTimer();
+#ifndef BF_PORT
 	CoInitialize(NULL);
+#endif
 	g_session.Create();
 
 	g_resMgr().ReadResNameTable("resNameTable.txt");
@@ -962,10 +983,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	g_mouse.Exit();
 
 	CheckSystemMessage();
+#ifndef BF_PORT
 	CoUninitialize();
+#endif
 	DestroyWindow(g_hMainWnd);
 	DeleteHack();
+#ifndef BF_PORT
 	CoUninitialize();
+#endif
 #ifndef BF_PORT
 	if (wTimerRes) timeEndPeriod(wTimerRes);
 #endif

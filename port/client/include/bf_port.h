@@ -12,6 +12,7 @@
 #include "../../native/codec/include/bf_codec.h"
 #include "../../native/sys/include/bf_file.h"
 #include "../../native/sys/include/bf_settings.h"
+#include "../../native/sys/include/bf_sys.h"
 #include "../../native/strings/include/bf_strings.h"
 
 #ifdef __cplusplus
@@ -46,6 +47,18 @@ void bf_port_missing(unsigned category, const char *counter, const char *format,
 
 /* An option of the settings (BF_OPT_*), 0 or 1, with its default. */
 int bf_port_option(const char *option);
+
+/* A message box of the client (M11.5): title and message in the client's
+   code page (converted to UTF-8), traced under BFT_UI, then bf_sys_alert
+   (answered with its first button when alerts are off). Title NULL is
+   "Error". */
+bf_sys_alert_answer bf_port_alert(const char *title, const char *message, bf_sys_alert_style style,
+                                  bf_sys_alert_buttons buttons);
+
+/* "open" as the client's ShellExecute did it: a URL (with "://", or
+   mailto:) in its application, anything else a client path, resolved
+   (bf_file_resolve), in its application. 1 if opened; 0 for "" or NULL. */
+int bf_port_open(const char *target);
 
 /* zlib with the client's 32-bit lengths (common.h maps uncompress and
    compress here): the system zlib's uLongf is 64 bits on macOS. Return

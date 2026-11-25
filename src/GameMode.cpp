@@ -228,7 +228,6 @@ extern bool IsEffectStateSpecialHiding(unsigned int state);
 
 extern char autosaveFileName[];
 extern "C" int __cdecl access(const char *, int);
-extern "C" int __cdecl _mkdir(const char *);
 
 
 CGameMode::CGameMode()
@@ -6366,7 +6365,8 @@ void	CGameMode :: ProcessTalkType(int val1, INT_PTR val2)
 				if (g_session.m_onTraceAI)
 				{
 					char curPath[256];
-					GetCurrentDirectory(256, curPath);
+					if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
+						strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
 
 					INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 
@@ -7808,7 +7808,7 @@ void	CGameMode :: MakeChatFile()
 		int	captureCnt = 0;
 		sprintf(tmp, "%s\\Chat", g_baseDir3);
 		if (access(tmp, 0)) {
-			if (_mkdir(tmp))
+			if (bf_file_make_folder(tmp) != 1)
 				return;
 		}
 		sprintf(autosaveFileName, "%s\\Chat\\Chat.txt", g_baseDir3);

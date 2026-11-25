@@ -3226,11 +3226,15 @@ void	CSession :: InitVariables()
 	m_MightyGauge = 0;
 
 	{
+#if defined(BF_PORT)
+		m_isLowSystemMemory = FALSE;   // below 163 MB of memory: no Mac the port runs on
+#else
 		MEMORYSTATUS ms;
 		memset(&ms, 0, sizeof(MEMORYSTATUS));
 		ms.dwLength = sizeof(MEMORYSTATUS);
 		GlobalMemoryStatus(&ms);
 		m_isLowSystemMemory = (ms.dwTotalPhys < 163000000) ? TRUE : FALSE;
+#endif
 	}
 
 	memset(&m_charBlockInfo2[0],0,sizeof(TAG_CHARACTER_BLOCK_INFO)*9);
@@ -8830,7 +8834,7 @@ void	CSession :: SetCompressedEmblemImage(const char *compressedEmblemImage, DWO
 	sprintf(emblempath, "%s\\_tmpEmblem\\", g_baseDir3);
 
 	if (access(emblempath, 0))
-		if (_mkdir(emblempath) == -1)
+		if (bf_file_make_folder(emblempath) != 1)
 			return;
 
 
@@ -8843,8 +8847,10 @@ void	CSession :: SetCompressedEmblemImage(const char *compressedEmblemImage, DWO
 	list<string>::iterator	it = emblemList.begin();
 	while (it != emblemList.end()) {
 		sprintf(emblemtodeletem, "%s%s", emblempath, it->c_str());
-		_chmod(emblemtodeletem, 0000200);
-		_unlink(emblemtodeletem);
+#ifndef BF_PORT
+		_chmod(emblemtodeletem, 0000200);   // macOS removes a file without write permission
+#endif
+		bf_file_remove(emblemtodeletem);
 		++it;
 	}
 

@@ -42,7 +42,6 @@ extern CMouse g_mouse;
 extern const char* g_regPath;
 extern CRenderer* g_renderer;
 extern "C" int __cdecl access(const char *, int);
-extern "C" int __cdecl _mkdir(const char *);
 void CutString(const char* msg, std::vector<std::string>& strings, int maxNumCharLine);
 
 UICharInfoBalloonText::UICharInfoBalloonText() {}
@@ -1059,7 +1058,7 @@ void UINewChatWnd::WriteChatToFile()
 
 	sprintf(tmp, "%s\\Chat", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 
@@ -1077,7 +1076,7 @@ void UINewChatWnd::WriteChatToFile()
 	captureCnt = 0;
 	sprintf(tmp, "%s\\Chat_BM", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 

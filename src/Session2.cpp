@@ -5173,7 +5173,8 @@ void	CSession :: InitChattingProhibitLog()
 
 	CFile fp;
 	char curPath[256];
-	GetCurrentDirectory(256, curPath);
+	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
+		strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
 
 	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
@@ -5299,7 +5300,8 @@ void	CSession :: AppendProhibit(DWORD AID, DWORD prohibitTime)
 	char *buf;
 	CFile fp;
 	char curPath[256];
-	GetCurrentDirectory(256, curPath);
+	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
+		strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
 
 	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 	if (Pos) {
@@ -5366,7 +5368,8 @@ void	CSession :: RerecordProhibitLog()
 
 	CFile fp;
 	char curPath[256];
-	GetCurrentDirectory(256, curPath);
+	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
+		strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
 
 	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {
@@ -5397,7 +5400,8 @@ void	CSession :: RerecordProhibitLog()
 
 	fp.Close();
 
-	GetCurrentDirectory(256, curPath);
+	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
+		strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
 
 	Pos = (INT_PTR)strstr(curPath, "\\data");
 	if (Pos) {

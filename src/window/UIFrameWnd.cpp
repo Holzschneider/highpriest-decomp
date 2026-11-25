@@ -983,7 +983,7 @@ void UILoginWnd::OnDestroy() {}
 
 void UILoginWnd::OpenRegistPage()
 {
-	ShellExecuteA(g_hMainWnd, "open", g_regstrationWeb, NULL, NULL, SW_SHOWNORMAL);
+	bf_port_open(g_regstrationWeb);
 }
 
 INT_PTR UILoginWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
@@ -996,18 +996,16 @@ INT_PTR UILoginWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR
 				if (!g_isGravityID) {
 					if (g_windowMgr.ErrorMsg(MsgStr(MSI_3DAY_FREE), ME_YESNO, 1, 0, 0) == ID_YES) {
 						g_modeMgr.Quit();
-						ShellExecuteA(g_hMainWnd, "open", g_regstrationWeb, NULL, NULL, SW_SHOWNORMAL);
+						bf_port_open(g_regstrationWeb);
 					}
 					return 0;
 				}
 				g_modeMgr.Quit();
-				ShellExecuteA(g_hMainWnd, "open",
-					"http://ro.hangame.com/login/loginstep.asp?prevURL=/NHNCommon/NHN/Memberjoin.asp",
-					NULL, NULL, SW_SHOWNORMAL);
+				bf_port_open("http://ro.hangame.com/login/loginstep.asp?prevURL=/NHNCommon/NHN/Memberjoin.asp");
 				return 0;
 			}
 			g_modeMgr.Quit();
-			ShellExecuteA(g_hMainWnd, "open", g_regstrationWeb, NULL, NULL, SW_SHOWNORMAL);
+			bf_port_open(g_regstrationWeb);
 			return 0;
 		case ID_LOGIN: {
 			PlayWave("\xb9\xf6\xc6\xb0\xbc\xd2\xb8\xae.wav", 0.0f, 0.0f, 0.0f, 0xfa, 0x28, 1.0f);
@@ -3146,7 +3144,6 @@ void UIChatWnd::SetShow(int visible)
 }
 
 extern "C" int __cdecl access(const char *, int);
-extern "C" int __cdecl _mkdir(const char *);
 
 void UIChatWnd::WriteChatToReportFile()
 {
@@ -3156,7 +3153,7 @@ void UIChatWnd::WriteChatToReportFile()
 	captureCnt = 0;
 	sprintf(tmp, "%s\\Report", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 
@@ -3182,7 +3179,7 @@ void UIChatWnd::WriteChatToFile()
 
 	sprintf(tmp, "%s\\Chat", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 
@@ -3580,7 +3577,7 @@ void UIChatRoomWnd::WriteChatToReportFile()
 	captureCnt = 0;
 	sprintf(tmp, "%s\\Report", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 
@@ -3606,7 +3603,7 @@ void UIChatRoomWnd::WriteChatToFile()
 
 	sprintf(tmp, "%s\\Chat", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 

@@ -6971,7 +6971,6 @@ void UIWhisperWnd::OnRBtnUp(int x, int y) {
 }
 
 extern "C" int __cdecl access(const char *, int);
-extern "C" int __cdecl _mkdir(const char *);
 
 void UIWhisperWnd::WriteChatToFile()
 {
@@ -6980,7 +6979,7 @@ void UIWhisperWnd::WriteChatToFile()
 
 	sprintf(tmp, "%s\\Whisper", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 
@@ -7007,7 +7006,7 @@ void UIWhisperWnd::WriteChatToReportFile()
 	captureCnt = 0;
 	sprintf(tmp, "%s\\Report", g_baseDir3);
 	if (access(tmp, 0)) {
-		if (_mkdir(tmp))
+		if (bf_file_make_folder(tmp) != 1)
 			return;
 	}
 

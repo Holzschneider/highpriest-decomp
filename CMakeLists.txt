@@ -346,7 +346,8 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_control_coverage.cpp
 	port/client/src/bf_zlib.cpp
 	port/client/src/bf_crt.cpp
-	port/client/src/bf_setting_key.cpp)
+	port/client/src/bf_setting_key.cpp
+	port/client/src/bf_port_shell.cpp)
 bf_compat_flags(bf_port_main)
 target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_compat_bink bf_instrument ${BF_NATIVE_LIBS})
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
