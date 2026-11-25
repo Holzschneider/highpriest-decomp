@@ -17,8 +17,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef BF_PORT
 #include <tlhelp32.h>
+#endif
 #include <windows.h>
+#ifndef BF_PORT
 #include <shellapi.h>
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400
@@ -26,6 +29,7 @@
 #include "../WinCrypt.h"
 #include "../rdefk.h"
 #include "../NPGameLib.h"
+#endif
 
 extern ServiceType g_serviceType;
 extern ServerType g_serverType;
@@ -33,7 +37,9 @@ extern CModeMgr g_modeMgr;
 extern const char* PATCH_CLIENT;
 extern const char* MsgStr(MSGSTRINGID id);
 
+#ifndef BF_PORT
 CNPGameLib* pGameGuard = NULL;
+#endif
 
 typedef int (__cdecl *Initialize)();
 typedef int (__cdecl *StartEncryption)();
@@ -65,6 +71,7 @@ UninstallReg MyUninstallReg;
 CheckReg MyCheckReg;
 LoadKindDriver MyLoadKindDriver;
 
+#ifndef BF_PORT
 typedef HKCRYPT (WINAPI *fnNPKOpenDriver)();
 typedef HKCRYPT (WINAPI *fnNPKOpenDriverEx)(UINT);
 typedef BOOL (WINAPI *fnNPKUnregCrypt)(HKCRYPT, HWND);
@@ -123,6 +130,7 @@ void SetKCErrorInfo(DWORD dwErrorCode);
 std::string CreateVersionMsg();
 std::string CreateDependsDllMsg();
 std::string CreateDllHash();
+#endif
 
 bool IsEnableOldKeycrypt() { return false; }
 
@@ -169,11 +177,29 @@ bool IsEnableNewKeycrypt()
 // calls (WinMain, LoginMode, Mode, GameModePacket) do nothing. FindHack1,
 // FindHack2, ProcessFindHack and the monitor's callback, which nothing
 // calls, are left out with it.
+//
+// Nor is the keyboard protection (3.3, "Protection"; M11.5): the old
+// keycrypt (npkeysdk.dll, which IsEnableOldKeycrypt never enables) and the
+// new one (npkcrypt.dll, for the Korean, Thai and Japanese services) are
+// DLLs with drivers, and the CryptoAPI, Toolhelp and process scan of its
+// error report have no meaning on macOS. Its entry points do nothing:
+// nothing is loaded, started or stopped, no error report is made, and the
+// compatibility test passes, as it does without the DLL. The My* pointers
+// stay NULL for WinMain's old-keycrypt branch. DeleteHack, which removed
+// GameGuard's leftover files from the game folder, has none to remove there
+// (and the port's game folder is read-only).
 
 void SetHwnd() {}
 void SendID(char* szUserID) {}
 void ExitFindHack() {}
 void Auth2(unsigned int* pAuth) {}
+
+void DeleteHack() {}
+int NKCTestCompatibility() { return TRUE; }
+int NpKeyMyLoadLibrary() { return FALSE; }
+BOOL WINAPI InitNPKCryptFuncTbl() { return FALSE; }
+void WinMainNpKeyStartEncryption() {}
+void WinMainNpKeyStopEncryption() {}
 
 #else
 
@@ -366,8 +392,6 @@ BOOL CALLBACK NPGameMonCallback(DWORD dwMsg, DWORD dwArg)
 
 	return true;
 }
-
-#endif // BF_PORT
 
 void DeleteHack()
 {
@@ -1107,3 +1131,5 @@ int IProcess::GetProcAddresses(HINSTANCE__** hLibrary, const char* lpszLibrary, 
 
 	return bRet;
 }
+
+#endif // BF_PORT

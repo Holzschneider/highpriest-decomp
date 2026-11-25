@@ -1,6 +1,9 @@
 #ifndef HIGHPRIEST_BASE_FINDHACK_H
 #define HIGHPRIEST_BASE_FINDHACK_H
 
+// The process and module scan of the keyboard protection's error report
+// (base/FindHack.cpp): not in the port.
+#ifndef BF_PORT
 
 #include <tlhelp32.h>
 
@@ -60,5 +63,7 @@ public:
 
 	BOOL EnumModule(DWORD dwPid, FEnumModuleCallback FEnum, PVOID pUserData);
 };
+
+#endif // BF_PORT
 
 #endif
