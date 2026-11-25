@@ -14,7 +14,7 @@ from bfharness.runner import Test, load_script
 
 
 class ScriptsAgainstMock(unittest.TestCase):
-    def run_script(self, name):
+    def run_script(self, name, title=None):
         t = Test(load_script(paths.HARNESS_DIR / "scripts" / (name + ".py")), mock=True,
                  run_dir=paths.build_dir() / "selftest" / ("script-" + name), client_timeout=120)
         r = t.execute()
@@ -22,7 +22,7 @@ class ScriptsAgainstMock(unittest.TestCase):
         self.assertTrue(r["passed"], failed)
         rep = json.loads((t.run_dir / "report.json").read_text())
         self.assertTrue(rep["passed"])
-        self.assertTrue((t.run_dir / "report.md").read_text().startswith("# %s: PASS" % name))
+        self.assertTrue((t.run_dir / "report.md").read_text().startswith("# %s: PASS" % (title or name)))
         self.assertTrue(rep["frames"], "frames captured")
         self.assertTrue((t.run_dir / "frames.sha256").exists(), "mock manifest stays in the run dir")
         return rep
@@ -69,6 +69,12 @@ class ScriptsAgainstMock(unittest.TestCase):
     def test_english_session(self):
         rep = self.run_script("english_session")
         self.assertIn("coverage report", [s["name"] for s in rep["steps"]])
+
+    def test_m11_frames(self):
+        rep = self.run_script("m11_frames", title="m11")
+        names = {f["name"] for f in rep["frames"]}
+        self.assertTrue({"login-s2", "login-s1", "charselect", "makechar", "prontera", "chat-latin1",
+                         "inventory", "world-wide", "login-s2.s1", "login-s2.s2"} <= names)
 
     def test_failure_is_reported(self):
         """A step that fails stops the script and the report says FAIL."""

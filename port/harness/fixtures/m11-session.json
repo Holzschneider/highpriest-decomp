@@ -1,0 +1,18 @@
+{
+ "user": "bfhm11ahjlj830c",
+ "password": "bfh-npc",
+ "char": "Zo\u00eblj830c",
+ "char_id": 150297,
+ "recorded": "2026-11-25",
+ "commit": "d064da0",
+ "start": [
+  "prontera",
+  123,
+  98
+ ],
+ "field": [
+  "prt_fild05",
+  114,
+  156
+ ]
+}
