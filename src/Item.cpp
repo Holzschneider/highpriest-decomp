@@ -51,7 +51,7 @@ void CItem::Render(matrix& vtm)
 
 bool	CItem :: OnProcess()
 {
-	float	stateCnt = (timeGetTime() - m_stateStartTick) / 24.f;
+	float	stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.f;
 	if ((int(stateCnt)%92) >= 90)
 		m_isSingleColor = 1;
 	else
@@ -152,7 +152,7 @@ void CItem::SendMsg(CGameObject* sender, int message, INT_PTR arg1, INT_PTR arg2
 			m_itemName = itemHelp;
 
 			GetActRes();
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			break;
 		}
 		default:

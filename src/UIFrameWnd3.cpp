@@ -72,7 +72,7 @@ UISelCharForUServerWnd::UISelCharForUServerWnd()
 	m_okButton = NULL;
 	for (int i = 0; i < 12; ++i)
 		m_isEmpty[i] = 1;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 UISelCharForUServerWnd::~UISelCharForUServerWnd()
@@ -219,7 +219,7 @@ void UISelCharForUServerWnd::OnDraw()
 						accMotionCount % headMotionCount == 0) {
 						int motionStep = accMotionCount / headMotionCount;
 						int motionSpeed = (int)((CActRes*)g_resMgr().Get(m_viewChar[j].actName[i].c_str(), false))->GetDelay(m_viewChar[j].curAction);
-						float frame = (timeGetTime() - m_stateStartTick) / 24.0f;
+						float frame = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 						if (motionSpeed == 0)
 							motionSpeed = 4;
 

@@ -130,7 +130,7 @@ void SendUDPPacket(LPCSTR szURL, USHORT uPort, const char* p, int pLen)
 CLoginMode::CLoginMode() : CMode()
 {
 	m_fadeInCount = TRUE;
-	m_syncRequestTime = timeGetTime() + 12000;
+	m_syncRequestTime = bf_clock_ticks() + 12000;
 	m_multiLang = g_multiLang;
 	g_multiLang = false;
 	m_nSelectedAccountNo = -1;
@@ -220,9 +220,9 @@ void CLoginMode::CheckPingTime()
 		m_subMode == LSM_WAITRESP_FROM_CHSVR_DELETECHAR ||
 		m_subMode == LSM_SELECTCHAR2)
 	{
-		if (timeGetTime() > m_syncRequestTime) {
+		if (bf_clock_ticks() > m_syncRequestTime) {
 			Trace("CharServer Ping !");
-			m_syncRequestTime = timeGetTime() + 12000;
+			m_syncRequestTime = bf_clock_ticks() + 12000;
 			PACKET_PING p;
 			p.PacketType = HEADER_PING;
 			p.AID = g_session.GetAid();
@@ -387,7 +387,7 @@ const char * GetUserCountString(WORD usercount)
 
 void CLoginMode::OnChangeState(int state)
 {
-	m_subModeStartTime = timeGetTime();
+	m_subModeStartTime = bf_clock_ticks();
 	g_windowMgr.RemoveAllWindows();
 	g_session.m_isBattle = false;
 	m_isConnected = true;
@@ -841,7 +841,7 @@ void CLoginMode::OnChangeState(int state)
 			Trace("PACKET_CZ_ENTER");
 			char p[PADDING_PACKET_BUFSIZE];
 			CRagConnection::instanceR().SendPacket(
-				BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, timeGetTime(), g_session.GetSex()),
+				BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, bf_clock_ticks(), g_session.GetSex()),
 				p);
 			CRagConnection::instanceR().SetBlock(true);
 			UIWaitWnd *wnd = (UIWaitWnd *)g_windowMgr.MakeWindow(WID_WAITWND);
@@ -881,17 +881,17 @@ void CLoginMode::OnProcessState(int state)
 
 	switch (state) {
 	case LSM_WAITRESP_FROM_ACSVR:
-		if (timeGetTime() > m_subModeStartTime + waitAccountServerResponseTime)
+		if (bf_clock_ticks() > m_subModeStartTime + waitAccountServerResponseTime)
 			SendMsg(LMM_DISCONNECT_ACSVR, 0, 0, 0);
 		if (g_serviceType == ServiceThai &&
-			timeGetTime() > m_subModeStartTime + 15 * 1000)
+			bf_clock_ticks() > m_subModeStartTime + 15 * 1000)
 		{
 			m_wndWait->SendMsg(NULL, UM_ENABLE_CANCEL, 0, 0, 0, 0);
 			m_wndWait->Invalidate();
 		}
 		break;
 	case LSM_WAITRESP_FROM_CHSVR:
-		if (timeGetTime() > m_subModeStartTime + 15 * 1000) {
+		if (bf_clock_ticks() > m_subModeStartTime + 15 * 1000) {
 			CRagConnection::instanceR().Disconnect();
 			if (g_windowMgr.ErrorMsg(MsgStr(MSI_SERVER_CONNECTION_FAILED),
 									  ME_OKCANCEL, TRUE, TRUE, 0) != ID_MODAL_PASSED)
@@ -902,7 +902,7 @@ void CLoginMode::OnProcessState(int state)
 			break;
 		}
 	case LSM_READY_FOR_ZONESVR:
-		if (timeGetTime() > m_subModeStartTime + 15 * 1000) {
+		if (bf_clock_ticks() > m_subModeStartTime + 15 * 1000) {
 			CRagConnection::instanceR().Disconnect();
 			if (g_windowMgr.ErrorMsg(MsgStr(MSI_SERVER_CONNECTION_FAILED),
 									  ME_OKCANCEL, TRUE, TRUE, 0) != ID_MODAL_PASSED)
@@ -1312,7 +1312,7 @@ INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR v
 
 void CLoginMode::Ac_Accept_Login(const char *buf)
 {
-	g_session.m_playingTime = timeGetTime();
+	g_session.m_playingTime = bf_clock_ticks();
 	SendID(g_session.m_aName);
 	g_session.m_strAutoMSG = MsgStr(MSI_AUTO_MSG);
 
@@ -1892,7 +1892,7 @@ void CLoginMode::Sc_Billing_Info(const char *buf)
 		}
 	}
 
-	m_subModeStartTime = timeGetTime() + 1000 * 90;
+	m_subModeStartTime = bf_clock_ticks() + 1000 * 90;
 
 	g_windowMgr.ErrorMsg(buffer, ME_OK, TRUE, TRUE, 0);
 }
@@ -2201,8 +2201,8 @@ char * CLoginMode::SetPaddingValue(char * pad, int len)
 	}
 
 	char buf[20] = { 0, };
-	DWORD value = timeGetTime() >> len;
-	value ^= timeGetTime();
+	DWORD value = bf_clock_ticks() >> len;
+	value ^= bf_clock_ticks();
 	_ltoa(value, buf, 16);
 
 	int len2 = strlen(buf) - 1;

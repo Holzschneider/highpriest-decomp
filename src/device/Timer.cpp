@@ -13,12 +13,12 @@ static DWORD frameFreq;
 
 void	ResetTimer()
 {
-	frameTime = timeGetTime();
+	frameTime = bf_clock_ticks();
 }
 
 void	InitTimer(DWORD freq)
 {
-	frameTime = timeGetTime();
+	frameTime = bf_clock_ticks();
 	frameFreq = 1000/freq;
 }
 
@@ -29,7 +29,7 @@ BOOL SkipSceneRendering()
 
 int		GetSkipFrameCount()
 {
-	int skipCount = (timeGetTime() - frameTime) / frameFreq;
+	int skipCount = (bf_clock_ticks() - frameTime) / frameFreq;
 
 	frameTime += frameFreq * skipCount;
 

@@ -388,7 +388,7 @@ void	CTexMgr :: ReloadAllTexture()
 
 void	CTexMgr :: UnloadRarelyUsedTexture()
 {
-	DWORD	expireTime = timeGetTime() - EXPIRETIME;
+	DWORD	expireTime = bf_clock_ticks() - EXPIRETIME;
 
 	texture_map_iter i = m_texTable.begin();
 
@@ -631,7 +631,7 @@ void	CRenderer :: ReleaseUnusedCacheSurfaces()
 
 void	CRenderer :: UnloadRarelyUsedCaches()
 {
-	DWORD expireTime = timeGetTime() - EXPIRETIME;
+	DWORD expireTime = bf_clock_ticks() - EXPIRETIME;
 
 	for (int i = 0; i < 16; ++i) {
 		std::list<CacheSurface> &cacheSurfaces = m_cacheSurfaces[i];
@@ -677,7 +677,7 @@ CTexture *	CRenderer :: AddSpriteIndex(SprImg &img, unsigned int* const pal, Cac
 
 	sector += offset;
 
-	unsigned int expireTime = timeGetTime() - (EXPIRETIME >> 2);
+	unsigned int expireTime = bf_clock_ticks() - (EXPIRETIME >> 2);
 	std::list<CacheSurface>::iterator surfaceIt;
 	CacheInfo *cacheInfo = NULL;
 
@@ -710,7 +710,7 @@ START:
 
 				surfaceIt->tex->UpdateSprite(cacheInfo->x, cacheInfo->y, surfaceIt->texWidth,
 					surfaceIt->texHeight, img, pal);
-				cacheInfo->lastTime = timeGetTime();
+				cacheInfo->lastTime = bf_clock_ticks();
 				surfaceIt->lastTime = cacheInfo->lastTime;
 				info->tu = cacheInfo->tu;
 				info->tv = cacheInfo->tv;
@@ -797,7 +797,7 @@ CTexture *	CRenderer :: GetSpriteIndex(SprImg &img, UINT_PTR palID, CacheInfo *i
 		{
 			if (infoIter->id == (INT_PTR)&img && infoIter->palID == palID)
 			{
-				unsigned int tick = timeGetTime();
+				unsigned int tick = bf_clock_ticks();
 				infoIter->lastTime = tick;
 				iter->lastTime = tick;
 				info->tu = infoIter->tu;
@@ -1232,13 +1232,13 @@ int GetCacheSize(int i)
 void	CRenderer :: StartFPSCount()
 {
 	m_fpsFrameCount = 0;
-	m_fpsStartTick = timeGetTime();
+	m_fpsStartTick = bf_clock_ticks();
 }
 
 void	CRenderer :: ShowInfo()
 {
 	char buf[128];
-	DWORD timeDelta = timeGetTime() - m_fpsStartTick;
+	DWORD timeDelta = bf_clock_ticks() - m_fpsStartTick;
 	float FPS = (1000.0f * m_fpsFrameCount) / timeDelta;
 
 	if (timeDelta > 1000 && !(m_fpsFrameCount & 1)) {

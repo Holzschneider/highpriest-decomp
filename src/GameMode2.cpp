@@ -159,7 +159,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_MAKE_SKILL_USED_MSG: {
-		m_skillUsedTick = timeGetTime();
+		m_skillUsedTick = bf_clock_ticks();
 
 		int skillId = val1;
 		BOOL isDrawName = TRUE;
@@ -399,8 +399,8 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_REQ_EMOTION: {
-		if (!m_isReqEmotion && timeGetTime() > m_reqEmotionTick + 2500) {
-			m_reqEmotionTick = timeGetTime();
+		if (!m_isReqEmotion && bf_clock_ticks() > m_reqEmotionTick + 2500) {
+			m_reqEmotionTick = bf_clock_ticks();
 			m_isReqEmotion = true;
 			PACKET_CZ_REQ_EMOTION p;
 			p.PacketType = HEADER_CZ_REQ_EMOTION;
@@ -639,7 +639,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_TAKE_OFF_EQUIP: {
-		if (m_waitingTakeoffEquipAck + 2000 > timeGetTime() || m_isPlayerDead) {
+		if (m_waitingTakeoffEquipAck + 2000 > bf_clock_ticks() || m_isPlayerDead) {
 			break;
 		}
 		int		slotNum = val1;
@@ -648,7 +648,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			ITEM_INFO	itemInfo = g_session.GetEquipedItems(slotNum);
 			if (itemInfo.IsValid()) {
 				if (itemInfo.m_num > 0) {
-					m_waitingTakeoffEquipAck = timeGetTime();
+					m_waitingTakeoffEquipAck = bf_clock_ticks();
 					PACKET_CZ_REQ_TAKEOFF_EQUIP	 packet;
 					packet.PacketType	= HEADER_CZ_REQ_TAKEOFF_EQUIP;
 					packet.index		= itemInfo.m_itemIndex;
@@ -680,12 +680,12 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_WEAR_EQUIP_ARROW: {
 		Trace("MM_WEAR_EQUIP_ARROW1");
-		if (m_waitingWearEquipAck + 2000 > timeGetTime() || m_isPlayerDead)
+		if (m_waitingWearEquipAck + 2000 > bf_clock_ticks() || m_isPlayerDead)
 			break;
 		Trace("MM_WEAR_EQUIP_ARROW2");
 		int		itemIndex = val1;
 		int		location = val2;
-		m_waitingWearEquipAck = timeGetTime();
+		m_waitingWearEquipAck = bf_clock_ticks();
 		PACKET_CZ_REQ_WEAR_EQUIP	 packet;
 		packet.PacketType	= HEADER_CZ_REQ_WEAR_EQUIP;
 		packet.index		= itemIndex;
@@ -754,7 +754,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 		case MM_WEAR_EQUIP: {
-			if (m_waitingWearEquipAck + 2000 > timeGetTime() || m_isPlayerDead) break;
+			if (m_waitingWearEquipAck + 2000 > bf_clock_ticks() || m_isPlayerDead) break;
 
 		int slotNum[3];
 		int slotNum2[3];
@@ -780,12 +780,12 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 		if (itemInfo.m_isYours == 1) {
 			UIFrameWnd* w = g_windowMgr.MakeWindow(WID_YOURITEMWND);
-			m_waitingWearEquipAck = timeGetTime();
+			m_waitingWearEquipAck = bf_clock_ticks();
 			w->SendMsg(NULL, UM_SET_BABY_MSG, itemIndex, val2, 0, 0);
 			break;
 		}
 
-		m_waitingWearEquipAck = timeGetTime();
+		m_waitingWearEquipAck = bf_clock_ticks();
 		PACKET_CZ_REQ_WEAR_EQUIP	 packet;
 		packet.PacketType	= HEADER_CZ_REQ_WEAR_EQUIP;
 		packet.index		= itemIndex;
@@ -1018,7 +1018,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			return m_dragInfo.m_dragType;
 		if (m_dragInfo.m_dragType == DT_FROM_ITEMWND) {
 			if (!g_session.IsValidItemIndexInUnequiped(m_dragInfo.m_dragItemIndex)
-				|| m_waitingWearEquipAck + 2000 > timeGetTime()) {
+				|| m_waitingWearEquipAck + 2000 > bf_clock_ticks()) {
 				m_dragInfo.m_dragType = DT_NODRAG;
 				return 0;
 			}
@@ -1096,7 +1096,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	case MM_ITEMTHROW: {
 		sAssert(val1);
-		if (!(m_waitingWearEquipAck + 2000 > timeGetTime()) && !m_waitingUseItemAck && !m_waitingItemThrowAck && val1 && !m_isPlayerDead) {
+		if (!(m_waitingWearEquipAck + 2000 > bf_clock_ticks()) && !m_waitingUseItemAck && !m_waitingItemThrowAck && val1 && !m_isPlayerDead) {
 			m_waitingItemThrowAck = true;
 			int		itemIndex = val1;
 			int		numItem = val2;
@@ -1132,7 +1132,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_SOCKETERROR:
 		m_noMove = 1;
-		m_noMoveStartTick = timeGetTime();
+		m_noMoveStartTick = bf_clock_ticks();
 		CRagConnection::instanceR().Disconnect();
 		if (g_windowMgr.ErrorMsg(MsgStr(MSI_UNABLE_TO_CONNECT_SERVER), ME_OK, 1, 1, 0) == ID_MODAL_PASSED)
 			break;
@@ -1306,7 +1306,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			}
 		}
 		m_recordChat[m_recordChatNum]     = chat2;
-		m_recordChatTime[m_recordChatNum] = timeGetTime();
+		m_recordChatTime[m_recordChatNum] = bf_clock_ticks();
 		int recordChatNum = m_recordChatNum;
 		recordChatNum++;
 		int maxRecordChatNum = 10;
@@ -1318,11 +1318,11 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			int count = 0;
 			for (int i = 0; i <= m_recordChatNum; i++) {
 				if (i == 10) {
-					if ((timeGetTime() - m_recordChatTime[0] < 10000) && (timeGetTime() - m_recordChatTime[0] > 0)) {
+					if ((bf_clock_ticks() - m_recordChatTime[0] < 10000) && (bf_clock_ticks() - m_recordChatTime[0] > 0)) {
 						ChatDori();
 						m_strikeNum = 0;
 						break;
-					} else if ((timeGetTime() - m_recordChatTime[0] < 30000) && (timeGetTime() - m_recordChatTime[0] > 0)) {
+					} else if ((bf_clock_ticks() - m_recordChatTime[0] < 30000) && (bf_clock_ticks() - m_recordChatTime[0] > 0)) {
 						for (int j = 0; j < m_recordChatNum; j++) {
 							if (m_recordChat[j].length() < 20)
 								break;
@@ -1361,7 +1361,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 				if (strlen(chat2) > 6) {
 					if (chat2 == m_recordChat[i] || chat_p2 == m_recordChat[i] || chat_p1 == m_recordChat[i] || chat_m1 == m_recordChat[i] || chat_m2 == m_recordChat[i]) {
-						if ((timeGetTime() - m_recordChatTime[i] < 30000) && (timeGetTime() - m_recordChatTime[0] > 0)) {
+						if ((bf_clock_ticks() - m_recordChatTime[i] < 30000) && (bf_clock_ticks() - m_recordChatTime[0] > 0)) {
 							count++;
 							if (count >= 3) {
 								if (m_strikeNum == 3) {
@@ -1369,7 +1369,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 										m_strikeTime[k] = m_strikeTime[k + 1];
 									m_strikeNum = 2;
 								}
-								m_strikeTime[m_strikeNum] = timeGetTime();
+								m_strikeTime[m_strikeNum] = bf_clock_ticks();
 								if (m_strikeNum >= 2) {
 									if (m_strikeTime[2] - m_strikeTime[0] < 90000) {
 										ChatDori();
@@ -1588,7 +1588,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			if (m_noMove == TRUE)
 				break;
 			m_noMove = TRUE;
-			m_noMoveStartTick = timeGetTime();
+			m_noMoveStartTick = bf_clock_ticks();
 		}
 		PACKET_CZ_CONTACTNPC	packet;
 		packet.PacketType = HEADER_CZ_CONTACTNPC;
@@ -1771,14 +1771,14 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 	}
 	case MM_REQ_ENTER_ROOM: {
 		UIChatRoomWnd *chatRoom = g_windowMgr.GetChatRoom();
-		if (timeGetTime() > m_reqTickChatRoom + 1000)
+		if (bf_clock_ticks() > m_reqTickChatRoom + 1000)
 			m_isWaitingEnterRoom = 0;
 		if (chatRoom)
 			break;
 		if (m_isWaitingEnterRoom)
 			break;
 		m_isWaitingEnterRoom = 1;
-		m_reqTickChatRoom = timeGetTime();
+		m_reqTickChatRoom = bf_clock_ticks();
 		PACKET_CZ_REQ_ENTER_ROOM p;
 		p.PacketType = HEADER_CZ_REQ_ENTER_ROOM;
 		p.roomID = val1;
@@ -2233,8 +2233,8 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		UIMerchantItemShopWnd *	pWnd = g_windowMgr.GetMerchantItemShopWnd();
 		if (val1 == g_session.GetAid()) break;
 		if (pWnd) break;
-		if (timeGetTime() <= m_reqTickMerchantShop + 1000) break;
-		m_reqTickMerchantShop = timeGetTime();
+		if (bf_clock_ticks() <= m_reqTickMerchantShop + 1000) break;
+		m_reqTickMerchantShop = bf_clock_ticks();
 		PACKET_CZ_REQ_BUY_FROMMC	p;
 		p.PacketType	= HEADER_CZ_REQ_BUY_FROMMC;
 		p.AID			= val1;

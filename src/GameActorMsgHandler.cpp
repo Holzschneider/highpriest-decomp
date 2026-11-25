@@ -167,7 +167,7 @@ void	CGameActor :: Am_Action(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, IN
 				if (as->targetGID == m_gid)
 					atkEfId2 = -2;
 
-				WBA		wba(actorMsg, damage + rGen.RandNum(), delayTime + timeGetTime(), m_gid,
+				WBA		wba(actorMsg, damage + rGen.RandNum(), delayTime + bf_clock_ticks(), m_gid,
 					tCellX, tCellY, atkEfId, atkEfId2, 1, attackedSpeedFactor );
 
 
@@ -317,7 +317,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT
 					float	attackedSpeedFactor = float(attackedMT) / float(AVG_ATTACKED_SPEED);
 
 					DWORD	delayTime = m_attackMotion * m_motionSpeed * 24.0f;
-					WBA wba(AM_ATTACKED_SKILL, damage, delayTime + timeGetTime(), m_gid, tCellX, tCellY, -1, -1, level, attackedSpeedFactor);
+					WBA wba(AM_ATTACKED_SKILL, damage, delayTime + bf_clock_ticks(), m_gid, tCellX, tCellY, -1, -1, level, attackedSpeedFactor);
 					tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba));
 					break;
 				}
@@ -498,7 +498,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT
 
 				RandGenerator	rGen(count, damage/6);
 
-				WBA				wba(actorMsg, damage + rGen.RandNum(), delayTime + timeGetTime(), m_gid, tCellX, tCellY, atkedEfId, effectId2, level, attackedSpeedFactor);
+				WBA				wba(actorMsg, damage + rGen.RandNum(), delayTime + bf_clock_ticks(), m_gid, tCellX, tCellY, atkedEfId, effectId2, level, attackedSpeedFactor);
 
 				if (skillId == SKID_PR_TURNUNDEAD)
 				{
@@ -566,7 +566,7 @@ void	CGameActor :: Am_Skill(CGameObject *sender, INT_PTR arg1, INT_PTR arg2, INT
 						break;
 					case	SKID_MO_COMBOFINISH:
 						SetForceAnimSpeed(4);
-						SetForceAnimation(80, 3, 4, 80, 4, TRUE, timeGetTime() + 100, FALSE);
+						SetForceAnimation(80, 3, 4, 80, 4, TRUE, bf_clock_ticks() + 100, FALSE);
 						g_modeMgr.GetGameMode()->SendMsg(MM_QUAKE);
 						PlayWave("effect\\mon_¸Í·æ°ú°­.wav");
 						LaunchEffect(EF_GUMGANG3);

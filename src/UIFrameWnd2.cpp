@@ -933,7 +933,7 @@ INT_PTR UIToolTipWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 
 	return 0;
 }
-UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = timeGetTime(); m_barHeight = 0; }
+UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = bf_clock_ticks(); m_barHeight = 0; }
 UIEquipWnd::~UIEquipWnd() {}
 
 void UIEquipWnd::OnCreate(int cx, int cy)
@@ -1418,7 +1418,7 @@ void UIEquipWnd::OnDraw()
 						accCount > headCount && accCount % headCount == 0) {
 						int step = accCount / headCount;
 						int motionSpeed = (int)((CActRes*)g_resMgr().Get(actName[i].c_str(), false))->GetDelay(0);
-						float frame = (timeGetTime() - m_stateStartTick) / 24.0f;
+						float frame = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 						if (motionSpeed == 0)
 							motionSpeed = 4;
 						int motion = (int)(frame / motionSpeed) % step;
@@ -2786,7 +2786,7 @@ void UINotifyItemObtainWnd::OnDraw() {
 
 void UINotifyItemObtainWnd::OnProcess()
 {
-	if (timeGetTime() > m_madeTick + 5000)
+	if (bf_clock_ticks() > m_madeTick + 5000)
 		g_windowMgr.DeleteWindow((WINDOWID)0x3a);
 }
 
@@ -2828,7 +2828,7 @@ INT_PTR UINotifyItemObtainWnd::SendMsg(UIWindow *sender, int message, INT_PTR va
 			Resize(width, m_h);
 		Invalidate();
 
-		m_madeTick = timeGetTime();
+		m_madeTick = bf_clock_ticks();
 		return 0;
 	}
 
@@ -3230,7 +3230,7 @@ INT_PTR UISayDialogWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT
 		case ID_NOTHING:
 			break;
 		case ID_NEXT: {
-			DWORD tick = GetTickCount();
+			DWORD tick = bf_clock_ticks();
 			if (tick - g_session.m_dwOldTime < 300)
 				break;
 			g_session.m_dwOldTime = tick;
@@ -4309,7 +4309,7 @@ INT_PTR UIChooseWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PT
 	case UM_COMMAND: {
 		switch (val1) {
 		case ID_OK: {
-		DWORD tick = GetTickCount();
+		DWORD tick = bf_clock_ticks();
 		DWORD lastTick = g_session.m_dwOldTime;
 		if (tick - lastTick < 300)
 			break;
@@ -7721,11 +7721,11 @@ void UIPetTamingDeceiveWnd::OnProcess()
 	Invalidate();
 	int q = m_curMot / m_delay;
 	if (m_startTick == (unsigned int)-1 && m_destPos == q && m_delay <= m_maxDelay) {
-		m_startTick = timeGetTime();
+		m_startTick = bf_clock_ticks();
 		return;
 	}
 	if (m_startTick != (unsigned int)-1 && m_destPos == q && m_delay <= m_maxDelay) {
-		if (timeGetTime() - m_startTick >= 0x7d0)
+		if (bf_clock_ticks() - m_startTick >= 0x7d0)
 			g_windowMgr.DeleteWindow(WID_PETTAMINGDECEIVEWND);
 	}
 }
@@ -8553,7 +8553,7 @@ void UIBookWnd::OnProcess()
 {
 	if (!m_bAutoReadBook || !m_BookCastTick)
 		return;
-	if (timeGetTime() <= m_BookCastTick + 4000)
+	if (bf_clock_ticks() <= m_BookCastTick + 4000)
 		return;
 	if (m_PresentLine < m_BookTotalLine) {
 		if ((strlen(m_bookContents[m_PresentLine].c_str()) == 0 ||
@@ -8575,7 +8575,7 @@ void UIBookWnd::OnProcess()
 		m_bookcastBalloon->SetFntColor(0xe1e4ff, 0);
 
 		++m_PresentLine;
-		m_BookCastTick = timeGetTime();
+		m_BookCastTick = bf_clock_ticks();
 		return;
 	}
 
@@ -8736,7 +8736,7 @@ INT_PTR UIBookWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_PTR 
 		SetShow(0);
 
 		if (m_bAutoReadBook) {
-			m_BookCastTick = timeGetTime() - 4000;
+			m_BookCastTick = bf_clock_ticks() - 4000;
 
 			if (val1 == 0)
 				m_PresentPage = ReadBookMarkFromRegistry(m_BookTitle);

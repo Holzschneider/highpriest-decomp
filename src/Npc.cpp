@@ -50,7 +50,7 @@ void	CBlowEffect :: OnExit() {}
 
 bool	CBlowEffect :: OnProcess()
 {
-	float		stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+	float		stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	m_curAction = m_baseAction;
 	CActRes *	actRes = GetActRes();
 	int			motionCnt = actRes->GetMotionCount(m_curAction);
@@ -76,7 +76,7 @@ void	CBlowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_
 				m_sprArgb = 0xffff0000;
 			else
 				m_sprArgb = 0xffffffff;
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 		}
 		break;
 		default:
@@ -99,14 +99,14 @@ void CCorpse::OnInit()
 {
 	m_isVisible = true;
 	m_isLieOnGround = true;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 void	CCorpse :: OnExit() {}
 
 bool	CCorpse :: OnProcess()
 {
-	float		stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+	float		stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	m_curAction = m_baseAction + Get8Dir(m_roty);
 
 	CActRes *	actRes = GetActRes();
@@ -172,7 +172,7 @@ void CBlurPC::OnInit()
 {
 	m_isVisible = true;
 	m_shadowOn	= FALSE;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 void	CBlurPC :: OnExit() {}
@@ -287,7 +287,7 @@ void	CNumEffect :: OnExit() {}
 
 bool	CNumEffect :: OnProcess()
 {
-	float	stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+	float	stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	m_curAction = m_baseAction;
 
 	m_pos.y = m_orgPosY - float(stateCnt)*0.18f;
@@ -319,7 +319,7 @@ void	CNumEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 				m_curMotion = 0;
 			m_sprShift = arg3;
 			m_orgZoom = m_zoom = 5;
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			break;
 		}
 		default:
@@ -349,7 +349,7 @@ void	CSoundMaker :: OnInit()
 	{
 		m_diagonal = _sqrt(float(m_height*m_height + m_width*m_width));
 	}
-	m_lastPlayTime = timeGetTime()-4000;
+	m_lastPlayTime = bf_clock_ticks()-4000;
 }
 
 void	CSoundMaker :: OnExit() {}
@@ -415,9 +415,9 @@ bool	CSoundMaker :: OnProcess()
 
 	if (m_waveName.size())
 	{
-		if (timeGetTime() > m_lastPlayTime+m_cycle)
+		if (bf_clock_ticks() > m_lastPlayTime+m_cycle)
 		{
-			m_lastPlayTime = timeGetTime();
+			m_lastPlayTime = bf_clock_ticks();
 			PlayWave(m_waveName.c_str(), cX-pPos.x, 0, cZ-pPos.z, m_range, m_range/6, m_vol);
 		}
 	}
@@ -439,7 +439,7 @@ void	CSoundMaker :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_
 			m_pos = info->pos;
 			m_diagonal = _sqrt(float(m_height*m_height + m_width*m_width));
 			m_cycle = info->cycle * 1000;
-			m_lastPlayTime = timeGetTime()-m_cycle;
+			m_lastPlayTime = bf_clock_ticks()-m_cycle;
 			break;
 		}
 		default:
@@ -472,7 +472,7 @@ void	CGndRiser :: OnExit()
 
 bool	CGndRiser :: OnProcess()
 {
-	float	stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+	float	stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	if (stateCnt > m_lastCnt)
 		return	false;
 
@@ -495,7 +495,7 @@ void	CGndRiser :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PT
 			vector3d *	sPos = (vector3d *)arg1;
 			m_pos = *sPos;
 			m_isVisible = false;
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			m_lastCnt = 30;
 
 			CGameMode *		gameMode = g_modeMgr.GetGameMode();
@@ -528,7 +528,7 @@ void	CNpc :: OnInit()
 	m_gage = NULL;
 	m_gage2 = NULL;
 	m_playerIswithinBox = false;
-	m_lastEffectLaunchTick = timeGetTime();
+	m_lastEffectLaunchTick = bf_clock_ticks();
 	m_doesLaunchEffect = FALSE;
 }
 
@@ -731,7 +731,7 @@ void	CNpc :: SetState(int stateId)
 							m_isMotionFinished = false;
 						} else {
 							if (m_stateId != ST_STAND)
-								m_petEmotionStartTick = timeGetTime();
+								m_petEmotionStartTick = bf_clock_ticks();
 						}
 
 						RegisterPos();
@@ -859,7 +859,7 @@ void	CNpc :: SetState(int stateId)
 	m_curAction = m_baseAction + Get8Dir(m_roty);
 	if (stateId != ST_DAMAGE)
 		m_stateId = stateId;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 void	CNpc :: RegisterPos()
@@ -915,8 +915,8 @@ void	CNpc :: ProcessLaunchEffect()
 	DWORD	&effectType = m_speed;
 	int		tickOfcycle = m_xSize*1000;
 
-	if (timeGetTime() > m_lastEffectLaunchTick+tickOfcycle) {
-		m_lastEffectLaunchTick = timeGetTime();
+	if (bf_clock_ticks() > m_lastEffectLaunchTick+tickOfcycle) {
+		m_lastEffectLaunchTick = bf_clock_ticks();
 		LaunchEffect(effectType);
 	}
 }
@@ -949,7 +949,7 @@ bool	CNpc :: OnProcess()
 	if (!ProcessVanish())
 		return	false;
 	if (m_isSingleColor) {
-		if (timeGetTime() > m_singleColorStartTick+100) {
+		if (bf_clock_ticks() > m_singleColorStartTick+100) {
 			m_colorOfSingleColor = 0xffff0000;
 			m_isSingleColor = false;
 		}

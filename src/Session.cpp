@@ -128,7 +128,7 @@ void	CSession :: Init()
 	m_bgmIsPaused = 0;
 
 	int sysTime = GetCurSystemTime();
-	int tGetTime = timeGetTime();
+	int tGetTime = bf_clock_ticks();
 	m_systemDiffTime = sysTime - tGetTime;
 
 	m_emblemState = true;
@@ -221,7 +221,7 @@ void	CSession :: Init()
 	m_waitForAddAuction = false;
 	m_auctionSeachOption = 0;
 	m_auctionSeachOption2 = 0;
-	m_dwOldTime = GetTickCount();
+	m_dwOldTime = bf_clock_ticks();
 	m_changeNameGID = 0;
 	sprintf(m_changeCharName, "");
 	m_bRefuseInviteParty = false;
@@ -416,7 +416,7 @@ void	CSession :: InitOptionWithRegistry()
 
 void	CSession :: Create()
 {
-	srand(timeGetTime());
+	srand(bf_clock_ticks());
 	ChangeXorValue();
 	InitTable();
 	InitOptionWithRegistry();
@@ -5402,13 +5402,13 @@ void	CSession :: SetPlayerPosDir(int x, int y, int dir)
 
 void	CSession :: UpdateServerTime(DWORD startTime)
 {
-	DWORD	serverTime = timeGetTime();
+	DWORD	serverTime = bf_clock_ticks();
 	serverTime -= m_diffTime;
 	serverTime -= 72;
 	DWORD	newDiff;
 
 	if (serverTime + 72 < startTime) {
-		newDiff = timeGetTime() - startTime;
+		newDiff = bf_clock_ticks() - startTime;
 	} else {
 		if (serverTime + 72 <= startTime + 144) {
 			m_numLatePacket = 0;
@@ -5417,7 +5417,7 @@ void	CSession :: UpdateServerTime(DWORD startTime)
 		++m_numLatePacket;
 		if (m_numLatePacket < 4)
 			return;
-		newDiff = timeGetTime() + 72 - serverTime;
+		newDiff = bf_clock_ticks() + 72 - serverTime;
 	}
 	m_diffTime = newDiff;
 	m_numLatePacket = 0;
@@ -5425,14 +5425,14 @@ void	CSession :: UpdateServerTime(DWORD startTime)
 
 void	CSession :: SetServerTime(DWORD startTime)
 {
-	DWORD now = timeGetTime();
+	DWORD now = bf_clock_ticks();
 	m_numLatePacket = 0;
 	m_diffTime = now - startTime;
 }
 
 DWORD	CSession :: GetServerTime()
 {
-	return timeGetTime() - m_diffTime - 72;
+	return bf_clock_ticks() - m_diffTime - 72;
 }
 
 void	CSession :: InvalidateJob()

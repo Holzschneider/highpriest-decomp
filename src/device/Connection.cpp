@@ -215,7 +215,7 @@ bool CConnection::OnSend()
 		return true;
 	}
 #endif
-	while (m_dwTime < timeGetTime() && m_sendQueue.GetSize()) {
+	while (m_dwTime < bf_clock_ticks() && m_sendQueue.GetSize()) {
 		int ret;
 		fd_set fdwrite;
 		timeval tval = { 0, 0 };

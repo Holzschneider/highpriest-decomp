@@ -30,7 +30,7 @@ extern int doubleAttackTerm;
 
 
 
-inline float CRenderObject::GetStateCnt() { return float(timeGetTime() - m_stateStartTick) / 24.0f; }
+inline float CRenderObject::GetStateCnt() { return float(bf_clock_ticks() - m_stateStartTick) / 24.0f; }
 
 
 CSkill :: CSkill()
@@ -53,7 +53,7 @@ void	CSkill :: OnInit()
 	m_balloon = NULL;
 	m_3dactor = NULL;
 	m_LoopEffect = NULL;
-	m_SkillStartTime = timeGetTime();
+	m_SkillStartTime = bf_clock_ticks();
 }
 
 void	CSkill :: OnExit()
@@ -681,7 +681,7 @@ bool	CSkill :: OnProcess()
 			break;
 		case	JT_FIREWALL: {
 				int		duration = durationTable[EF_FIREWALL] - 7;
-				if (m_SkillStartTime + 3000 < timeGetTime())
+				if (m_SkillStartTime + 3000 < bf_clock_ticks())
 					return false;
 				if (m_launchCnt >= duration) {
 					m_launchCnt = 0;
@@ -896,7 +896,7 @@ void	CSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR a
 			if (tActor)
 			{
 				float	attackedSpeedFactor = float(attackedMT) / float(AVG_ATTACKED_SPEED);
-				WBA		wba(AM_ATTACKED, damage, timeGetTime(), m_aid, tCellX, tCellY, atkedEfId, -1, level, attackedSpeedFactor);
+				WBA		wba(AM_ATTACKED, damage, bf_clock_ticks(), m_aid, tCellX, tCellY, atkedEfId, -1, level, attackedSpeedFactor);
 
 				int totalDamage = damage;
 				tActor->SendMsg(this, AM_WILL_BE_ATTACKED, INT_PTR(&wba), totalDamage);
@@ -1057,7 +1057,7 @@ void	CSkill :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR a
 				if (strlen(chatMsg) == 0)
 					break;
 
-				m_chatTick = timeGetTime();
+				m_chatTick = bf_clock_ticks();
 				if (m_balloon == NULL) {
 					m_balloon = new UITransBalloonText;
 					m_balloon->Create(8, 8);
@@ -2218,7 +2218,7 @@ void	CMsgEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 
 							m_orgZoom = m_zoom = 5;
 							m_offsetOow = -2;
-							m_stateStartTick = timeGetTime();
+							m_stateStartTick = bf_clock_ticks();
 							SetArgb(0, -1, -1, -1);
 							break;
 						}
@@ -2253,7 +2253,7 @@ void	CMsgEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 
 									m_orgZoom = m_zoom = 5;
 								m_offsetOow = -2;
-								m_stateStartTick = timeGetTime();
+								m_stateStartTick = bf_clock_ticks();
 							}
 							break;
 						}
@@ -2263,7 +2263,7 @@ void	CMsgEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 		case	AM_SETPOS:
 			{
 			m_isVisible = true;
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			if (arg2)
 			{
 				SprActName *	sprActName = (SprActName *)arg2;
@@ -2452,7 +2452,7 @@ void	CMandraAttackEffect :: OnExit()
 
 bool	CMandraAttackEffect :: OnProcess()
 {
-	float	stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+	float	stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	if (stateCnt < m_hideTime) {
 		m_isVisible = false;
 		return	true;
@@ -2518,7 +2518,7 @@ void	CMandraAttackEffect :: SendMsg(CGameObject *sender, int message, INT_PTR ar
 		m_pos = tPos;
 
 		m_isVisible = true;
-		m_stateStartTick = timeGetTime();
+		m_stateStartTick = bf_clock_ticks();
 		CActRes *	actRes = GetActRes();
 		m_motionSpeed = actRes->GetDelay(0);
 		if (JT_HYDRA == arg3)
@@ -2560,7 +2560,7 @@ void	CArrowEffect :: OnExit()
 
 bool	CArrowEffect :: OnProcess()
 {
-	float	stateCnt = (float)(timeGetTime() - m_stateStartTick) / 24.0f;
+	float	stateCnt = (float)(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	if (m_hideTime > stateCnt) {
 		return	true;
 	} else {
@@ -2697,7 +2697,7 @@ void	CArrowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT
 			m_isVisible = false;
 			m_targetGid = arg2;
 			GetTargetPos(m_targetGid, m_tPos);
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			if (arg3)
 				m_hideTime = *((float *)arg3);
 			break;
@@ -2721,7 +2721,7 @@ void	CArrowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT
 			m_isVisible = false;
 			m_targetGid = 0;
 
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			if (arg3)
 				m_hideTime = *((float *)arg3);
 			break;
@@ -2734,7 +2734,7 @@ void	CArrowEffect :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT
 
 bool	CDummyEffectLauncher :: OnProcess()
 {
-	float	stateCnt = (float)(timeGetTime() - m_stateStartTick) / 24.0f;
+	float	stateCnt = (float)(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	if (stateCnt > m_lastCnt)
 		return false;
 	else
@@ -2748,7 +2748,7 @@ void	CDummyEffectLauncher :: SendMsg(CGameObject *sender, int message, INT_PTR a
 			vector3d *	sPos = (vector3d *)arg1;
 			m_pos = *sPos;
 			m_isVisible = false;
-			m_stateStartTick = timeGetTime();
+			m_stateStartTick = bf_clock_ticks();
 			CRagEffect *	effect = LaunchEffect(arg2);
 			if (arg3)
 				m_lastCnt = arg3;
@@ -2780,7 +2780,7 @@ CGroundScope :: CGroundScope()
 
 bool	CGroundScope :: OnProcess()
 {
-	if(m_lastingTime < timeGetTime()) return false;
+	if(m_lastingTime < bf_clock_ticks()) return false;
 
 	return true;
 }

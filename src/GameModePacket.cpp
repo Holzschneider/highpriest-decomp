@@ -2254,7 +2254,7 @@ void	CGameMode :: Zc_Notify_Time (const char *buf)
 		{
 			fprintf(file, "%10.2f\t%10d\n",
 				(g_pingLogList.front() - g_pingLogStart) / 1000.0f,
-				timeGetTime() - g_pingLogList.front());
+				bf_clock_ticks() - g_pingLogList.front());
 			fclose(file);
 		}
 		g_pingLogList.pop_front();
@@ -2268,7 +2268,7 @@ void	CGameMode :: Zc_Notify_Time (const char *buf)
 
 	m_receiveSyneRequestTime = 1;
 	++m_numNotifyTime;
-	g_session.RecalcAveragePingTime(timeGetTime() - m_syncRequestTime);
+	g_session.RecalcAveragePingTime(bf_clock_ticks() - m_syncRequestTime);
 }
 
 void CGameMode::Zc_Npcack_Mapmove(char const *buf)
@@ -2403,7 +2403,7 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 	stateId.erase(stateId.begin(), stateId.end());
 
 	m_noMove = TRUE;
-	m_noMoveStartTick = timeGetTime();
+	m_noMoveStartTick = bf_clock_ticks();
 	m_world->m_player->SendMsg(NULL, AM_FREEZE, 0, 0, 0);
 	m_isConnected = CRagConnection::instanceR().Connect(&g_zoneServerAddr);
 	if (m_isConnected)
@@ -2411,7 +2411,7 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 		CRagConnection::instanceR().SetDelay(1000);
 
 		char p[PADDING_PACKET_BUFSIZE];
-		CRagConnection::instanceR().SendPacket(BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, timeGetTime(), g_session.GetSex()), p);
+		CRagConnection::instanceR().SendPacket(BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, bf_clock_ticks(), g_session.GetSex()), p);
 		CRagConnection::instanceR().SetBlock(true);
 
 		UIWaitWnd *waitWindow = (UIWaitWnd *)g_windowMgr.MakeWindow(WID_WAITWND);
@@ -2561,7 +2561,7 @@ void CGameMode::Zc_Broadcast(char const *buf)
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY2, INT_PTR(wMsg.c_str()), int(chatColor), 0, INT_PTR(talkerName));
 	}
 
-	m_broadCastTick = timeGetTime();
+	m_broadCastTick = bf_clock_ticks();
 	if (m_broadcastBalloon == NULL)
 	{
 		m_broadcastBalloon = new UITransBalloonText;
@@ -3791,7 +3791,7 @@ void	CGameMode :: Zc_Use_Item_Ack(const char *buf)
 void	CGameMode :: Zc_Req_Wear_Equip_Ack(const char *buf)
 {
 	PACKET_ZC_REQ_WEAR_EQUIP_ACK *	p = (PACKET_ZC_REQ_WEAR_EQUIP_ACK *)buf;
-	m_waitingWearEquipAck = timeGetTime() - 2000;
+	m_waitingWearEquipAck = bf_clock_ticks() - 2000;
 	switch (p->result) {
 	case 0:
 		g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, INT_PTR(MsgStr(MSI_CAN_NOT_EQUIP_ITEM)), 0xff, 6, 0);
@@ -3815,7 +3815,7 @@ void	CGameMode :: Zc_Req_Wear_Equip_Ack(const char *buf)
 void	CGameMode :: Zc_Req_Takeoff_Equip_Ack(const char *buf)
 {
 	PACKET_ZC_REQ_TAKEOFF_EQUIP_ACK *	p = (PACKET_ZC_REQ_TAKEOFF_EQUIP_ACK *)buf;
-	m_waitingTakeoffEquipAck = timeGetTime() - 2000;
+	m_waitingTakeoffEquipAck = bf_clock_ticks() - 2000;
 	if (p->result)
 	{
 		p->index;
@@ -4290,7 +4290,7 @@ void CGameMode::ZC_DEATH_QUESTION(char const *buf)
 	char skillName[64];
 	char msg2[256];
 	memset(skillName, 0, 64);
-	m_broadCastTick = timeGetTime();
+	m_broadCastTick = bf_clock_ticks();
 	if (m_broadcastBalloon == NULL) {
 		m_broadcastBalloon = new UITransBalloonText;
 		m_broadcastBalloon->Create(8, 8);
@@ -5629,7 +5629,7 @@ void CGameMode::Zc_StarSkill(char const *buf)
 	PACKET_ZC_STARSKILL *p = (PACKET_ZC_STARSKILL *)buf;
 	CGameActor *player = m_world->m_player;
 
-	m_broadCastTick = timeGetTime();
+	m_broadCastTick = bf_clock_ticks();
 	if (m_broadcastBalloon == NULL)
 	{
 		m_broadcastBalloon = new UITransBalloonText;
@@ -7299,7 +7299,7 @@ void	CGameMode :: Zc_equip_arrow(const char *buf)
 {
 	PACKET_ZC_EQUIP_ARROW *	p = (PACKET_ZC_EQUIP_ARROW *)buf;
 	g_session.SetEquipArrowIndwx(p->index);
-	m_waitingWearEquipAck = timeGetTime() - 2000;
+	m_waitingWearEquipAck = bf_clock_ticks() - 2000;
 }
 
 
@@ -7356,7 +7356,7 @@ void	CGameMode :: Zc_useskill_ack(const char *buf)
 	{
 		sActor->SetState(skillMotionType);
 		sActor->m_isMotionFreezed = true;
-		sActor->SetFreezeEndTick(timeGetTime() + p->delayTime);
+		sActor->SetFreezeEndTick(bf_clock_ticks() + p->delayTime);
 	}
 	else
 	{
@@ -7448,7 +7448,7 @@ void	CGameMode :: Zc_useskill_ack(const char *buf)
 		CGroundScope* groundScope = new CGroundScope;
 		groundScope->SendMsg(NULL, AM_SETMASTERGID, p->AID, 0, 0);
 		groundScope->SendMsg(NULL, AM_SETPOS, p->xPos, p->yPos, 0);
-		groundScope->SendMsg(NULL, AM_SETTIME, timeGetTime() + p->delayTime, 0, 0);
+		groundScope->SendMsg(NULL, AM_SETTIME, bf_clock_ticks() + p->delayTime, 0, 0);
 		groundScope->SendMsg(NULL, AM_SET_SKILL, p->SKID, 0, 0);
 		GetWorld()->m_gameObjectList.push_back(groundScope);
 	}
@@ -7576,7 +7576,7 @@ void CGameMode::Zc_compass(char const *buf)
 		m_compassPosList[p->id].y = p->yPos;
 		m_compassPosList[p->id].color = p->color | 0xff000000;
 		m_compassPosList[p->id].type = p->type;
-		m_compassPosList[p->id].startTime = timeGetTime();
+		m_compassPosList[p->id].startTime = bf_clock_ticks();
 	}
 	else
 	{
@@ -9380,7 +9380,7 @@ void CGameMode::Zc_Notify_Ranking(char const *buf)
 	if (p->AID == g_session.GetAid() && m_world->m_player) {
 		tActor = m_world->m_player;
 		if (p->ranking == 1 && m_world->m_player->GetPKRank() != 1) {
-			g_session.m_killTimeStartTick = timeGetTime();
+			g_session.m_killTimeStartTick = bf_clock_ticks();
 		} else if (p->ranking != 1) {
 			g_session.m_killTimeStartTick = 0;
 		}
@@ -9989,11 +9989,11 @@ void	CGameMode :: Zc_ShowDigit(const char *buf)
 		g_session.m_showType = 0;
 		break;
 	case	1:
-		g_session.m_showDigitTick = timeGetTime() + (p->value * 1000);
+		g_session.m_showDigitTick = bf_clock_ticks() + (p->value * 1000);
 		g_session.m_showType = 1;
 		break;
 	case	2:
-		g_session.m_showDigitTick = timeGetTime() - (p->value * 1000);
+		g_session.m_showDigitTick = bf_clock_ticks() - (p->value * 1000);
 		g_session.m_showType = 2;
 		break;
 	case	3:
@@ -10218,7 +10218,7 @@ void CGameMode::Zc_Broadcast2(char const *buf)
 		}
 	}
 
-	m_broadCastTick = timeGetTime();
+	m_broadCastTick = bf_clock_ticks();
 	if (m_broadcastBalloon == NULL)
 	{
 		m_broadcastBalloon = new UITransBalloonText;
@@ -10688,7 +10688,7 @@ void CGameMode::Zc_Sound(char const *buf)
 		PLAY_WAVE_INFO info;
 		info.wavName = p->fileName;
 		info.term = p->term;
-		info.endTick = timeGetTime() + p->term;
+		info.endTick = bf_clock_ticks() + p->term;
 		info.nAID = p->NAID;
 		m_playWaveList.push_back(info);
 		PlayWave(p->fileName);
@@ -13066,7 +13066,7 @@ void CGameMode::Zc_Pcbang_Effect(char const *buf)
 {
 	char msg[200];
 
-	m_broadCastTick = timeGetTime();
+	m_broadCastTick = bf_clock_ticks();
 	if (m_broadcastBalloon == NULL) {
 		m_broadcastBalloon = new UITransBalloonText;
 		m_broadcastBalloon->Create(8, 8);

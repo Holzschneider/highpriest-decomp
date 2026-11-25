@@ -221,7 +221,7 @@ void	CView :: ProcessQuake()
 {
 	if (!m_isQuake)
 		return;
-	if (timeGetTime() >= m_quakeStartTick + m_QuakeTime)
+	if (bf_clock_ticks() >= m_quakeStartTick + m_QuakeTime)
 	{
 		m_isQuake = FALSE;
 		m_cur.at.x = m_dest.at.x;
@@ -263,7 +263,7 @@ void CView::SetQuakeInfo(float sideQuake, float frontQuake, float latitudeQuake)
 void CView::SetQuake(int isQuake, int Type, float sideQuake, float frontQuake, float latitudeQuake)
 {
 	m_isQuake = isQuake;
-	m_quakeStartTick = timeGetTime();
+	m_quakeStartTick = bf_clock_ticks();
 	m_frontQuake = frontQuake;
 	m_sideQuake = sideQuake;
 	m_latitudeQuake = latitudeQuake;

@@ -1263,13 +1263,13 @@ void UIEditCtrl::DrawEditText()
 		} else if (g_language->GetCompositionStringSize()) {
 			UpdateCandidate(left);
 			UpdateKeyStroke(right);
-			if ((timeGetTime() / 500 & 1) == 0) {
+			if ((bf_clock_ticks() / 500 & 1) == 0) {
 				DrawSelectionBox(left + xOffset, right - left > 2 ? right - left : 2);
 			}
 			TextOutA(xOffset, m_yOffset, text.c_str(), 0, 0, 12, textColor);
 		} else {
 			TextOutA(xOffset, m_yOffset, text.c_str(), 0, 0, 12, textColor);
-			if ((timeGetTime() / 500 & 1) == 0 && IsDrawCursor()) TextOutA(left + xOffset - 2, m_yOffset, "|", 0, 0, 12, textColor);
+			if ((bf_clock_ticks() / 500 & 1) == 0 && IsDrawCursor()) TextOutA(left + xOffset - 2, m_yOffset, "|", 0, 0, 12, textColor);
 			if (m_type) {
 				if (m_parent)
 					m_parent->Invalidate();
@@ -1679,7 +1679,7 @@ void UIEditCtrl3::DrawEditText()
 		++m_itemSize;
 
 	if (strings.size() <= 0) {
-		if ((timeGetTime() / 500 & 1) == 0 && IsDrawCursor())
+		if ((bf_clock_ticks() / 500 & 1) == 0 && IsDrawCursor())
 			TextOutA(1, 0, "|", 0, 0, 12, textColor);
 		return;
 	}
@@ -1801,7 +1801,7 @@ void UIEditCtrl3::DrawEditText()
 		if (m_curWidth != cursorWidth)
 			m_curWidth = cursorWidth;
 
-		if ((timeGetTime() / 500 & 1) == 0 && IsDrawCursor()) {
+		if ((bf_clock_ticks() / 500 & 1) == 0 && IsDrawCursor()) {
 			TextOutA(cursorWidth - 2 + xOffset, (m_yOffset - firstItem + n) * m_itemSpacing,
 				"|", 0, 0, 12, textColor);
 

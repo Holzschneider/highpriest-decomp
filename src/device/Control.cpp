@@ -114,7 +114,7 @@ void CMouse::ReadState()
 	if (m_xPos >= g_3dDevice.GetWidth())  m_xPos = g_3dDevice.GetWidth()  - 1;
 	if (m_yPos >= g_3dDevice.GetHeight()) m_yPos = g_3dDevice.GetHeight() - 1;
 
-	DWORD curTime = timeGetTime();
+	DWORD curTime = bf_clock_ticks();
 	for (int i = 0; i < 3; i++) {
 		if (m_xDelta || m_yDelta) {
 			m_dblclkCnt[i] = curTime - m_dblclkTime;

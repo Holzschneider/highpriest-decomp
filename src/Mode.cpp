@@ -66,10 +66,10 @@ CMode::CMode()
 	m_nextSubMode = -1;
 	m_isConnected = true;
 	m_helpBalloon = NULL;
-	m_helpBalloonTick = timeGetTime();
+	m_helpBalloonTick = bf_clock_ticks();
 	m_cursorActNum = 0;
 	m_cursorMotNum = 0;
-	m_mouseAnimStartTick = timeGetTime();
+	m_mouseAnimStartTick = bf_clock_ticks();
 	m_isMouseLockOn = 0;
 	m_screenShotNow = FALSE;
 	m_mouseSnapDiff.x = 0;
@@ -86,7 +86,7 @@ void CMode::Initialize()
 	if (m_helpBalloon) {
 		g_windowMgr.PostQuit((UIWindow*)m_helpBalloon);
 		m_helpBalloon = NULL;
-		m_helpBalloonTick = timeGetTime();
+		m_helpBalloonTick = bf_clock_ticks();
 	}
 }
 
@@ -229,7 +229,7 @@ void CMode::DrawMouseCursor()
 	DWORD motionSpeed;
 	CSprRes *cursorSpr;
 	cursorSpr = (CSprRes *)g_resMgr().Get("cursors.spr", false);
-	DWORD tick = (timeGetTime() - m_mouseAnimStartTick) / 24;
+	DWORD tick = (bf_clock_ticks() - m_mouseAnimStartTick) / 24;
 	cursorAct->GetDelay(m_cursorActNum);
 	motionSpeed = 4;
 	switch (m_cursorActNum) {
@@ -271,7 +271,7 @@ void CMode::DrawMouseCursor()
 				if (frame / cursorAct->GetMotionCount(m_cursorActNum) >= 1)
 					m_cursorMotNum = cursorAct->GetMotionCount(m_cursorActNum) - 1;
 			} else {
-				m_mouseAnimStartTick = timeGetTime();
+				m_mouseAnimStartTick = bf_clock_ticks();
 				m_cursorMotNum = 0;
 			}
 			break;
@@ -296,14 +296,14 @@ unsigned int __stdcall FadeBgm(void *res)
 		return -1;
 #endif
 	while (FadeCnt != 1)
-		Sleep(5);
+		bf_clock_sleep_ms(5);
 	int a, vol = (INT_PTR)res;
 	if (vol == 0) {
 		vol = GetStreamVolume();
 		for (a = vol; a > 0; a--) {
 			if (FadeCnt != 1) { FadeCnt--; return 0; }
 			SetStreamVolume(a);
-			Sleep(10);
+			bf_clock_sleep_ms(10);
 		}
 		PauseStream(TRUE);
 		FadeCnt--;
@@ -313,7 +313,7 @@ unsigned int __stdcall FadeBgm(void *res)
 		for (a = 0; a < vol; a++) {
 			if (FadeCnt != 1) { FadeCnt--; return 0; }
 			SetStreamVolume(a);
-			Sleep(10);
+			bf_clock_sleep_ms(10);
 		}
 		FadeCnt--;
 	}
@@ -323,7 +323,7 @@ unsigned int __stdcall FadeBgm(void *res)
 void CMode::ProcessFadeIn()
 {
 	if (m_fadeInCount) {
-		dwFadeStart = timeGetTime();
+		dwFadeStart = bf_clock_ticks();
 		unsigned int hFadeBgmThread;
 #if defined(BF_PORT)
 		// M8.5 (docs/port/threads.md): the volume is tested here, on the
@@ -335,7 +335,7 @@ void CMode::ProcessFadeIn()
 		_beginthreadex(NULL, 0, FadeBgm, (void*)(INT_PTR)g_session.m_BgmVolume, 0, &hFadeBgmThread);
 		m_fadeInCount = FALSE;
 	}
-	DWORD dwFadeCurrent = (timeGetTime() - dwFadeStart);
+	DWORD dwFadeCurrent = (bf_clock_ticks() - dwFadeStart);
 	if (dwFadeCurrent < 0xFF) {
 		DrawBoxScreen(0, 0, g_renderer->m_width, g_renderer->m_height,
 			(0xFF - dwFadeCurrent) * 0x1000000);
@@ -350,10 +350,10 @@ void CMode::RunFadeOut(int bDrawLogo)
 	if (g_session.m_BgmVolume)   // M8.5: see ProcessFadeIn
 #endif
 	_beginthreadex(NULL, 0, FadeBgm, (void *)0, 0, &hFadeBgmThread);
-	dwFadeStart = timeGetTime();
+	dwFadeStart = bf_clock_ticks();
 	g_renderer->BackupFrame();
 	DWORD dwFadeCurrent;
-	while ((dwFadeCurrent = timeGetTime() - dwFadeStart) < 0xFF) {
+	while ((dwFadeCurrent = bf_clock_ticks() - dwFadeStart) < 0xFF) {
 		DrawBoxScreen(0, 0, g_renderer->m_width, g_renderer->m_height,
 			dwFadeCurrent << 24);
 		if (bDrawLogo) {
@@ -378,7 +378,7 @@ void CMode::MakeHelpBalloon(const char *helpMsg, int x, int y, DWORD fntColor)
 	color[0] = (fntColor >> 16) & 0xff;
 	color[1] = (fntColor >> 8) & 0xff;
 	color[2] = fntColor & 0xff;
-	m_helpBalloonTick = timeGetTime();
+	m_helpBalloonTick = bf_clock_ticks();
 	if (m_helpBalloon == NULL) {
 		m_helpBalloon = new UITransBalloonText;
 		if (m_helpBalloon == NULL)
@@ -408,7 +408,7 @@ void CMode::MakeHelpBalloon(const char *helpMsg, int x, int y, DWORD fntColor)
 void CMode::ProcessHelpBalloon()
 {
 	if (m_helpBalloon) {
-		if (timeGetTime() >= m_helpBalloonTick + 100) {
+		if (bf_clock_ticks() >= m_helpBalloonTick + 100) {
 			g_windowMgr.PostQuit((UIWindow*)m_helpBalloon);
 			m_helpBalloon = NULL;
 		}
@@ -424,7 +424,7 @@ void CMode::SetCursorAction(int cursorActNum)
 	if (m_cursorActNum != cursorActNum) {
 		m_cursorActNum = cursorActNum;
 		m_cursorMotNum = 0;
-		m_mouseAnimStartTick = timeGetTime();
+		m_mouseAnimStartTick = bf_clock_ticks();
 		g_windowMgr.SendMsg(UIM_CURSOR_CHANGE_ACTION, m_cursorActNum, 0, 0, 0);
 	}
 }

@@ -81,7 +81,7 @@ void UIFrameWnd::OnLBtnDown(int x, int y)
 	m_orgX = m_x;
 	m_orgY = m_y;
 	m_transTarget = 0x80;
-	m_transTime = timeGetTime();
+	m_transTime = bf_clock_ticks();
 	g_snapMgr.BeginMove(this);
 }
 
@@ -89,7 +89,7 @@ void UIFrameWnd::OnLBtnUp(int x, int y)
 {
 	if (g_windowMgr.GetCapture() == this) {
 		m_transTarget = 0xff;
-		m_transTime = timeGetTime();
+		m_transTime = bf_clock_ticks();
 		g_windowMgr.ReleaseCapture();
 		g_snapMgr.EndMove(this);
 	}
@@ -282,8 +282,8 @@ void UIMessageBoxAutoreturn::Create(char const *msg, unsigned int autoReturnTime
 {
 	m_msg = msg;
 	m_countMsg = msg;
-	m_openTime = timeGetTime();
-	m_autoReturnTime = timeGetTime() + autoReturnTime;
+	m_openTime = bf_clock_ticks();
+	m_autoReturnTime = bf_clock_ticks() + autoReturnTime;
 	m_remainSecond = (m_autoReturnTime - m_openTime) / 1000 + ((m_autoReturnTime - m_openTime) % 1000 != 0);
 	m_maxSecond = m_remainSecond;
 	if (autoReturnTime) {
@@ -362,14 +362,14 @@ void UIMessageBoxAutoreturn::OnProcess()
 	char text[512];
 
 	if (m_isAutoReturn) {
-		if (timeGetTime() > m_autoReturnTime) {
+		if (bf_clock_ticks() > m_autoReturnTime) {
 			g_windowMgr.SetModalResult(0x79);
 			m_isAutoReturn = 0;
 			return;
 		}
 
 		prevRemainSecond = m_remainSecond;
-		m_remainSecond = ((m_autoReturnTime - timeGetTime()) % 1000 != 0) + (m_autoReturnTime - timeGetTime()) / 1000;
+		m_remainSecond = ((m_autoReturnTime - bf_clock_ticks()) % 1000 != 0) + (m_autoReturnTime - bf_clock_ticks()) / 1000;
 		if (prevRemainSecond != m_remainSecond) {
 			sprintf(text, m_countMsg.c_str(), m_remainSecond);
 			m_msg = text;
@@ -377,7 +377,7 @@ void UIMessageBoxAutoreturn::OnProcess()
 			m_textViewer->SendMsg(NULL, UM_SETTEXT, (INT_PTR)m_msg.c_str(), 0x26, 0, 0);
 		}
 
-		m_barGraph->SetAmount((float)(((timeGetTime() + m_maxSecond * 1000) * 100 - m_autoReturnTime * 100) / (m_maxSecond * 1000)));
+		m_barGraph->SetAmount((float)(((bf_clock_ticks() + m_maxSecond * 1000) * 100 - m_autoReturnTime * 100) / (m_maxSecond * 1000)));
 	}
 }
 
@@ -412,8 +412,8 @@ void UIMessageBox::Create(char const *msg, int type, int isDefYes, unsigned int 
 {
 	m_msg = msg;
 	m_countMsg = msg;
-	m_openTime = timeGetTime();
-	m_autoReturnTime = timeGetTime() + autoReturnTime;
+	m_openTime = bf_clock_ticks();
+	m_autoReturnTime = bf_clock_ticks() + autoReturnTime;
 	m_remainSecond = (m_autoReturnTime - m_openTime) / 1000 + ((m_autoReturnTime - m_openTime) % 1000 != 0);
 	if (autoReturnTime) {
 		m_isAutoReturn = TRUE;
@@ -521,14 +521,14 @@ void UIMessageBox::OnProcess()
 	char text[512];
 
 	if (m_isAutoReturn) {
-		if (timeGetTime() > m_autoReturnTime) {
+		if (bf_clock_ticks() > m_autoReturnTime) {
 			g_windowMgr.SetModalResult(0x79);
 			m_isAutoReturn = 0;
 			return;
 		}
 
 		prevRemainSecond = m_remainSecond;
-		m_remainSecond = ((m_autoReturnTime - timeGetTime()) % 1000 != 0) + (m_autoReturnTime - timeGetTime()) / 1000;
+		m_remainSecond = ((m_autoReturnTime - bf_clock_ticks()) % 1000 != 0) + (m_autoReturnTime - bf_clock_ticks()) / 1000;
 		if (prevRemainSecond != m_remainSecond) {
 			sprintf(text, m_countMsg.c_str(), m_remainSecond);
 			m_msg = text;
@@ -1582,7 +1582,7 @@ UISelectCharWnd::UISelectCharWnd()
 
 	m_curSlot = 0;
 	m_curPage = 0;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 	m_changeNameBtn = NULL;
 }
 
@@ -2070,7 +2070,7 @@ void UISelectCharWnd::OnDraw()
 							int motionStep = accMotionCount / headMotionCount;
 							int motionSpeed = (int)((CActRes*)g_resMgr().Get(m_viewChar[curChar].actName[i].c_str(), false))->
 								GetDelay(m_viewChar[curChar].curAction);
-							float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+							float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 							if (motionSpeed == 0)
 								motionSpeed = 4;
 							int motion = (int)(stateCnt / motionSpeed) % motionStep;

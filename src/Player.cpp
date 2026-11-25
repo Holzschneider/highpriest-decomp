@@ -68,15 +68,15 @@ void	CPlayer :: OnInit()
 	m_skillId = 0;
 	m_skillAttackRange = 1;
 	m_skillUseLevel = 0;
-	m_tickOfMoveForAttack = timeGetTime()-1200;
-	m_attackReqTime = timeGetTime()-1200;
+	m_tickOfMoveForAttack = bf_clock_ticks()-1200;
+	m_attackReqTime = bf_clock_ticks()-1200;
 	m_lastTlvertX = g_renderer->m_halfWidth;
 	m_lastTlvertY = g_renderer->m_halfHeight;
 	m_isPreengageStateOfMove = FALSE;
 	m_preengageXOfMove = -1;
 	m_preengageYOfMove = -1;
 	m_isWaitingMoveAck = FALSE;
-	m_moveReqTick = timeGetTime()-1200;
+	m_moveReqTick = bf_clock_ticks()-1200;
 	SetState(ST_STAND);
 	m_speed = g_session.GetSpeed();
 	m_isPc = TRUE;
@@ -147,7 +147,7 @@ bool	CPlayer :: OnProcess()
 	ProcessChatBalloon();
 
 	if (m_isSingleColor) {
-		if (timeGetTime() > m_singleColorStartTick + 100) {
+		if (bf_clock_ticks() > m_singleColorStartTick + 100) {
 			m_colorOfSingleColor = 0xffff0000;
 			m_isSingleColor = false;
 		}
@@ -158,7 +158,7 @@ bool	CPlayer :: OnProcess()
 	CGameMode *		gameMode = g_modeMgr.GetGameMode();
 
 	if (m_preMoveOn) {
-		if (timeGetTime() > m_preMoveStartTick + g_session.m_averagePingTime / 2) {
+		if (bf_clock_ticks() > m_preMoveStartTick + g_session.m_averagePingTime / 2) {
 			MOVESTRUCT ms;
 			gameMode->GetServerCoor(m_pos.x, m_pos.z, ms.sx, ms.sy, ms.cellX, ms.cellY);
 			ms.startTime = g_session.GetServerTime();
@@ -256,8 +256,8 @@ void	CPlayer :: ProcessProceed()
 							if (ATTM_ONCE==m_attackMode)
 								SendMsg(NULL, AM_CANCELATTACK, 0, 0, 0);
 							if (m_isAttackRequest==0) {
-								if (m_attackReqTime+1200 < timeGetTime()) {
-									m_attackReqTime = timeGetTime();
+								if (m_attackReqTime+1200 < bf_clock_ticks()) {
+									m_attackReqTime = bf_clock_ticks();
 									m_isAttackRequest = 1;
 									m_totalAttackReqCnt++;
 
@@ -270,7 +270,7 @@ void	CPlayer :: ProcessProceed()
 						} else {
 								int		delayTime = 450;
 								if (PT_ATTACK_2 == m_proceedType) delayTime = 1200;
-								bool	enoughDelayed = timeGetTime() > m_tickOfMoveForAttack+delayTime;
+								bool	enoughDelayed = bf_clock_ticks() > m_tickOfMoveForAttack+delayTime;
 								bool	notAtkState = m_stateId != ST_ATTACK;
 
 							int		dx, dy;
@@ -315,7 +315,7 @@ void	CPlayer :: ProcessProceed()
 								if ((m_destCellX!=dx || m_destCellZ!=dy) && notAtkState && m_isAttackRequest==0 && enoughDelayed) {
 								m_destCellX = dx;
 								m_destCellZ = dy;
-								m_tickOfMoveForAttack = timeGetTime();
+								m_tickOfMoveForAttack = bf_clock_ticks();
 
 								SendMsg(NULL, AM_REQ_MOVE_PRIMITIVE, dx, dy, 0);
 
@@ -684,7 +684,7 @@ void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR 
 
 			if (m_isWaitingMoveAck)
 			{
-				if (timeGetTime() <= m_moveReqTick + 1000)
+				if (bf_clock_ticks() <= m_moveReqTick + 1000)
 				{
 					break;
 				}
@@ -692,7 +692,7 @@ void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR 
 
 			{
 				m_isWaitingMoveAck = TRUE;
-				m_moveReqTick = timeGetTime();
+				m_moveReqTick = bf_clock_ticks();
 
 
 
@@ -783,7 +783,7 @@ void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR 
 		}
 		case	AM_PREMOVE:
 			m_preMoveOn = true;
-			m_preMoveStartTick = timeGetTime();
+			m_preMoveStartTick = bf_clock_ticks();
 			m_destCellX = arg1;
 			m_destCellZ = arg2;
 			break;
@@ -891,10 +891,10 @@ void	CPlayer :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_PTR 
 			if (m_stateId==6 || IsEffectStateBurrow(m_effectState))
 				break;
 			if (m_proceedType==PT_ATTACK) {
-				m_tickOfMoveForAttack = timeGetTime()-1200;
+				m_tickOfMoveForAttack = bf_clock_ticks()-1200;
 				m_proceedType = PT_ATTACK_2;
 			} else {
-				m_tickOfMoveForAttack = timeGetTime()-1200;
+				m_tickOfMoveForAttack = bf_clock_ticks()-1200;
 				m_proceedType = PT_ATTACK;
 			}
 

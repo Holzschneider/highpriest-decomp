@@ -51,7 +51,7 @@ public:
 	int Lock();
 	int Unlock();
 	int GetLockCount() const { return m_lockCnt; }
-	void UpdateStamp() { extern unsigned int __stdcall timeGetTime(); m_timeStamp = timeGetTime(); }
+	void UpdateStamp() { extern unsigned int __stdcall bf_clock_ticks(); m_timeStamp = bf_clock_ticks(); }
 	void SetName(const char* texName){ strcpy(m_texName, texName); }
 	bool CopyTexture(CTexture* srcTex, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
 protected:

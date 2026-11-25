@@ -228,7 +228,7 @@ UIWindow :: UIWindow()
 	m_show = TRUE;
 	m_trans = 0xFF;
 	m_transTarget = 0xFF;
-	m_transTime = timeGetTime();
+	m_transTime = bf_clock_ticks();
 }
 
 
@@ -1209,9 +1209,9 @@ INT_PTR		UIWindow :: SendMsg(UIWindow * sender, int message, INT_PTR val1, INT_P
 DWORD	UIWindow :: GetColor()
 {
 	if(m_trans < m_transTarget)
-		m_trans = min(m_transTarget, m_trans + (timeGetTime() - m_transTime) / 16);
+		m_trans = min(m_transTarget, m_trans + (bf_clock_ticks() - m_transTime) / 16);
 	else if(m_trans > m_transTarget)
-		m_trans = max(m_transTarget, m_trans - (timeGetTime() - m_transTime) / 16);
+		m_trans = max(m_transTarget, m_trans - (bf_clock_ticks() - m_transTime) / 16);
 
 	return ((DWORD)m_trans) * 0x01000000 + 0xFFFFFF;
 }

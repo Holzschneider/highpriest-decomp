@@ -4426,7 +4426,7 @@ unsigned int __stdcall FinalStrike(void *pvoid)
 
 		vector3d deltaPos = vector3d(0.0f, 0.0f, 0.0f);
 		g_modeMgr.GetGameMode()->GetWorld()->m_player->LaunchEffect(i, deltaPos, 0.0f);
-		Sleep(sleepAdd + 200);
+		bf_clock_sleep_ms(sleepAdd + 200);
 		sleepAdd += 5 - slowStep;
 		if ((i % 20) == 1)
 			++slowStep;
@@ -4442,13 +4442,13 @@ unsigned int __stdcall TestStrike(void * pvoid)
 		g_modeMgr.GetGameMode()->GetWorld()->m_player->LaunchEffect(0x1fe, deltaPos, 0.0f);
 	}
 
-	Sleep(1000);
+	bf_clock_sleep_ms(1000);
 
 	for (int i = 0; i < 7; ++i)
 	{
 		vector3d deltaPos = vector3d(0.0f, 0.0f, 0.0f);
 		g_modeMgr.GetGameMode()->GetWorld()->m_player->LaunchEffect(0x1d2 + i, deltaPos, 0.0f);
-		Sleep(1000);
+		bf_clock_sleep_ms(1000);
 	}
 
 	return 0;

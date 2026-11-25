@@ -314,7 +314,7 @@ static void BfRefusedUpdate()
 			}
 		}
 	}
-	if (timeGetTime() > s_bfRefusedTick + 10000) {
+	if (bf_clock_ticks() > s_bfRefusedTick + 10000) {
 		BfBackToCharSelect(false);
 		return;
 	}
@@ -352,7 +352,7 @@ void	CGameMode :: OnInit(const char *modeName)
 	if (!BfWorldReadable(modeName, why, sizeof(why))) {
 		bf_port_missing(BFT_ERR, "world.refused", "world: %s: %s; refusing to enter", modeName, why);
 		s_bfWorldRefused = TRUE;
-		s_bfRefusedTick = timeGetTime();
+		s_bfRefusedTick = bf_clock_ticks();
 		m_loopCond = 1;
 		PACKET_CZ_NOTIFY_ACTORINIT init;
 		init.PacketType = HEADER_CZ_NOTIFY_ACTORINIT;
@@ -542,8 +542,8 @@ void CGameMode::Initialize()
 	m_isWaitingWhisperSetting = FALSE;
 	m_isWaitingEnterRoom = FALSE;
 	m_isWaitingAddExchangeItem = FALSE;
-	m_waitingWearEquipAck = timeGetTime() - 2000;
-	m_waitingTakeoffEquipAck = timeGetTime() - 2000;
+	m_waitingWearEquipAck = bf_clock_ticks() - 2000;
+	m_waitingTakeoffEquipAck = bf_clock_ticks() - 2000;
 	m_isReqUpgradeSkillLevel = FALSE;
 	m_exchangeItemCnt = 0;
 	m_isWaitingCancelExchangeItem = FALSE;
@@ -563,16 +563,16 @@ void CGameMode::Initialize()
 
 	m_receiveSyneRequestTime = 1;
 	m_isReqEmotion = 0;
-	m_syncRequestTime = timeGetTime();
-	m_usedCachesUnloadTick = timeGetTime();
-	m_reqEmotionTick = timeGetTime();
-	m_noMoveStartTick = timeGetTime();
-	m_lastEmblemReqTick = timeGetTime();
-	m_lastNameWaitingListTick = timeGetTime();
-	m_broadCastTick = timeGetTime();
-	m_skillUsedTick = timeGetTime();
-	m_reqTickChatRoom = timeGetTime();
-	m_reqTickMerchantShop = timeGetTime();
+	m_syncRequestTime = bf_clock_ticks();
+	m_usedCachesUnloadTick = bf_clock_ticks();
+	m_reqEmotionTick = bf_clock_ticks();
+	m_noMoveStartTick = bf_clock_ticks();
+	m_lastEmblemReqTick = bf_clock_ticks();
+	m_lastNameWaitingListTick = bf_clock_ticks();
+	m_broadCastTick = bf_clock_ticks();
+	m_skillUsedTick = bf_clock_ticks();
+	m_reqTickChatRoom = bf_clock_ticks();
+	m_reqTickMerchantShop = bf_clock_ticks();
 
 	for (int i = 0; i < 6; i++)
 		m_SiyeonStatus[i] = 0;
@@ -734,7 +734,7 @@ unsigned int nextCacheUnloadTime = 0;
 void CGameMode::OnUpdate()
 {
 	static int timeGap = 0;
-	static unsigned int time_update_start = ::timeGetTime();
+	static unsigned int time_update_start = ::bf_clock_ticks();
 
 	CheckSystemMessage();
 #if defined(BF_PORT)
@@ -819,7 +819,7 @@ void CGameMode::OnUpdate()
 
 void CGameMode::UnloadRarelyUsedCaches()
 {
-	DWORD now = timeGetTime();
+	DWORD now = bf_clock_ticks();
 	if (now > nextCacheUnloadTime) {
 		nextCacheUnloadTime = now + 15000;
 		g_renderer->UnloadRarelyUsedCaches();
@@ -1223,18 +1223,18 @@ void	CGameMode :: DrawTime(DWORD timeTick, int showType)
 	if (showType == 0) {
 		curTime = timeTick;
 		if (!m_showTimeStartTick)
-			m_showTimeStartTick = timeGetTime();
-		if (timeGetTime() - m_showTimeStartTick > 5000) {
+			m_showTimeStartTick = bf_clock_ticks();
+		if (bf_clock_ticks() - m_showTimeStartTick > 5000) {
 			m_showTimeStartTick = 0;
 			g_session.m_isShowTime = FALSE;
 		}
 	} else if (showType == 1) {
-		curTime = timeGetTime() - timeTick;
+		curTime = bf_clock_ticks() - timeTick;
 		if (timeTick == 0) {
 			g_session.m_isShowTime = FALSE;
 		}
 	} else if (showType == 2) {
-		curTime = timeTick - timeGetTime();
+		curTime = timeTick - bf_clock_ticks();
 		if (curTime <= 0) {
 			g_session.m_isShowTime = FALSE;
 		}
@@ -1333,7 +1333,7 @@ void	CGameMode :: DrawPKZoneTime()
 
 	DrawTime(g_session.m_killTimeStartTick, 1);
 
-	if (g_session.m_killTimeStartTick && (timeGetTime() - g_session.m_killTimeStartTick) < 3000) {
+	if (g_session.m_killTimeStartTick && (bf_clock_ticks() - g_session.m_killTimeStartTick) < 3000) {
 		DrawTimeAttack();
 	}
 }
@@ -1532,7 +1532,7 @@ void	CGameMode :: DrawCompassOnMiniMap(const UVRECT &uvRect)
 		while (it != m_compassPosList.end()) {
 			int		type = (*it).second.type;
 			DWORD	startTime = (*it).second.startTime;
-			if ((COMPASS_TEMPORARY == type) && (timeGetTime()>startTime+1000*15)) {
+			if ((COMPASS_TEMPORARY == type) && (bf_clock_ticks()>startTime+1000*15)) {
 				it = m_compassPosList.erase(it);
 				continue;
 			}
@@ -1568,7 +1568,7 @@ void	CGameMode :: DrawCompassOnMiniMap(const UVRECT &uvRect)
 		int		type = (*it).second.type;
 		DWORD	startTime = (*it).second.startTime;
 
-		int deltaTime = timeGetTime()-startTime;
+		int deltaTime = bf_clock_ticks()-startTime;
 		if ((deltaTime%1000) >= 500)
 			continue;
 
@@ -2617,7 +2617,7 @@ void	CGameMode :: GetClientCoor(int sx, int sy, int subX, int subY, float &cx, f
 bool	CGameMode :: CanFindPath(int sx, int sy, int cellX, int cellY, int dx, int dy)
 {
 	CPathInfo	pathInfo;
-	return g_pathFinder.FindPath(timeGetTime(), sx, sy, cellX, cellY, dx, dy, 150, &pathInfo);
+	return g_pathFinder.FindPath(bf_clock_ticks(), sx, sy, cellX, cellY, dx, dy, 150, &pathInfo);
 }
 
 bool	CGameMode :: GetClosestValidCell(int &dx, int &dy)
@@ -2743,8 +2743,8 @@ void	FillPacketPadding ( char * pad, int len )
 	}
 
 	char buf[20]  ={0,};
-	DWORD value = timeGetTime ( ) >> len ;
-	value ^= timeGetTime ( ) ;
+	DWORD value = bf_clock_ticks ( ) >> len ;
+	value ^= bf_clock_ticks ( ) ;
 	_ltoa ( value, buf, 16 ) ;
 
 	int len2 = strlen ( buf ) - 1 ;
@@ -2768,18 +2768,18 @@ const	char * CGameMode :: SetPaddingValue ( char * pad, int len )
 }
 void	CGameMode :: SynchronizeTimeWithServer(bool syncNow)
 {
-	if (!syncNow && timeGetTime() <= m_syncRequestTime + 12000)
+	if (!syncNow && bf_clock_ticks() <= m_syncRequestTime + 12000)
 		return;
 
 	m_receiveSyneRequestTime = 0;
-	m_syncRequestTime = timeGetTime();
+	m_syncRequestTime = bf_clock_ticks();
 
 	char p[PADDING_PACKET_BUFSIZE];
-	CRagConnection::instanceR().SendPacket(BuildCzRequestTime(p, timeGetTime()), p);
+	CRagConnection::instanceR().SendPacket(BuildCzRequestTime(p, bf_clock_ticks()), p);
 
 	if (g_pingLog)
 	{
-		g_pingLogList.push_back(timeGetTime());
+		g_pingLogList.push_back(bf_clock_ticks());
 		if (!g_pingLogStart)
 			g_pingLogStart = g_pingLogList.front();
 	}
@@ -2789,7 +2789,7 @@ DWORD	CGameMode :: GetActorNameRequestTimer(DWORD aid)
 {
 	std::map<DWORD,DWORD> :: iterator it = m_actorNameReqTimer.find(aid);
 
-	if (it != m_actorNameReqTimer.end()) return timeGetTime() - it->second;
+	if (it != m_actorNameReqTimer.end()) return bf_clock_ticks() - it->second;
 
 	return 2500;
 }
@@ -2804,7 +2804,7 @@ void	CGameMode :: RequestActorName(DWORD aid)
 	if (!aid) return;
 	if (GetActorNameRequestTimer(aid) < 2500) return;
 
-	m_actorNameReqTimer[aid] = timeGetTime();
+	m_actorNameReqTimer[aid] = bf_clock_ticks();
 
 	char p[PADDING_PACKET_BUFSIZE];
 	CRagConnection::instanceR().SendPacket(BuildCzReqname(p, aid), p);
@@ -2836,7 +2836,7 @@ DWORD	CGameMode :: GetActorNameByGIDRequestTimer(DWORD gid)
 {
 	std::map<DWORD,DWORD> :: iterator it = m_actorNameByGIDReqTimer.find(gid);
 
-	if (it != m_actorNameByGIDReqTimer.end()) return timeGetTime() - it->second;
+	if (it != m_actorNameByGIDReqTimer.end()) return bf_clock_ticks() - it->second;
 
 	return 2500;
 }
@@ -2851,7 +2851,7 @@ void	CGameMode :: RequestActorNameByGID(DWORD gid)
 	if (!gid) return;
 	if (GetActorNameByGIDRequestTimer(gid) < 2500) return;
 
-	m_actorNameByGIDReqTimer[gid] = timeGetTime();
+	m_actorNameByGIDReqTimer[gid] = bf_clock_ticks();
 
 	char p[PADDING_PACKET_BUFSIZE];
 	CRagConnection::instanceR().SendPacket(BuildCzReqnameBygid(p, gid), p);
@@ -3035,7 +3035,7 @@ void CGameMode::ProcessNameBalloon()
 	}
 
 	if (m_broadcastBalloon) {
-		if (timeGetTime() > m_broadCastTick + 20000) {
+		if (bf_clock_ticks() > m_broadCastTick + 20000) {
 			g_windowMgr.PostQuit(m_broadcastBalloon);
 			m_broadcastBalloon = NULL;
 		}
@@ -5363,9 +5363,9 @@ int		CGameMode :: ProcessGroundPick(int processType)
 						g_groundAttrPosInfo.cellColor = color;
 					}
 
-						bool autoClickEnoughDelayed = timeGetTime()>m_leftBtnClickTick + 600;
+						bool autoClickEnoughDelayed = bf_clock_ticks()>m_leftBtnClickTick + 600;
 						bool autoClick = (!m_world->m_player->m_proceedType && g_mouse.GetLBtn()==BTN_PRESSED && autoClickEnoughDelayed && m_isAutoMoveClickOn);
-						bool clickEnoughDelayed = ( timeGetTime()>( m_leftBtnClickTick+225 ) );
+						bool clickEnoughDelayed = ( bf_clock_ticks()>( m_leftBtnClickTick+225 ) );
 
 						if (( ( g_mouse.GetLBtn()==BTN_DOWN )&&
 							( g_mouse.GetRBtn() != BTN_PRESSED ) &&
@@ -5375,7 +5375,7 @@ int		CGameMode :: ProcessGroundPick(int processType)
 						{
 
 
-						m_leftBtnClickTick = timeGetTime();
+						m_leftBtnClickTick = bf_clock_ticks();
 
 							if (CheckKeyPressed(VK_SHIFT) || g_windowMgr.GetChatRoomWnd() ||
 								m_world->m_player->m_stateId == 6)
@@ -5427,18 +5427,18 @@ SKIP_MOVE:
 
 void	CGameMode :: ProcessReqEmblem()
 {
-	if (m_emblemReqGdidQueue.size() && timeGetTime() > m_lastEmblemReqTick+5000) {
+	if (m_emblemReqGdidQueue.size() && bf_clock_ticks() > m_lastEmblemReqTick+5000) {
 		SendMsg(MM_REQ_GUILD_EMBLEM_IMG, *m_emblemReqGdidQueue.begin(), 0, 0);
-		m_lastEmblemReqTick = timeGetTime();
+		m_lastEmblemReqTick = bf_clock_ticks();
 	}
 }
 
 void	CGameMode :: ProcessNameWaitingTimer()
 {
-	if (timeGetTime() > m_lastNameWaitingListTick+1000)
+	if (bf_clock_ticks() > m_lastNameWaitingListTick+1000)
 	{
 		g_windowMgr.RefreshNameWaitingWindowList();
-		m_lastNameWaitingListTick = timeGetTime();
+		m_lastNameWaitingListTick = bf_clock_ticks();
 	}
 }
 
@@ -5527,9 +5527,9 @@ void	CGameMode :: ProcessInput()
 		SendMsg(MM_CANCEL_USE_SKILL);
 		g_windowMgr.DeleteWindow(WID_PASSWORDWND);
 
-		if (timeGetTime() > m_noMoveStartTick+5000)
+		if (bf_clock_ticks() > m_noMoveStartTick+5000)
 			m_noMove = false;
-		m_leftBtnClickTick = timeGetTime();
+		m_leftBtnClickTick = bf_clock_ticks();
 	}
 
 	bool hangUseSkill = m_skillUseInfo.m_skillUseType != SUT_NOSKILL;
@@ -6106,7 +6106,7 @@ void	CGameMode :: ProcessTalkType(int val1, INT_PTR val2)
 					for (int i=0;i<5;i++)
 						m_doritime[i] = m_doritime[i+1];
 
-					m_doritime[5] = timeGetTime();
+					m_doritime[5] = bf_clock_ticks();
 
 					if ( (m_doritime[5] - m_doritime[0] < 3000) && (m_doritime[5] - m_doritime[0] > 1500) )
 					{
@@ -7358,9 +7358,9 @@ void CGameMode::ProcessAutoFollow()
 	CGameActor *actor = GetWorld()->GetGameActorByAID(m_lastLockOnPcGid);
 	if (actor == NULL) {
 		if (m_dwOldDisappearTime == 0)
-			m_dwOldDisappearTime = timeGetTime();
+			m_dwOldDisappearTime = bf_clock_ticks();
 
-		if (timeGetTime() - m_dwOldDisappearTime > 10000) {
+		if (bf_clock_ticks() - m_dwOldDisappearTime > 10000) {
 			m_lastLockOnPcGid = 0;
 			m_dwOldAutoFollowTime = 0;
 			m_dwOldDisappearTime = 0;
@@ -7370,8 +7370,8 @@ void CGameMode::ProcessAutoFollow()
 
 	m_dwOldDisappearTime = 0;
 
-	if (timeGetTime() - m_dwOldAutoFollowTime > 1000) {
-		m_dwOldAutoFollowTime = timeGetTime();
+	if (bf_clock_ticks() - m_dwOldAutoFollowTime > 1000) {
+		m_dwOldAutoFollowTime = bf_clock_ticks();
 
 		int dx = actor->m_moveDestX;
 		int dy = actor->m_moveDestY;
@@ -7765,8 +7765,8 @@ void	CGameMode :: ProcessPlayWave()
 	std::vector<PLAY_WAVE_INFO>::iterator i = m_playWaveList.begin();
 	while (i != m_playWaveList.end()) {
 		PLAY_WAVE_INFO *info = &(*i);
-		DWORD debugTime = timeGetTime();
-		if (timeGetTime() >= info->endTick) {
+		DWORD debugTime = bf_clock_ticks();
+		if (bf_clock_ticks() >= info->endTick) {
 			if (info->nAID) {
 				CGameActor *theActor = GetWorld()->GetGameActorByAID(info->nAID);
 				if (theActor) {
@@ -7776,7 +7776,7 @@ void	CGameMode :: ProcessPlayWave()
 			} else {
 				PlayWave(info->wavName.c_str());
 			}
-			info->endTick = info->term + timeGetTime();
+			info->endTick = info->term + bf_clock_ticks();
 		}
 		i++;
 	}
@@ -7853,10 +7853,10 @@ void	CGameMode :: ProcessAssignAID()
 
 	for (a = 0; a < size; a++)
 	{
-		if (timeGetTime() - g_session.m_reqAccountInfo[a].reqTime > 1000)
+		if (bf_clock_ticks() - g_session.m_reqAccountInfo[a].reqTime > 1000)
 		{
 			SendMsg(MM_REQ_ACCOUNT_NAME, g_session.m_reqAccountInfo[a].AID);
-			g_session.m_reqAccountInfo[a].reqTime = timeGetTime();
+			g_session.m_reqAccountInfo[a].reqTime = bf_clock_ticks();
 		}
 	}
 

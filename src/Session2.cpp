@@ -5257,7 +5257,7 @@ int		CSession :: GetChatProhibittedCnt(DWORD AID)
 		}
 		REQ_ACCOUNTNAME_INFO reqInfo;
 		reqInfo.AID = AID;
-		reqInfo.reqTime = timeGetTime();
+		reqInfo.reqTime = bf_clock_ticks();
 		gameMode->SendMsg(MM_REQ_ACCOUNT_NAME, AID);
 		m_reqAccountInfo.push_back(reqInfo);
 	}

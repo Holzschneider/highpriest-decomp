@@ -89,7 +89,7 @@ static int	l_Trace (lua_State* L)
 
 static int	l_GetTick (lua_State* L)
 {
-	lua_pushnumber (L,(double)GetTickCount());
+	lua_pushnumber (L,(double)bf_clock_ticks());
 	return 1;
 }
 
@@ -718,7 +718,7 @@ static int	l_Attack (lua_State* L)
 
 	static	int homunAttackLastTime = 0 ;
 
-	if ( ( homunAttackLastTime + g_session.m_homunAspd ) < timeGetTime( ) )
+	if ( ( homunAttackLastTime + g_session.m_homunAspd ) < bf_clock_ticks( ) )
 	{
 		PACKET_CZ_REQUEST_ACTNPC p;
 		p.PacketType = HEADER_CZ_REQUEST_ACTNPC;
@@ -727,7 +727,7 @@ static int	l_Attack (lua_State* L)
 		p.action	 = ACTION_ATTACK;
 		g_connection.SendPacket (g_connection.GetPacketSize(p.PacketType), (const char *)&p);
 
-		homunAttackLastTime = timeGetTime( ) ;
+		homunAttackLastTime = bf_clock_ticks( ) ;
 	}
 
 	return 0;
@@ -920,7 +920,7 @@ static int	l_Attack_M (lua_State* L)
 
 	static	int merAttackLastTime = 0 ;
 
-	if ( ( merAttackLastTime + g_session.m_merAspd ) < timeGetTime( ) )
+	if ( ( merAttackLastTime + g_session.m_merAspd ) < bf_clock_ticks( ) )
 	{
 		PACKET_CZ_REQUEST_ACTNPC p;
 		p.PacketType = HEADER_CZ_REQUEST_ACTNPC;
@@ -929,7 +929,7 @@ static int	l_Attack_M (lua_State* L)
 		p.action	 = ACTION_ATTACK;
 		g_connection.SendPacket (g_connection.GetPacketSize(p.PacketType), (const char *)&p);
 
-		merAttackLastTime = timeGetTime( ) ;
+		merAttackLastTime = bf_clock_ticks( ) ;
 	}
 
 	return 0;

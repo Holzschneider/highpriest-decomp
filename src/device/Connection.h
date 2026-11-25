@@ -25,7 +25,7 @@ public:
 	int Recv(char* buf, int size, bool mustRecv);
 	void ResetQueue();
 	void SetBlock(bool bBlock);
-	void SetDelay(unsigned int dwTime) { m_dwTime = timeGetTime() + dwTime; }
+	void SetDelay(unsigned int dwTime) { m_dwTime = bf_clock_ticks() + dwTime; }
 protected:
 	bool OnSend();
 	bool OnRecv();

@@ -6039,7 +6039,7 @@ void UISkillListWnd::OnRBtnUp(int x, int y)
 void UISkillListWnd::OnMouseHover(int x, int y)
 {
 	if (g_isSkillEntry == 1) {
-		int diff = (int)(timeGetTime() - g_SkillEntryTime);
+		int diff = (int)(bf_clock_ticks() - g_SkillEntryTime);
 		if (diff > 1000 || diff < 0) {
 			g_isSkillEntry = 0;
 			Invalidate();
@@ -6059,7 +6059,7 @@ void UISkillListWnd::StoreInfo()
 INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR val2, INT_PTR val3, INT_PTR val4)
 {
 	if (g_isSkillEntry == 1) {
-		int diff = (int)(timeGetTime() - g_SkillEntryTime);
+		int diff = (int)(bf_clock_ticks() - g_SkillEntryTime);
 		if (diff > 1000 || diff < 0) {
 			g_isSkillEntry = 0;
 			Invalidate();
@@ -6353,7 +6353,7 @@ INT_PTR UISkillListWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT
 			if (g_SkillEntryTime)
 				g_isSkillEntry = 1;
 			g_SkillEntryNum = count;
-			g_SkillEntryTime = timeGetTime();
+			g_SkillEntryTime = bf_clock_ticks();
 		}
 
 		Invalidate();

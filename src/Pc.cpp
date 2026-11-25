@@ -497,7 +497,7 @@ bool	CPc :: OnProcess()
 	ProcessChatBalloon();
 	ProcessGage();
 	if (m_isSingleColor) {
-		if (timeGetTime() > m_singleColorStartTick + 100) {
+		if (bf_clock_ticks() > m_singleColorStartTick + 100) {
 			m_colorOfSingleColor = 0xffff0000;
 			m_isSingleColor = false;
 		}
@@ -518,7 +518,7 @@ bool	CPc :: OnProcess()
 bool	CPc :: ProcessState()
 {
 	if (m_freezeEndTick) {
-		if (timeGetTime() > m_freezeEndTick) {
+		if (bf_clock_ticks() > m_freezeEndTick) {
 			m_isMotionFreezed = false;
 			m_freezeEndTick = 0;
 		}
@@ -532,7 +532,7 @@ bool	CPc :: ProcessState()
 	switch (m_stateId) {
 		case	8: {
 			ProcessMotion();
-			float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+			float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 			if (m_targetGid && int(stateCnt)%34==0) {
 				CGameMode *		gameMode = g_modeMgr.GetGameMode();
 				sAssert(gameMode);
@@ -553,7 +553,7 @@ bool	CPc :: ProcessState()
 		case	2:
 		{
 			ProcessMotion();
-			float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+			float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 			if (m_isMotionFinished)
 				SetState(ST_STAND);
 			break;
@@ -754,7 +754,7 @@ void	CPc :: SetState(int stateId)
 
 	m_curAction = m_baseAction + Get8Dir(m_roty);
 	m_stateId = stateId;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 
@@ -1853,7 +1853,7 @@ void	CPc :: RenderBodyLayer(matrix &vtm, BOOL isBlur)
 					{
 						int		 motionGap = accMotionCnt / headMotionCnt ;
 						int		 motionSpeed = GetActResList(layer)->GetDelay ( 0 ) ;
-						float	stateCnt = float(timeGetTime() - m_stateStartTick)/24.0f;
+						float	stateCnt = float(bf_clock_ticks() - m_stateStartTick)/24.0f;
 
 						if ( motionSpeed == 0 )
 							motionSpeed = 4 ;
@@ -3418,7 +3418,7 @@ bool	CGrannyPc :: OnProcess()
 	ProcessChatBalloon();
 	ProcessGage();
 	if (m_isSingleColor) {
-		if (timeGetTime() > m_singleColorStartTick + 100) {
+		if (bf_clock_ticks() > m_singleColorStartTick + 100) {
 			m_colorOfSingleColor = 0xffff0000;
 			m_isSingleColor = false;
 		}
@@ -3458,7 +3458,7 @@ bool	CGrannyPc :: OnProcess()
 bool	CGrannyPc :: ProcessState()
 {
 	if (m_freezeEndTick) {
-		if (timeGetTime() > m_freezeEndTick) {
+		if (bf_clock_ticks() > m_freezeEndTick) {
 			m_isMotionFreezed = false;
 			m_freezeEndTick = 0;
 		}
@@ -3472,7 +3472,7 @@ bool	CGrannyPc :: ProcessState()
 	switch (m_stateId) {
 		case	8: {
 			ProcessMotion();
-			float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+			float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 			if (m_targetGid && int(stateCnt)%34==0) {
 				CGameMode *		gameMode = g_modeMgr.GetGameMode();
 				sAssert(gameMode);
@@ -3493,7 +3493,7 @@ bool	CGrannyPc :: ProcessState()
 		case	2:
 		{
 			ProcessMotion();
-			float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+			float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 			if (m_isMotionFinished)
 				SetState(ST_STAND);
 			break;
@@ -3632,7 +3632,7 @@ void	CGrannyPc :: SetState(int stateId)
 
 	m_curAction = m_baseAction + Get8Dir(m_roty);
 	m_stateId = stateId;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 
 void	CGrannyPc :: ProcessGage()

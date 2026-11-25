@@ -266,7 +266,7 @@ void	CRenderObject :: OnInit()
 	m_shouldAddPickInfo = false;
 	m_sprShift = 0;
 	m_sprAngle = 0;
-	m_singleColorStartTick = timeGetTime();
+	m_singleColorStartTick = bf_clock_ticks();
 	m_isSingleColor = false;
 	m_isLieOnGround = false;
 	m_isSprArgbFixed = false;
@@ -415,7 +415,7 @@ void	CRenderObject :: ProcessMotion()
 	CGameMode * gameMode = g_modeMgr.GetGameMode();
 	sAssert(gameMode);
 
-	float stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+	float stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	CActRes *	actRes = GetActRes();
 
 	if(!actRes)
@@ -449,8 +449,8 @@ void	CRenderObject :: ProcessMotion()
 
 		if (!m_isForceAnimation)
 			return;
-		DWORD debugTime = timeGetTime();
-		if (timeGetTime() >= m_forceStateEndTick)
+		DWORD debugTime = bf_clock_ticks();
+		if (bf_clock_ticks() >= m_forceStateEndTick)
 		{
 			m_isForceState2 = FALSE;
 			m_forceStateEndTick = 0;
@@ -498,9 +498,9 @@ void	CRenderObject :: ProcessMotion()
 
 		if (!m_isForceAnimation)
 			return;
-		DWORD debugTime = timeGetTime();
+		DWORD debugTime = bf_clock_ticks();
 
-		if (timeGetTime() >= m_forceStateEndTick)
+		if (bf_clock_ticks() >= m_forceStateEndTick)
 		{
 			m_isForceState = FALSE;
 			m_forceStateEndTick = 0;
@@ -550,8 +550,8 @@ void	CRenderObject :: ProcessMotion()
 
 		if (!m_isForceAnimation)
 			return;
-		DWORD debugTime = timeGetTime();
-		if (timeGetTime() >= m_forceStateEndTick) {
+		DWORD debugTime = bf_clock_ticks();
+		if (bf_clock_ticks() >= m_forceStateEndTick) {
 			m_isForceState = FALSE;
 			m_forceStateEndTick = 0;
 			m_motionType = MT_ONETIME;
@@ -2294,7 +2294,7 @@ void	CMousePointer :: OnInit()
 	m_visibleTime = 0;
 	m_alwaysTopLayer = true;
 	m_isVisible = false;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 	SetSprName("cursors.spr");
 	SetActName("cursors.act");
 	SetAction(3, 2, MT_LOOP);
@@ -2306,7 +2306,7 @@ void	CMousePointer :: OnExit()
 
 bool	CMousePointer :: OnProcess()
 {
-	float stateCnt = (timeGetTime() - m_stateStartTick) / 24.0f;
+	float stateCnt = (bf_clock_ticks() - m_stateStartTick) / 24.0f;
 	m_curAction = m_baseAction;
 	CActRes *	actRes = GetActRes();
 	m_curMotion = int(stateCnt/m_motionSpeed)%(actRes->GetMotionCount(m_curAction));
@@ -2649,7 +2649,7 @@ void	CGameActor :: OnInit()
 	m_dist = 0;
 	m_gid = -1;
 	m_lastServerTime = g_session.GetServerTime();
-	m_lastProcessStateTime = timeGetTime();
+	m_lastProcessStateTime = bf_clock_ticks();
 	m_lastTlvertX = 0;
 	m_lastTlvertY = 0;
 	m_balloon = NULL;
@@ -2663,10 +2663,10 @@ void	CGameActor :: OnInit()
 	m_attackMotion = -1;
 	m_pathStartCell = -1;
 	m_shouldAddPickInfo = true;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 	m_petEmotionStartTick = 0;
-	m_skillRechargeEndTick = timeGetTime()-5000;
-	m_skillRechargeStartTick = timeGetTime()-10000;
+	m_skillRechargeEndTick = bf_clock_ticks()-5000;
+	m_skillRechargeStartTick = bf_clock_ticks()-10000;
 	m_effectLaunchCnt = 60*60;
 	m_sprColor.color = 0xFFFFFFFF;
 	m_isVisible = true;
@@ -2977,7 +2977,7 @@ void	CGameActor :: ProcessChatBalloon()
 	static float hHover = float(81*g_renderer->m_height/480);
 #ifndef		DEL_OLD_UI
 	if (m_balloon) {
-		if (timeGetTime() < m_chatTick+5000) {
+		if (bf_clock_ticks() < m_chatTick+5000) {
 			int nameX = m_lastTlvertX-m_chatWidth/2;
 			int nameY = m_lastTlvertY-hHover*m_lastPixelRatio - m_chatHeight;
 
@@ -3008,8 +3008,8 @@ void	CGameActor :: ProcessChatBalloon()
 
 	if (m_skillRechargeGage)
 	{
-		DWORD curTime = timeGetTime();
-		if (timeGetTime() > m_skillRechargeEndTick)
+		DWORD curTime = bf_clock_ticks();
+		if (bf_clock_ticks() > m_skillRechargeEndTick)
 		{
 			SendMsg(NULL, AM_DELETE_SKILL_RECHARGEGAGE);
 			if (m_stateId == 8)
@@ -3023,7 +3023,7 @@ void	CGameActor :: ProcessChatBalloon()
 			int total = m_skillRechargeEndTick - m_skillRechargeStartTick;
 			if (total < 0)
 				total = 1;
-			int amount = total - (m_skillRechargeEndTick - timeGetTime());
+			int amount = total - (m_skillRechargeEndTick - bf_clock_ticks());
 			if (amount > total)
 				amount = total;
 			m_skillRechargeGage->SetAmount(amount, total);
@@ -3435,12 +3435,12 @@ void	CGameActor :: SetState(int stateId)
 
 	if (stateId != ST_DAMAGE)
 		m_stateId = stateId;
-	m_stateStartTick = timeGetTime();
+	m_stateStartTick = bf_clock_ticks();
 }
 bool	CGameActor :: ProcessVanish()
 {
 	if (m_vanishTime) {
-		DWORD curTime = timeGetTime();
+		DWORD curTime = bf_clock_ticks();
 		if (curTime > m_vanishTime) {
 			return false;
 		}
@@ -3458,7 +3458,7 @@ void	CGameActor :: SetVanish()
 	m_gid = -1;
 	m_99 = 0;
 	m_shadowOn = FALSE;
-	m_vanishTime = timeGetTime() + 6120/12;
+	m_vanishTime = bf_clock_ticks() + 6120/12;
 	if (m_vanishTime == 0) {
 		m_vanishTime = 1;
 	}
@@ -3469,7 +3469,7 @@ bool	CGameActor :: ProcessState()
 {
 	if (m_freezeEndTick)
 	{
-		if (timeGetTime() > m_freezeEndTick)
+		if (bf_clock_ticks() > m_freezeEndTick)
 		{
 			m_isMotionFreezed = false;
 			m_freezeEndTick = 0;
@@ -3503,8 +3503,8 @@ bool	CGameActor :: ProcessState()
 					}
 					m_isMotionFreezed = true;
 				}
-				DWORD Time = timeGetTime();
-				if (timeGetTime() >= m_skillRechargeEndTick) {
+				DWORD Time = bf_clock_ticks();
+				if (bf_clock_ticks() >= m_skillRechargeEndTick) {
 					m_isCounter = FALSE;
 					m_isMotionFreezed = false;
 					SetState(ST_STAND);
@@ -3520,7 +3520,7 @@ bool	CGameActor :: ProcessState()
 				SetState(ST_STAND);
 			}
 			else if (GetJob() >= JT_MON_BEGIN && GetJob() < JT_MONSTER_LAST && GetHeadType() == HEADTYPE_LAST) {
-				if (m_gid == g_session.m_petGID && m_petEmotionStartTick && timeGetTime() - m_petEmotionStartTick > 3000) {
+				if (m_gid == g_session.m_petGID && m_petEmotionStartTick && bf_clock_ticks() - m_petEmotionStartTick > 3000) {
 					int friendly, hunger, emotion, talk;
 
 					if ( rand() % 100 < 25 )
@@ -3642,7 +3642,7 @@ bool	CGameActor :: ProcessState()
 			{
 				m_isCounter = FALSE;
 				ProcessMotion();
-				float stateCnt = float(timeGetTime() - m_stateStartTick) / 24.0f;
+				float stateCnt = float(bf_clock_ticks() - m_stateStartTick) / 24.0f;
 				if (m_targetGid && (int(stateCnt) % 34 == 0)) {
 					CGameMode * gameMode = g_modeMgr.GetGameMode();
 					CGameActor * tActor = gameMode->GetWorld()->GetGameActorByAID(m_targetGid);
@@ -3675,9 +3675,9 @@ bool	CGameActor :: ProcessState()
 				vector3d	deltaPos;
 				deltaPos.x = m_damageDestX - m_pos.x;
 				deltaPos.z = m_damageDestZ - m_pos.z;
-				DWORD deltaTime = m_stateStartTick + 200 - timeGetTime();
+				DWORD deltaTime = m_stateStartTick + 200 - bf_clock_ticks();
 
-				int dmgDeltaTime = timeGetTime() - m_lastProcessStateTime;
+				int dmgDeltaTime = bf_clock_ticks() - m_lastProcessStateTime;
 				if (dmgDeltaTime < 0)
 					dmgDeltaTime = 0;
 
@@ -3769,7 +3769,7 @@ bool	CGameActor :: ProcessState()
 			m_isCounter = FALSE;
 			break;
 	}
-	m_lastProcessStateTime = timeGetTime();
+	m_lastProcessStateTime = bf_clock_ticks();
 	m_lastServerTime = serverTime;
 	if (posChanged)
 		m_pos.y = world->m_attr->GetHeight(m_pos.x, m_pos.z);
@@ -3784,7 +3784,7 @@ void	CGameActor :: MakeCorpse()
 
 void	CGameActor :: ProcessWillBeAttacked()
 {
-	DWORD curTime = timeGetTime();
+	DWORD curTime = bf_clock_ticks();
 	std::list<WBA>::iterator it = m_willBeAttackedList.begin();
 	while (it != m_willBeAttackedList.end())
 	{
@@ -4483,7 +4483,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 
 				if (damage)
 				{
-					m_singleColorStartTick = timeGetTime();
+					m_singleColorStartTick = bf_clock_ticks();
 					if (wba->effectId2 == -2)
 					{
 						m_isSingleColor = false;
@@ -4684,7 +4684,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 				SetState(ST_ATTACK);
 				m_attackMotion = GetAttackMotion();
 				RegisterPos();
-				m_stateStartTick = timeGetTime();
+				m_stateStartTick = bf_clock_ticks();
 				m_curMotion = 4;
 				m_motionSpeed = 1;
 				m_curAction += Get8Dir(m_roty);
@@ -4899,7 +4899,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 		case	AM_MOVE:
 			{
 				MOVESTRUCT *ms = (MOVESTRUCT *)arg1;
-				m_moveStartTime = timeGetTime();
+				m_moveStartTime = bf_clock_ticks();
 				bool result = FindPath(ms->sx, ms->sy, ms->cellX, ms->cellY, ms->dx, ms->dy, m_speed);
 				if (result) {
 					m_moveDestX = ms->dx;
@@ -4960,7 +4960,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 					g_windowMgr.AddWindowFront(m_skillRechargeGage);
 				}
 
-				DWORD curTime = timeGetTime();
+				DWORD curTime = bf_clock_ticks();
 				m_skillRechargeEndTick = arg1 + curTime;
 				m_skillRechargeStartTick = curTime ;
 
@@ -4999,7 +4999,7 @@ void	CGameActor :: SendMsg(CGameObject *sender, int message, INT_PTR arg1, INT_P
 				char * chatMsg = (char *)arg1;
 				if (strlen(chatMsg) == 0)
 					break;
-				m_chatTick = timeGetTime();
+				m_chatTick = bf_clock_ticks();
 				DeleteChatBalloon();
 				if (m_balloon == NULL) {
 					m_balloon = new UITransBalloonText;
@@ -6162,7 +6162,7 @@ void	CGameActor :: ProcessEffectState()
 			m_effectLaunchCnt = 0;
 			CRagEffect * effect = LaunchEffect(effectId);
 			if (effect) {
-				effect->SendMsg(NULL, AM_SETCOUNT, (timeGetTime()>>4)%10 + 1);
+				effect->SendMsg(NULL, AM_SETCOUNT, (bf_clock_ticks()>>4)%10 + 1);
 			}
 		}
 	}
@@ -6175,7 +6175,7 @@ void	CGameActor :: ProcessEffectState()
 			m_effectLaunchCnt = 0;
 			CRagEffect * effect = LaunchEffect(effectId);
 			if (effect) {
-				effect->SendMsg(NULL, AM_SETCOUNT, (timeGetTime()>>4)%10 + 1);
+				effect->SendMsg(NULL, AM_SETCOUNT, (bf_clock_ticks()>>4)%10 + 1);
 			}
 		}
 	}
@@ -6240,7 +6240,7 @@ void	CRenderObject :: SetForceAnimation(int act, int mot, int maxMot, int finish
 	m_isForceState2 = FALSE;
 
 	if (isAnim) {
-		m_forceStateEndTick = timeGetTime() + endTick;
+		m_forceStateEndTick = bf_clock_ticks() + endTick;
 	} else m_forceStateEndTick = 0;
 
 	m_forceStateCnt = 1;
@@ -6274,7 +6274,7 @@ void	CRenderObject :: SetForceAnimation2(int act, int mot, int act2, int mot2, i
 	m_isForceState3 = FALSE;
 
 	if (isAnim) {
-		m_forceStateEndTick = timeGetTime() + endTick;
+		m_forceStateEndTick = bf_clock_ticks() + endTick;
 	} else m_forceStateEndTick = 0;
 
 	m_forceStateCnt = 1;
@@ -6299,7 +6299,7 @@ void	CRenderObject :: SetForceAnimation3(int act, int mot, int maxMot, BOOL isAn
 	m_BodyAni = 2;
 
 	if (isAnim)
-		m_forceStateEndTick = timeGetTime() + endTick;
+		m_forceStateEndTick = bf_clock_ticks() + endTick;
 	else
 		m_forceStateEndTick = 0;
 
@@ -6308,7 +6308,7 @@ void	CRenderObject :: SetForceAnimation3(int act, int mot, int maxMot, BOOL isAn
 
 void	CRenderObject :: SetForceAnimEndTick(DWORD tick)
 {
-	m_forceStateEndTick = timeGetTime() + tick;
+	m_forceStateEndTick = bf_clock_ticks() + tick;
 }
 
 void	CRenderObject :: SetForceAnimSpeed(BYTE speed)

@@ -87,7 +87,7 @@ unsigned int __stdcall LoadFarModels(void *pvoid)
 		newObj->UpdateVertexColor(lightDir, diffuseCol, ambientCol);
 
 		((CWorld*)pvoid)->Add3DActorToWorld(newObj);
-		Sleep(0);
+		bf_clock_sleep_ms(0);
 	}
 
 	Trace("Load Model :: Lazy Model Load Complete");

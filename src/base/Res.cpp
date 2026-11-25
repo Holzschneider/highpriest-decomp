@@ -85,7 +85,7 @@ void	CRes :: UpdateInfo(const char* fName, int extIndex)
 
 void	CRes :: UpdateTimeStamp()
 {
-	m_timeStamp = timeGetTime();
+	m_timeStamp = bf_clock_ticks();
 }
 
 void	CRes :: OnLoadError(const char* fName)
@@ -289,7 +289,7 @@ void	CResMgr :: UnloadAll()
 
 void	CResMgr :: UnloadRarelyUsedRes()
 {
-	DWORD	expireTime = timeGetTime() - EXPIRETIME;
+	DWORD	expireTime = bf_clock_ticks() - EXPIRETIME;
 
 	for(int a=0; a<m_fileList.size(); ++a)
 	{
@@ -311,7 +311,7 @@ void	CResMgr :: UnloadRarelyUsedRes()
 
 void	CResMgr :: UnloadUnlockedRes()
 {
-	DWORD	curTime = timeGetTime();
+	DWORD	curTime = bf_clock_ticks();
 	for(int a=0; a<m_fileList.size(); ++a)
 	{
 		res_map& res_file_list = m_fileList[a];
