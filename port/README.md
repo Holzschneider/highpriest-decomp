@@ -108,12 +108,10 @@ The Win32-shaped layer of stage A, which M11 deletes: each area in `port/compat/
 
 | Area | Windows names | On |
 |---|---|---|
-| [`win32`](compat/win32/README.md) | what kernel32, shell32 and user32 names are still called (`FindFirstFile` for FindHack, `Global*` for the clipboard, `MessageBox`/`ShellExecute`/COM/process names in `WinMain.cpp` and `3dlib`); threads and time left in M11.1, files in M11.3, the registry in M11.4 | `sys`, `text` |
+| [`win32`](compat/win32/README.md) | what kernel32, shell32 and user32 names are still called (`FindFirstFile` for FindHack, the user32 names `3dlib/Device.cpp` still calls in `bf_win32_window.cpp`, `MessageBox`/`ShellExecute`/COM/process names in `WinMain.cpp` and `3dlib`); threads and time left in M11.1, files in M11.3, the registry in M11.4 | `sys`, `text` |
 | [`d3d`](compat/d3d/README.md) | `DirectDrawCreateEx`, DirectDraw 7 and Direct3D 7 objects, the DirectX GUIDs; lazy render-target lock | `gfx` |
-| [`gdi`](compat/gdi/README.md) | what is left after M11.8: `GetStockObject`'s brushes and the input adapter's class-brush colour and screen DC; the client draws text through `port/native/text` | — |
-| [`input`](compat/input/README.md) | user32 window, message pump, keyboard state, clipboard; DirectInput 7 mouse; imm32 (no IME) | `app`, `view` |
 
-Left in M11 so far: `miles` (M11.6: `src/device/Sound.cpp` calls `port/native/audio`, see "The client" in [native/audio/README.md](native/audio/README.md)), `granny` and `bink` (M11.10: `port/native/formats/granny` also runs the client's Granny runtime, checked by `bifrost-granny-test`; the intro movie plays through `port/client/src/bf_movie.cpp` on formats/bink and audio, tested by `bifrost-movie-test`; in the client `port/harness/scripts/granny.py`, `intro.py`). The registry calls became `bf_setting_*` (`port/client/include/bf_setting_key.h`, M11.4); `port/tools/native_settings.py` is the rewrite that did it (idempotent; needs `build/cmake/debug/compile_commands.json`).
+Left in M11 so far: `input` and `gdi` (M11.7, M11.8: the client calls `port/client`'s `bf_input`, see "bf_input" in [client/src/README.md](client/src/README.md), test `bifrost-input-test`; text through `port/native/text`'s `bf_text_canvas`), `miles` (M11.6: `src/device/Sound.cpp` calls `port/native/audio`, see "The client" in [native/audio/README.md](native/audio/README.md)), `granny` and `bink` (M11.10: `port/native/formats/granny` also runs the client's Granny runtime, checked by `bifrost-granny-test`; the intro movie plays through `port/client/src/bf_movie.cpp` on formats/bink and audio, tested by `bifrost-movie-test`; in the client `port/harness/scripts/granny.py`, `intro.py`). The registry calls became `bf_setting_*` (`port/client/include/bf_setting_key.h`, M11.4); `port/tools/native_settings.py` is the rewrite that did it (idempotent; needs `build/cmake/debug/compile_commands.json`).
 
 ## Test harness
 
