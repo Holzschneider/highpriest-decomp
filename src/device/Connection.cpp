@@ -8,6 +8,13 @@
 #include "../3dlib/DrawUtil.h"
 #include "../Session.h"
 
+#include <errno.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+
 
 #if defined(BF_PORT)
 #include "bf_replay.h"
@@ -29,9 +36,17 @@ static int s_bfSerial;
 
 extern void InitPacketLenWithClient();
 
+// The error of the last socket call. A non-blocking connect that has started
+// reports EINPROGRESS here and WSAEWOULDBLOCK under Winsock, which the checks
+// below were written for: it is taken as EWOULDBLOCK.
+static int SocketError()
+{
+	return errno == EINPROGRESS ? EWOULDBLOCK : errno;
+}
+
 
 CConnection::CConnection()
-:	m_socket(INVALID_SOCKET)
+:	m_socket(-1)
 ,	m_bBlock(false)
 ,	m_dwTime(0)
 {
@@ -66,7 +81,7 @@ void CConnection::SetBlock(bool bBlock)
 
 bool CConnection::Connect(const ServerAddress *addr)
 {
-	sAssert(m_socket == INVALID_SOCKET);
+	sAssert(m_socket == -1);
 
 	SetBlock(false);
 	ResetQueue();
@@ -88,21 +103,21 @@ bool CConnection::Connect(const ServerAddress *addr)
 #endif
 
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (m_socket != INVALID_SOCKET) {
+	if (m_socket != -1) {
 
-		unsigned int ul = 1;
+		int ul = 1;
 
-		if (ioctlsocket(m_socket, FIONBIO, (unsigned int*)&ul) != SOCKET_ERROR) {
+		if (ioctl(m_socket, FIONBIO, &ul) != -1) {
 
-			memset(&m_addr, 0, sizeof(SOCKADDR));
+			memset(&m_addr, 0, sizeof(sockaddr));
 			m_addr.sin_addr.s_addr = inet_addr(addr->ip);
 			m_addr.sin_family = AF_INET;
 			m_addr.sin_port = htons(addr->port);
 
 
-			int result = connect(m_socket, (LPSOCKADDR)&m_addr, sizeof(SOCKADDR));
+			int result = connect(m_socket, (sockaddr*)&m_addr, sizeof(sockaddr));
 
-			if (result != SOCKET_ERROR || WSAGetLastError() == WSAEWOULDBLOCK) {
+			if (result != -1 || SocketError() == EWOULDBLOCK) {
 
 				DUMP_ADDRESS("\nConnecting");
 
@@ -110,7 +125,7 @@ bool CConnection::Connect(const ServerAddress *addr)
 
 			} else {
 
-				Trace("connect error %d", WSAGetLastError());
+				Trace("connect error %d", SocketError());
 
 				Disconnect();
 
@@ -130,7 +145,7 @@ bool CConnection::Connect(const ServerAddress *addr)
 bool CConnection::Poll()
 {
 #if defined(BF_PORT)
-	if (m_socket != INVALID_SOCKET && bf_replay_active()) {
+	if (m_socket != -1 && bf_replay_active()) {
 		char tempBuf[2048];
 		int ret = bf_replay_receive(tempBuf, sizeof(tempBuf));
 		if (ret > 0) {
@@ -143,7 +158,7 @@ bool CConnection::Poll()
 		return true;
 	}
 #endif
-	if (m_socket != INVALID_SOCKET)
+	if (m_socket != -1)
 		return OnRecv() && OnSend();
 	else
 		return true;
@@ -153,14 +168,14 @@ bool CConnection::Poll()
 
 void CConnection::Disconnect()
 {
-	if (m_socket != INVALID_SOCKET) {
+	if (m_socket != -1) {
 #if defined(BF_PORT)
 		if (bf_replay_active())
 			bf_replay_disconnect();
 		else
 #endif
-		closesocket(m_socket);
-		m_socket = INVALID_SOCKET;
+		close(m_socket);
+		m_socket = -1;
 		m_sendQueue.Init(QUEUE_SIZE);
 		m_blockQueue.Init(QUEUE_SIZE);
 		DUMP_ADDRESS("Disconnecting");
@@ -169,7 +184,7 @@ void CConnection::Disconnect()
 
 void CConnection::Send(int size, const char *buf)
 {
-	if (INVALID_SOCKET != m_socket) {
+	if (-1 != m_socket) {
 
 		if (m_bBlock) {
 			m_blockQueue.InsertData(size, buf);
@@ -222,17 +237,17 @@ bool CConnection::OnSend()
 		FD_ZERO(&fdwrite);
 		FD_SET(m_socket, &fdwrite);
 
-		if ((ret = select(0, NULL, &fdwrite, NULL, &tval)) != SOCKET_ERROR) {
+		if ((ret = select(m_socket + 1, NULL, &fdwrite, NULL, &tval)) != -1) {
 
 			if (ret > 0) {
 				int result = s_wsSend(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSafeDataLen(), 0);
 
-				if (result != SOCKET_ERROR) {
+				if (result != -1) {
 					m_sendQueue.RemoveData(result);
 
 				} else {
-					int errorCode = WSAGetLastError();
-					if (errorCode != WSAEWOULDBLOCK && errorCode != WSAENOTCONN) {
+					int errorCode = SocketError();
+					if (errorCode != EWOULDBLOCK && errorCode != ENOTCONN) {
 						Disconnect();
 						return false;
 					}
@@ -255,14 +270,14 @@ bool CConnection::OnRecv()
 	timeval tval = { 0, 0 };
 	FD_ZERO(&fdread);
 	FD_SET(m_socket, &fdread);
-	if ((ret = select(0, &fdread, NULL, NULL, &tval)) != SOCKET_ERROR)
+	if ((ret = select(m_socket + 1, &fdread, NULL, NULL, &tval)) != -1)
 	{
 
 		if (ret > 0)
 		{
 
 			ret = s_wsRecv(m_socket, tempBuf, sizeof(tempBuf), 0);
-			if (ret != SOCKET_ERROR)
+			if (ret != -1)
 			{
 
 				if (ret > 0)
@@ -280,8 +295,8 @@ bool CConnection::OnRecv()
 			}
 			else
 			{
-				int errorCode = WSAGetLastError();
-				if (errorCode != WSAEWOULDBLOCK && errorCode != WSAENOTCONN) {
+				int errorCode = SocketError();
+				if (errorCode != EWOULDBLOCK && errorCode != ENOTCONN) {
 					Disconnect();
 					return false;
 				}
@@ -302,8 +317,10 @@ void CConnection::OnClose()
 	DUMP_ADDRESS("Closing");
 }
 
+#if !defined(BF_PORT)
 WSAData CConnection::s_wsaData;
 HINSTANCE__* CConnection::s_wsmodule;
+#endif
 int (__stdcall* CConnection::s_wsSend)(unsigned int, const char*, int, int);
 int (__stdcall* CConnection::s_wsRecv)(unsigned int, char*, int, int);
 
@@ -313,8 +330,9 @@ static int __stdcall PortRecv(unsigned int s, char* buf, int len, int flags) { r
 
 bool CConnection::Startup()
 {
-	WSAStartup(MAKEWORD(1, 1), &s_wsaData);
-	s_wsmodule = NULL;
+	// Writing to a socket the server has closed must fail with an error, as
+	// it does under Winsock, not end the process.
+	signal(SIGPIPE, SIG_IGN);
 	s_wsSend = PortSend;
 	s_wsRecv = PortRecv;
 	return true;
@@ -322,7 +340,6 @@ bool CConnection::Startup()
 
 void CConnection::Cleanup()
 {
-	WSACleanup();
 }
 
 bool CConnection::CheckModulePt()
@@ -421,7 +438,7 @@ bool CRagConnection::SendPacket(int size, const char *buf)
 		}
 		m_bfNamed = true;
 	}
-	if (m_socket != INVALID_SOCKET && bf_replay_active())
+	if (m_socket != -1 && bf_replay_active())
 		bf_replay_sent(buf, size);
 #endif
 	DUMP_PACKET("S", buf, size);

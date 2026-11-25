@@ -2,6 +2,7 @@
 #define HIGHPRIEST_DEVICE_CONNECTION_H
 
 #include "PacketQueue.h"
+#include <arpa/inet.h>
 const	int QUEUE_SIZE = 0xa000;
 
 struct ServerAddress {
@@ -18,7 +19,7 @@ public:
 	CConnection();
 	virtual ~CConnection();
 	bool Connect(const ServerAddress* addr);
-	unsigned char IsConnect() { return m_socket != INVALID_SOCKET; }
+	unsigned char IsConnect() { return m_socket != -1; }
 	bool Poll();
 	void Disconnect();
 	void Send(int size, const char* buf);
@@ -36,13 +37,15 @@ public:
 	static void __cdecl Cleanup();
 	bool CheckModulePt();
 private:
+#if !defined(BF_PORT)
 	static WSAData s_wsaData;
 	static HINSTANCE__* s_wsmodule;
+#endif
 
 	static int (__stdcall* s_wsSend)(unsigned int, const char*, int, int);
 	static int (__stdcall* s_wsRecv)(unsigned int, char*, int, int);
 protected:
-	unsigned int m_socket;
+	int m_socket;
 	sockaddr_in m_addr;
 	unsigned char m_bBlock;
 	unsigned int m_dwTime;

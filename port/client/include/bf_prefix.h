@@ -15,7 +15,7 @@
 #include <strings.h>
 
 /* The Windows headers must not pull in their own Winsock declarations: the
-   game's socket calls go to BSD sockets through port/compat/include/winsock.h. */
+   game's socket calls are BSD sockets (<sys/socket.h>, M11.2). */
 #define _WINSOCKAPI_
 #define _WINSOCK2API_
 #define __WINE_WINSOCKAPI_STDLIB_H

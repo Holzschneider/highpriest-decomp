@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/socket.h>
 #include "LoginMode.h"
 #include "Session.h"
 #include "GuildInfo.h"
@@ -112,9 +115,9 @@ int GetAccountType();
 
 void SendUDPPacket(LPCSTR szURL, USHORT uPort, const char* p, int pLen)
 {
-	SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
+	int s = socket(AF_INET, SOCK_DGRAM, 0);
 
-	if (s != INVALID_SOCKET) {
+	if (s != -1) {
 		hostent* h = gethostbyname(szURL);
 		if (h) {
 			sockaddr_in servAddr;
@@ -123,7 +126,7 @@ void SendUDPPacket(LPCSTR szURL, USHORT uPort, const char* p, int pLen)
 			servAddr.sin_port = htons(uPort);
 			sendto(s, p, pLen, 0, (sockaddr*)&servAddr, sizeof(servAddr));
 		}
-		closesocket(s);
+		close(s);
 	}
 }
 

@@ -33,7 +33,6 @@
 #include	<d3d.h>
 #include	<dsound.h>
 #include	<dinput.h>
-#include	<winsock.h>
 #include	<process.h>
 #include	<shlwapi.h>
 #include	<stack>
