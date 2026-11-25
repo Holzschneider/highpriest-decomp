@@ -31,7 +31,10 @@ What counts as a name, mechanically:
      them (headers included), not only the units.
   3. A function name's group is the adapter that defines it: the
      port/compat or port/client/src source file with a definition of the name at column 0
-     (ADAPTER_STEP below). Names the adapters do not define (types,
+     (ADAPTER_STEP below). A function name that no adapter defines and that
+     the client defines as a member of a class of its own (`Class::Name(`)
+     is the client's member (a call of the Windows function would not
+     link): dropped. Names the adapters do not define (types,
      constants, macros, functions defined inline by a header) take the
      group of their header (HEADER_STEP).
 
@@ -443,6 +446,8 @@ SYNTHETIC = 'all_windows_headers.cpp'
 # declaration), or a typedef of its own.
 OWN = re.compile(r'^\s*(?:typedef\s+)?(?:class|struct|union|enum)\s+([A-Za-z_]\w*)\s*[:{]'
                  r'|^\s*typedef\b[^;(]*?\b([A-Za-z_]\w*)\s*(?:\[[^]]*\]\s*)*;')
+# Class::member( in a src/ file: a member function the client defines.
+MEMBER_DEF = re.compile(r'\b([A-Za-z_]\w*)\s*::\s*([A-Za-z_]\w*)\s*\(')
 COND = re.compile(r'^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b')
 
 
@@ -605,6 +610,27 @@ def main():
                 m = re.match(r'^[^(=;]*?\b([A-Za-z_]\w*)\s*\(', l)
                 if m and m.group(1) in universe:
                     adapters.setdefault(m.group(1), relp)
+
+    # Member functions of the client's own classes that bear a Windows
+    # function's name, because windows.h's macros renamed them before the
+    # code was recovered (UIWindow::TextOutA, DrawDC::GetTextExtentPoint32A,
+    # UIWindowMgr::CreateDCA, CRenderer::SetPixelFormat). Once no adapter
+    # defines the Windows function, an unqualified use of the name (a
+    # declaration in the class, a call inside a member) is the member's: a
+    # call of the Windows function would not link. Dropped as the client's.
+    members = set()
+    for path in {nowin.canonical(p) for p in active}:
+        if path in wanted:
+            continue
+        for l in open(path, encoding='latin-1'):
+            for m in MEMBER_DEF.finditer(l):
+                if m.group(1) in own:
+                    members.add(m.group(2))
+    for w in list(universe):
+        if (w in members and universe[w][0] == 'FunctionDecl' and w not in adapters
+                and group_of(w, universe[w][1], None, rules_only=True) != 'keep'):
+            dropped[w] = 'client'
+            del universe[w]
 
     # 4. count
     rows = collections.Counter()
