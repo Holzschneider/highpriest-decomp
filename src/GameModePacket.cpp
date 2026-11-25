@@ -2410,18 +2410,8 @@ void CGameMode::Zc_Npcack_Servermove(char const *buf)
 	{
 		CRagConnection::instanceR().SetDelay(1000);
 
-		PACKET_CZ_ENTER p;
-		p.PacketType = HEADER_CZ_ENTER;
-		SetPaddingValue(p.pad, 2);
-		SetPaddingValue(p.pad2, 1);
-		SetPaddingValue(p.pad3, 4);
-		p.clientTime = timeGetTime();
-		p.AID = g_session.GetAid();
-		p.GID = g_session.GetGid();
-		p.AuthCode = g_session.m_authCode;
-		p.Sex = g_session.GetSex();
-
-		CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		CRagConnection::instanceR().SendPacket(BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, timeGetTime(), g_session.GetSex()), p);
 		CRagConnection::instanceR().SetBlock(true);
 
 		UIWaitWnd *waitWindow = (UIWaitWnd *)g_windowMgr.MakeWindow(WID_WAITWND);

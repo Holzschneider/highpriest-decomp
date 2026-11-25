@@ -1101,13 +1101,8 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			int		itemIndex = val1;
 			int		numItem = val2;
 
-			PACKET_CZ_ITEM_THROW	packet;
-			packet.PacketType	= HEADER_CZ_ITEM_THROW;
-			SetPaddingValue(packet.pad, 3);
-			SetPaddingValue(packet.pad2, 1);
-			packet.Index		= itemIndex;
-			packet.count		= numItem;
-			g_connection.SendPacket(g_connection.GetPacketSize(packet.PacketType), (const char *)(&packet));
+			char	packet[PADDING_PACKET_BUFSIZE];
+			g_connection.SendPacket(BuildCzItemThrow(packet, itemIndex, numItem), packet);
 		}
 		SendMsg(MM_CANCEL_DRAG, 0, 0, 0);
 		break;
@@ -1130,13 +1125,8 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 			m_waitingUseItemAck = true;
 
-			PACKET_CZ_USE_ITEM p;
-			p.PacketType = HEADER_CZ_USE_ITEM;
-			SetPaddingValue(p.pad, 2);
-			SetPaddingValue(p.pad2, 4);
-			p.AID = g_session.GetAid();
-			p.index = val1;
-			g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
+			char p[PADDING_PACKET_BUFSIZE];
+			g_connection.SendPacket(BuildCzUseItem(p, val1, g_session.GetAid()), p);
 		}
 		break;
 	}
@@ -1803,23 +1793,13 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_ADD_ITEM_TO_STORE: {
-		PACKET_CZ_MOVE_ITEM_FROM_BODY_TO_STORE p;
-		p.PacketType = HEADER_CZ_MOVE_ITEM_FROM_BODY_TO_STORE;
-		SetPaddingValue(p.pad, 5);
-		SetPaddingValue(p.pad2, 1);
-		p.index = (short)val1;
-		p.count = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_MOVE_ITEM_FROM_BODY_TO_STORE), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzMoveItemFromBodyToStore(p, (short)val1, val2), p);
 		break;
 	}
 	case MM_MOVE_ITEM_FROM_STORE_TO_BODY: {
-		PACKET_CZ_MOVE_ITEM_FROM_STORE_TO_BODY p;
-		p.PacketType = HEADER_CZ_MOVE_ITEM_FROM_STORE_TO_BODY;
-		SetPaddingValue(p.pad, 12);
-		SetPaddingValue(p.pad2, 2);
-		p.index = (short)val1;
-		p.count = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_MOVE_ITEM_FROM_STORE_TO_BODY), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzMoveItemFromStoreToBody(p, (short)val1, val2), p);
 		break;
 	}
 	case MM_CLOSE_STORE: {
@@ -2119,15 +2099,8 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 			}
 			g_windowMgr.MakeWindow(WID_SELECTCARTWND);
 		}
-		PACKET_CZ_USE_SKILL p;
-		p.PacketType = HEADER_CZ_USE_SKILL;
-		SetPaddingValue(p.pad, 4);
-		SetPaddingValue(p.pad2, 2);
-		SetPaddingValue(p.pad3, 9);
-		p.selectedLevel = (short)skillUseLevel;
-		p.SKID = (unsigned short)SKID;
-		p.targetID = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzUseSkill(p, (short)skillUseLevel, (unsigned short)SKID, val2), p);
 		break;
 	}
 	case MM_USE_SKILL_TOGROUND: {
@@ -2139,35 +2112,24 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		if (skillUseLevel == 0)
 			skillUseLevel = g_session.GetSkillItemInfoBySkillId(SKID).level;
 
-		PACKET_CZ_USE_SKILL_TOGROUND	p;
-		p.PacketType	= HEADER_CZ_USE_SKILL_TOGROUND;
-		SetPaddingValue(p.pad, 3);
-		SetPaddingValue(p.pad2, 2);
-		SetPaddingValue(p.pad3, 1);
-		p.selectedLevel = skillUseLevel;
-		p.SKID			= SKID;
-		p.xPos			= xPos;
-		p.yPos			= yPos;
-		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL_TOGROUND), (const char *)(&p));
+		char	p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzUseSkillToground(p, skillUseLevel, SKID, xPos, yPos), p);
 		break;
 	}
 	case MM_USE_SKILL_TOGROUND_WITH_TALKBOX: {
 		INT_PTR *values = (INT_PTR *)val1;
-		PACKET_CZ_USE_SKILL_TOGROUND_WITHTALKBOX p;
-		p.PacketType    = HEADER_CZ_USE_SKILL_TOGROUND_WITHTALKBOX;
-		p.selectedLevel = (short)values[3];
-		p.SKID          = (unsigned short)values[0];
-		p.xPos          = (short)values[1];
-		p.yPos          = (short)values[2];
-		strcpy(p.contents, (const char *)values[4]);
-		if (g_insultFilter.IsBadSentence(p.contents)) {
+		short	selectedLevel = (short)values[3];
+		unsigned short	SKID = (unsigned short)values[0];
+		const char *contents = (const char *)values[4];
+		if (g_insultFilter.IsBadSentence(contents)) {
 			g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
 			g_windowMgr.SendMsg(UIM_PUSHINTOCHATHISTORY, (INT_PTR)MsgStr(MSI_NO_SEND_BECAUSE_INSULT), 0xff, 0, 0);
 			break;
 		}
-		if (p.selectedLevel == 0)
-			p.selectedLevel = g_session.GetSkillItemInfoBySkillId(p.SKID).level;
-		g_connection.SendPacket(g_connection.GetPacketSize(HEADER_CZ_USE_SKILL_TOGROUND_WITHTALKBOX), (const char *)&p);
+		if (selectedLevel == 0)
+			selectedLevel = g_session.GetSkillItemInfoBySkillId(SKID).level;
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzUseSkillTogroundWithTalkbox(p, selectedLevel, SKID, (short)values[1], (short)values[2], contents), p);
 		break;
 	}
 	case MM_CANCEL_LOCKON: {
@@ -2710,39 +2672,23 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 	}
 	case MM_ITEMPICKUP: {
-		PACKET_CZ_ITEM_PICKUP p;
-		p.PacketType = HEADER_CZ_ITEM_PICKUP;
-		SetPaddingValue(p.pad, 2);
-		p.ITAID = val1;
-		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzItemPickup(p, val1), p);
 		break;
 	}
 	case MM_REQUEST_ACT: {
-		PACKET_CZ_REQUEST_ACT p;
-		p.PacketType = HEADER_CZ_REQUEST_ACT;
-		SetPaddingValue(p.pad, 3);
-		SetPaddingValue(p.pad2, 9);
-		p.action = (unsigned char)val1;
-		p.targetGID = val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzRequestAct(p, val2, (unsigned char)val1), p);
 		break;
 	}
 	case MM_REQUEST_MOVE: {
-		PACKET_CZ_REQUEST_MOVE p;
-		p.PacketType = HEADER_CZ_REQUEST_MOVE;
-		SetPaddingValue(p.pad, 3);
-		EncodePosDir(val1, val2, 0, p.dest);
-		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzRequestMove(p, val1, val2), p);
 		break;
 	}
 	case MM_CHANGE_DIRECTION: {
-		PACKET_CZ_CHANGE_DIRECTION p;
-		p.PacketType = HEADER_CZ_CHANGE_DIRECTION;
-		SetPaddingValue(p.pad, 5);
-		SetPaddingValue(p.pad2, 1);
-		p.dir = (unsigned char)val1;
-		p.headDir = (short)val2;
-		g_connection.SendPacket(g_connection.GetPacketSize(p.PacketType), (const char *)&p);
+		char p[PADDING_PACKET_BUFSIZE];
+		g_connection.SendPacket(BuildCzChangeDirection(p, (short)val2, (unsigned char)val1), p);
 		break;
 	}
 	case MM_GUILD_MEMBER_STATUS_CHANGE: {

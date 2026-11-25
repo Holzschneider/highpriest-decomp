@@ -839,19 +839,10 @@ void CLoginMode::OnChangeState(int state)
 		m_isConnected = CRagConnection::instanceR().Connect(&g_zoneServerAddr);
 		if (m_isConnected) {
 			Trace("PACKET_CZ_ENTER");
-			PACKET_CZ_ENTER p;
-			p.PacketType = HEADER_CZ_ENTER;
-			SetPaddingValue(p.pad, 2);
-			SetPaddingValue(p.pad2, 1);
-			SetPaddingValue(p.pad3, 4);
-			p.clientTime = timeGetTime();
-			p.AID = g_session.GetAid();
-			p.GID = g_session.GetGid();
-			p.AuthCode = g_session.m_authCode;
-			p.Sex = g_session.GetSex();
+			char p[PADDING_PACKET_BUFSIZE];
 			CRagConnection::instanceR().SendPacket(
-				CRagConnection::instanceR().GetPacketSize(p.PacketType),
-				(char *)&p);
+				BuildCzEnter(p, g_session.GetAid(), g_session.GetGid(), g_session.m_authCode, timeGetTime(), g_session.GetSex()),
+				p);
 			CRagConnection::instanceR().SetBlock(true);
 			UIWaitWnd *wnd = (UIWaitWnd *)g_windowMgr.MakeWindow(WID_WAITWND);
 			wnd->SetMsg(MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER), 16, 1);

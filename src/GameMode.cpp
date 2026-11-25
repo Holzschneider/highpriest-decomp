@@ -2734,7 +2734,9 @@ bool	CGameMode :: IsValidCell(int x, int y)
 	return true;
 }
 
-const	char * CGameMode :: SetPaddingValue ( char * pad, int len )
+// The padding of the requests in PaddingPacket.h, which builds them all
+// (M10.3); this was the body of SetPaddingValue, which now uses it too.
+void	FillPacketPadding ( char * pad, int len )
 {
 	if(len==0) {
 		len = sizeof ( pad );
@@ -2757,6 +2759,11 @@ const	char * CGameMode :: SetPaddingValue ( char * pad, int len )
 
 
 	pad[len-1] = 0 ;
+}
+
+const	char * CGameMode :: SetPaddingValue ( char * pad, int len )
+{
+	FillPacketPadding ( pad, len ) ;
 	return pad ;
 }
 void	CGameMode :: SynchronizeTimeWithServer(bool syncNow)
@@ -2767,11 +2774,8 @@ void	CGameMode :: SynchronizeTimeWithServer(bool syncNow)
 	m_receiveSyneRequestTime = 0;
 	m_syncRequestTime = timeGetTime();
 
-	PACKET_CZ_REQUEST_TIME p;
-	p.PacketType = HEADER_CZ_REQUEST_TIME;
-	SetPaddingValue(p.pad, sizeof(p.pad));
-	p.clientTime = timeGetTime();
-	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
+	char p[PADDING_PACKET_BUFSIZE];
+	CRagConnection::instanceR().SendPacket(BuildCzRequestTime(p, timeGetTime()), p);
 
 	if (g_pingLog)
 	{
@@ -2802,11 +2806,8 @@ void	CGameMode :: RequestActorName(DWORD aid)
 
 	m_actorNameReqTimer[aid] = timeGetTime();
 
-	PACKET_CZ_REQNAME p;
-	p.PacketType = HEADER_CZ_REQNAME;
-	SetPaddingValue(p.pad, sizeof(p.pad));
-	p.AID = aid;
-	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
+	char p[PADDING_PACKET_BUFSIZE];
+	CRagConnection::instanceR().SendPacket(BuildCzReqname(p, aid), p);
 
 	m_actorNameList[aid].Clear();
 
@@ -2852,11 +2853,8 @@ void	CGameMode :: RequestActorNameByGID(DWORD gid)
 
 	m_actorNameByGIDReqTimer[gid] = timeGetTime();
 
-	PACKET_CZ_REQNAME_BYGID p;
-	p.PacketType = HEADER_CZ_REQNAME_BYGID;
-	SetPaddingValue(p.pad, sizeof(p.pad));
-	p.GID = gid;
-	CRagConnection::instanceR().SendPacket(CRagConnection::instanceR().GetPacketSize(p.PacketType), (const char *)&p);
+	char p[PADDING_PACKET_BUFSIZE];
+	CRagConnection::instanceR().SendPacket(BuildCzReqnameBygid(p, gid), p);
 }
 
 void	CGameMode :: CheckGuildMemberStatusCache(DWORD gid, const NamePair& actorName)
