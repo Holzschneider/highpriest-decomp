@@ -8,9 +8,9 @@
  *   bf_file.h       the game folder, the write locations, file access
  *   bf_settings.h   the settings object and its property list
  *
- * No Windows types. The adapters in port/compat give these functions the
- * Win32 names the client calls today (CreateThread, critical sections,
- * MessageBox, ShellExecute, ...); in M11 the client calls them directly.
+ * No Windows types. The adapters of port/compat gave these functions the
+ * Win32 names the client called (CreateThread, critical sections,
+ * MessageBox, ShellExecute, ...); since M11 the client calls them directly.
  *
  * Atomics: the client's InterlockedIncrement/Decrement are served by the
  * compiler's atomics (std::atomic or __atomic_add_fetch on the LONG) in the

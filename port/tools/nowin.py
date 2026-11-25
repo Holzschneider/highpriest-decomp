@@ -252,8 +252,17 @@ def ninja_units(build, names, sysdirs):
     return sorted(results.items())
 
 
+# Where a quoted #include of src/ or port/ is looked up: the including file's
+# folder, then the -I paths of flags.sh that hold the client's own headers.
+TEXT_DIRS = ('src', 'port/client/include', 'port/client/src', 'port/instrument')
+
+
 def text_check(names):
-    """Every #include line of a tracked source file that names a Windows header."""
+    """Every #include line of a tracked source file that names a Windows header.
+    A quoted include that finds a tracked file is that file: reported only
+    when the file itself has a Windows header's name and is not one of
+    OWN_HEADERS (src/WinCrypt.h was). Otherwise the name is compared whole
+    with the list (<Security/Security.h> is the SDK's, not security.h)."""
     files = subprocess.run(['git', 'ls-files', '--', 'src', 'port'], cwd=ROOT, capture_output=True,
                            text=True, check=True).stdout.split('\n')
     hits = []
@@ -269,12 +278,19 @@ def text_check(names):
             if not m:
                 continue
             name = os.path.normpath(m.group(2).replace('\\', '/')).lower()
-            if not any(name == w or name.endswith('/' + w) for w in names):
-                continue
-            here = os.path.join(ROOT, os.path.dirname(f), m.group(2))
-            if m.group(1) == '"' and os.path.exists(here) and rel(here) in OWN_HEADERS:
-                continue
-            hits.append('%s:%d\t%s' % (f, n, m.group(2)))
+            found = None
+            if m.group(1) == '"':
+                for base in (os.path.dirname(f),) + TEXT_DIRS:
+                    here = os.path.join(ROOT, base, m.group(2))
+                    if os.path.isfile(here):
+                        found = rel(here)
+                        break
+            if found is not None:
+                bad = os.path.basename(found).lower() in names and found not in OWN_HEADERS
+            else:
+                bad = name in names
+            if bad:
+                hits.append('%s:%d\t%s' % (f, n, m.group(2)))
     for h in hits:
         print(h)
     sys.stderr.write('nowin: %d #include lines name a Windows or DirectX header\n' % len(hits))

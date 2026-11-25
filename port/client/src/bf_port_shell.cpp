@@ -1,6 +1,9 @@
 // The client's message boxes and "open" (bf_port.h: bf_port_alert,
 // bf_port_open), as user32's MessageBox and shell32's ShellExecute adapters
-// of stage A did them (port/compat/win32/src/bf_win32_shell.cpp).
+// of stage A did them (port/compat/win32/src/bf_win32_shell.cpp, deleted).
+// The message box is bf_sys_alert_codepage, the one helper for the client's
+// text in alerts (Mode.cpp's ErrorMsg calls it directly), with the trace
+// line and the default title the client's MessageBox calls had.
 #include "bf_port.h"
 
 #include <string.h>
@@ -32,10 +35,10 @@ std::string ToUtf8(const char *text)
 extern "C" bf_sys_alert_answer bf_port_alert(const char *title, const char *message, bf_sys_alert_style style,
                                              bf_sys_alert_buttons buttons)
 {
-	std::string text = ToUtf8(message ? message : "");
-	std::string caption = ToUtf8(title ? title : "Error");
-	bf_tracef(BFT_UI, "MessageBox \"%s\": %s", caption.c_str(), text.c_str());
-	return bf_sys_alert(caption.c_str(), text.c_str(), style, buttons);
+	if (!title)
+		title = "Error";
+	BF_TRACE(BFT_UI, "MessageBox \"%s\": %s", ToUtf8(title).c_str(), ToUtf8(message ? message : "").c_str());
+	return bf_sys_alert_codepage(0, title, message, style, buttons);
 }
 
 extern "C" int bf_port_open(const char *target)

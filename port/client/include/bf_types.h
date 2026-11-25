@@ -27,8 +27,8 @@
  * port/client/test (bifrost-types-test, -c) checks all of it against
  * wine_types.ref, what Wine gave each name.
  * Names and values were enumerated from the built source (port/tools/
- * winnames.py, group "keep") and read from the Wine headers by a compiled
- * program; the full families of VK_*, D3DTA_*, D3DFVF_* and of the D3D enums
+ * winnames.py, group "keep"; retired in M11.11) and read from the Wine
+ * headers by a compiled program; the full families of VK_*, D3DTA_*, D3DFVF_* and of the D3D enums
  * are kept so that the input and graphics modules can map them.
  *
  * Valid C (gnu89, the Lua units get the prefix too: hence min and max only

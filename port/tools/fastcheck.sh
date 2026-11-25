@@ -2,6 +2,9 @@
 # The check the lead runs at each integration: configures and builds the
 # debug preset for everything that is expected to build, runs the native test
 # programs that need no window and no sound, and runs the compile census.
+# Since M11.11 also: no unit of the build read a Windows or DirectX header and
+# no source names one (nowin.py --ninja, --text), and the client links Apple
+# frameworks, zlib and the system libraries only (otool -L).
 # Prints one summary line per part; exits non-zero when a part fails.
 #
 #   port/tools/fastcheck.sh [--client | --client-errors]
@@ -49,6 +52,32 @@ if cmake --build --preset debug --target $TARGETS -- -k 0 > "$LOGS/build.log" 2>
   line build ok "$TARGETS; $warnings warnings, $(since $t)"
 else
   fail build "$(grep -c '^FAILED' "$LOGS/build.log") steps failed in: $TARGETS"
+fi
+
+# nowin: the headers the build just read (Ninja's dependency log) and the
+# include lines of every tracked source
+t=$SECONDS
+if python3 port/tools/nowin.py --ninja > "$LOGS/nowin.log" 2>&1 && python3 port/tools/nowin.py --text >> "$LOGS/nowin.log" 2>&1; then
+  line nowin ok "$(grep -o '[0-9]* of [0-9]* units' "$LOGS/nowin.log" | head -1) read a Windows header, 0 include lines name one, $(since $t)"
+else
+  fail nowin "$(grep -E '^nowin:' "$LOGS/nowin.log" | tr '\n' ';')"
+fi
+
+# link: the client's libraries are Apple frameworks, zlib and the system's
+# C++, C and Objective-C runtimes (technical plan 3.1, 9), nothing by @rpath
+if [ $CLIENT = build ]; then
+  exe=$BIN/$(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake | tr '[:upper:]' '[:lower:]')
+  if otool -L "$exe" > "$LOGS/link.log" 2>&1; then
+    other=$(tail -n +2 "$LOGS/link.log" | awk '{print $1}' \
+      | grep -vE '^/System/Library/Frameworks/[^/]+\.framework/|^/usr/lib/(libz\.1|libc\+\+\.1|libSystem\.B|libobjc\.A)\.dylib$')
+    if [ -z "$other" ]; then
+      line link ok "$(($(wc -l < "$LOGS/link.log") - 1)) libraries: Apple frameworks, libz, libc++, libSystem, libobjc"
+    else
+      fail link "not allowed: $(echo $other)"
+    fi
+  else
+    fail link "otool -L $exe"
+  fi
 fi
 
 # tests: the native test programs that need no window and no sound

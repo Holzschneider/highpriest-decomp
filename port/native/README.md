@@ -1,6 +1,6 @@
 # Native modules
 
-The parts of the port that stay: code written for macOS, with no Windows types, that the client will call directly once the adapters in `port/compat` are gone (M11). Each module is developed and tested on its own, before and independently of the client.
+The parts of the port that stay: code written for macOS, with no Windows types, that the client calls directly since M11 removed the adapters of `port/compat`. Each module is developed and tested on its own, before and independently of the client.
 
 ## Layout
 
@@ -28,7 +28,7 @@ port/native/<module>/
 ## Rules for every module
 
 - **The header is the contract.** It is a C header usable from C++14 (`extern "C"`, plain C types, opaque handles, no exceptions across the boundary, no Objective-C types: an AppKit or Metal object crosses as `void *` with its class named in a comment). Names start with `bf_<module>_`. Every function documents its thread: the client's main thread unless it says otherwise.
-- **No Windows types and no client headers.** A module does not include anything from `src/` or `port/compat`. What the client needs in Windows shape is the adapter's job. Reading `src/` to learn what the client needs is expected.
+- **No Windows types and no client headers.** A module does not include anything from `src/`. What the client needs in Windows shape is `port/client`'s job (`bf_types.h`, the bindings). Reading `src/` to learn what the client needs is expected.
 - **Strings:** file paths and displayed text cross as UTF-8 unless a function says it takes bytes in a named code page (the text module does, because the client holds CP949 and CP1252 bytes).
 - **One clock.** Only `sys` reads the time (`bf_clock_*`). Other modules call it or take a time as an argument.
 - **One event queue.** Input reaches the client only through the queue in `app`; the control socket injects into the same queue.

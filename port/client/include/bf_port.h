@@ -50,9 +50,9 @@ void bf_port_missing(unsigned category, const char *counter, const char *format,
 int bf_port_option(const char *option);
 
 /* A message box of the client (M11.5): title and message in the client's
-   code page (converted to UTF-8), traced under BFT_UI, then bf_sys_alert
-   (answered with its first button when alerts are off). Title NULL is
-   "Error". */
+   code page, traced under BFT_UI, then bf_sys_alert_codepage with the user
+   code page (answered with its first button when alerts are off). Title
+   NULL is "Error". */
 bf_sys_alert_answer bf_port_alert(const char *title, const char *message, bf_sys_alert_style style,
                                   bf_sys_alert_buttons buttons);
 

@@ -10,8 +10,8 @@
 // see the original fault.
 //
 // ExceptionFilter keeps the name WinMain hands to SetUnhandledExceptionFilter.
-// It is never called on macOS; the call itself compiles against the Wine
-// headers and is linked to the Win32 adapter's stub (port/compat/win32).
+// It is never called on macOS: WinMain makes that call only without
+// BF_PORT.
 // Compiled with the client's flags (bf_client_flags in CMakeLists.txt).
 #include "bf_types.h"
 #include <execinfo.h>
