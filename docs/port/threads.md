@@ -4,7 +4,7 @@ Step M8.5 of the [implementation plan](implementation-plan.md): "Worker threads 
 
 ## The rule
 
-The client is a single-threaded program with a few helper threads. The main thread runs `WinMain`'s loop, the modes, the world, the UI, the renderer and the d3d/ddraw adapter (`port/compat/d3d`) on top of `bf_gfx`, and drains the window events and the control socket's inbox when the client pumps. Nothing in `src/`, in the d3d adapter, the texture manager (`CTexMgr`), the resource manager's lists (`CResMgr`, apart from `Get`), the scene graph or the effects is safe to call from another thread, and the port does not try to make it so. A helper thread is acceptable only when what it shares with the main thread is behind a lock or an atomic.
+The client is a single-threaded program with a few helper threads. The main thread runs `WinMain`'s loop, the modes, the world, the UI, the renderer and its device (`port/client/src/bf_render.cpp`, before M11.9 the d3d/ddraw adapter) on top of `bf_gfx`, and drains the window events and the control socket's inbox when the client pumps. Nothing in `src/`, in `bf_render`, the texture manager (`CTexMgr`), the resource manager's lists (`CResMgr`, apart from `Get`), the scene graph or the effects is safe to call from another thread, and the port does not try to make it so. A helper thread is acceptable only when what it shares with the main thread is behind a lock or an atomic.
 
 Per thread, the 2008 design is kept where a lock makes it safe; where the thread existed only to hide loading time on 2008 hardware, its work runs on the main thread under `BF_PORT`, which the plan allows.
 
