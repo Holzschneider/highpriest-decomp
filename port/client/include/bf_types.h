@@ -344,6 +344,44 @@ typedef LPLOGFONTA LPLOGFONT;
 #define ISO10_CHARSET       ((BYTE)245)
 #define CELTIC_CHARSET      ((BYTE)246)
 
+/* Language identifiers: CLanguage's keyboard language and script folder,
+   and the character set of a language (GetCharsetFromLang). */
+typedef WORD LANGID;
+#define MAKELANGID(p, s) ((((WORD)(s)) << 10) | (WORD)(p))
+#define PRIMARYLANGID(l) ((WORD)(l) & 0x3ff)
+#define SUBLANGID(l) ((WORD)(l) >> 10)
+#define LANG_ARABIC         0x01
+#define LANG_BULGARIAN      0x02
+#define LANG_CHINESE        0x04
+#define LANG_CZECH          0x05
+#define LANG_GERMAN         0x07
+#define LANG_GREEK          0x08
+#define LANG_ENGLISH        0x09
+#define LANG_HEBREW         0x0d
+#define LANG_HUNGARIAN      0x0e
+#define LANG_ITALIAN        0x10
+#define LANG_JAPANESE       0x11
+#define LANG_KOREAN         0x12
+#define LANG_POLISH         0x15
+#define LANG_PORTUGUESE     0x16
+#define LANG_ROMANIAN       0x18
+#define LANG_RUSSIAN        0x19
+#define LANG_CROATIAN       0x1a
+#define LANG_SLOVAK         0x1b
+#define LANG_THAI           0x1e
+#define LANG_TURKISH        0x1f
+#define LANG_UKRAINIAN      0x22
+#define LANG_BELARUSIAN     0x23
+#define LANG_SLOVENIAN      0x24
+#define LANG_ESTONIAN       0x25
+#define LANG_LATVIAN        0x26
+#define LANG_LITHUANIAN     0x27
+#define LANG_VIETNAMESE     0x2a
+#define LANG_MACEDONIAN     0x2f
+#define SUBLANG_CHINESE_TRADITIONAL 0x01
+#define SUBLANG_CHINESE_SIMPLIFIED  0x02
+#define SUBLANG_ENGLISH_US          0x01
+
 #define FW_DONTCARE   0
 #define FW_THIN       100
 #define FW_EXTRALIGHT 200
@@ -595,6 +633,25 @@ typedef LPLOGFONTA LPLOGFONT;
 #define WM_SYSCOMMAND           0x112
 #define WM_SYSKEYDOWN           0x104
 #define WM_USER                 0x400
+
+/* What else the port's pump (port/client/src/bf_input.cpp) sends the window
+   procedure, and the parameters it gives them, as Windows did. */
+#define WM_ACTIVATEAPP          0x1c
+#define WM_NCCREATE             0x81
+#define WM_NCDESTROY            0x82
+#define WM_SIZE                 0x5
+#define WM_SYSKEYUP             0x105
+#define HTCLIENT                1
+#define WA_INACTIVE             0
+#define WA_ACTIVE               1
+#define SIZE_RESTORED           0
+#define SIZE_MAXIMIZED          2
+#define MK_LBUTTON              0x1
+#define MK_RBUTTON              0x2
+#define MK_SHIFT                0x4
+#define MK_CONTROL              0x8
+#define MK_MBUTTON              0x10
+#define WHEEL_DELTA             120
 
 /* --------------------------------------- Direct3D 7 values the renderer keeps */
 

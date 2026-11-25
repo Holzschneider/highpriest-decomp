@@ -26,15 +26,136 @@ The library `bf_port_main` (root `CMakeLists.txt`) is port code, compiled with `
 
 | File | What it does |
 |---|---|
-| `bf_main.cpp` | `main`. Takes the port's flags out of the command line (`--headless`, `--control <path>` / `--control=<path>`, the launch arguments `--server`, `--account`, `--password`, `--character` (also `--flag=value`; the environment's `BF_SERVER`, `BF_ACCOUNT`, `BF_PASSWORD`, `BF_CHARACTER` when a flag is absent), Finder's `-psn_`), joins the rest with spaces as `lpCmdLine` and calls the client's `WinMain`. Before that, unless headless: `bf_app_init` (single instance "main"; a second launch exits 0), `bf_app_set_clock` (the sys clock in ms), `bf_prefs_choose_game_folder` (0: quit, -1: exit 1), `bf_prefs_install_menu_item`, `bf_compat_input_set_scale_setting(Display/UIScale, default 0 = auto)`. Opens the control socket when asked (`bf_control_path_from_args`): hooks `quit` (WM_CLOSE to the window, as Cmd+Q), `capture` (`bf_gfx_capture_png`), the pointer mapping through `bf_view`; state parts `mode`, `detail` and `windows`; the events `mode` and `window` (`open`/`close`, from comparing the windows of `bf_client_ui_windows` once per frame). `bf_port_launch(key)` hands the launch arguments to the login mode, NULL when the option `LaunchArguments` is off. Defines the `bf_port_*` functions of `bf_port.h`. |
-| | `bf_port_start_graphics`: called by `WinMain` right after `InitApp` (the input adapter's `CreateWindowExA` has made the window, its layer and the view): creates the gfx device on `bf_app_window_metal_layer()` at the view's logical size and UI scale, attaches it to the view and hands it to the Direct3D adapter, before `SetupDriver2`. |
+| `bf_main.cpp` | `main`. Takes the port's flags out of the command line (`--headless`, `--control <path>` / `--control=<path>`, the launch arguments `--server`, `--account`, `--password`, `--character` (also `--flag=value`; the environment's `BF_SERVER`, `BF_ACCOUNT`, `BF_PASSWORD`, `BF_CHARACTER` when a flag is absent), Finder's `-psn_`), joins the rest with spaces as `lpCmdLine` and calls the client's `WinMain`. Before that, unless headless: `bf_app_init` (single instance "main"; a second launch exits 0), `bf_app_set_clock` (the sys clock in ms), `bf_prefs_choose_game_folder` (0: quit, -1: exit 1), `bf_prefs_install_menu_item`, `bf_input_set_scale_setting(Display/UIScale, default 0 = auto)`. Opens the control socket when asked (`bf_control_path_from_args`): hooks `quit` (`bf_input_post(WM_CLOSE)` to the window, as Cmd+Q), `capture` (`bf_gfx_capture_png`), the pointer mapping through `bf_view`; state parts `mode`, `detail` and `windows`; the events `mode` and `window` (`open`/`close`, from comparing the windows of `bf_client_ui_windows` once per frame). `bf_port_launch(key)` hands the launch arguments to the login mode, NULL when the option `LaunchArguments` is off. Defines the `bf_port_*` functions of `bf_port.h`. |
+| | `bf_port_start_graphics`: called by `WinMain` right after `InitApp` (`bf_input_window_create` has made the window, its layer and the view): creates the gfx device on `bf_app_window_metal_layer()` at the view's logical size and UI scale, attaches it to the view and hands it to the Direct3D adapter, before `SetupDriver2`. |
 | | `bf_port_frame`: called at the top of `CheckSystemMessage`, i.e. once per frame of both modes. When the gfx device has presented a new frame it calls `bf_control_frame_done` (a capture reads the target, which still holds that frame); then, socket or not, `bf_view_sync()` (the window's size and the UI scale, M4.3a); then it reports a `mode` change as an event and calls `bf_control_poll`. |
 | | The client's resize path (M4.3a): at the first frame after the client has its renderer, the view's listener and modal frame are installed. The listener calls `bf_client_view_changed(w, h)` (`WinMain.cpp`): `C3dDevice::BfResize` makes the back buffer, z-buffer and backup surface anew at the logical size and sets the viewport, `CRenderer::SetSize` (projection and picking) and the guard bands follow, and `UIWindowMgr::BfOnResize` sets the bounds and puts the windows back: the login mode's windows move with the placement `MakeWindow` gives them at that size, others keep the edge they touch, else their offset from the centre (x) and their share of the height (y), and all are clamped into view. The modal frame (`bf_client_modal_frame`) runs the current mode's `OnUpdate` once without the message pump while AppKit holds the event loop (live resize, an open menu); only while a mode is in `OnRun`. |
 | | Control: `resize` (scale setting first, then the content size in pixels, then a sync; `bad_state` for a size in fullscreen; `resize_busy` while a fullscreen change asked for is under way) and the state part `view`. |
 | | The end of the process: an `atexit` handler registered first in `main` saves the settings, writes the counters (when any trace category beyond `err`/`stub` is on), flushes and calls `_exit`. The client's static destructors (`CFileMgr`, `CSkinMgr`) would otherwise run after the port's own statics, in no defined order across units, and call into the file tables after they are gone; they release only what the system reclaims. An `exit(n)` elsewhere therefore ends with status 0. |
+| `bf_input.cpp` | The client's window, event pump, keyboard, mouse, cursor and clipboard (`include/bf_input.h`, M11.7), on `port/native/app` and `port/native/view`, with the rules of the deleted input adapter (`port/compat/input`, M5.1, M5.2); see "bf_input" below. Test: `bifrost-input-test` (`port/client/test/input_test.cpp`, label `window`). |
 | `bf_zlib.cpp` | `bf_zlib_uncompress`/`bf_zlib_compress` on `bf_codec_inflate`/`deflate`: `common.h` maps the client's `uncompress`/`compress` to them, because its declarations take a 32-bit `DWORD *` length and the system zlib's `uLongf` is 64 bits. |
 | `bf_crt.cpp` | The Visual C++ runtime names macOS lacks, as real functions: `itoa`, `_itoa`, `_ltoa` (radix 2–36, sign only in radix 10), `strlwr`, `_strlwr`, `strupr`, `_strupr` (ASCII only, as the "C" locale), `_lrotl`, `_lrotr`. `spawnl` is a stub (`BF_STUB`, returns -1, `ENOENT`): its caller starts `findhack.exe` (GameGuard; `skin.cpp`'s `runzip.exe` call is `!BF_PORT` since M11.3). Since M11.3 also the functions behind `bf_crt.h` (the C library's file names on client paths): `bf_crt_fopen` (= `bf_file_fopen`), `bf_crt_access`, `bf_crt_remove`, `bf_crt_rename`, `bf_crt_unlink`, `bf_crt_rmdir`, `bf_crt_chmod`, `_mkdir`, on `bf_file.h`; tested by `bifrost-compat-win32-test` (`test/client_calls.cpp`) until that test goes in M11.11. |
 | `bf_setting_key.cpp` | `bf_setting_*` of `include/bf_setting_key.h` (M11.4): the client's registry paths below HKLM (its code page, `\` between parts) on `bf_settings`, with the rules of the deleted registry adapter so that existing `Settings.plist` files read the same: `Software\<name>[\...]` is group `Client[/...]`, any other path `Registry/HKLM/<path>`; names and strings converted between `bf_file_user_codepage()` and UTF-8; a 4-byte integer write an integer, a string write the text up to its NUL within the size, anything else data; a read copies the value as `RegQueryValueEx` did (an integer as 4 bytes, a string with its NUL) and fails when it does not fit; `ID` of the root is `Account/Name`, `PASSWORD` the Keychain item of that account. `bf_setting_close` saves when something changed. `bf_setting_get`/`bf_setting_set` take only 4-byte values (static_assert). Test: `bifrost-setting-key-test` (`port/client/test/setting_key_test.cpp`, headless). `port/tools/native_settings.py` rewrote the client's calls. |
 | `bf_port_shell.cpp` | `bf_port_alert` and `bf_port_open` of `bf_port.h` (M11.5, for `WinMain.cpp` and `window/UIFrameWnd.cpp`): the client's message boxes (its code page to UTF-8, a `BFT_UI` trace line, `bf_sys_alert`) and "open" (a URL with `://` or `mailto:` to `bf_sys_open_url`, else the resolved client path to `bf_sys_open_path`), as the MessageBox and ShellExecute adapters did. |
 
 The client's call sites under `BF_PORT` (M5 added: `UIWindowMgr::MakeWindow`, which records each window's id; `LoginMode.cpp`, the launch arguments in `OnChangeState` and the zero-filled account and password buffers; `UILoginWnd`, "save" keeping the password through the registry's `PASSWORD`, i.e. the Keychain; `UISelectCharWnd::InitFromReg`, `CURSLOT` initialised): `WinMain.cpp` (`bf_port_start_graphics` after `InitApp`, `bf_port_frame` in `CheckSystemMessage`, the `--headless` stop), `common.h` (zlib), `resource/Bitmap.cpp` `LoadJPGData` and `3dlib/Renderer.cpp` `SaveJPG` (JPEG through `bf_codec_jpeg_*`; rows unpadded, as the client's own loops read and write them; the screenshot path resolved with `bf_file_resolve`), `3dlib/Device.cpp` (no `TestScreen`), `Mode.cpp` (`CMode::GetSubMode`, declared but never defined in the reconstruction; `g_bfModeRunning` around `OnRun`), `3dlib/Device.cpp` (`BfResize`), `3dlib/Renderer.cpp` (the UI pass samples texel-exact faces unfiltered, snapped to logical pixels), `UIWindowMgr.cpp` (`BfOnResize`).
+
+## bf_input: window, pump, keys, mouse, clipboard (M11.7)
+
+`src/` calls `port/client/include/bf_input.h` under `BF_PORT`: `WinMain.cpp`
+(`InitApp`'s window, `CheckSystemMessage`'s pump, the window procedure's
+cursor, default procedure and inactive `WM_MOUSEMOVE`, `ExitApp`),
+`movie/CBink.cpp` (the movie's pump and its destination rectangle),
+`device/Control.cpp` (`CMouse`), `framework/Language.cpp` (key state, the
+clipboard), `UIWindowMgr.cpp`, `GameMode.cpp`, `Mode.cpp` (`CheckKeyPressed`).
+The client's window procedure stays its own; the message ids, virtual keys
+and their parameters are the Windows numbers, which the client keeps
+(`include/bf_types.h`). These are the input adapter's rules, moved unchanged
+(`bifrost-input-test` has its checks):
+
+- **Start-up.** `main` has run `bf_app_init` (single instance "main"; a
+  second launch brings the first to the front and exits 0, so `InitApp`'s
+  `FindWindow` test is gone and `g_multiSTOP` stays 0) and set the UI scale
+  setting. `bf_input_window_create(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME,
+  WindowProc)` makes the window with that content size in points (title
+  CP1252 to UTF-8), starts the view and sends `WM_NCCREATE` and `WM_CREATE`.
+  macOS places the window; `Session.cpp` stores 0 for `window_left` and
+  `window_top`, as before.
+- **The pump.** `bf_input_peek` hands out pending messages first. When none
+  are pending it takes **one** event out of the app queue and translates it,
+  so the key and pointer state the client reads while it handles a message
+  is the state as of that message. When the queue is empty it calls
+  `bf_app_pump(0)` once and looks again; then it reports "no message" and
+  pumps again on the next call. A `WM_KEYDOWN` it hands out puts the
+  `WM_CHAR` 8, 9, 13 or 27 that `TranslateMessage` typed for Backspace,
+  Tab, Return and Escape (not with Ctrl) right behind it. `bf_input_post`
+  appends (the control socket's `quit`). AppKit's own modal loops (live
+  resize, menus) run the view's modal frame (`bf_main.cpp`).
+
+| App event | Messages |
+|---|---|
+| `KEY_DOWN` | `WM_KEYDOWN`, or `WM_SYSKEYDOWN` while Alt (Option) is held without Ctrl, for F10 and for Alt itself; `wParam` the VK (`VK_SHIFT`/`VK_CONTROL`/`VK_MENU` for either side); `lParam` = `1 \| scan << 16 \| extended << 24 \| alt << 29 \| previous << 30`, previous being the repeat flag or the key already held |
+| `KEY_UP` | `WM_KEYUP`/`WM_SYSKEYUP` with `0xC0000000` added; only for keys whose down was sent |
+| `TEXT` | one `WM_CHAR` per character, CP1252; characters CP1252 lacks are dropped; the whole text is dropped when its key-down had Ctrl, Cmd, or Option on a game shortcut |
+| `POINTER_MOVE` | `WM_SETCURSOR` (`HTCLIENT`) when inside, then `WM_MOUSEMOVE` with the logical position |
+| `POINTER_ENTER` | `WM_SETCURSOR` |
+| `BUTTON_*`, `WHEEL` | none: `CMouse` reads them (`bf_input_mouse_read`) |
+| `RESIZE`, `FULLSCREEN` | `bf_view_handle_event`, then `WM_SIZE` with the logical size |
+| `FOCUS(1)` | `WM_ACTIVATEAPP(1)`, `WM_NCACTIVATE(1)`, `WM_ACTIVATE(WA_ACTIVE)`, `WM_SETFOCUS` |
+| `FOCUS(0)` | held keys forgotten; `WM_NCACTIVATE(0)`, `WM_ACTIVATE(WA_INACTIVE)`, `WM_ACTIVATEAPP(0)`, `WM_KILLFOCUS` |
+| `QUIT` (Cmd+Q, close button, Dock, logout) | `WM_CLOSE` |
+| `VISIBILITY`, `REOPEN`, `USER` | none |
+
+`WM_MOVE`, `WM_PAINT` and `WM_SYSCOMMAND` are never sent (the window
+procedure's cases for them, and for the menu and size-move loops and the
+IME, are `#ifndef BF_PORT` where they named Windows calls). The default
+procedure (`bf_input_default_proc`) answers `TRUE` to `WM_NCCREATE` and
+`WM_NCACTIVATE`, 0 to the rest.
+
+- **Keys** (spec section 4). Letters, digits and punctuation are `'A'`…,
+  `'0'`…, `VK_OEM_*` with set-1 scan codes (A 0x1E, D 0x20, W 0x11, X 0x2D);
+  Return 0x1C, Tab 0x0F, Delete (⌫) `VK_BACK` 0x0E, Esc 0x01, Space 0x39;
+  Forward Delete, Home, End, Page Up/Down and the arrows are extended;
+  F1–F12 (F10 as `WM_SYSKEYDOWN`); keypad digits are `VK_NUMPAD*` (a Mac
+  keypad has no Num Lock state), keypad Enter `VK_RETURN` extended, Clear
+  `VK_NUMLOCK`; Help (the Insert of a PC keyboard) `VK_INSERT`; F13, F14,
+  F15 (Print Screen, Scroll Lock, Pause of a PC keyboard) `VK_SNAPSHOT`,
+  `VK_SCROLL`, `VK_PAUSE`, and `VK_SNAPSHOT` comes as `WM_KEYUP` only, as
+  Windows sends it (the client takes the picture there); Cmd and Fn send no
+  messages (`VK_LWIN`/`VK_RWIN` read Cmd).
+- **Option is Alt.** Its key-down is `WM_SYSKEYDOWN`. The character macOS
+  types for it is dropped when the key is a game shortcut
+  (`bf_input_is_alt_shortcut`: the letters `UIWindowMgr::ProcessPushButton`
+  tests with `VK_MENU` but F, K, N; the digits; Insert, Home, End, F10), and
+  typed otherwise (Option+L still types `@` on a German layout). Ctrl drops
+  the text as well.
+- **Cmd keeps its Mac meaning**: Cmd+Q `WM_CLOSE`; Cmd+F
+  `bf_view_toggle_fullscreen`; Cmd+V types the clipboard as `WM_CHAR`s into
+  the focused field (CP1252, control characters dropped, no key message);
+  Cmd+X, Cmd+C are `WM_KEYDOWN 'X'`/`'C'` while `VK_CONTROL` reads down,
+  until the key or Cmd is let go (`CLanguage::OnKeyDown`'s cut and copy);
+  **Cmd+I is Insert** (sit; Cmd+Option+I is Alt+Insert, the compass);
+  **Cmd+Shift+S is Print Screen** (with Ctrl a BMP; Cmd+S alone does
+  nothing); any other Cmd combination is the system's. AppKit's menu takes
+  Cmd+Q and Cmd+F itself; these rules cover injected key-downs.
+- **Key state.** `bf_input_key_state` is `GetKeyState`: 0x8000 while held,
+  plus the Caps Lock latch and always 1 for Num Lock; `bf_input_async_key_state`
+  is `GetAsyncKeyState`: 0x8000 or 0, never bit 0. `VK_LBUTTON`,
+  `VK_RBUTTON`, `VK_MBUTTON` read the pointer's buttons.
+- **The mouse** (`CMouse`): `bf_input_mouse_read(m_xPos, m_yPos, &state)`
+  in place of `GetDeviceState`, with `DIMOUSESTATE`'s field names. `lX`/`lY`
+  are the logical pixel under the pointer (`bf_view_px_to_logical_pixel`,
+  clamped to the logical screen) minus the position the client holds, so
+  the sprite is where the macOS pointer is. While the right button is held
+  they are the device's own movement (`bf_app_pointer_take_delta`, divided
+  by the UI scale, fractions carried over), so the camera turns on past the
+  window's edge; let go, the next read brings the client back to the
+  pointer. `lZ` is the wheel × 120, positive away from the user. Buttons:
+  left, right, middle, X1; `m_bSwapButton` is 0 (macOS has swapped them
+  already). Not acquired (focus lost: `SetAcquire`), a read fails as
+  `DIERR_NOTACQUIRED` did; acquiring forgets the movement before. The stage A
+  adapter guessed the client's position; the client now passes it.
+- **The cursor.** `WM_SETCURSOR`'s `SetCursor(NULL)` and the fullscreen
+  start's `ShowCursor(FALSE)` are `bf_input_hide_cursor`: the system pointer
+  is hidden over the content area only. The pointer is never captured,
+  confined or warped. `bf_input_cursor_pos` (inactive `WM_MOUSEMOVE`) is the
+  logical position, not clamped. "Screen" coordinates are client ones:
+  `bf_input_client_size` is the logical size.
+- **Clipboard.** `bf_input_clipboard_text` (Shift+Insert, Ctrl+V): the Mac
+  clipboard in CP1252, characters it lacks dropped, lines ending CR LF, NULL
+  for nothing. `bf_input_clipboard_set_text` (Ctrl+C, Ctrl+X, Shift+Delete):
+  CP1252 to UTF-8, CR LF as LF.
+- **No IME.** macOS input methods compose and commit text, which arrives as
+  `WM_CHAR` in CP1252 (Hangul is dropped). `CLanguage` behaves as with no
+  input method context: no composition, no candidates (`GetImeCompStr` and
+  the others empty the composition; `GetCandidateString` is ""); the
+  keyboard language is English (US), `MAKELANGID(LANG_ENGLISH,
+  SUBLANG_ENGLISH_US)`.
+
+The user32 names other client files still call (`3dlib/Device.cpp`,
+`UIControl.cpp`, `3dlib/DrawUtil.cpp`, the `wsprintf` callers) are in
+`port/compat/win32/src/bf_win32_window.cpp`, on these functions, until their
+callers change.
+
+Untested: real keyboards and pointers (the unattended Mac's screen is
+locked; everything is injected), Korean input.

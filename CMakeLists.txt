@@ -335,6 +335,7 @@ set(BF_CLIENT_PORT_SOURCES
 # native modules' headers. main is pulled out of the library by the linker.
 add_library(bf_port_main STATIC
 	port/client/src/bf_main.cpp
+	port/client/src/bf_input.cpp
 	port/client/src/bf_control_game.cpp
 	port/client/src/bf_control_sound.cpp
 	port/client/src/bf_control_movie.cpp
