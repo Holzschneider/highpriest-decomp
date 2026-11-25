@@ -345,7 +345,8 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_control_movie.cpp
 	port/client/src/bf_control_coverage.cpp
 	port/client/src/bf_zlib.cpp
-	port/client/src/bf_crt.cpp)
+	port/client/src/bf_crt.cpp
+	port/client/src/bf_setting_key.cpp)
 bf_compat_flags(bf_port_main)
 target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_compat_bink bf_instrument ${BF_NATIVE_LIBS})
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
@@ -359,6 +360,17 @@ foreach(lib IN LISTS BF_COMPAT_LIBS BF_NATIVE_LIBS)
 	list(APPEND bf_link $<LINK_ONLY:${lib}>)
 endforeach()
 target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_port_main> $<LINK_ONLY:bf_instrument> ${bf_link} z)
+
+# bifrost-setting-key-test: the client's settings keys (port/client, M11.4)
+# on bf_settings, and the Settings.plist they leave. Built with the client.
+add_executable(${BF_EXE}-setting-key-test port/client/test/setting_key_test.cpp port/client/src/bf_setting_key.cpp)
+bf_compat_flags(${BF_EXE}-setting-key-test)
+target_compile_options(${BF_EXE}-setting-key-test PRIVATE -Wall -Wextra)
+target_link_libraries(${BF_EXE}-setting-key-test PRIVATE bf_sys bf_text bf_instrument)
+add_dependencies(${BF_EXE} ${BF_EXE}-setting-key-test)
+add_test(NAME setting-key COMMAND ${BF_EXE}-setting-key-test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set_tests_properties(setting-key PROPERTIES LABELS headless TIMEOUT 300
+	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${CMAKE_CURRENT_BINARY_DIR}")
 
 # ---------------------------------------------------------------- probes
 # bifrost-packetlen and bifrost-netprobe compile the game's packet.cpp,
