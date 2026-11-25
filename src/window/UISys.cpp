@@ -537,7 +537,7 @@ const char*	UIWindow :: FindColorMark(const char* text, const char* text_end)
 
 
 
-	for(;text < text_end; text = CharNextExA(g_codePage, text, 0))
+	for(;text < text_end; text += bf_text_char_length(g_codePage, text, -1))
 	{
 		if('^' != *text || text_end-text < 6)
 			continue;
@@ -726,7 +726,7 @@ void	UIWindow :: TextOutVertical(int x, int y, const char *text, int textLen, in
 
 	while(textIter < textEnd)
 	{
-		textNext = CharNextExA(g_codePage, textIter, 0);
+		textNext = textIter + bf_text_char_length(g_codePage, textIter, -1);
 		dc.GetTextExtentPoint32A(textIter, textNext - textIter, &size);
 		maxWidth = max(maxWidth, size.cx);
 		textIter = textNext;
@@ -735,7 +735,7 @@ void	UIWindow :: TextOutVertical(int x, int y, const char *text, int textLen, in
 	textIter = text;
 	while(textIter < textEnd)
 	{
-		textNext = CharNextExA(g_codePage, textIter, 0);
+		textNext = textIter + bf_text_char_length(g_codePage, textIter, -1);
 		dc.GetTextExtentPoint32A(textIter, textNext - textIter, &size);
 		dc.TextOutA(x+(maxWidth-size.cx)/2, y, textIter, textNext - textIter);
 		textIter = textNext;
@@ -850,7 +850,7 @@ int		UIWindow :: GetTextHeightVertical(const char * text, int textLen, int fontT
 
 	while(text < textEnd)
 	{
-		textNext = CharNextExA(g_codePage, text, 0);
+		textNext = text + bf_text_char_length(g_codePage, text, -1);
 		dc.GetTextExtentPoint32A(text, textNext - text, &size);
 		height += size.cy;
 		text = textNext;

@@ -34,6 +34,8 @@ extern char          g_MessageHi;
 #include "RagEffect.h"
 
 #include "framework/Language.h"
+#include "bf_file.h"
+#include "bf_text.h"
 
 extern int       g_loginStartMode;
 extern ServiceType  g_serviceType;
@@ -13911,7 +13913,7 @@ void CGameMode::Zc_Formatstring_Msg(char const *buf)
 		char *pTemp = const_cast<char *>(pFormatStr);
 		while (NULL != *pTemp)
 		{
-			if (IsDBCSLeadByte(*pTemp))
+			if (bf_text_is_lead_byte(bf_file_user_codepage(), *pTemp))
 			{
 				pTemp += 2;
 				continue;

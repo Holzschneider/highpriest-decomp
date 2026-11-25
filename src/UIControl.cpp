@@ -17,6 +17,7 @@
 #include "resource/Action.h"
 #include "resource/Emblem.h"
 #include "3dlib/Renderer.h"
+#include "bf_app.h"
 #include "resource/Ground.h"
 
 extern CRenderer* g_renderer;
@@ -1160,9 +1161,9 @@ void UIEditCtrl::RefreshText()
 		if (m_xOffset)
 			left = GetTextWidth(m_text.c_str(), m_xOffset, 0, 12, 0);
 		if (GetTextWidth(m_text.c_str(), m_selectionCursor, 0, 12, 0) + 3 - left > m_w - 12) {
-			const char *textIter = CharNextExA(g_codePage, m_text.c_str(), 0);
+			const char *textIter = m_text.c_str() + bf_text_char_length(g_codePage, m_text.c_str(), -1);
 			while (GetTextWidth(textIter, 0, 0, 12, 0) + 3 > m_w - 12)
-				textIter = CharNextExA(g_codePage, textIter, 0);
+				textIter += bf_text_char_length(g_codePage, textIter, -1);
 			m_xOffset = (m_xOffset + m_selectionCursor - prevCursor < m_selectionCursor - strlen(textIter)) ? m_xOffset + m_selectionCursor - prevCursor : m_selectionCursor - strlen(textIter);
 		}
 	} else if (m_selectionCursor < prevCursor) {
@@ -1184,10 +1185,10 @@ void UIEditCtrl::SetTextByMaxChar()
 {
 	int size = m_text.size();
 	if (size > m_maxchar) {
-		char *textIter = CharNextExA(g_codePage, m_text.c_str(), 0);
+		char *textIter = (char*)m_text.c_str() + bf_text_char_length(g_codePage, m_text.c_str(), -1);
 		while ((unsigned)size - strlen(textIter) <= (unsigned)m_maxchar)
-			textIter = CharNextExA(g_codePage, textIter, 0);
-		textIter = CharPrevExA(g_codePage, m_text.c_str(), textIter, 0);
+			textIter += bf_text_char_length(g_codePage, textIter, -1);
+		textIter = (char*)m_text.c_str() + bf_text_char_prev(g_codePage, m_text.c_str(), textIter - m_text.c_str());
 		m_text.resize(size - strlen(textIter));
 		while (m_text.size() < m_maxchar)
 			m_text += " ";
@@ -1591,7 +1592,7 @@ INT_PTR UIEditCtrl3::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PT
 		}
 
 	case UM_DEFPUSH:
-		if (m_onShiftEnter && HIBYTE(GetKeyState(VK_SHIFT)) || !m_onShiftEnter) {
+		if (m_onShiftEnter && (bf_app_modifiers() & BF_APP_MOD_SHIFT) || !m_onShiftEnter) {
 			char tmp[3];
 			tmp[0] = '\r';
 			tmp[1] = '\n';
@@ -1612,10 +1613,10 @@ void UIEditCtrl3::SetTextByMaxChar()
 {
 	int size = m_text.size();
 	if (size > m_maxchar) {
-		char *textIter = CharNextExA(g_codePage, m_text.c_str(), 0);
+		char *textIter = (char*)m_text.c_str() + bf_text_char_length(g_codePage, m_text.c_str(), -1);
 		while ((unsigned)size - strlen(textIter) <= (unsigned)m_maxchar)
-			textIter = CharNextExA(g_codePage, textIter, 0);
-		textIter = CharPrevExA(g_codePage, m_text.c_str(), textIter, 0);
+			textIter += bf_text_char_length(g_codePage, textIter, -1);
+		textIter = (char*)m_text.c_str() + bf_text_char_prev(g_codePage, m_text.c_str(), textIter - m_text.c_str());
 		m_text.resize(size - strlen(textIter));
 
 		g_language->ResetInput();

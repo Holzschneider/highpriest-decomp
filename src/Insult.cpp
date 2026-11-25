@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <windows.h>
+#include "bf_text.h"
 
 extern DWORD g_codePage;
 
@@ -25,7 +26,7 @@ const char * MakeLower(char * text)
 			if ( isupper(*textIter) )
 				*textIter += ('a' - 'A');
 		}
-		textIter = CharNextExA(g_codePage, textIter, 0);
+		textIter += bf_text_char_length(g_codePage, textIter, -1);
 	}
 	return text;
 }
@@ -52,7 +53,7 @@ bool CInsultFilter::IsGoodSentence(const char* str)
 				if ( strncmp(i->word, nStr, strlen(i->word)) == 0 )
 					return false;
 			}
-			nStr = CharNextExA(g_codePage, (LPSTR)nStr, 0);
+			nStr += bf_text_char_length(g_codePage, nStr, -1);
 		} while ( nStr < nStrEnd );
 	}
 	return true;

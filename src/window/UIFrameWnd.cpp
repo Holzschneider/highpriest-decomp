@@ -4235,7 +4235,7 @@ void UIMonsterInfoWnd::DrawPropertyBox(int x, int y, char const *propertyString,
 	unsigned int gg;
 	unsigned int bb;
 
-	wsprintf(propertyText, "%s:%d", propertyString, power);
+	sprintf(propertyText, "%s:%d", propertyString, power);
 	g_skinMgr.GetColorChipColor(22, 2, rr, gg, bb);
 
 	DrawBox(x, y, 70, 16, borderColor);

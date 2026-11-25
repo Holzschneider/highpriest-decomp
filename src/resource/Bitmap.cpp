@@ -57,11 +57,11 @@ bool	CBitmapRes :: LoadFromBuffer(const char *fName, const BYTE* buffer, int siz
 
 	if ((strExtension = (TCHAR*)strrchr(fName, '.')) == NULL) return false;
 
-	if (!lstrcmpi(strExtension, ".bmp"))
+	if (!stricmp(strExtension, ".bmp"))
 		return LoadBMPData(buffer, size);
-	else if (!lstrcmpi(strExtension, ".tga"))
+	else if (!stricmp(strExtension, ".tga"))
 		return LoadTGAData(buffer, size);
-	else if (!lstrcmpi(strExtension, ".jpg"))
+	else if (!stricmp(strExtension, ".jpg"))
 		return LoadJPGData(buffer, size);
 	else {
 #if defined(BF_PORT)

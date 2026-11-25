@@ -354,7 +354,7 @@ int UIFrameWnd::TextOutWithItemRect(int x, int y, int width,
 		const char* textEnd = *nameListIter;
 		unsigned char isColored = text == itemNameColored;
 		while (text < textEnd) {
-			char* textNext = CharNextExA(g_codePage, text, 0);
+			char* textNext = text + bf_text_char_length(g_codePage, text, -1);
 			if (g_multiLang && FindCharSet(text, strlen(text)) == 0) {
 				text += 3;
 			} else {

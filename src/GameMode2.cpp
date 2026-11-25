@@ -193,7 +193,7 @@ INT_PTR CGameMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR va
 
 			sActor->SendMsg(NULL, 7, INT_PTR(charName), 0, 0);
 		} else if (val1 == 336) {
-			wsprintf(charName, "%s", m_CoupleName);
+			sprintf(charName, "%s", m_CoupleName);
 
 			strcpy(skillName, SKILL_INFO::GetSkillNameBySkillId(skillId));
 			if (g_serviceType == ServiceKorea)

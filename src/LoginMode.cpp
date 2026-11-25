@@ -1213,7 +1213,7 @@ INT_PTR CLoginMode::SendMsg(int messageId, INT_PTR val1, INT_PTR val2, INT_PTR v
 				ServerAddress addr;
 				BYTE ip[4];
 				memcpy(ip, &m_serverInfo[m_serverSelected].ip, 4);
-				wsprintf(addr.ip, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+				sprintf(addr.ip, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 				addr.port = m_serverInfo[m_serverSelected].port;
 				memcpy(&g_charServerAddr, &addr, sizeof(addr));
 				g_charServerAddr.dwIP = m_serverInfo[m_serverSelected].ip;
