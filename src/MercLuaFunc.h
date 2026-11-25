@@ -205,8 +205,7 @@ static	int	l_TraceAI ( lua_State* L )
 		char *buf;
 		CFile fp;
 		char curPath[256];
-		const char *game = bf_file_location(BF_LOCATION_GAME);
-		snprintf(curPath, sizeof(curPath), "%s", game ? game : "");
+		strcpy(curPath, g_baseDir3);   // the game folder: "C:" (WinMain.cpp)
 
 		INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 		if (Pos) {

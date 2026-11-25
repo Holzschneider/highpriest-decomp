@@ -87,7 +87,15 @@ int g_isLightMap = 1;
 
 
 Registry RStr;
+#if defined(BF_PORT)
+// The game folder as a drive letter, not its path, from the start (CSession::Init
+// reads it before InitApp): bf_file reads "C:" as the game folder (bf_file.h),
+// CFile::MakeFileName's ':' rule keeps it, and no fixed buffer of the client
+// holds the folder's path, whatever its length.
+char g_baseDir3[128] = "C:";
+#else
 char g_baseDir3[128];
+#endif
 Registry2 g_registry;
 #ifndef BF_PORT   // unused: the edit controls are the client's own
 WNDPROC lpfnNewEditWndProc;
@@ -611,8 +619,6 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 	}
 #endif
 
-	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 0x80)   // the game folder, if it fits
-		strcpy(g_baseDir3, bf_file_location(BF_LOCATION_GAME));
 	return 1;
 }
 

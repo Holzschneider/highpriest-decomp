@@ -5,7 +5,8 @@
  * The client opens files with fopen, tests them with access and removes and
  * renames them (Lua's os.remove and os.rename among the callers), passing its
  * own path names: backslashes, any letter case, CP949, relative to the game
- * folder or below g_baseDir3 (the game folder). In game units these names are
+ * folder or below g_baseDir3 (the game folder, "C:" under BF_PORT (WinMain.cpp), so
+ * that no path of the folder's length reaches a fixed buffer). In game units these names are
  * macros for functions of port/client/src/bf_crt.cpp on port/native/sys
  * (bf_file.h): reads find the file in the game folder (or in a write location
  * first), writes go to the write locations and are refused in the game folder

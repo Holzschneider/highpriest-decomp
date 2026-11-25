@@ -3163,6 +3163,12 @@ void UIChatWnd::WriteChatToReportFile()
 		sprintf(tmp, "%s\\Report\\%s%03d.txt", g_baseDir3, strCharacter.c_str(), ++captureCnt);
 
 	if (m_listBox->WriteChatToReportFile(tmp)) {
+#if defined(BF_PORT)
+		// the file where it is, in Documents/<name>, as CMode::ScreenShot names it
+		char shown[1024];
+		if (bf_file_resolve(tmp, BF_RESOLVE_READ, shown, sizeof(shown)) >= 0)
+			strcpy(tmp, shown);
+#endif
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
@@ -3186,6 +3192,12 @@ void UIChatWnd::WriteChatToFile()
 		sprintf(tmp, "%s\\Chat\\Chat%03d.txt", g_baseDir3, ++captureCnt);
 
 	if (m_listBox->WriteChatToFile(tmp)) {
+#if defined(BF_PORT)
+		// the file where it is, in Documents/<name>, as CMode::ScreenShot names it
+		char shown[1024];
+		if (bf_file_resolve(tmp, BF_RESOLVE_READ, shown, sizeof(shown)) >= 0)
+			strcpy(tmp, shown);
+#endif
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
@@ -3587,6 +3599,12 @@ void UIChatRoomWnd::WriteChatToReportFile()
 		sprintf(tmp, "%s\\Report\\%s%03d.txt", g_baseDir3, strCharacter.c_str(), ++captureCnt);
 
 	if (m_listBox->WriteChatToReportFile(tmp)) {
+#if defined(BF_PORT)
+		// the file where it is, in Documents/<name>, as CMode::ScreenShot names it
+		char shown[1024];
+		if (bf_file_resolve(tmp, BF_RESOLVE_READ, shown, sizeof(shown)) >= 0)
+			strcpy(tmp, shown);
+#endif
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);
@@ -3613,6 +3631,12 @@ void UIChatRoomWnd::WriteChatToFile()
 		sprintf(tmp, "%s\\Chat\\%s%03d.txt", g_baseDir3, title.c_str(), ++captureCnt);
 
 	if (m_listBox->WriteChatToFile(tmp)) {
+#if defined(BF_PORT)
+		// the file where it is, in Documents/<name>, as CMode::ScreenShot names it
+		char shown[1024];
+		if (bf_file_resolve(tmp, BF_RESOLVE_READ, shown, sizeof(shown)) >= 0)
+			strcpy(tmp, shown);
+#endif
 		std::string chatStoreMsg = tmp;
 		chatStoreMsg += " is Saved.";
 		g_windowMgr.SendMsg(UIM_OPENCHATWND, 0, 0, 0, 0);

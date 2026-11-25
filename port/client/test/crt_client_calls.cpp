@@ -19,12 +19,41 @@
 
 extern "C" int __cdecl access(const char *, int);   // as GameMode.cpp declares it
 
-static char s_baseDir3[128];   // g_baseDir3, as InitApp fills it under BF_PORT
+static char s_baseDir3[128];   // g_baseDir3, as WinMain.cpp defines it under BF_PORT
 
+// WinMain.cpp: the game folder as the drive letter, whatever the length of its
+// path; bf_file reads "C:" as the game folder.
 extern "C" int client_init_base_dir(void)
 {
-	strcpy(s_baseDir3, bf_file_location(BF_LOCATION_GAME));
-	return s_baseDir3[0] == '/';
+	strcpy(s_baseDir3, "C:");
+	return strcmp(s_baseDir3, "C:") == 0;
+}
+
+// The chat-ban store (Session2.cpp AppendProhibit, InitChattingProhibitLog):
+// curPath[256] from g_baseDir3, "\\data" cut off, "\\ProhibitionLog.gd"
+// appended; written, then read back.
+extern "C" int client_prohibition_log(void)
+{
+	char curPath[256];
+	strcpy(curPath, s_baseDir3);
+	INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data");
+	if (Pos) {
+		Pos = Pos - (INT_PTR)curPath;
+		memcpy(curPath, curPath, Pos);
+	}
+	strcat(curPath, "\\ProhibitionLog.gd");
+	FILE *fp = fopen(curPath, "wb");
+	if (!fp)
+		return 0;
+	int logCnt = 0;
+	fwrite(&logCnt, sizeof(int), 1, fp);
+	fclose(fp);
+	fp = fopen(curPath, "rb");
+	if (!fp)
+		return 0;
+	int ok = fread(&logCnt, sizeof(int), 1, fp) == 1 && logCnt == 0;
+	fclose(fp);
+	return ok;
 }
 
 // PingLog.txt appended in text mode (LoginMode.cpp, GameModePacket.cpp).

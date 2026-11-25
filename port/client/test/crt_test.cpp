@@ -5,6 +5,7 @@
 // compiled with the client's flags, so its fopen, access, remove and rename
 // are the client's; this file is port code and sees the C library's own.
 // (Was the CRT part of the win32 adapter's test until M11.11.)
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -19,6 +20,7 @@
 
 extern "C" {
 int client_init_base_dir(void);
+int client_prohibition_log(void);
 int client_write_ping_log(const char *line);
 int client_write_chat_log(const char *title, char *path_out, int path_size);
 int client_write_screenshot(char *path_out, int path_size);
@@ -62,21 +64,32 @@ std::string ReadText(const std::string &path)
 
 std::string g_game, g_home, g_documents, g_pictures, g_support;
 
-void TestCrt()
+std::string Numbered(const char *stem, int n, const char *ext)
+{
+	char name[64];
+	snprintf(name, sizeof name, "%s%03d%s", stem, n, ext);
+	return name;
+}
+
+// Once per game folder; `pass` counts the runs, as the numbered files go on.
+void TestCrt(int pass)
 {
 	char path[512];
-	Check(client_init_base_dir(), "g_baseDir3 from bf_file_location(BF_LOCATION_GAME): the game folder");
+	Check(client_init_base_dir(), "g_baseDir3 is \"C:\" (WinMain.cpp), whatever the game folder's length");
 
+	std::string ping = ReadText(g_documents + "/PingLog.txt");
 	Check(client_write_ping_log("ping 12") && client_write_ping_log("ping 13")
-	      && ReadText(g_documents + "/PingLog.txt") == "ping 12\nping 13\n",
+	      && ReadText(g_documents + "/PingLog.txt") == ping + "ping 12\nping 13\n",
 	      "fopen(\"PingLog.txt\", \"at\"): appended in Documents");
-	Check(client_write_chat_log("chat", path, sizeof(path)) && Exists(g_documents + "/Chat/chat000.txt")
-	      && client_write_chat_log("chat", path, sizeof(path)) && Exists(g_documents + "/Chat/chat001.txt"),
+	Check(client_write_chat_log("chat", path, sizeof(path)) && Exists(g_documents + "/Chat/" + Numbered("chat", 2 * pass, ".txt"))
+	      && client_write_chat_log("chat", path, sizeof(path)) && Exists(g_documents + "/Chat/" + Numbered("chat", 2 * pass + 1, ".txt")),
 	      "access + bf_file_make_folder + fopen of g_baseDir3\\Chat\\...: chat logs land in Documents/Chat");
-	Check(client_write_screenshot(path, sizeof(path)) && Exists(g_pictures + "/screen000.jpg")
-	      && client_write_screenshot(path, sizeof(path)) && Exists(g_pictures + "/screen001.jpg")
+	Check(client_write_screenshot(path, sizeof(path)) && Exists(g_pictures + "/" + Numbered("screen", 2 * pass, ".jpg"))
+	      && client_write_screenshot(path, sizeof(path)) && Exists(g_pictures + "/" + Numbered("screen", 2 * pass + 1, ".jpg"))
 	      && !Exists(g_game + "/ScreenShot"),
 	      "g_baseDir3\\ScreenShot\\screen%03d.jpg: screenshots land in Pictures, numbered on");
+	Check(client_prohibition_log() && Exists(g_support + "/ProhibitionLog.gd") && !Exists(g_game + "/ProhibitionLog.gd"),
+	      "curPath[256] from g_baseDir3 + \\ProhibitionLog.gd: written and read in Application Support");
 	char line[64] = {0};
 	Check(client_read_data_ini(line, sizeof(line)) && strncmp(line, "[Data]", 6) == 0, "fopen(\"DATA.INI\", \"r\") from the game folder");
 	int error = 0;
@@ -108,12 +121,20 @@ int main()
 	g_pictures = g_home + "/Pictures/" BF_APP_NAME;
 	g_support = g_home + "/Library/Application Support/" BF_APP_NAME;
 
-	WriteText(g_game + "/data/readme.txt", "0123456789");
-	WriteText(g_game + "/DATA.INI", "[Data]\n1=data.grf\n");
-	bf_file_set_game_folder(g_game.c_str());
-	printf("game folder %s\nhome %s\n", g_game.c_str(), g_home.c_str());
-
-	TestCrt();
+	// A short game folder, then one of 1000 bytes (PATH_MAX is 1024): the
+	// client's fixed buffers never hold the folder's path (M12 found a
+	// 110-byte folder overflowing CFile::m_fileName[128]).
+	std::string folders[2] = { g_game, g_game + "/long" };
+	while (folders[1].size() < 1000)
+		folders[1] += "/" + std::string(std::min<size_t>(200, 1000 - folders[1].size() - 1), 'x');
+	for (int pass = 0; pass < 2; ++pass) {
+		g_game = folders[pass];
+		WriteText(g_game + "/data/readme.txt", "0123456789");
+		WriteText(g_game + "/DATA.INI", "[Data]\n1=data.grf\n");
+		bf_file_set_game_folder(g_game.c_str());
+		printf("game folder of %zu bytes %s\nhome %s\n", g_game.size(), g_game.c_str(), g_home.c_str());
+		TestCrt(pass);
+	}
 
 	printf("%s: %d failed\n", g_failed ? "FAIL" : "PASS", g_failed);
 	return g_failed ? 1 : 0;

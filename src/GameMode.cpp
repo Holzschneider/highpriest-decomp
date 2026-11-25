@@ -980,7 +980,13 @@ void	CGameMode :: WriteRagPathToReg()
 
 	bool lResult = bf_setting_create(hKey, RagPath);
 	if (lResult) {
+#if defined(BF_PORT)
+		// the game folder's path for other programs; g_baseDir3 holds only "C:"
+		const char *ragPath = bf_file_location(BF_LOCATION_GAME);
+		bf_setting_set_string(hKey, "RAGPATH", ragPath, sizeof(char)*strlen(ragPath));
+#else
 		bf_setting_set_string(hKey, "RAGPATH", g_baseDir3, sizeof(char)*strlen(g_baseDir3));
+#endif
 		bf_setting_close(hKey);
 	}
 }
@@ -6370,8 +6376,7 @@ void	CGameMode :: ProcessTalkType(int val1, INT_PTR val2)
 				if (g_session.m_onTraceAI)
 				{
 					char curPath[256];
-					if (strlen(bf_file_location(BF_LOCATION_GAME)) < 256)   // the game folder, if it fits
-						strcpy(curPath, bf_file_location(BF_LOCATION_GAME));
+					strcpy(curPath, g_baseDir3);   // the game folder: "C:" (WinMain.cpp)
 
 					INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 
