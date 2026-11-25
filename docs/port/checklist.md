@@ -149,7 +149,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 |---|---|---|---|
 | [x] 7257a77 | M11.0a Tools: `nowin` check (no Windows or DirectX header read by any built unit, from `clang -M`) and a per-step report of the Win32 names left | tools | — |
 | [x] baa2787 | M11.0b The port's own types header (`port/client/include/bf_types.h`) with a layout test against the Wine declarations | native | — |
-| [ ] | M11.0c Reference frames for M11: a reproducible set captured before the first M11 change to `src/`, a comparison script and its tolerance, written down first | harness | M8 exit |
+| [x] cead691 | M11.0c Reference frames for M11: a reproducible set captured before the first M11 change to `src/`, a comparison script and its tolerance, written down first | harness | M8 exit |
 | [x] 2cf351d | M11.0d Port code that stays moves out of `port/compat` (prefix, control bindings, entry point, CRT helpers) to `port/client` | build | M8 exit |
 | [ ] | M11.1 Time and threads | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.2 Network | src | M8 exit, M11.0c, M11.0d |
