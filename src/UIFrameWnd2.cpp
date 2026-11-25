@@ -529,8 +529,10 @@ void UIBasicInfoWnd::OnCreate(int cx, int cy)
 		m_buttons[i]->Move((i % 2) * 36 + 207, (i / 2) * 24 + dY + 22);
 		m_buttons[i]->SetId(ids[i]);
 		m_buttons[i]->SetToolTip(toolTip[i]);
-		if (i < 5)
-			AddChild(m_buttons[i]);
+		// All eight are children, as in the 2008 client (UIBasicInfoWnd::OnCreate
+		// 0x471c30 calls AddChild at 0x471f67 for each); the recovery added only
+		// five, so map, comm and friend were never shown nor freed.
+		AddChild(m_buttons[i]);
 	}
 
 	int posX[3] = { 3, 266, 0 };
