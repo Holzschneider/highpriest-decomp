@@ -1,5 +1,7 @@
 # Toolchain
 
+This page describes the Windows build on `main`. The `macos-port` branch deleted `tools/` and `vendor/` in M11.11 and builds with Apple clang, CMake and Ninja ([port/README.md](../port/README.md)).
+
 The build reads the tools and SDK files below. Only files a build opens are kept. This page says what each one is and where it came from, so it can be obtained again and checked. `sources.mk` says which compiler each source gets.
 
 All of it is Microsoft's except the runner, and none of it is covered by this repository's licence ([THIRD-PARTY.md](../THIRD-PARTY.md)).

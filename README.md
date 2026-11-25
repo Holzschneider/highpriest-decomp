@@ -28,16 +28,15 @@ They are in 22 files; `grep -rlE 'RAG_(BUDGET|ENTROPY|SYMBOL)' src --exclude='ra
 
 ## Layout
 
-- `src/`: the reconstruction. `src/library/` holds the sources of statically linked libraries, `src/imports/` the definitions of the import libraries, `src/res/` the resources.
-- `vendor/`: Visual C++ runtime sources that `src/library/` includes.
-- `tools/`: the compilers and SDK files the build reads ([docs/toolchain.md](docs/toolchain.md)), and `tools/stamp.py`.
-- `docs/`: the toolchain's provenance and the compiler notes.
+- `src/`: the reconstruction, the units the macOS client builds (the libraries, import definitions and resources of the Windows build are on `main`).
+- `port/`: the port's own code, tools, probes, test harness and test server ([port/README.md](port/README.md)).
+- `docs/`: the compiler notes and the Windows toolchain's provenance (both describe `main`'s build), and `docs/port/`, the port's specification, plans and log.
 - `build/`: outputs, untracked.
 
 ## macOS port
 
-This branch recovers a general Ragnarok Online client from the source and ports it to macOS as a native arm64 application. [docs/port/spec.md](docs/port/spec.md), [docs/port/technical-plan.md](docs/port/technical-plan.md) and [docs/port/implementation-plan.md](docs/port/implementation-plan.md) describe it; [port/](port/README.md) holds its tools, probes and test server. The Windows build above does not read `port/`.
+This branch recovers a general Ragnarok Online client from the source and ports it to macOS as a native arm64 application. [docs/port/spec.md](docs/port/spec.md), [docs/port/technical-plan.md](docs/port/technical-plan.md) and [docs/port/implementation-plan.md](docs/port/implementation-plan.md) describe it; [port/](port/README.md) holds its tools, probes and test server. The Windows build, on `main`, does not read `port/`.
 
 ## Licence
 
-The build files, `tools/stamp.py` and the documentation are dedicated to the public domain under [CC0 1.0](CC0-1.0.txt). Everything else belongs to its owners and is not covered: the reconstructed game source, the bundled compilers, SDK files and runtime sources, and the third-party libraries. [THIRD-PARTY.md](THIRD-PARTY.md) lists them with the notices their licences require.
+The build files and the documentation are dedicated to the public domain under [CC0 1.0](CC0-1.0.txt). Everything else belongs to its owners and is not covered: the reconstructed game source and the third-party material in it (the compilers, SDK files and runtime sources are bundled on `main` only). [THIRD-PARTY.md](THIRD-PARTY.md) lists them with the notices their licences require.
