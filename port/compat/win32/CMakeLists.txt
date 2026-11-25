@@ -1,12 +1,10 @@
-# port/compat/win32: kernel32, advapi32's registry, shell32's
-# ShellExecute and user32's MessageBox, on port/native/sys and
-# port/native/text (M3.1a).
+# port/compat/win32: kernel32, shell32's ShellExecute and user32's
+# MessageBox, on port/native/sys and port/native/text (M3.1a).
 # Built only under the root project (bf_compat_flags, bf_sys, bf_text, bf_instrument).
 add_library(bf_compat_win32 STATIC
 	src/bf_win32_base.cpp
 	src/bf_win32_file.cpp
 	src/bf_win32_misc.cpp
-	src/bf_win32_registry.cpp
 	src/bf_win32_shell.cpp)
 bf_compat_flags(bf_compat_win32)
 target_compile_options(bf_compat_win32 PRIVATE -Wall -Wextra)

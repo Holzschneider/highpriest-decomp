@@ -1,6 +1,6 @@
-# compat/win32: kernel32, the registry, ShellExecute, MessageBox
+# compat/win32: kernel32, ShellExecute, MessageBox
 
-The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics. Files, archive mappings, large blocks and the heap left with M11.3: the client calls `bf_file_*` (`port/native/sys`) and the C library; the C library's file names on client paths (`bf_crt.h`) are `port/client/src/bf_crt.cpp`'s. What is left of `bf_win32_file.cpp` is `FindFirstFileA` and `FindClose` for `base/FindHack.cpp`.
+The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics. Files, archive mappings, large blocks and the heap left with M11.3: the client calls `bf_file_*` (`port/native/sys`) and the C library; the C library's file names on client paths (`bf_crt.h`) are `port/client/src/bf_crt.cpp`'s. What is left of `bf_win32_file.cpp` is `FindFirstFileA` and `FindClose` for `base/FindHack.cpp`. The registry left with M11.4 (`bf_win32_registry.cpp`): the client calls `bf_setting_*` (`port/client/include/bf_setting_key.h`), which keeps its rules.
 
 ```
 cmake --preset debug && cmake --build --preset debug --target bf_compat_win32 bifrost-compat-win32-test
@@ -40,10 +40,6 @@ Kernel objects (folder listings) are registered handles: a handle the client nev
 | `MulDiv`, `lstrcmpiA`, `lstrcatA`, `lstrcpyA`, `lstrlenA` | arithmetic, `strcasecmp`, `strcat`... | |
 | `OutputDebugStringA` | `BF_TRACE(BFT_W32)` | |
 | `FormatMessageA` | "Error N." | `FROM_SYSTEM` only (with `ALLOCATE_BUFFER`); other forms: stub |
-| `RegOpenKeyExA`, `RegCreateKeyExA` | `bf_settings_has_group`, `bf_settings_create_group` | see below |
-| `RegQueryValueExA`, `RegSetValueExA` | `bf_settings_type` + typed getters, typed setters | size queries, `ERROR_MORE_DATA` with the size; `REG_SZ` stored up to its first NUL |
-| `RegDeleteKeyA`, `RegDeleteValueA` | `bf_settings_remove` | a key goes with its subkeys |
-| `RegCloseKey` | `bf_settings_save` | |
 | `MessageBoxA` | trace (`BFT_UI`) + `bf_sys_alert` | shown unless `BF_NO_ALERTS`, no window server or off the main thread; then the first button (`IDOK`/`IDYES`) |
 | `ShellExecuteA` | `bf_sys_open_url`, `bf_sys_open_path` | `open` of a URL or a resolved path; > 32 on success |
 
@@ -57,7 +53,7 @@ Called by the client and deliberately failing (`BF_STUB()` or a trace line, with
 | `CryptAcquireContextA` and `CryptCreateHash`, `CryptHashData`, `CryptDeriveKey`, `CryptDecrypt` | `FALSE` (`CryptRelease*`, `CryptDestroy*`: `TRUE`) | base/FindHack.cpp |
 | `SetUnhandledExceptionFilter` | the previous filter; never called | WinMain (the port's signal handler writes the backtrace) |
 
-Not implemented because the client does not call them: events, `ExitThread`/`_endthreadex`, `TerminateThread`, `SetCurrentDirectory`, `CopyFile`, `RegEnumValue`, `_findfirst` (declared by `io.h`).
+Not implemented because the client does not call them: events, `ExitThread`/`_endthreadex`, `TerminateThread`, `SetCurrentDirectory`, `CopyFile`, `_findfirst` (declared by `io.h`).
 
 ole32 and netapi32 (`src/bf_win32_misc.cpp`, M3.2):
 
@@ -70,15 +66,14 @@ ole32 and netapi32 (`src/bf_win32_misc.cpp`, M3.2):
 
 ## The registry
 
+Left with M11.4. The client calls `port/client/include/bf_setting_key.h` with the paths it named below `HKEY_LOCAL_MACHINE` (`port/tools/native_settings.py` rewrote the calls), and `port/client/src/bf_setting_key.cpp` keeps this adapter's rules, so the `Settings.plist` files it wrote read the same:
+
 ```
-HKLM\Software\<name>[\sub\key]   ->  Client[/sub/key]                 (g_regPath, all the client's keys)
-any other key                    ->  Registry/<HKLM|HKCU|HKCR|HKU>/<path>
+Software\<name>[\sub\key]   ->  Client[/sub/key]                 (g_regPath, all the client's keys)
+any other path              ->  Registry/HKLM/<path>
 ```
 
-Key names are decoded from `CP_ACP` to UTF-8 (a server name in a `BookMark` or `NameBaloon` key is stored readable) and compared without regard to case, by `bf_settings`. `REG_DWORD` (4 bytes) is an integer, `REG_SZ`/`REG_EXPAND_SZ` a string, anything else data. The client's root keys exist before anything is written (the defaults of `bf_settings`), so `ReadRegistry` succeeds and the window positions of `UIWindowMgr` read their defaults. Two values of the client's root are not stored as values:
-
-- `ID` (the login window's remembered account) is `Account/Name` (`bf_settings_account_name`);
-- `PASSWORD` is the Keychain item of that account (`bf_sys_keychain_*`): written there, `""` deletes it, read back from it; never in the plist. Without an account name or a reachable Keychain it is "not found", which is what the login window starts with.
+Names and string values are converted between the client's code page and UTF-8; a 4-byte integer write is an integer, a string write the text up to its first NUL within the size, anything else data; a read copies the value as `RegQueryValueEx` did and fails when it does not fit. `ID` is `Account/Name`, `PASSWORD` the Keychain item of that account, never in the plist. The test moved too: `bifrost-setting-key-test`.
 
 ## Changes outside this folder
 
