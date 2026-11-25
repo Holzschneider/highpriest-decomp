@@ -329,6 +329,7 @@ set(BF_CLIENT_PORT_SOURCES
 add_library(bf_port_main STATIC
 	port/client/src/bf_main.cpp
 	port/client/src/bf_input.cpp
+	port/client/src/bf_render.cpp
 	port/client/src/bf_control_game.cpp
 	port/client/src/bf_control_sound.cpp
 	port/client/src/bf_control_movie.cpp
@@ -352,6 +353,19 @@ get_target_property(bf_movie_test_dir ${BF_EXE}-movie-test BINARY_DIR)
 add_test(NAME movie COMMAND ${BF_EXE}-movie-test WORKING_DIRECTORY ${bf_movie_test_dir})
 set_tests_properties(movie PROPERTIES LABELS headless TIMEOUT 300
 	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${bf_movie_test_dir}")
+# bifrost-render-test: the client's render target (bf_render.h, M11.9) on an
+# offscreen gfx device: the lazy lock, the part present, backup and restore,
+# texture bindings and lifetimes (headless).
+add_executable(${BF_EXE}-render-test port/client/test/render_test.cpp port/client/src/bf_render.cpp)
+target_include_directories(${BF_EXE}-render-test PRIVATE ${BF_ROOT}/port/client/include)
+target_compile_options(${BF_EXE}-render-test PRIVATE -Wall -Wextra)
+set_target_properties(${BF_EXE}-render-test PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+target_link_libraries(${BF_EXE}-render-test PRIVATE bf_gfx bf_instrument)
+add_dependencies(native ${BF_EXE}-render-test)
+get_target_property(bf_render_test_dir ${BF_EXE}-render-test BINARY_DIR)
+add_test(NAME render COMMAND ${BF_EXE}-render-test WORKING_DIRECTORY ${bf_render_test_dir})
+set_tests_properties(render PROPERTIES LABELS headless TIMEOUT 300
+	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${bf_render_test_dir}")
 # bifrost-input-test: the client's window, pump, keys, mouse and clipboard
 # (bf_input.h, M11.7), with the user32 names port/compat/win32 keeps for other
 # callers. Opens a window and injects every event (label window: fastcheck
