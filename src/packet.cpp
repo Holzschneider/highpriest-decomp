@@ -27,6 +27,20 @@ int		GetPacketSize(int packetType)
 	return	g_packetLenMap[packetType];
 }
 
+#if defined(BF_PORT)
+// The length of a fixed-size packet the server sends under packetType. The
+// table holds what the client sends, which is the same except where rAthena
+// answers under the request's own header: it sends ZC_AUCTION_ACK_MY_SELL_STOP
+// (4 bytes) as 0x25d (clif_Auction_close), which the zone switch dispatches to
+// Zc_Auction_My_Sell_Stop as the reference does, while the request is 6 (M8.4).
+int		GetRecvPacketSize(int packetType)
+{
+	if (packetType == HEADER_CZ_AUCTION_REQ_MY_SELL_STOP)
+		return sizeof(PACKET_ZC_AUCTION_ACK_MY_SELL_STOP);
+	return	GetPacketSize(packetType);
+}
+#endif
+
 void InitPacketLenWithClient()
 {
 	g_packetLenMap[HEADER_PING]	= sizeof(PACKET_PING);

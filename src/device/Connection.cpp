@@ -437,14 +437,12 @@ bool CRagConnection::RecvPacket(char *buf)
 
 	if (m_recvQueue.PeekData(2, (char *)&packetHeader)) {
 		if (IsFixedPacket(packetHeader)) {
-			packetSize = GetPacketSize(packetHeader);
 #if defined(BF_PORT)
-			// rAthena sends ZC_AUCTION_ACK_MY_SELL_STOP (4 bytes) under the
-			// request's header 0x25d (clif_Auction_close), which the zone
-			// switch dispatches to Zc_Auction_My_Sell_Stop as the reference
-			// does; the table keeps the request's 6 bytes for sending.
-			if (packetHeader == HEADER_CZ_AUCTION_REQ_MY_SELL_STOP)
-				packetSize = sizeof(PACKET_ZC_AUCTION_ACK_MY_SELL_STOP);
+			// packet.cpp knows where a received length differs from the
+			// table's (the auction answer of M8.4).
+			packetSize = max(::GetRecvPacketSize(packetHeader), 2);
+#else
+			packetSize = GetPacketSize(packetHeader);
 #endif
 		} else if (m_recvQueue.PeekData(4, (char *)&headerWithSize)) {
 			packetSize = HIWORD(headerWithSize);
@@ -463,6 +461,10 @@ bool CRagConnection::RecvPacket(char *buf)
 
 int CRagConnection::GetPacketSize(int packetType)
 {
+#if defined(BF_PORT)
+	// The lengths, the SRPACKETR2 pair among them, are packet.cpp's (M10.1).
+	return max(::GetPacketSize(packetType), 2);
+#else
 	switch (packetType) {
 		case HEADER_ZC_SRPACKETR2_INIT:
 			return sizeof(struct PACKET_ZC_SRPACKETR2_INIT);
@@ -471,6 +473,7 @@ int CRagConnection::GetPacketSize(int packetType)
 	}
 
 	return max(g_packetLenMap[packetType], 2);
+#endif
 }
 
 short CRagConnection::GetPacketType(const char *buf)
@@ -480,11 +483,15 @@ short CRagConnection::GetPacketType(const char *buf)
 
 bool CRagConnection::IsFixedPacket(int packetType)
 {
+#if defined(BF_PORT)
+	return ::IsFixedPacket(packetType);
+#else
 	if (g_packetLenMap[packetType] == -1)
 	{
 		return false;
 	}
 	return true;
+#endif
 }
 
 void CRagConnection::InitPacketMap()

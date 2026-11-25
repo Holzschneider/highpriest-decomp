@@ -19,6 +19,9 @@
 extern	bool	IsFixedPacket(int packetType);
 extern	int		GetPacketSize(int packetType);
 extern  void	InitPacketLenWithClient();
+#if defined(BF_PORT)
+extern	int		GetRecvPacketSize(int packetType);
+#endif
 
 
 
@@ -790,6 +793,27 @@ enum {
 	HEADER_CZ_REASSEMBLY_IDENTITY__M39 = 857,
 	HEADER_CZ_REASSEMBLY_IDENTITY__M40 = 858,
 	HEADER_CZ_REASSEMBLY_IDENTITY__M41 = 859,
+	// The zone requests this client sends with padded layouts
+	// (PaddingPacket.h), and CZ_REQUEST_CHAT and CZ_CLOSE_STORE: the
+	// reconstructed enumeration has no names for them, the 2008 source wrote
+	// the numbers. Named here so that only this enumeration knows them (M10.1).
+	HEADER_CZ_REQUEST_TIME = 137,
+	HEADER_CZ_CHANGE_DIRECTION = 133,
+	HEADER_CZ_REQNAME = 140,
+	HEADER_CZ_MOVE_ITEM_FROM_BODY_TO_STORE = 148,
+	HEADER_CZ_ENTER = 155,
+	HEADER_CZ_USE_ITEM = 159,
+	HEADER_CZ_REQNAME_BYGID = 162,
+	HEADER_CZ_REQUEST_MOVE = 167,
+	HEADER_CZ_USE_SKILL = 114,
+	HEADER_CZ_USE_SKILL_TOGROUND_WITHTALKBOX = 126,
+	HEADER_CZ_REQUEST_CHAT = 243,
+	HEADER_CZ_ITEM_PICKUP = 245,
+	HEADER_CZ_MOVE_ITEM_FROM_STORE_TO_BODY = 247,
+	HEADER_CZ_USE_SKILL_TOGROUND = 275,
+	HEADER_CZ_ITEM_THROW = 278,
+	HEADER_CZ_REQUEST_ACT = 400,
+	HEADER_CZ_CLOSE_STORE = 403,
 	HEADER_LAST = 860,
 };
 
