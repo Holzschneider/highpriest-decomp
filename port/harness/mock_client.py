@@ -1298,10 +1298,14 @@ class Mock(AltKeysMixin, AuctionMixin, SkillsOptionsMixin):
                 self.save_char()
                 self.running = False
         elif w.name == "RESTARTWND":
-            self.save_char()
-            if cid == "charselect":
+            # UIRestartWnd (a dead character): restart, to_character_select,
+            # quit, cancel, as the real client names them
+            self.close_window(w.name)
+            if cid == "to_character_select":
+                self.save_char()
                 self.set_mode("charselect")
-            else:
+            elif cid == "quit":
+                self.save_char()
                 self.running = False
         elif w.name == "CHOOSESELLBUYWND":
             self.close_window(w.name)
