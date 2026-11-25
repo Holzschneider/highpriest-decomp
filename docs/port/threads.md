@@ -34,6 +34,8 @@ The technical plan's row "Time and threads" names `device/Timer.cpp`: it holds o
 
 The 2008 path (`CreateThread`, its fallback) is kept under `#else`.
 
+Since M11.1 the client starts its two remaining threads (the music fade in `Mode.cpp`, `FinalStrike` in `UIWindowMgr.cpp`) with `bf_sys_thread_create`, locks `CResMgr` with a `bf_sys_mutex` and counts the far models with `__sync_add/sub_and_fetch`; the thread adapter is gone. The inventory above names the 2008 calls as they were when it was taken.
+
 ## Evidence
 
 Builds: `cmake --preset tsan && cmake --build --preset tsan --target bifrost probes` (new preset: `-fsanitize=thread` through the cache flags, `CMakeLists.txt` unchanged). For ASan, the `asan` preset, and a recoverable address-only build of the same tree so that one run lists every report:

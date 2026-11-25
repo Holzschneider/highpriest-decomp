@@ -151,7 +151,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] baa2787 | M11.0b The port's own types header (`port/client/include/bf_types.h`) with a layout test against the Wine declarations | native | — |
 | [x] cead691 | M11.0c Reference frames for M11: a reproducible set captured before the first M11 change to `src/`, a comparison script and its tolerance, written down first | harness | M8 exit |
 | [x] 2cf351d | M11.0d Port code that stays moves out of `port/compat` (prefix, control bindings, entry point, CRT helpers) to `port/client` | build | M8 exit |
-| [ ] | M11.1 Time and threads | src | M8 exit, M11.0c, M11.0d |
+| [x] be392de | M11.1 Time and threads | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.2 Network | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.3 Files | src | M8 exit, M11.0c, M11.0d |
 | [ ] | M11.4 Settings | src | M8 exit, M11.0c, M11.0d |
