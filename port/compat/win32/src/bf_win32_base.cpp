@@ -68,34 +68,6 @@ bool Release(HANDLE handle)
 	return true;
 }
 
-DWORD ErrorFromErrno(int error)
-{
-	switch (error) {
-	case 0:            return ERROR_SUCCESS;
-	case ENOENT:       return ERROR_FILE_NOT_FOUND;
-	case ENOTDIR:      return ERROR_PATH_NOT_FOUND;
-	case EACCES:
-	case EPERM:
-	case EISDIR:
-	case EROFS:        return ERROR_ACCESS_DENIED;
-	case EEXIST:       return ERROR_ALREADY_EXISTS;
-	case ENOTEMPTY:    return ERROR_DIR_NOT_EMPTY;
-	case ENAMETOOLONG: return ERROR_FILENAME_EXCED_RANGE;
-	case EILSEQ:       return ERROR_INVALID_NAME;
-	case EINVAL:       return ERROR_INVALID_PARAMETER;
-	case EBADF:        return ERROR_INVALID_HANDLE;
-	case ENOMEM:       return ERROR_NOT_ENOUGH_MEMORY;
-	case ENOSPC:       return ERROR_DISK_FULL;
-	case EMFILE:       return ERROR_TOO_MANY_OPEN_FILES;
-	default:           return ERROR_GEN_FAILURE;
-	}
-}
-
-void SetErrorFromErrno()
-{
-	t_lastError = ErrorFromErrno(errno);
-}
-
 int Codepage(UINT codepage)
 {
 	switch (codepage) {
@@ -155,7 +127,7 @@ VOID WINAPI SetLastError(DWORD error)
 }
 
 // CloseHandle for every kind of kernel object; the kinds' own clean-up is in
-// their destructors (files, mappings). The pseudo-handle is ignored.
+// their destructors (folder listings). The pseudo-handle is ignored.
 BOOL WINAPI CloseHandle(HANDLE handle)
 {
 	if (handle == GetCurrentProcess())
@@ -328,34 +300,6 @@ DWORD WINAPI FormatMessageA(DWORD flags, LPCVOID source, DWORD id, DWORD lang, L
 
 // ---- Memory -----------------------------------------------------------------------
 //
-// VirtualAlloc memory is zeroed (calloc), as committed pages are; the client
-// reads the 8 padding bytes after a file. Only fresh allocations are
-// supported (no reservation at an address); VirtualFree releases them.
-
-LPVOID WINAPI VirtualAlloc(LPVOID address, SIZE_T size, DWORD type, DWORD protect)
-{
-	(void)protect;
-	if (address || !(type & MEM_COMMIT)) {
-		BF_STUB();
-		t_lastError = ERROR_NOT_SUPPORTED;
-		return NULL;
-	}
-	void *memory = calloc(1, size ? size : 1);
-	if (!memory)
-		t_lastError = ERROR_NOT_ENOUGH_MEMORY;
-	return memory;
-}
-
-BOOL WINAPI VirtualFree(LPVOID address, SIZE_T size, DWORD type)
-{
-	(void)size;
-	if (type & MEM_RELEASE) {
-		free(address);
-		return TRUE;
-	}
-	return TRUE;   // MEM_DECOMMIT: the memory stays until released
-}
-
 // GlobalAlloc and LocalAlloc: the handle is the memory itself (as for
 // GMEM_FIXED), preceded by a header with the size, so GlobalSize works for
 // the clipboard adapter. GlobalLock returns the handle.
@@ -430,39 +374,6 @@ HLOCAL WINAPI LocalFree(HLOCAL memory)
 {
 	BlockFree((void *)memory);
 	return NULL;
-}
-
-namespace {
-char g_processHeap;   // its address is the heap handle
-}
-
-HANDLE WINAPI GetProcessHeap(void)
-{
-	return (HANDLE)&g_processHeap;
-}
-
-SIZE_T WINAPI HeapCompact(HANDLE heap, DWORD flags)
-{
-	(void)heap;
-	(void)flags;
-	return 0x100000;   // "largest free block": the C library's heap has no such limit
-}
-
-LPVOID WINAPI HeapAlloc(HANDLE heap, DWORD flags, SIZE_T size)
-{
-	(void)heap;
-	void *memory = (flags & HEAP_ZERO_MEMORY) ? calloc(1, size ? size : 1) : malloc(size ? size : 1);
-	if (!memory)
-		t_lastError = ERROR_NOT_ENOUGH_MEMORY;
-	return memory;
-}
-
-BOOL WINAPI HeapFree(HANDLE heap, DWORD flags, LPVOID memory)
-{
-	(void)heap;
-	(void)flags;
-	free(memory);
-	return TRUE;
 }
 
 VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS status)
@@ -683,24 +594,6 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCE
 }
 
 // ---- System information ------------------------------------------------------------
-
-VOID WINAPI GetSystemInfo(LPSYSTEM_INFO info)
-{
-	if (!info)
-		return;
-	memset(info, 0, sizeof(*info));
-	info->wProcessorArchitecture = PROCESSOR_ARCHITECTURE_ARM64;
-	info->dwPageSize = (DWORD)getpagesize();
-	info->lpMinimumApplicationAddress = (LPVOID)0x10000;
-	info->lpMaximumApplicationAddress = (LPVOID)0x7FFFFFFEFFFFULL;
-	long cpus = sysconf(_SC_NPROCESSORS_ONLN);
-	info->dwNumberOfProcessors = cpus > 0 ? (DWORD)cpus : 1;
-	info->dwActiveProcessorMask = info->dwNumberOfProcessors >= 64 ? ~(DWORD_PTR)0
-	                              : (((DWORD_PTR)1 << info->dwNumberOfProcessors) - 1);
-	// The granularity MapViewOfFile offsets must be a multiple of (GPak aligns to it).
-	info->dwAllocationGranularity = 0x10000;
-	info->wProcessorLevel = 8;
-}
 
 // Windows XP SP2, what the 2008 client was written for.
 BOOL WINAPI GetVersionExA(OSVERSIONINFOA *info)

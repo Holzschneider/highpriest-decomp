@@ -17,7 +17,7 @@ namespace bf_win32 {
 // a handle the client passes is checked before use: the client closes
 // handles it never opened (FindClose(INVALID_HANDLE_VALUE), RegCloseKey of a
 // key whose open failed).
-enum Kind { kFile = 1, kMapping, kFind };
+enum Kind { kFind = 1 };
 
 struct Object {
 	explicit Object(Kind k) : kind(k) {}
@@ -31,11 +31,6 @@ HANDLE Register(Object *object);
 Object *Lookup(HANDLE handle, Kind kind);
 // Unregisters and deletes; false if the handle is not live.
 bool Release(HANDLE handle);
-
-// The Win32 error for an errno value.
-DWORD ErrorFromErrno(int error);
-// SetLastError(ErrorFromErrno(errno)).
-void SetErrorFromErrno();
 
 // CP_ACP and the other symbolic code pages as a number (CP_ACP follows
 // bf_file_user_codepage, which the client sets per service: 949 or 1252).

@@ -1,8 +1,9 @@
 // bifrost-compat-win32-test: the win32 adapter called as the client calls it.
 // One line per check, exit status 1 if any fails. Writes only below
-// $BF_TEST_OUT/compat-win32-test (BF_HOME points there); reads the real game
-// folder ($BF_CLIENT_DIR or ~/Games/<name>) for the data.grf check, which is
-// skipped without it.
+// $BF_TEST_OUT/compat-win32-test (BF_HOME points there). The C library's
+// file names on client paths (bf_crt.h) are port/client/src/bf_crt.cpp's,
+// compiled into this test; the archive mapping and the client's file calls
+// are tested with port/native/sys (bifrost-sys-test).
 #include <windows.h>
 #include <mmsystem.h>
 #include <process.h>
@@ -86,62 +87,7 @@ std::string Utf8Of949(const char *bytes)
 
 std::string g_game, g_home, g_documents, g_pictures, g_support;
 
-// ---- Files ---------------------------------------------------------------------
-
-void TestFiles()
-{
-	char buf[64] = {0};
-	DWORD done = 0;
-	HANDLE h = CreateFileA("data\\README.TXT", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-	                       FILE_ATTRIBUTE_NORMAL, NULL);
-	Check(h != INVALID_HANDLE_VALUE && GetFileSize(h, NULL) == 10, "CreateFile: backslashes and any case find data/readme.txt");
-	Check(ReadFile(h, buf, sizeof(buf), &done, NULL) && done == 10 && memcmp(buf, "0123456789", 10) == 0,
-	      "ReadFile: whole file, short read at the end");
-	Check(SetFilePointer(h, 2, NULL, FILE_BEGIN) == 2 && ReadFile(h, buf, 3, &done, NULL) && done == 3
-	      && memcmp(buf, "234", 3) == 0, "SetFilePointer(FILE_BEGIN) + ReadFile");
-	LONG high = -1;   // with a high part the distance is high:low, here -1
-	Check(SetFilePointer(h, -1, &high, FILE_END) == 9 && high == 0 && ReadFile(h, buf, 5, &done, NULL) && done == 1,
-	      "SetFilePointer(FILE_END, -1) with a high part");
-	Check(SetFilePointer(h, -20, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER && GetLastError() == ERROR_NEGATIVE_SEEK,
-	      "SetFilePointer before the start: ERROR_NEGATIVE_SEEK");
-	Check(CloseHandle(h) && !CloseHandle(h) && GetLastError() == ERROR_INVALID_HANDLE,
-	      "CloseHandle, and a second CloseHandle is ERROR_INVALID_HANDLE");
-
-	h = CreateFileA("data\\missing.txt", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-	Check(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_NOT_FOUND, "CreateFile of a missing file: ERROR_FILE_NOT_FOUND");
-
-	std::string korean = std::string(kKoreanCp949) + "\\Title.bmp";
-	h = CreateFileA(korean.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-	Check(h != INVALID_HANDLE_VALUE && GetFileSize(h, NULL) == 3, "CreateFile: a CP949 folder name (stored as UTF-8)");
-	CloseHandle(h);
-
-	// CFile::Open(modeWrite) on a game path: refused, nothing written.
-	h = CreateFileA("data\\written.txt", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
-	                FILE_ATTRIBUTE_NORMAL, NULL);
-	Check(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED && !Exists(g_game + "/data/written.txt"),
-	      "CreateFile(CREATE_ALWAYS) into the game folder: ERROR_ACCESS_DENIED, nothing created");
-	Check(!DeleteFileA("data\\README.TXT") && GetLastError() == ERROR_ACCESS_DENIED && Exists(g_game + "/data/readme.txt"),
-	      "DeleteFile in the game folder: ERROR_ACCESS_DENIED");
-
-	h = CreateFileA("savedata\\test.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	Check(h != INVALID_HANDLE_VALUE && GetLastError() == ERROR_SUCCESS && WriteFile(h, "abcdef", 6, &done, NULL)
-	      && done == 6, "CreateFile + WriteFile into a write location");
-	CloseHandle(h);
-	Check(ReadText(g_support + "/savedata/test.bin") == "abcdef", "  ... the file is in Application Support/savedata");
-	h = CreateFileA("SAVEDATA\\test.bin", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, 0, NULL);
-	Check(h != INVALID_HANDLE_VALUE && GetLastError() == ERROR_ALREADY_EXISTS && GetFileSize(h, NULL) == 6,
-	      "CreateFile(OPEN_ALWAYS) on it: ERROR_ALREADY_EXISTS, contents kept");
-	Check(SetFilePointer(h, 3, NULL, FILE_BEGIN) == 3 && SetEndOfFile(h) && GetFileSize(h, NULL) == 3, "SetEndOfFile");
-	CloseHandle(h);
-	h = CreateFileA("savedata\\test.bin", GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
-	Check(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_EXISTS, "CreateFile(CREATE_NEW) on it: ERROR_FILE_EXISTS");
-	Check(DeleteFileA("savedata\\test.bin") && !Exists(g_support + "/savedata/test.bin"), "DeleteFile in a write location");
-
-	Check(CreateDirectoryA("Chat", NULL) && !CreateDirectoryA("Chat", NULL) && GetLastError() == ERROR_ALREADY_EXISTS
-	      && Exists(g_documents + "/Chat"), "CreateDirectory: Chat in Documents, again ERROR_ALREADY_EXISTS");
-	Check(GetFileAttributesA("data") == (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_READONLY)
-	      && GetFileAttributesA("nothing") == INVALID_FILE_ATTRIBUTES, "GetFileAttributes");
-}
+// ---- Folder listings (what base/FindHack.cpp still calls) ------------------------
 
 void TestFind()
 {
@@ -149,22 +95,11 @@ void TestFind()
 	HANDLE h = FindFirstFileA("data\\texture\\*.bmp", &wfd);
 	Check(h != INVALID_HANDLE_VALUE && strcmp(wfd.cFileName, "Foo.BMP") == 0 && wfd.nFileSizeLow == 4
 	      && !(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), "FindFirstFile: wildcard without regard to case");
-	Check(FindNextFileA(h, &wfd) && strcmp(wfd.cFileName, "bar.bmp") == 0, "FindNextFile: the next match");
-	Check(!FindNextFileA(h, &wfd) && GetLastError() == ERROR_NO_MORE_FILES, "FindNextFile at the end: ERROR_NO_MORE_FILES");
-	Check(FindClose(h), "FindClose");
+	Check(FindClose(h) && !CloseHandle(h), "FindClose; the handle is gone");
 
-	h = FindFirstFileA("data\\*.*", &wfd);
-	int folders = 0, files = 0;
-	if (h != INVALID_HANDLE_VALUE) {
-		do {
-			if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				++folders;
-			else
-				++files;
-		} while (FindNextFileA(h, &wfd));
-		FindClose(h);
-	}
-	Check(folders == 1 && files == 1, "FindFirstFile(\"*.*\"): folders flagged FILE_ATTRIBUTE_DIRECTORY (skin.cpp)");
+	h = FindFirstFileA("data\\Texture", &wfd);
+	Check(h != INVALID_HANDLE_VALUE && (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), "FindFirstFile of a folder: FILE_ATTRIBUTE_DIRECTORY");
+	FindClose(h);
 
 	std::string korean = std::string(kKoreanCp949) + "\\*.bmp";
 	h = FindFirstFileA(korean.c_str(), &wfd);
@@ -173,80 +108,7 @@ void TestFind()
 
 	h = FindFirstFileA("data\\*.wav", &wfd);
 	Check(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_NOT_FOUND, "FindFirstFile without match: ERROR_FILE_NOT_FOUND");
-	Check(!FindClose(h), "FindClose(INVALID_HANDLE_VALUE) fails safely (base/Util.cpp does it)");
-}
-
-// CMemMapFile (base/GPak.cpp): CreateFile, GetFileSize, CreateFileMapping,
-// MapViewOfFile at offsets aligned to the allocation granularity.
-bool MapLikeGPak(const char *name, const char *magic, uint64_t *size_out, const char **why)
-{
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-	unsigned long mask = 0xFFFFFFFF - (si.dwAllocationGranularity - 1);
-	HANDLE file = CreateFileA(name, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (file == INVALID_HANDLE_VALUE)
-		return *why = "CreateFile", false;
-	DWORD high = 0;
-	unsigned long size = GetFileSize(file, &high);
-	*size_out = ((uint64_t)high << 32) | size;
-	HANDLE map = CreateFileMappingA(file, NULL, PAGE_READONLY, 0, 0, name);
-	if (!map)
-		return CloseHandle(file), *why = "CreateFileMapping", false;
-	bool ok = true;
-	unsigned long window = 0x20000000;
-	const BYTE *view = (const BYTE *)MapViewOfFile(map, FILE_MAP_READ, 0, 0, window < size ? window : 0);
-	if (!view || (magic && memcmp(view, magic, strlen(magic) + 1) != 0))
-		ok = false, *why = "view at 0";
-	if (view)
-		UnmapViewOfFile(view);
-	// A view at the last aligned offset, to the end (the offset + size > file size case).
-	unsigned long last = size ? (size - 1) & mask : 0;
-	view = (const BYTE *)MapViewOfFile(map, FILE_MAP_READ, 0, last, 0);
-	if (ok && (!view || (magic == NULL && view[size - 1 - last] != (BYTE)((size - 1) * 7))))
-		ok = false, *why = "view at the end";
-	if (view)
-		UnmapViewOfFile(view);
-	if (ok && (MapViewOfFile(map, FILE_MAP_READ, 0, 1, 16) != NULL || GetLastError() != ERROR_MAPPED_ALIGNMENT))
-		ok = false, *why = "unaligned view";
-	// A view kept across CloseHandle of the mapping stays readable.
-	view = (const BYTE *)MapViewOfFile(map, FILE_MAP_READ, 0, 0, 0);
-	CloseHandle(map);
-	CloseHandle(file);
-	if (ok && (!view || (magic && view[0] != (BYTE)magic[0]) || (!magic && view[1] != 7)))
-		ok = false, *why = "view after CloseHandle";
-	if (ok && !(UnmapViewOfFile(view) && !UnmapViewOfFile(view)))
-		ok = false, *why = "UnmapViewOfFile twice";
-	return ok;
-}
-
-void TestMapping()
-{
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-	Check(si.dwAllocationGranularity == 0x10000 && si.dwPageSize >= 4096, "GetSystemInfo: granularity 64 KiB");
-
-	const char *why = "";
-	uint64_t size = 0;
-	Check(MapLikeGPak("BIG.bin", NULL, &size, &why) && size == 300001,
-	      "CreateFileMapping + MapViewOfFile as CMemMapFile does, on a 300001-byte file");
-	if (*why)
-		printf("     (failed at: %s)\n", why);
-
-	std::string real;
-	const char *env = getenv("BF_CLIENT_DIR");
-	real = env && *env ? env : std::string(getenv("HOME")) + "/Games/" BF_APP_NAME;
-	if (!Exists(real + "/data.grf")) {
-		Skip("data.grf: no game data");
-		return;
-	}
-	bf_file_set_game_folder(real.c_str());
-	why = "";
-	bool ok = MapLikeGPak("DATA.GRF", "Master of Magic", &size, &why);
-	printf("     data.grf: %llu bytes\n", (unsigned long long)size);
-	Check(ok && size > 0x20000000, "data.grf from the game folder: mapped whole, read-only, \"Master of Magic\" at 0");
-	if (*why)
-		printf("     (failed at: %s)\n", why);
-	bf_file_set_game_folder(g_game.c_str());
+	Check(!FindClose(h), "FindClose(INVALID_HANDLE_VALUE) fails safely");
 }
 
 // ---- The C library, as the client calls it ---------------------------------------
@@ -473,11 +335,6 @@ void TestMisc()
 	Check(MulDiv(10, 3, 4) == 8 && MulDiv(-10, 3, 4) == -8 && MulDiv(1, 2, 0) == -1, "MulDiv rounds, -1 for /0");
 	Check(lstrcmpiA("Gulim.BMP", "gulim.bmp") == 0 && lstrcmpiA("a", "B") < 0, "lstrcmpiA");
 
-	unsigned char *v = (unsigned char *)VirtualAlloc(NULL, 100000 + 8, MEM_COMMIT, PAGE_READWRITE);
-	bool zero = v != NULL;
-	for (int i = 0; zero && i < 100008; ++i)
-		zero = v[i] == 0;
-	Check(zero && VirtualFree(v, 0, MEM_RELEASE), "VirtualAlloc: zeroed; VirtualFree");
 	HGLOBAL g = GlobalAlloc(GMEM_DDESHARE, 32);
 	char *p = (char *)GlobalLock(g);
 	Check(p && GlobalSize(g) == 32 && (strcpy(p, "clip"), true) && !GlobalUnlock(g) && GlobalFree(g) == NULL,
@@ -524,22 +381,16 @@ int main()
 	g_pictures = g_home + "/Pictures/" BF_APP_NAME;
 	g_support = g_home + "/Library/Application Support/" BF_APP_NAME;
 
-	// A small game folder: mixed case, a CP949 folder, DATA.INI, a 300001-byte file.
+	// A small game folder: mixed case, a CP949 folder, DATA.INI.
 	WriteText(g_game + "/data/readme.txt", "0123456789");
 	WriteText(g_game + "/data/Texture/Foo.BMP", "BMxx");
 	WriteText(g_game + "/data/Texture/bar.bmp", "BMyy");
 	WriteText(g_game + "/" + Utf8Of949(kKoreanCp949) + "/Title.bmp", "BMz");
 	WriteText(g_game + "/DATA.INI", "[Data]\n1=data.grf\n");
-	std::string big(300001, '\0');
-	for (size_t i = 0; i < big.size(); ++i)
-		big[i] = (char)(i * 7);
-	WriteText(g_game + "/big.bin", big);
 	bf_file_set_game_folder(g_game.c_str());
 	printf("game folder %s\nhome %s\n", g_game.c_str(), g_home.c_str());
 
-	TestFiles();
 	TestFind();
-	TestMapping();
 	TestCrt();
 	TestRegistry();
 	TestLastError();

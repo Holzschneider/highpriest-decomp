@@ -1,20 +1,20 @@
-# compat/win32: kernel32, the registry, ShellExecute, MessageBox, the C library's file calls
+# compat/win32: kernel32, the registry, ShellExecute, MessageBox
 
-The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics.
+The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics. Files, archive mappings, large blocks and the heap left with M11.3: the client calls `bf_file_*` (`port/native/sys`) and the C library; the C library's file names on client paths (`bf_crt.h`) are `port/client/src/bf_crt.cpp`'s. What is left of `bf_win32_file.cpp` is `FindFirstFileA` and `FindClose` for `base/FindHack.cpp`.
 
 ```
 cmake --preset debug && cmake --build --preset debug --target bf_compat_win32 bifrost-compat-win32-test
 build/cmake/debug/compat/win32/bifrost-compat-win32-test     # or: ctest --test-dir build/cmake/debug -R compat-win32
 ```
 
-The test writes only below `$BF_TEST_OUT/compat-win32-test` (`BF_HOME` points there, a small game folder is made there) and reads `data.grf` from the real game folder (`$BF_CLIENT_DIR` or `~/Games/<name>`); that check says `skip` without game data, as does the Keychain round trip when the login keychain is out of reach. `test/client_calls.cpp` is compiled with the client's own flags, so its `fopen`, `access`, `_mkdir`, `remove`, ... are the client's.
+The test writes only below `$BF_TEST_OUT/compat-win32-test` (`BF_HOME` points there, a small game folder is made there); the Keychain round trip says `skip` when the login keychain is out of reach. `test/client_calls.cpp` is compiled with the client's own flags, so its `fopen`, `access`, `_mkdir`, `remove`, ... are the client's, implemented by `port/client/src/bf_crt.cpp`, which the test compiles in.
 
 ## The client's file calls: one mechanism
 
 Every path the client passes is translated by `bf_file` (backslashes, any letter case, CP949, relative to the game folder or below `g_baseDir3`): reads find the file in the game folder or in a write location first; writes go to the write locations (Documents, Pictures, Application Support, by the first path component) and are refused in the game folder (`ERROR_ACCESS_DENIED`, `errno` `EACCES`).
 
-- **Win32 file functions** (`CreateFile`, `FindFirstFile`, ...) call `bf_file` directly.
-- **The C library's file functions** in game units go through `port/client/include/bf_crt.h`, which `bf_prefix.h` includes: `fopen`, `access`, `remove`, `rename`, `unlink`, `rmdir` are object-like macros for `bf_crt_*` here, which resolve the path with `bf_file_resolve` and then call the C library; `_access`, `_unlink`, `_rmdir` map onto them, `_chmod` to `bf_crt_chmod`; `_mkdir` and `_getcwd` are real functions here. Lua's `io.open`, `os.remove`, `os.rename` and `luaL_loadfile` are covered the same way.
+- **The client's own file code** (`base/File.cpp`, `base/GPak.cpp`, `base/Util.cpp`, `skin.cpp`) calls `bf_file` directly since M11.3; `FindFirstFile` here (for `base/FindHack.cpp`) too.
+- **The C library's file functions** in game units go through `port/client/include/bf_crt.h`, which `bf_prefix.h` includes: `fopen`, `access`, `remove`, `rename`, `unlink`, `rmdir` are object-like macros for `bf_crt_*` (`port/client/src/bf_crt.cpp`; `fopen` is `bf_file_fopen`); `_access`, `_unlink`, `_rmdir` map onto them, `_chmod` to `bf_crt_chmod`; `_mkdir` is a real function there, `_getcwd` here. Lua's `io.open`, `os.remove`, `os.rename` and `luaL_loadfile` are covered the same way.
 - **Port code** keeps the C library's names: `bf_compat_flags` (root `CMakeLists.txt`) defines `BF_COMPAT_ADAPTER`, which turns the macros off; native modules do not see the prefix at all.
 - `GetCurrentDirectory` (the client's `g_baseDir3`) and `_getcwd` return the game folder's POSIX path; the process's working folder is not changed and nothing depends on it.
 
@@ -22,23 +22,15 @@ The macros rename the name everywhere in a game unit, the standard headers inclu
 
 ## Names
 
-Kernel objects (files, mappings, finds) are registered handles: a handle the client never got (`FindClose(INVALID_HANDLE_VALUE)`, `RegCloseKey` of a key whose open failed) fails with `ERROR_INVALID_HANDLE` instead of crashing. `GetLastError` is per thread. `CP_ACP` is `bf_file_user_codepage()`, the code page the client sets with `bf_file_set_user_codepage` per service (949 by default, 1252); it also decodes registry names and `REG_SZ` data and message box text.
+Kernel objects (folder listings) are registered handles: a handle the client never got (`FindClose(INVALID_HANDLE_VALUE)`, `RegCloseKey` of a key whose open failed) fails with `ERROR_INVALID_HANDLE` instead of crashing. `GetLastError` is per thread. `CP_ACP` is `bf_file_user_codepage()`, the code page the client sets with `bf_file_set_user_codepage` per service (949 by default, 1252); it also decodes registry names and `REG_SZ` data and message box text.
 
 | Name | Maps to | Notes |
 |---|---|---|
-| `CreateFileA` | `bf_file_open` | dispositions 1-5 to `BF_FILE_CREATE/TRUNCATE/EXCLUSIVE`; `ERROR_ALREADY_EXISTS` after `CREATE_ALWAYS`/`OPEN_ALWAYS` on an existing file; `ERROR_FILE_EXISTS` for `CREATE_NEW` |
-| `ReadFile`, `WriteFile` | `bf_file_read`, `bf_file_write` | no `OVERLAPPED` (stub) |
-| `SetFilePointer`, `GetFileSize`, `SetEndOfFile`, `FlushFileBuffers` | `bf_file_seek/tell/size`, `bf_file_truncate_here` | 64-bit with the high part; `ERROR_NEGATIVE_SEEK` |
-| `CloseHandle` | the object's release (`bf_file_close`, mapping) | the process pseudo-handle ignored |
-| `DeleteFileA`, `MoveFileA`, `CreateDirectoryA`, `GetFileAttributesA` | `bf_file_remove`, `bf_file_rename`, `bf_file_make_folder`, `bf_file_stat` | not called by the client today |
-| `FindFirstFileA`, `FindNextFileA`, `FindClose` | `bf_file_find_*` | `*`/`?` without regard to case; `.` and `..` not listed; game files `FILE_ATTRIBUTE_READONLY` |
-| `CreateFileMappingA`, `MapViewOfFile`, `UnmapViewOfFile` | `bf_file_map_open_file` | the whole file mapped read-only once; a view is `data + offset` (offset a multiple of 64 KiB, else `ERROR_MAPPED_ALIGNMENT`); the mapping lives until its handle is closed and its last view unmapped. `PAGE_READWRITE` and paging-file sections: stub |
-| `GetSystemInfo` | `getpagesize`, `sysconf` | granularity 64 KiB (GPak aligns its views to it) |
-| `VirtualAlloc`, `VirtualFree` | `calloc`, `free` | committed memory is zero (the client reads 8 padding bytes); reservations at an address: stub |
-| `GlobalAlloc/Lock/Unlock/Free/Size`, `LocalAlloc/Lock/Free` | `malloc` with a size header | the handle is the memory (as `GMEM_FIXED`); `GlobalSize` for the clipboard adapter |
-| `GetProcessHeap`, `HeapCompact`, `HeapAlloc`, `HeapFree` | `malloc`, `free` | |
+| `CloseHandle` | the object's release | the process pseudo-handle ignored |
+| `FindFirstFileA`, `FindClose` | `bf_file_find_*` | `*`/`?` without regard to case; `.` and `..` not listed; game files `FILE_ATTRIBUTE_READONLY` |
+| `GlobalAlloc/Lock/Unlock/Free/Size`, `LocalAlloc/Lock/Free` | `malloc` with a size header | the handle is the memory (as `GMEM_FIXED`); `GlobalSize` for the clipboard adapter; callers: `framework/Language.cpp` and the input adapter (clipboard), `FormatMessageA` for `base/FindHack.cpp` |
 | `GlobalMemoryStatus` | `sysctl hw.memsize` | |
-| `GetLastError`, `SetLastError` | thread-local | `errno` translated (`ENOENT` -> 2, `EACCES` -> 5, ...) |
+| `GetLastError`, `SetLastError` | thread-local | |
 | `GetCurrentDirectoryA`, `_getcwd` | `bf_file_location(BF_LOCATION_GAME)` | |
 | `GetModuleFileNameA`, `GetModuleHandleA` | `_NSGetExecutablePath` | the executable (CLoginMode hashes it); `GetModuleHandle(name)` fails |
 | `GetCommandLineA`, `ExitProcess`, `GetCurrentProcess`, `GetCurrentProcessId`, `SetPriorityClass` | `_NSGetArgv`, `exit`, `getpid`; no-op | |
@@ -54,7 +46,6 @@ Kernel objects (files, mappings, finds) are registered handles: a handle the cli
 | `RegCloseKey` | `bf_settings_save` | |
 | `MessageBoxA` | trace (`BFT_UI`) + `bf_sys_alert` | shown unless `BF_NO_ALERTS`, no window server or off the main thread; then the first button (`IDOK`/`IDYES`) |
 | `ShellExecuteA` | `bf_sys_open_url`, `bf_sys_open_path` | `open` of a URL or a resolved path; > 32 on success |
-| `fopen`, `access`, `remove`, `rename`, `unlink`, `rmdir`, `_access`, `_unlink`, `_rmdir`, `_chmod`, `_mkdir` | `bf_file_resolve` + C library, `bf_file_stat`, `bf_file_remove`, `bf_file_rename`, `bf_file_remove_folder`, `bf_file_make_folder` | text mode `t` dropped; `_mkdir` of an existing folder `-1`/`EEXIST` |
 
 Called by the client and deliberately failing (`BF_STUB()` or a trace line, with the value the callers handle):
 

@@ -6,10 +6,17 @@
  * folders with _mkdir, passing its own path names: backslashes, any letter
  * case, CP949, relative to the game folder or below g_baseDir3 (which
  * GetCurrentDirectory filled with the game folder). In game units the names
- * below are macros for functions of port/compat/win32 that translate the path
- * with bf_file_resolve and then call the C library: reads find the file in
- * the game folder (or in a write location first), writes go to the write
- * locations and are refused in the game folder (EACCES).
+ * below are macros for functions of port/client/src/bf_crt.cpp on
+ * port/native/sys (bf_file.h): reads find the file in the game folder (or in
+ * a write location first), writes go to the write locations and are refused
+ * in the game folder (EACCES).
+ *
+ * Transitional (M11.3): a call site that moves off Windows calls bf_file.h
+ * itself (bf_file_fopen, bf_file_stat for access, bf_file_make_folder,
+ * bf_file_remove, bf_file_remove_folder, bf_file_rename), as base/File.cpp,
+ * base/GPak.cpp, base/Util.cpp and skin.cpp do. The macros and the
+ * Visual C++ names stay for the files not yet moved (each file's M11 owner,
+ * Lua and the rest in M11.11's sweep) and go with the last of them.
  *
  * Port code (the adapters, compiled with BF_COMPAT_ADAPTER by
  * bf_compat_flags) and the native modules keep the C library's own names.
