@@ -505,6 +505,29 @@ void TestWritePaths(const std::string &game)
 	errno = 0;
 	f = bf_file_open("data\\texture", BF_FILE_READ);
 	Check(!f && errno == EISDIR, "files: a folder cannot be opened as a file");
+
+	// C streams, as the client's fopen calls (PingLog.txt "at", DATA.INI "r").
+	FILE *stream = bf_file_fopen("PingLog.txt", "at");
+	bool streams = stream && fputs("ping 1\n", stream) >= 0 && fclose(stream) == 0;
+	stream = bf_file_fopen("pinglog.TXT", "at");
+	streams = streams && stream && fputs("ping 2\n", stream) >= 0 && fclose(stream) == 0;
+	Check(streams && ReadText(documents + "/PingLog.txt") == "ping 1\nping 2\n",
+	      "streams: fopen(\"at\") appends in Documents, the name found again in any case");
+	char line[64] = { 0 };
+	stream = bf_file_fopen("DATA\\CLIENTINFO.XML", "rt");
+	streams = stream && fgets(line, sizeof(line), stream) != NULL;
+	if (stream)
+		fclose(stream);
+	Check(streams && strcmp(line, "<clientinfo/>") == 0, "streams: fopen(\"rt\") reads a game file by any case and separator");
+	errno = 0;
+	stream = bf_file_fopen("data\\clientinfo.xml", "r+");
+	Check(!stream && errno == EACCES, "streams: fopen(\"r+\") of a game file is refused (EACCES)");
+	errno = 0;
+	stream = bf_file_fopen("data\\nothing.txt", "rb");
+	Check(!stream && errno == ENOENT, "streams: fopen(\"rb\") of a missing file: ENOENT");
+	errno = 0;
+	Check(!bf_file_fopen("PingLog.txt", "") && errno == EINVAL && !bf_file_fopen(NULL, "r"),
+	      "streams: no mode or no path: EINVAL");
 }
 
 uint32_t ResolveMany(void *raw)

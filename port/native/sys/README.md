@@ -6,7 +6,7 @@ The client's operating system, designed for macOS with no Windows types (steps M
 |---|---|
 | `include/bf_sys.h` | threads, recursive mutex, Keychain, alerts, opening URLs and files; includes the three below |
 | `include/bf_clock.h` | the one clock (`mach_absolute_time`), sleeps, a replaceable clock source, the calendar |
-| `include/bf_file.h` | the read-only game folder, the write locations, client-path translation, files, `mmap`, folder listing |
+| `include/bf_file.h` | the read-only game folder, the write locations, client-path translation, files, C streams (`bf_file_fopen`), `mmap`, folder listing |
 | `include/bf_settings.h` | the one settings object, its defaults and its property list |
 
 ## Build and test
@@ -86,6 +86,7 @@ A group is a dictionary; inside it a dictionary is a subgroup and anything else 
 
 ## Notes for the adapters
 
+- M11.3: the client's own file code calls these functions directly: `CFileMgr`/`CFile` (`base/File.cpp`: `bf_file_open/read/write/seek`, `bf_file_stat`; archive and folder data in `calloc` blocks with 8 zero bytes after archive data, freed with `free`), `CMemMapFile` (`base/GPak.cpp`: `bf_file_map_open_file`, a view is `data + offset`; an empty file counts as not mapped), `GetFileNames`/`DeleteDirectory` (`base/Util.cpp`) and `CSkinMgr` (`skin.cpp`: `bf_file_find_*`, `bf_file_stat` for `access`, `bf_file_make_folder` for `_mkdir`, `bf_file_remove(_folder)`). `bf_file_fopen` is the C library's `fopen` on a client path (was the win32 adapter's `bf_crt_fopen`).
 - `GetCurrentDirectory`/`GetModuleFileName` should return the game folder's POSIX path (`bf_file_location(BF_LOCATION_GAME)`); the client appends `\ScreenShot\...` to it, which resolves correctly.
 - `CreateFileMapping` + `MapViewOfFile(offset, size)`: map the whole file once with `bf_file_map_open_file` and return `data + offset`; `UnmapViewOfFile` of a view is then a no-op until the mapping handle closes.
 - `CRITICAL_SECTION`: store the `bf_sys_mutex *` in the structure (Wine's is 40 bytes); `InitializeCriticalSection` creates it.

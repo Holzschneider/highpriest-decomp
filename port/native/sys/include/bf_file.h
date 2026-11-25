@@ -47,6 +47,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -150,6 +151,16 @@ void bf_file_close(bf_file *file);
  */
 void *bf_file_read_all(const char *client_path, size_t *size);
 void bf_file_free(void *data);
+
+/*
+ * A C stream on a client path, for the client's fopen calls. mode is
+ * fopen's; a "t" (Visual C++'s text mode) is dropped, the C library has
+ * none. "r" and "rb" read the file as bf_file_resolve(BF_RESOLVE_READ) finds
+ * it; every other mode resolves for writing (folders are made; a game-folder
+ * path is refused). NULL and errno on failure: ENOENT, EACCES, EINVAL (no
+ * path or mode), or the C library's.
+ */
+FILE *bf_file_fopen(const char *client_path, const char *mode);
 
 /* ---- Read-only mappings --------------------------------------------------- */
 

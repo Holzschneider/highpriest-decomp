@@ -869,6 +869,28 @@ extern "C" void bf_file_free(void *data)
 	free(data);
 }
 
+extern "C" FILE *bf_file_fopen(const char *client_path, const char *mode)
+{
+	if (!client_path || !mode || !*mode) {
+		errno = EINVAL;
+		return NULL;
+	}
+	bool write = mode[0] != 'r' || strchr(mode, '+') != NULL;
+	char resolved[2048];
+	if (bf_file_resolve(client_path, write ? BF_RESOLVE_WRITE : BF_RESOLVE_READ, resolved, sizeof(resolved)) < 0)
+		return NULL;   // errno from the resolution: ENOENT, EACCES (a write into the game folder), ...
+	// The C library has no text mode: "rt", "wt", "at" are "r", "w", "a".
+	char native[8];
+	size_t n = 0;
+	for (const char *m = mode; *m && n + 1 < sizeof(native); ++m)
+		if (*m != 't')
+			native[n++] = *m;
+	native[n] = 0;
+	FILE *file = fopen(resolved, native);
+	BF_TRACE(BFT_FILE, "fopen(%s, %s) = %s%s", client_path, mode, resolved, file ? "" : " (failed)");
+	return file;
+}
+
 // ---- Mappings ------------------------------------------------------------------
 
 extern "C" bf_file_mapping *bf_file_map_open_file(bf_file *file)
