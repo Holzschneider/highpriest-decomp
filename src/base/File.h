@@ -43,7 +43,7 @@ public:
 	static bool __cdecl IsFileExist(const char* fName);
 protected:
 	static void __cdecl MakeFileName(char* output, const char* input);
-	void* m_hFile;
+	bf_file* m_hFile;
 	char* m_buf;
 	unsigned int m_cursor;
 	unsigned int m_size;

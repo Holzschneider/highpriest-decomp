@@ -56,39 +56,37 @@ void	CSkinMgr :: Init()
 	m_skinNameList.clear();
 	m_isZipSkinList.clear();
 	m_curSkinNum = -1;
-	WIN32_FIND_DATA wfd;
-	memset(&wfd, 0, sizeof(WIN32_FIND_DATA));
+	bf_file_info wfd;
+	memset(&wfd, 0, sizeof(bf_file_info));
 	char * szPath = ".\\skin\\*.*";
-	HANDLE hFile = FindFirstFile(szPath, &wfd);
-	if (hFile == INVALID_HANDLE_VALUE) {
-		FindClose(hFile);
-	} else {
+	bf_file_find* hFile = bf_file_find_first(szPath, &wfd);
+	if (hFile != NULL) {
 		string cur0 = ".";
 		string cur1 = "..";
 
 		int skinIndex = 0;
-		if (cur0 != wfd.cFileName && cur1 != wfd.cFileName && (wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)) {
+		if (cur0 != wfd.name && cur1 != wfd.name && wfd.is_folder) {
 			string skinFolderName = szPath2;
-			skinFolderName += wfd.cFileName;
+			skinFolderName += wfd.name;
 			skinFolderName += "\\";
 			m_skinFolderNameList.push_back(skinFolderName.c_str());
-			m_skinNameList.push_back(wfd.cFileName);
+			m_skinNameList.push_back(wfd.name);
 			m_isZipSkinList.push_back(FALSE);
 			m_isZipSkinExtractedList.push_back(FALSE);
-			if (m_savedSkinName == wfd.cFileName) {
+			if (m_savedSkinName == wfd.name) {
 				m_curSkinNum = skinIndex;
 			}
 			++skinIndex;
-		} else if (cur0 != wfd.cFileName && cur1 != wfd.cFileName) {
-			string ext = StrChrBackward(wfd.cFileName, '.');
+		} else if (cur0 != wfd.name && cur1 != wfd.name) {
+			string ext = StrChrBackward(wfd.name, '.');
 			MakeStringLower(ext);
 			if (ext == ".zip") {
 				string skinFolderName = szPath3;
-				skinFolderName += wfd.cFileName;
+				skinFolderName += wfd.name;
 				skinFolderName.resize(skinFolderName.size()-4);
 				skinFolderName += "\\";
 				m_skinFolderNameList.push_back(skinFolderName.c_str());
-				string skinName = wfd.cFileName;
+				string skinName = wfd.name;
 				skinName.resize(skinName.size()-4);
 				m_skinNameList.push_back(skinName.c_str());
 				m_isZipSkinList.push_back(TRUE);
@@ -100,29 +98,29 @@ void	CSkinMgr :: Init()
 			}
 		}
 
-		while (FindNextFile(hFile, &wfd)) {
-			if (cur0 != wfd.cFileName && cur1 != wfd.cFileName && (wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)) {
+		while (bf_file_find_next(hFile, &wfd)) {
+			if (cur0 != wfd.name && cur1 != wfd.name && wfd.is_folder) {
 				string skinFolderName = szPath2;
-				skinFolderName += wfd.cFileName;
+				skinFolderName += wfd.name;
 				skinFolderName += "\\";
 				m_skinFolderNameList.push_back(skinFolderName.c_str());
-				m_skinNameList.push_back(wfd.cFileName);
+				m_skinNameList.push_back(wfd.name);
 				m_isZipSkinList.push_back(FALSE);
 				m_isZipSkinExtractedList.push_back(FALSE);
-				if (m_savedSkinName == wfd.cFileName) {
+				if (m_savedSkinName == wfd.name) {
 					m_curSkinNum = skinIndex;
 				}
 				++skinIndex;
-			} else if (cur0 != wfd.cFileName && cur1 != wfd.cFileName) {
-				string ext = StrChrBackward(wfd.cFileName, '.');
+			} else if (cur0 != wfd.name && cur1 != wfd.name) {
+				string ext = StrChrBackward(wfd.name, '.');
 				MakeStringLower(ext);
 				if (ext == ".zip") {
 					string skinFolderName = szPath3;
-					skinFolderName += wfd.cFileName;
+					skinFolderName += wfd.name;
 					skinFolderName.resize(skinFolderName.size()-4);
 					skinFolderName += "\\";
 					m_skinFolderNameList.push_back(skinFolderName.c_str());
-					string skinName = wfd.cFileName;
+					string skinName = wfd.name;
 					skinName.resize(skinName.size()-4);
 					m_skinNameList.push_back(skinName.c_str());
 					m_isZipSkinList.push_back(TRUE);
@@ -134,7 +132,7 @@ void	CSkinMgr :: Init()
 				}
 			}
 		}
-		FindClose(hFile);
+		bf_file_find_close(hFile);
 	}
 }
 
@@ -199,21 +197,21 @@ void CSkinMgr :: ExtractFilesIfZipSkin()
 		sprintf(tmp, "%s\\_tmpskin_", g_baseDir3);
 		strcat(tmp, "\\");
 		strcat(tmp, m_skinNameList[m_curSkinNum].c_str());
-		if (!access(tmp, 0)) {
+		if (bf_file_stat(tmp, NULL)) {
 			return;
 		}
 
 		sprintf(tmp, "%s\\_tmpskin_", g_baseDir3);
-		if (access(tmp, 0)) {
-			if (_mkdir(tmp)) {
+		if (!bf_file_stat(tmp, NULL)) {
+			if (bf_file_make_folder(tmp) != 1) {
 				return;
 			}
 		}
 		sprintf(tmp, "%s\\_tmpskin_", g_baseDir3);
 		strcat(tmp, "\\");
 		strcat(tmp, m_skinNameList[m_curSkinNum].c_str());
-		if (access(tmp, 0)) {
-			if (_mkdir(tmp)) {
+		if (!bf_file_stat(tmp, NULL)) {
+			if (bf_file_make_folder(tmp) != 1) {
 				return;
 			}
 		}
@@ -226,7 +224,13 @@ void CSkinMgr :: ExtractFilesIfZipSkin()
 		strcpy(arg[3], "_tmpskin_/");
 		strcat(arg[3], m_skinNameList[m_curSkinNum].c_str());
 
+#if defined(BF_PORT)
+		// runzip.exe unpacked the zipped skin into _tmpskin_; the port starts no Windows program,
+		// so the skin's files stay missing and UIBmp falls back to the basic images.
+		bf_port_missing(BFT_FILE, "skin.zip_not_unpacked", "%s.zip (runzip.exe)", arg[1]);
+#else
 		spawnl(P_WAIT, "runzip.exe", "runzip.exe", arg[0], arg[1], arg[2], arg[3], NULL);
+#endif
 
 		m_isZipSkinExtractedList[m_curSkinNum] = TRUE;
 	}
@@ -236,7 +240,7 @@ void CSkinMgr :: DeleteTmpSkinFolder()
 {
 	char	tmp[2048];
 	sprintf(tmp, "%s\\_tmpskin_", g_baseDir3);
-	if (!access(tmp, 0)) {
+	if (bf_file_stat(tmp, NULL)) {
 		DeleteDirectory(tmp);
 	}
 }

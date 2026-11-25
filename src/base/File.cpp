@@ -4,6 +4,7 @@
 #include "hash.h"
 
 #include <windows.h>
+#include <stdlib.h>
 #include <string.h>
 #include <list>
 #include <utility>
@@ -85,7 +86,7 @@ void* CFileMgr::GetData(const char* name, unsigned int* size)
 
 void CFileMgr::ReleaseData(void* data)
 {
-	VirtualFree(data, 0, MEM_RELEASE);
+	free(data);
 }
 
 bool CFileMgr::IsDataExist(const char* name)
@@ -106,11 +107,11 @@ void* CFileMgr::GetPak(const char* name, unsigned int* size)
 		CHash tmp(name);
 		if (iter->second->GetInfo(tmp, &pakPack)) {
 			*size = pakPack.m_size;
-			void* data = VirtualAlloc(NULL, pakPack.m_size + 8, MEM_COMMIT, PAGE_READWRITE);
+			void* data = calloc(1, pakPack.m_size + 8);
 			if (iter->second->GetData(pakPack, data)) {
 				return data;
 			}
-			VirtualFree(data, 0, MEM_RELEASE);
+			free(data);
 		}
 	}
 	return NULL;
@@ -118,35 +119,26 @@ void* CFileMgr::GetPak(const char* name, unsigned int* size)
 
 void* CFileMgr::GetFile(const char* name, unsigned int* size)
 {
-	DWORD RByte;
-	HANDLE hFile = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, NULL,
-							  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile != INVALID_HANDLE_VALUE) {
-		*size = GetFileSize(hFile, NULL);
+	bf_file* hFile = bf_file_open(name, BF_FILE_READ);
+	if (hFile != NULL) {
+		*size = (unsigned int)bf_file_size(hFile);
 		if (size != NULL) {
-			void* data = VirtualAlloc(NULL, *size, MEM_COMMIT, PAGE_READWRITE);
+			void* data = calloc(1, *size ? *size : 1);
 			if (data) {
-				ReadFile(hFile, data, *size, &RByte, NULL);
-				CloseHandle(hFile);
+				bf_file_read(hFile, data, *size);
+				bf_file_close(hFile);
 				return data;
 			}
-			VirtualFree(data, 0, MEM_RELEASE);
+			free(data);
 		}
-		CloseHandle(hFile);
+		bf_file_close(hFile);
 	}
 	return NULL;
 }
 
 bool CFileMgr::IsFileExist(const char* name)
 {
-	WIN32_FIND_DATA findData;
-	HANDLE fFind = FindFirstFile(name, &findData);
-	if (fFind == INVALID_HANDLE_VALUE) {
-		return false;
-	} else {
-		FindClose(fFind);
-		return true;
-	}
+	return bf_file_stat(name, NULL) ? true : false;
 }
 
 
@@ -180,10 +172,9 @@ bool CFile::Open(const char* fName, unsigned int nOpenFlags)
 		}
 	} else if (nOpenFlags & modeWrite) {
 		strcpy(m_fileName, fName);
-		m_hFile = CreateFile(fName, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL,
-							 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (m_hFile != INVALID_HANDLE_VALUE) {
-			m_size = GetFileSize(m_hFile, NULL);
+		m_hFile = bf_file_open(fName, BF_FILE_READ | BF_FILE_WRITE | BF_FILE_CREATE | BF_FILE_TRUNCATE);
+		if (m_hFile != NULL) {
+			m_size = (unsigned int)bf_file_size(m_hFile);
 			return true;
 		} else {
 #if defined(BF_PORT)
@@ -201,10 +192,10 @@ bool CFile::Open(const char* fName, unsigned int nOpenFlags)
 void CFile::Close()
 {
 	if (m_hFile) {
-		CloseHandle(m_hFile);
+		bf_file_close(m_hFile);
 		m_hFile = NULL;
 	} else if (m_buf) {
-		VirtualFree(m_buf, 0, MEM_RELEASE);
+		free(m_buf);
 		m_buf = NULL;
 	}
 }
@@ -212,8 +203,7 @@ void CFile::Close()
 bool CFile::Read(void* lpBuf, unsigned int nCount)
 {
 	if (m_hFile) {
-		DWORD readed;
-		return ReadFile(m_hFile, lpBuf, nCount, &readed, NULL) ? true : false;
+		return bf_file_read(m_hFile, lpBuf, nCount) >= 0 ? true : false;
 	} else if (m_buf) {
 		if (m_cursor + nCount > m_size) {
 			return false;
@@ -229,8 +219,7 @@ bool CFile::Read(void* lpBuf, unsigned int nCount)
 bool CFile::Write(const void* lpBuf, unsigned int nCount)
 {
 	if (m_hFile) {
-		DWORD written;
-		return WriteFile(m_hFile, lpBuf, nCount, &written, NULL) ? true : false;
+		return bf_file_write(m_hFile, lpBuf, nCount) >= 0 ? true : false;
 	} else {
 		return false;
 	}
@@ -239,7 +228,7 @@ bool CFile::Write(const void* lpBuf, unsigned int nCount)
 bool CFile::Seek(int lOff, unsigned int nFrom)
 {
 	if (m_hFile) {
-		SetFilePointer(m_hFile, lOff, 0, nFrom);
+		bf_file_seek(m_hFile, lOff, nFrom);
 		return true;
 	} else if (m_buf) {
 		switch (nFrom) {

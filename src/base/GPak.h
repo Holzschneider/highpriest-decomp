@@ -39,8 +39,8 @@ public:
 protected:
 	void init();
 protected:
-	void* m_hFile;
-	void* m_hFileMap;
+	bf_file* m_hFile;
+	bf_file_mapping* m_hFileMap;
 	unsigned int m_dwFileSize;
 	unsigned int m_dwOpenOffset;
 	unsigned int m_dwOpenSize;

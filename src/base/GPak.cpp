@@ -48,23 +48,29 @@ char EncExtString[MAX_EXT_STRING][5] = {
 
 
 
+// The whole archive is mapped at once (bf_file_map_open_file); a view at an
+// offset is a pointer into that mapping, valid until close().
+static const BYTE*	MapView(bf_file_mapping* fileMap, DWORD offset)
+{
+	return (const BYTE*)bf_file_mapping_data(fileMap) + offset;
+}
+
 bool	CMemMapFile :: open(const char* name)
 {
-	m_hFile = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	m_hFile = bf_file_open(name, BF_FILE_READ);
 
-	if(m_hFile == INVALID_HANDLE_VALUE)
+	if(m_hFile == NULL)
 	{
-		m_hFile = NULL;
 		return false;
 	}
 
-	m_dwFileSize = GetFileSize(m_hFile, NULL);
+	m_dwFileSize = (DWORD)bf_file_size(m_hFile);
 	m_dwOpenOffset = 0;
 	m_dwOpenSize = 0;
 
-	m_hFileMap = CreateFileMapping(m_hFile, NULL, PAGE_READONLY, 0, 0, name);
+	m_hFileMap = bf_file_map_open_file(m_hFile);
 
-	if(m_hFileMap != NULL)
+	if(m_hFileMap != NULL && bf_file_mapping_size(m_hFileMap) != 0)	// an empty file has no mapping, as on Windows
 	{
 		return true;
 	}
@@ -79,18 +85,17 @@ void	CMemMapFile :: close()
 {
 	if(m_dwFileMappingSize && m_pFile)
 	{
-		UnmapViewOfFile(m_pFile);
 		m_pFile = NULL;
 	}
 
 	if(m_hFileMap)
 	{
-		CloseHandle(m_hFileMap);
+		bf_file_unmap(m_hFileMap);
 		m_hFileMap = NULL;
 	}
 	if(m_hFile)
 	{
-		CloseHandle(m_hFile);
+		bf_file_close(m_hFile);
 		m_hFile = NULL;
 	}
 }
@@ -107,7 +112,6 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 
 			if(m_pFile)
 			{
-				UnmapViewOfFile(m_pFile);
 				m_pFile = NULL;
 			}
 
@@ -120,16 +124,16 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 				m_dwOpenSize = m_dwFileMappingSize;
 				if(m_dwOpenOffset+m_dwOpenSize > m_dwFileSize)
 				{
-					m_pFile = (BYTE*)MapViewOfFile(m_hFileMap, FILE_MAP_READ, 0, m_dwOpenOffset, 0);
+					m_pFile = MapView(m_hFileMap, m_dwOpenOffset);
 					m_dwOpenSize = m_dwFileSize - m_dwOpenOffset;
 				}
 				else if(m_dwOpenOffset+m_dwOpenSize > offset+size)
 				{
-					m_pFile = (BYTE*)MapViewOfFile(m_hFileMap, FILE_MAP_READ, 0, m_dwOpenOffset, m_dwOpenSize);
+					m_pFile = MapView(m_hFileMap, m_dwOpenOffset);
 				}
 				else
 				{
-					m_pFile = (BYTE*)MapViewOfFile(m_hFileMap, FILE_MAP_READ, 0, m_dwOpenOffset, m_dwOpenSize);
+					m_pFile = MapView(m_hFileMap, m_dwOpenOffset);
 				}
 
 				if(m_pFile)
@@ -138,7 +142,7 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 				m_dwFileMappingSize /= 2;
 			}
 
-			CloseHandle(m_hFileMap);
+			bf_file_unmap(m_hFileMap);
 			m_hFileMap = NULL;
 			m_pFile = 0;
 			m_dwOpenSize = 0;
@@ -162,8 +166,8 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 	}
 
 	DWORD dwRead;
-	SetFilePointer(m_hFile, offset, NULL, FILE_BEGIN);
-	ReadFile(m_hFile, m_pFileBuf.data() , size, &dwRead, NULL);
+	bf_file_seek(m_hFile, offset, 0);
+	dwRead = (DWORD)bf_file_read(m_hFile, m_pFileBuf.data() , size);
 	sAssert(dwRead == size);
 
 	return m_pFile;
@@ -171,11 +175,10 @@ const BYTE*	CMemMapFile :: read(DWORD offset, DWORD size)
 
 void	CMemMapFile :: init()
 {
-	SYSTEM_INFO systemInfo;
-	GetSystemInfo(&systemInfo);
+	DWORD allocationGranularity = 0x10000;	// GetSystemInfo's on Windows: views start at multiples of 64 KB
 
 	m_dwFileMappingSize = 0x20000000;
-	m_dwAllocationGranuarity =  0xFFFFFFFF - (systemInfo.dwAllocationGranularity-1);
+	m_dwAllocationGranuarity =  0xFFFFFFFF - (allocationGranularity-1);
 
 	m_hFile = NULL;
 	m_hFileMap = NULL;

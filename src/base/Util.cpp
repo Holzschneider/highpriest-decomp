@@ -216,23 +216,22 @@ void	GetFileNames(list<string> &fileNameList, const char * path, const char * sz
 	string pathWildcard = path;
 	pathWildcard += szFileName_wildcard;
 
-	WIN32_FIND_DATA wfd;
-	memset(&wfd, 0, sizeof(WIN32_FIND_DATA));
-	HANDLE hFile = FindFirstFile(pathWildcard.c_str(), &wfd);
+	bf_file_info wfd;
+	memset(&wfd, 0, sizeof(bf_file_info));
+	bf_file_find* hFile = bf_file_find_first(pathWildcard.c_str(), &wfd);
 
-	if (hFile == INVALID_HANDLE_VALUE) {
+	if (hFile == NULL) {
 		Trace("INVALID_HANDLE_VALUE");
-		FindClose(hFile);
 	} else {
 		string cur0 = ".";
 		string cur1 = "..";
-		if (cur0 != wfd.cFileName && cur1 != wfd.cFileName)
-			fileNameList.push_back(wfd.cFileName);
-		while (FindNextFile(hFile, &wfd)) {
-			if (cur0 != wfd.cFileName && cur1 != wfd.cFileName)
-				fileNameList.push_back(wfd.cFileName);
+		if (cur0 != wfd.name && cur1 != wfd.name)
+			fileNameList.push_back(wfd.name);
+		while (bf_file_find_next(hFile, &wfd)) {
+			if (cur0 != wfd.name && cur1 != wfd.name)
+				fileNameList.push_back(wfd.name);
 		}
-		FindClose(hFile);
+		bf_file_find_close(hFile);
 	}
 }
 
@@ -266,39 +265,36 @@ void	DeleteDirectory(const char * dirName)
 	{
 		list<string> fileNameList;
 		list<string> dirNameList;
-		WIN32_FIND_DATA wfd;
-		memset(&wfd, 0, sizeof(WIN32_FIND_DATA));
+		bf_file_info wfd;
+		memset(&wfd, 0, sizeof(bf_file_info));
 		char szPath[2048];
 		strcpy(szPath, dirName);
 		strcat(szPath, "\\*.*");
-		HANDLE hFile = FindFirstFile(szPath, &wfd);
-		if (hFile == INVALID_HANDLE_VALUE) {
-			FindClose(hFile);
-		} else {
+		bf_file_find* hFile = bf_file_find_first(szPath, &wfd);
+		if (hFile != NULL) {
 			string cur0 = ".";
 			string cur1 = "..";
-			if (cur0 != wfd.cFileName && cur1 != wfd.cFileName) {
-				if (wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-					dirNameList.push_back(wfd.cFileName);
+			if (cur0 != wfd.name && cur1 != wfd.name) {
+				if (wfd.is_folder)
+					dirNameList.push_back(wfd.name);
 				else
-					fileNameList.push_back(wfd.cFileName);
+					fileNameList.push_back(wfd.name);
 			}
-			while (FindNextFile(hFile, &wfd)) {
-				if (cur0 != wfd.cFileName && cur1 != wfd.cFileName) {
-					if (wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-						dirNameList.push_back(wfd.cFileName);
+			while (bf_file_find_next(hFile, &wfd)) {
+				if (cur0 != wfd.name && cur1 != wfd.name) {
+					if (wfd.is_folder)
+						dirNameList.push_back(wfd.name);
 					else
-						fileNameList.push_back(wfd.cFileName);
+						fileNameList.push_back(wfd.name);
 				}
 			}
-			FindClose(hFile);
+			bf_file_find_close(hFile);
 
 			strcpy(szPath, dirName);
 			strcat(szPath, "\\");
 			std::list<std::string>::iterator it = fileNameList.begin();
 			while (it != fileNameList.end()) {
-				_chmod(string(szPath + (*it)).c_str(), 0000200);
-				_unlink(string(szPath + (*it)).c_str());
+				bf_file_remove(string(szPath + (*it)).c_str());	// after _chmod(_S_IWRITE) on Windows; POSIX removes a read-only file as it is
 				++it;
 			}
 			it = dirNameList.begin();
@@ -307,7 +303,7 @@ void	DeleteDirectory(const char * dirName)
 				++it;
 			}
 		}
-		_rmdir(dirName);
+		bf_file_remove_folder(dirName);
 	}
 }
 

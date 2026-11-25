@@ -408,7 +408,9 @@ void	CTexMgr :: UnloadRarelyUsedTexture()
 		}
 	}
 
+#if !defined(BF_PORT)	// the C library's heap is not compacted by hand
 	HeapCompact(GetProcessHeap(), 0);
+#endif
 	if (g_3dDevice.GetDirect3D())
 		g_3dDevice.GetDirect3D()->EvictManagedTextures();
 
