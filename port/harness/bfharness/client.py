@@ -66,6 +66,9 @@ class Client:
             "BF_CLIENT_DIR": str(paths.client_dir()),
             "BF_CONTROL": str(self.control_path),
         })
+        # Open on a Retina screen when there is one (port/native/app/README.md), so
+        # frames come out at the same scale wherever the key window happens to be.
+        env.setdefault("BF_WINDOW_SCREEN", "retina")
         env.update(self.extra_env)
         return env
 

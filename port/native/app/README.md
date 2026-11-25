@@ -64,6 +64,12 @@ On an unlocked screen those two checks run for real.
   so a crash leaves no stale lock. Neither the lock nor the port needs a
   bundle. `BF_MULTI_INSTANCE=1` turns the check off; `instance_id` in
   `bf_app_config` gives tests a slot of their own.
+- **Which screen.** The window opens centred on the screen that holds the key
+  window. `BF_WINDOW_SCREEN=retina` opens it on the first screen with a
+  backing scale of 2 or more instead; the test harness sets it, so frames
+  are captured at the same scale on a desk with mixed displays.
+  `bf_app_window_set_content_size` keeps the top-left corner and moves the
+  window back onto its screen's visible area.
 - **No App Nap.** `bf_app_init` holds a `beginActivityWithOptions:`
   activity with `NSActivityUserInitiatedAllowingIdleSystemSleep |
   NSActivityLatencyCritical` until `bf_app_shutdown`. The activity disables

@@ -839,6 +839,24 @@ extern "C" int bf_app_window_create(double width_pt, double height_pt, const cha
 	[view bfUpdateSize:NO];
 	[view bfStartAnnouncing];
 	[w center];
+	/* BF_WINDOW_SCREEN=retina (the test harness sets it): open on the first screen with a
+	   backing scale of 2 or more instead of the one with the key window, so captured
+	   frames do not depend on where the owner's other windows are. */
+	const char *want = getenv("BF_WINDOW_SCREEN");
+	if (want && strcmp(want, "retina") == 0) {
+		for (NSScreen *s in NSScreen.screens) {
+			if (s.backingScaleFactor < 2.0)
+				continue;
+			if (s != w.screen) {
+				NSRect vis = s.visibleFrame;
+				NSRect f = w.frame;
+				f.origin.x = NSMidX(vis) - f.size.width / 2;
+				f.origin.y = NSMidY(vis) - f.size.height / 2;
+				[w setFrame:f display:NO];
+			}
+			break;
+		}
+	}
 	[w makeKeyAndOrderFront:nil];
 	[w makeFirstResponder:view];
 	[NSApp activate];
@@ -882,8 +900,28 @@ extern "C" void bf_app_window_get_size(bf_app_size *out)
 
 extern "C" void bf_app_window_set_content_size(double width_pt, double height_pt)
 {
-	if (g_window)
-		[g_window setContentSize:NSMakeSize(width_pt, height_pt)];
+	if (!g_window)
+		return;
+	/* Keep the top-left corner where it is and the window on its screen: setContentSize
+	   alone keeps the bottom edge, and AppKit then cuts the height at the menu bar, so a
+	   window that sat low on the screen came out shorter than asked. */
+	NSRect frame = [g_window frameRectForContentRect:NSMakeRect(0, 0, width_pt, height_pt)];
+	NSRect cur = g_window.frame;
+	frame.origin.x = cur.origin.x;
+	frame.origin.y = NSMaxY(cur) - frame.size.height;
+	NSScreen *screen = g_window.screen ?: [NSScreen mainScreen];
+	if (screen) {
+		NSRect vis = screen.visibleFrame;
+		if (NSMaxX(frame) > NSMaxX(vis))
+			frame.origin.x = NSMaxX(vis) - frame.size.width;
+		if (frame.origin.x < vis.origin.x)
+			frame.origin.x = vis.origin.x;
+		if (frame.origin.y < vis.origin.y)
+			frame.origin.y = vis.origin.y;
+		if (NSMaxY(frame) > NSMaxY(vis))
+			frame.origin.y = NSMaxY(vis) - frame.size.height;
+	}
+	[g_window setFrame:frame display:YES];
 }
 
 extern "C" void bf_app_window_set_min_content_size(double width_pt, double height_pt)
