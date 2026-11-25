@@ -40,7 +40,7 @@ build/port/bin/bifrost-netprobe                # logs in through to the zone ser
 port/tools/packetdiff.py --rathena <rathena checkout> 20080401 20080910
 ```
 
-`packetdiff.py` resolves the `HEADER_X, sizeof(PACKET_X)` entries of the client's table and, with `-v`, compares every rAthena `PACKET_X` structure that has a header with the client's table; the structure pass needs the checkout's `3rdparty/` (`docker cp bifrost-rathena-rathena-1:/rathena/src <dir>` and `.../3rdparty` give one). At 20080401: 2 length-only mismatches (0x8b, 0x23d), neither sent nor parsed by rAthena; 0 structure differences.
+`packetdiff.py` resolves the `HEADER_X, sizeof(PACKET_X)` entries of the client's table and, with `-v`, compares every rAthena `PACKET_X` structure that has a header with the client's table; the structure pass needs the checkout's `3rdparty/` (`docker cp bifrost-rathena-rathena-1:/rathena/src <dir>` and `.../3rdparty` give one). At 20080401: 2 length-only mismatches (0x8b, 0x23d), neither sent nor parsed by rAthena; 0 structure differences. `port/tools/packetids.py [--names] [--self-test]` lists every packet id `src/` writes as a number (exit 0 when none, M10.2); `name_packet_ids.py` rewrites them to `packet.h`'s enumerators. `packetbuild_test.sh` builds `bifrost-packetbuild-test`, which checks the 15 request builders of `src/PaddingPacket.h` byte for byte. Adding a packet version: [packet-versions.md](../docs/port/packet-versions.md).
 
 The probes compile the game's own `packet.cpp`, `device/PacketQueue.cpp` and `device/Connection.cpp` from `src/` (`BF_SRC` or `-DBF_PROBE_SRC` names another tree, such as the shadow copy).
 

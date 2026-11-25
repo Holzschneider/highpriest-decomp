@@ -104,10 +104,10 @@ The executable is dated 2008-11-05, but its packet table is older. `port/tools/p
 
 | rAthena `PACKETVER` | length mismatches | of them requests the client sends |
 |---|---:|---:|
-| 20071106 – 20080820 | 4 | 0 |
-| 20080910 and later | 24 | 15 |
+| 20071106 – 20080820 | 2 | 0 |
+| 20080910 and later | 22 | 15 |
 
-The client sends `CZ_ENTER` as 0x9b with 26 bytes and its table ends at 0x35b. From 2008-09-10 rAthena expects renumbered requests. A server for this client is built with a `PACKETVER` from 20080401 to 20080820; rAthena master compiles at 20080401 without changes.
+The client sends `CZ_ENTER` as 0x9b with 26 bytes and its table ends at 0x35b. From 2008-09-10 rAthena expects the same request ids with new layouts (and adds 0x0436–0x0439); what adding such a version takes is in [packet-versions.md](packet-versions.md). A server for this client is built with a `PACKETVER` from 20080401 to 20080820; rAthena master compiles at 20080401 without changes.
 
 Two length entries differ (0x8b, 0x23d), and rAthena neither sends nor parses either; 0x24d and 0x251 were an artefact of the measuring tool. rAthena answers "end my auction" with a 4-byte 0x25d where the client's table has 6; the client reads 4 (M8.4).
 
