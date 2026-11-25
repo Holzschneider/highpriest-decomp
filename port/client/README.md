@@ -12,7 +12,7 @@ The port's own code that stays in the client after M11: neither a native module 
     src/                 the entry point, the control bindings, the client state for the control socket,
                          the crash handler, the zlib wrappers, the CRT helpers, packet replay;
                          README.md lists the files (headers used only by these sources sit beside them)
-    test/                bifrost-types-test: bf_types.h against the Wine headers
+    test/                bifrost-types-test(-c): bf_types.h against wine_types.ref, what the Wine headers gave it
                          bifrost-setting-key-test: bf_setting_key.h and the Settings.plist it leaves (root CMakeLists.txt)
 
 `include/` holds the headers that a `src/` unit or another program includes by name (`bf_port.h` and `bf_replay.h` from `src/`, `bf_prefix.h` through `-include`); `flags.sh` puts it on the include path ahead of `port/compat/include`. The `bf_client_*.h` and `bf_control_*.h` headers are contracts between files of `src/` only and stay there. `bf_crt.h` still redirects `fopen` and the other file calls to `bf_crt_*`, which `src/bf_crt.cpp` implements on `bf_file.h` since M11.3; it is transitional: a call site that leaves the Windows names calls `bf_file.h` itself (M11.3 did so in `base/File.cpp`, `base/GPak.cpp`, `base/Util.cpp`, `skin.cpp`), and the macros go with the last of them.
@@ -27,7 +27,10 @@ A name a later M11 step finds it needs goes in here only if it is a type or a nu
 
 ## bifrost-types-test
 
-    cmake -S port/client/test -B build/client/test -G Ninja
+    cmake --build --preset debug --target types && ctest --test-dir build/cmake/debug -R types
+    cmake -S port/client/test -B build/client/test -G Ninja      (standalone)
     cmake --build build/client/test && (cd build/client/test && ctest)
 
-`gen_types_test.py` reads the header's typedefs, records, enums and macros with clang and writes a unit that includes `bf_types.h` inside `namespace bft`, captures every macro, restores the names as a `src/` unit has them, includes `common.h` with the build's flags, and compares: typedefs by type (`std::is_same`; records and enums paired by tag), records by size, alignment, field names (from clang's layout dump of the Wine side), offsets and field types, enumerators by value and enums by underlying type, macros by value and type (function-like ones on sample arguments) or by expansion. It prints one `FAIL` line per difference and a summary. The build also compiles the header alone as gnu89 C and C++14 with a `src/` unit's flags and no Windows header on the path, and strictly (`-Wall -Wextra -Werror`, `-pedantic` for C++) without the prefix; ctest checks that an Objective-C++ unit is refused.
+`test/wine_types.ref` is what the Wine headers gave every name of the header, recorded in M11.11 before they left the repository: one line per name and check, `key<TAB>value`, a `[c++]` and a `[c]` section. `gen_types_test.py` reads the header's typedefs, records, enums and macros with clang (once as C++14, once as gnu89 C) and writes, per language, a program that includes `bf_types.h` alone with a `src/` unit's flags and compares at run time with the reference: typedefs by type (C++: spelled out, records and enums by tag; C: size, alignment, type class, signedness), records by size, alignment, field names, offsets (and field types in C++), enumerators by value and enums by underlying type, macros by value and type (function-like ones on sample arguments) or by expansion. `bifrost-types-test` (C++) and `bifrost-types-test-c` print one `FAIL` line per difference, one per name the reference lacks, and a summary; both are headless ctest tests of the root build. The build also compiles the header alone as gnu89 C and C++14 with a `src/` unit's flags, and strictly (`-Wall -Wextra -Werror`, `-pedantic` for C++) without the prefix; ctest checks that an Objective-C++ unit is refused.
+
+A name added to `bf_types.h` fails until the reference has it: get the Wine headers back from history (port/README.md, "The Windows headers for reference work"), then `BF_WIN_HEADERS=<dir> python3 port/client/test/gen_types_test.py --write-reference port/client/test/wine_types.ref` compiles the same programs against Wine (with the Windows includes `src/common.h` had) and rewrites the file; the diff shows exactly what was added.

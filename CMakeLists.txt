@@ -160,6 +160,12 @@ foreach(module IN LISTS BF_NATIVE_MODULES)
 		ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${test_dir}")
 endforeach()
 
+# bifrost-types-test and bifrost-types-test-c: port/client/include/bf_types.h
+# against the reference the Wine headers left (port/client/test, headless).
+add_subdirectory(port/client/test client/test)
+add_dependencies(native types)
+list(APPEND BF_NATIVE_TESTS ${BF_EXE}-types-test ${BF_EXE}-types-test-c)
+
 # `check` runs every module test (a window opens, sound plays);
 # `check-headless` only those that need neither.
 add_custom_target(check

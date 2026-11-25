@@ -1,0 +1,1940 @@
+# What the Wine headers give each name of bf_types.h, as the build compiled
+# them before M11.11 (arm64, the flags of port/tools/flags.sh). Written by
+# port/client/test/gen_types_test.py --write-reference; do not edit.
+[c++]
+typedef CHAR	char
+typedef SHORT	short
+typedef LONG	int
+typedef INT	int
+typedef UINT	unsigned int
+typedef BYTE	unsigned char
+typedef WORD	unsigned short
+typedef DWORD	unsigned int
+typedef BOOL	int
+typedef BOOLEAN	unsigned char
+typedef UCHAR	unsigned char
+typedef USHORT	unsigned short
+typedef ULONG	unsigned int
+typedef FLOAT	float
+typedef DOUBLE	double
+typedef LONGLONG	long long
+typedef ULONGLONG	unsigned long long
+typedef DWORDLONG	unsigned long long
+typedef byte	unsigned char
+typedef INT_PTR	long long
+typedef LONG_PTR	long long
+typedef UINT_PTR	unsigned long long
+typedef ULONG_PTR	unsigned long long
+typedef DWORD_PTR	unsigned long long
+typedef SIZE_T	unsigned long long
+typedef SSIZE_T	long long
+typedef WPARAM	unsigned long long
+typedef LPARAM	long long
+typedef LRESULT	long long
+typedef HRESULT	int
+typedef COLORREF	unsigned int
+typedef ATOM	unsigned short
+typedef WCHAR	char16_t
+typedef TCHAR	char
+typedef PVOID	void *
+typedef LPVOID	void *
+typedef LPCVOID	const void *
+typedef PBYTE	unsigned char *
+typedef LPBYTE	unsigned char *
+typedef LPWORD	unsigned short *
+typedef PDWORD	unsigned int *
+typedef LPDWORD	unsigned int *
+typedef LPLONG	int *
+typedef LPINT	int *
+typedef PUINT	unsigned int *
+typedef LPUINT	unsigned int *
+typedef LPBOOL	int *
+typedef PSTR	char *
+typedef LPSTR	char *
+typedef LPCSTR	const char *
+typedef LPWSTR	char16_t *
+typedef LPCWSTR	const char16_t *
+typedef PTSTR	char *
+typedef LPTSTR	char *
+typedef LPCTSTR	const char *
+typedef HANDLE	void *
+typedef PHANDLE	void * *
+typedef LPHANDLE	void * *
+typedef HGDIOBJ	void *
+typedef HGLOBAL	void *
+typedef HLOCAL	void *
+typedef HWND	struct HWND__ *
+typedef HINSTANCE	struct HINSTANCE__ *
+typedef HMODULE	struct HINSTANCE__ *
+typedef HDC	struct HDC__ *
+typedef HFONT	struct HFONT__ *
+typedef HBITMAP	struct HBITMAP__ *
+typedef HBRUSH	struct HBRUSH__ *
+typedef HPEN	struct HPEN__ *
+typedef HRGN	struct HRGN__ *
+typedef HPALETTE	struct HPALETTE__ *
+typedef HICON	struct HICON__ *
+typedef HCURSOR	struct HICON__ *
+typedef HMENU	struct HMENU__ *
+typedef RECT	struct tagRECT
+typedef PRECT	struct tagRECT *
+typedef LPRECT	struct tagRECT *
+typedef LPCRECT	const struct tagRECT *
+typedef POINT	struct tagPOINT
+typedef PPOINT	struct tagPOINT *
+typedef LPPOINT	struct tagPOINT *
+typedef SIZE	struct tagSIZE
+typedef PSIZE	struct tagSIZE *
+typedef LPSIZE	struct tagSIZE *
+typedef PALETTEENTRY	struct tagPALETTEENTRY
+typedef PPALETTEENTRY	struct tagPALETTEENTRY *
+typedef LPPALETTEENTRY	struct tagPALETTEENTRY *
+typedef RGBQUAD	struct tagRGBQUAD
+typedef LPRGBQUAD	struct tagRGBQUAD *
+typedef BITMAPFILEHEADER	struct BITMAPFILEHEADER
+typedef PBITMAPFILEHEADER	struct BITMAPFILEHEADER *
+typedef LPBITMAPFILEHEADER	struct BITMAPFILEHEADER *
+typedef BITMAPINFOHEADER	struct BITMAPINFOHEADER
+typedef PBITMAPINFOHEADER	struct BITMAPINFOHEADER *
+typedef LPBITMAPINFOHEADER	struct BITMAPINFOHEADER *
+typedef BITMAPINFO	struct tagBITMAPINFO
+typedef PBITMAPINFO	struct tagBITMAPINFO *
+typedef LPBITMAPINFO	struct tagBITMAPINFO *
+typedef FILETIME	struct _FILETIME
+typedef PFILETIME	struct _FILETIME *
+typedef LPFILETIME	struct _FILETIME *
+typedef SYSTEMTIME	struct _SYSTEMTIME
+typedef PSYSTEMTIME	struct _SYSTEMTIME *
+typedef LPSYSTEMTIME	struct _SYSTEMTIME *
+typedef LOGFONTA	struct tagLOGFONTA
+typedef PLOGFONTA	struct tagLOGFONTA *
+typedef LPLOGFONTA	struct tagLOGFONTA *
+typedef LOGFONT	struct tagLOGFONTA
+typedef PLOGFONT	struct tagLOGFONTA *
+typedef LPLOGFONT	struct tagLOGFONTA *
+typedef LANGID	unsigned short
+typedef D3DVALUE	float
+typedef D3DCOLOR	unsigned int
+typedef D3DMATRIX	struct _D3DMATRIX
+typedef LPD3DMATRIX	struct _D3DMATRIX *
+typedef D3DSHADEMODE	enum D3DSHADEMODE
+typedef D3DFILLMODE	enum D3DFILLMODE
+typedef D3DBLEND	enum D3DBLEND
+typedef D3DTEXTUREADDRESS	enum _D3DTEXTUREADDRESS
+typedef D3DCULL	enum D3DCULL
+typedef D3DCMPFUNC	enum D3DCMPFUNC
+typedef D3DFOGMODE	enum _D3DFOGMODE
+typedef D3DZBUFFERTYPE	enum _D3DZBUFFERTYPE
+typedef D3DPRIMITIVETYPE	enum D3DPRIMITIVETYPE
+typedef D3DRENDERSTATETYPE	enum D3DRENDERSTATETYPE
+typedef D3DTEXTURESTAGESTATETYPE	enum _D3DTEXTURESTAGESTATETYPE
+typedef D3DTEXTUREOP	enum _D3DTEXTUREOP
+typedef D3DTEXTUREMAGFILTER	enum _D3DTEXTUREMAGFILTER
+typedef D3DTEXTUREMINFILTER	enum _D3DTEXTUREMINFILTER
+typedef D3DTEXTUREMIPFILTER	enum _D3DTEXTUREMIPFILTER
+record HWND__	size 4 align 4
+fields HWND__	unused
+field HWND__.unused	offset 0 type int
+record HINSTANCE__	size 4 align 4
+fields HINSTANCE__	unused
+field HINSTANCE__.unused	offset 0 type int
+record HDC__	size 4 align 4
+fields HDC__	unused
+field HDC__.unused	offset 0 type int
+record HFONT__	size 4 align 4
+fields HFONT__	unused
+field HFONT__.unused	offset 0 type int
+record HBITMAP__	size 4 align 4
+fields HBITMAP__	unused
+field HBITMAP__.unused	offset 0 type int
+record HBRUSH__	size 4 align 4
+fields HBRUSH__	unused
+field HBRUSH__.unused	offset 0 type int
+record HPEN__	size 4 align 4
+fields HPEN__	unused
+field HPEN__.unused	offset 0 type int
+record HRGN__	size 4 align 4
+fields HRGN__	unused
+field HRGN__.unused	offset 0 type int
+record HPALETTE__	size 4 align 4
+fields HPALETTE__	unused
+field HPALETTE__.unused	offset 0 type int
+record HICON__	size 4 align 4
+fields HICON__	unused
+field HICON__.unused	offset 0 type int
+record HMENU__	size 4 align 4
+fields HMENU__	unused
+field HMENU__.unused	offset 0 type int
+record tagRECT	size 16 align 4
+fields tagRECT	left top right bottom
+field tagRECT.left	offset 0 type int
+field tagRECT.top	offset 4 type int
+field tagRECT.right	offset 8 type int
+field tagRECT.bottom	offset 12 type int
+record tagPOINT	size 8 align 4
+fields tagPOINT	x y
+field tagPOINT.x	offset 0 type int
+field tagPOINT.y	offset 4 type int
+record tagSIZE	size 8 align 4
+fields tagSIZE	cx cy
+field tagSIZE.cx	offset 0 type int
+field tagSIZE.cy	offset 4 type int
+record tagPALETTEENTRY	size 4 align 1
+fields tagPALETTEENTRY	peRed peGreen peBlue peFlags
+field tagPALETTEENTRY.peRed	offset 0 type unsigned char
+field tagPALETTEENTRY.peGreen	offset 1 type unsigned char
+field tagPALETTEENTRY.peBlue	offset 2 type unsigned char
+field tagPALETTEENTRY.peFlags	offset 3 type unsigned char
+record tagRGBQUAD	size 4 align 1
+fields tagRGBQUAD	rgbBlue rgbGreen rgbRed rgbReserved
+field tagRGBQUAD.rgbBlue	offset 0 type unsigned char
+field tagRGBQUAD.rgbGreen	offset 1 type unsigned char
+field tagRGBQUAD.rgbRed	offset 2 type unsigned char
+field tagRGBQUAD.rgbReserved	offset 3 type unsigned char
+record BITMAPFILEHEADER	size 14 align 2
+fields BITMAPFILEHEADER	bfType bfSize bfReserved1 bfReserved2 bfOffBits
+field BITMAPFILEHEADER.bfType	offset 0 type unsigned short
+field BITMAPFILEHEADER.bfSize	offset 2 type unsigned int
+field BITMAPFILEHEADER.bfReserved1	offset 6 type unsigned short
+field BITMAPFILEHEADER.bfReserved2	offset 8 type unsigned short
+field BITMAPFILEHEADER.bfOffBits	offset 10 type unsigned int
+record BITMAPINFOHEADER	size 40 align 4
+fields BITMAPINFOHEADER	biSize biWidth biHeight biPlanes biBitCount biCompression biSizeImage biXPelsPerMeter biYPelsPerMeter biClrUsed biClrImportant
+field BITMAPINFOHEADER.biSize	offset 0 type unsigned int
+field BITMAPINFOHEADER.biWidth	offset 4 type int
+field BITMAPINFOHEADER.biHeight	offset 8 type int
+field BITMAPINFOHEADER.biPlanes	offset 12 type unsigned short
+field BITMAPINFOHEADER.biBitCount	offset 14 type unsigned short
+field BITMAPINFOHEADER.biCompression	offset 16 type unsigned int
+field BITMAPINFOHEADER.biSizeImage	offset 20 type unsigned int
+field BITMAPINFOHEADER.biXPelsPerMeter	offset 24 type int
+field BITMAPINFOHEADER.biYPelsPerMeter	offset 28 type int
+field BITMAPINFOHEADER.biClrUsed	offset 32 type unsigned int
+field BITMAPINFOHEADER.biClrImportant	offset 36 type unsigned int
+record tagBITMAPINFO	size 44 align 4
+fields tagBITMAPINFO	bmiHeader bmiColors
+field tagBITMAPINFO.bmiHeader	offset 0 type struct BITMAPINFOHEADER
+field tagBITMAPINFO.bmiColors	offset 40 type struct tagRGBQUAD[1]
+record _FILETIME	size 8 align 4
+fields _FILETIME	dwLowDateTime dwHighDateTime
+field _FILETIME.dwLowDateTime	offset 0 type unsigned int
+field _FILETIME.dwHighDateTime	offset 4 type unsigned int
+record _SYSTEMTIME	size 16 align 2
+fields _SYSTEMTIME	wYear wMonth wDayOfWeek wDay wHour wMinute wSecond wMilliseconds
+field _SYSTEMTIME.wYear	offset 0 type unsigned short
+field _SYSTEMTIME.wMonth	offset 2 type unsigned short
+field _SYSTEMTIME.wDayOfWeek	offset 4 type unsigned short
+field _SYSTEMTIME.wDay	offset 6 type unsigned short
+field _SYSTEMTIME.wHour	offset 8 type unsigned short
+field _SYSTEMTIME.wMinute	offset 10 type unsigned short
+field _SYSTEMTIME.wSecond	offset 12 type unsigned short
+field _SYSTEMTIME.wMilliseconds	offset 14 type unsigned short
+record tagLOGFONTA	size 60 align 4
+fields tagLOGFONTA	lfHeight lfWidth lfEscapement lfOrientation lfWeight lfItalic lfUnderline lfStrikeOut lfCharSet lfOutPrecision lfClipPrecision lfQuality lfPitchAndFamily lfFaceName
+field tagLOGFONTA.lfHeight	offset 0 type int
+field tagLOGFONTA.lfWidth	offset 4 type int
+field tagLOGFONTA.lfEscapement	offset 8 type int
+field tagLOGFONTA.lfOrientation	offset 12 type int
+field tagLOGFONTA.lfWeight	offset 16 type int
+field tagLOGFONTA.lfItalic	offset 20 type unsigned char
+field tagLOGFONTA.lfUnderline	offset 21 type unsigned char
+field tagLOGFONTA.lfStrikeOut	offset 22 type unsigned char
+field tagLOGFONTA.lfCharSet	offset 23 type unsigned char
+field tagLOGFONTA.lfOutPrecision	offset 24 type unsigned char
+field tagLOGFONTA.lfClipPrecision	offset 25 type unsigned char
+field tagLOGFONTA.lfQuality	offset 26 type unsigned char
+field tagLOGFONTA.lfPitchAndFamily	offset 27 type unsigned char
+field tagLOGFONTA.lfFaceName	offset 28 type char[32]
+record _D3DMATRIX	size 64 align 4
+fields _D3DMATRIX	_11 _12 _13 _14 _21 _22 _23 _24 _31 _32 _33 _34 _41 _42 _43 _44
+field _D3DMATRIX._11	offset 0 type float
+field _D3DMATRIX._12	offset 4 type float
+field _D3DMATRIX._13	offset 8 type float
+field _D3DMATRIX._14	offset 12 type float
+field _D3DMATRIX._21	offset 16 type float
+field _D3DMATRIX._22	offset 20 type float
+field _D3DMATRIX._23	offset 24 type float
+field _D3DMATRIX._24	offset 28 type float
+field _D3DMATRIX._31	offset 32 type float
+field _D3DMATRIX._32	offset 36 type float
+field _D3DMATRIX._33	offset 40 type float
+field _D3DMATRIX._34	offset 44 type float
+field _D3DMATRIX._41	offset 48 type float
+field _D3DMATRIX._42	offset 52 type float
+field _D3DMATRIX._43	offset 56 type float
+field _D3DMATRIX._44	offset 60 type float
+enum D3DSHADEMODE	unsigned int
+enumerator D3DSHADE_FLAT	1
+enumerator D3DSHADE_GOURAUD	2
+enumerator D3DSHADE_PHONG	3
+enumerator D3DSHADE_FORCE_DWORD	2147483647
+enum D3DFILLMODE	unsigned int
+enumerator D3DFILL_POINT	1
+enumerator D3DFILL_WIREFRAME	2
+enumerator D3DFILL_SOLID	3
+enumerator D3DFILL_FORCE_DWORD	2147483647
+enum D3DBLEND	unsigned int
+enumerator D3DBLEND_ZERO	1
+enumerator D3DBLEND_ONE	2
+enumerator D3DBLEND_SRCCOLOR	3
+enumerator D3DBLEND_INVSRCCOLOR	4
+enumerator D3DBLEND_SRCALPHA	5
+enumerator D3DBLEND_INVSRCALPHA	6
+enumerator D3DBLEND_DESTALPHA	7
+enumerator D3DBLEND_INVDESTALPHA	8
+enumerator D3DBLEND_DESTCOLOR	9
+enumerator D3DBLEND_INVDESTCOLOR	10
+enumerator D3DBLEND_SRCALPHASAT	11
+enumerator D3DBLEND_BOTHSRCALPHA	12
+enumerator D3DBLEND_BOTHINVSRCALPHA	13
+enumerator D3DBLEND_FORCE_DWORD	2147483647
+enum _D3DTEXTUREADDRESS	unsigned int
+enumerator D3DTADDRESS_WRAP	1
+enumerator D3DTADDRESS_MIRROR	2
+enumerator D3DTADDRESS_CLAMP	3
+enumerator D3DTADDRESS_BORDER	4
+enumerator D3DTADDRESS_FORCE_DWORD	2147483647
+enum D3DCULL	unsigned int
+enumerator D3DCULL_NONE	1
+enumerator D3DCULL_CW	2
+enumerator D3DCULL_CCW	3
+enumerator D3DCULL_FORCE_DWORD	2147483647
+enum D3DCMPFUNC	unsigned int
+enumerator D3DCMP_NEVER	1
+enumerator D3DCMP_LESS	2
+enumerator D3DCMP_EQUAL	3
+enumerator D3DCMP_LESSEQUAL	4
+enumerator D3DCMP_GREATER	5
+enumerator D3DCMP_NOTEQUAL	6
+enumerator D3DCMP_GREATEREQUAL	7
+enumerator D3DCMP_ALWAYS	8
+enumerator D3DCMP_FORCE_DWORD	2147483647
+enum _D3DFOGMODE	unsigned int
+enumerator D3DFOG_NONE	0
+enumerator D3DFOG_EXP	1
+enumerator D3DFOG_EXP2	2
+enumerator D3DFOG_LINEAR	3
+enumerator D3DFOG_FORCE_DWORD	2147483647
+enum _D3DZBUFFERTYPE	unsigned int
+enumerator D3DZB_FALSE	0
+enumerator D3DZB_TRUE	1
+enumerator D3DZB_USEW	2
+enumerator D3DZB_FORCE_DWORD	2147483647
+enum D3DPRIMITIVETYPE	unsigned int
+enumerator D3DPT_POINTLIST	1
+enumerator D3DPT_LINELIST	2
+enumerator D3DPT_LINESTRIP	3
+enumerator D3DPT_TRIANGLELIST	4
+enumerator D3DPT_TRIANGLESTRIP	5
+enumerator D3DPT_TRIANGLEFAN	6
+enumerator D3DPT_FORCE_DWORD	2147483647
+enum D3DRENDERSTATETYPE	unsigned int
+enumerator D3DRENDERSTATE_TEXTUREHANDLE	1
+enumerator D3DRENDERSTATE_ANTIALIAS	2
+enumerator D3DRENDERSTATE_TEXTUREADDRESS	3
+enumerator D3DRENDERSTATE_TEXTUREPERSPECTIVE	4
+enumerator D3DRENDERSTATE_WRAPU	5
+enumerator D3DRENDERSTATE_WRAPV	6
+enumerator D3DRENDERSTATE_ZENABLE	7
+enumerator D3DRENDERSTATE_FILLMODE	8
+enumerator D3DRENDERSTATE_SHADEMODE	9
+enumerator D3DRENDERSTATE_LINEPATTERN	10
+enumerator D3DRENDERSTATE_MONOENABLE	11
+enumerator D3DRENDERSTATE_ROP2	12
+enumerator D3DRENDERSTATE_PLANEMASK	13
+enumerator D3DRENDERSTATE_ZWRITEENABLE	14
+enumerator D3DRENDERSTATE_ALPHATESTENABLE	15
+enumerator D3DRENDERSTATE_LASTPIXEL	16
+enumerator D3DRENDERSTATE_TEXTUREMAG	17
+enumerator D3DRENDERSTATE_TEXTUREMIN	18
+enumerator D3DRENDERSTATE_SRCBLEND	19
+enumerator D3DRENDERSTATE_DESTBLEND	20
+enumerator D3DRENDERSTATE_TEXTUREMAPBLEND	21
+enumerator D3DRENDERSTATE_CULLMODE	22
+enumerator D3DRENDERSTATE_ZFUNC	23
+enumerator D3DRENDERSTATE_ALPHAREF	24
+enumerator D3DRENDERSTATE_ALPHAFUNC	25
+enumerator D3DRENDERSTATE_DITHERENABLE	26
+enumerator D3DRENDERSTATE_ALPHABLENDENABLE	27
+enumerator D3DRENDERSTATE_FOGENABLE	28
+enumerator D3DRENDERSTATE_SPECULARENABLE	29
+enumerator D3DRENDERSTATE_ZVISIBLE	30
+enumerator D3DRENDERSTATE_SUBPIXEL	31
+enumerator D3DRENDERSTATE_SUBPIXELX	32
+enumerator D3DRENDERSTATE_STIPPLEDALPHA	33
+enumerator D3DRENDERSTATE_FOGCOLOR	34
+enumerator D3DRENDERSTATE_FOGTABLEMODE	35
+enumerator D3DRENDERSTATE_FOGTABLESTART	36
+enumerator D3DRENDERSTATE_FOGTABLEEND	37
+enumerator D3DRENDERSTATE_FOGTABLEDENSITY	38
+enumerator D3DRENDERSTATE_FOGSTART	36
+enumerator D3DRENDERSTATE_FOGEND	37
+enumerator D3DRENDERSTATE_FOGDENSITY	38
+enumerator D3DRENDERSTATE_STIPPLEENABLE	39
+enumerator D3DRENDERSTATE_EDGEANTIALIAS	40
+enumerator D3DRENDERSTATE_COLORKEYENABLE	41
+enumerator D3DRENDERSTATE_BORDERCOLOR	43
+enumerator D3DRENDERSTATE_TEXTUREADDRESSU	44
+enumerator D3DRENDERSTATE_TEXTUREADDRESSV	45
+enumerator D3DRENDERSTATE_MIPMAPLODBIAS	46
+enumerator D3DRENDERSTATE_ZBIAS	47
+enumerator D3DRENDERSTATE_RANGEFOGENABLE	48
+enumerator D3DRENDERSTATE_ANISOTROPY	49
+enumerator D3DRENDERSTATE_FLUSHBATCH	50
+enumerator D3DRENDERSTATE_TRANSLUCENTSORTINDEPENDENT	51
+enumerator D3DRENDERSTATE_STENCILENABLE	52
+enumerator D3DRENDERSTATE_STENCILFAIL	53
+enumerator D3DRENDERSTATE_STENCILZFAIL	54
+enumerator D3DRENDERSTATE_STENCILPASS	55
+enumerator D3DRENDERSTATE_STENCILFUNC	56
+enumerator D3DRENDERSTATE_STENCILREF	57
+enumerator D3DRENDERSTATE_STENCILMASK	58
+enumerator D3DRENDERSTATE_STENCILWRITEMASK	59
+enumerator D3DRENDERSTATE_TEXTUREFACTOR	60
+enumerator D3DRENDERSTATE_STIPPLEPATTERN00	64
+enumerator D3DRENDERSTATE_STIPPLEPATTERN01	65
+enumerator D3DRENDERSTATE_STIPPLEPATTERN02	66
+enumerator D3DRENDERSTATE_STIPPLEPATTERN03	67
+enumerator D3DRENDERSTATE_STIPPLEPATTERN04	68
+enumerator D3DRENDERSTATE_STIPPLEPATTERN05	69
+enumerator D3DRENDERSTATE_STIPPLEPATTERN06	70
+enumerator D3DRENDERSTATE_STIPPLEPATTERN07	71
+enumerator D3DRENDERSTATE_STIPPLEPATTERN08	72
+enumerator D3DRENDERSTATE_STIPPLEPATTERN09	73
+enumerator D3DRENDERSTATE_STIPPLEPATTERN10	74
+enumerator D3DRENDERSTATE_STIPPLEPATTERN11	75
+enumerator D3DRENDERSTATE_STIPPLEPATTERN12	76
+enumerator D3DRENDERSTATE_STIPPLEPATTERN13	77
+enumerator D3DRENDERSTATE_STIPPLEPATTERN14	78
+enumerator D3DRENDERSTATE_STIPPLEPATTERN15	79
+enumerator D3DRENDERSTATE_STIPPLEPATTERN16	80
+enumerator D3DRENDERSTATE_STIPPLEPATTERN17	81
+enumerator D3DRENDERSTATE_STIPPLEPATTERN18	82
+enumerator D3DRENDERSTATE_STIPPLEPATTERN19	83
+enumerator D3DRENDERSTATE_STIPPLEPATTERN20	84
+enumerator D3DRENDERSTATE_STIPPLEPATTERN21	85
+enumerator D3DRENDERSTATE_STIPPLEPATTERN22	86
+enumerator D3DRENDERSTATE_STIPPLEPATTERN23	87
+enumerator D3DRENDERSTATE_STIPPLEPATTERN24	88
+enumerator D3DRENDERSTATE_STIPPLEPATTERN25	89
+enumerator D3DRENDERSTATE_STIPPLEPATTERN26	90
+enumerator D3DRENDERSTATE_STIPPLEPATTERN27	91
+enumerator D3DRENDERSTATE_STIPPLEPATTERN28	92
+enumerator D3DRENDERSTATE_STIPPLEPATTERN29	93
+enumerator D3DRENDERSTATE_STIPPLEPATTERN30	94
+enumerator D3DRENDERSTATE_STIPPLEPATTERN31	95
+enumerator D3DRENDERSTATE_WRAP0	128
+enumerator D3DRENDERSTATE_WRAP1	129
+enumerator D3DRENDERSTATE_WRAP2	130
+enumerator D3DRENDERSTATE_WRAP3	131
+enumerator D3DRENDERSTATE_WRAP4	132
+enumerator D3DRENDERSTATE_WRAP5	133
+enumerator D3DRENDERSTATE_WRAP6	134
+enumerator D3DRENDERSTATE_WRAP7	135
+enumerator D3DRENDERSTATE_CLIPPING	136
+enumerator D3DRENDERSTATE_LIGHTING	137
+enumerator D3DRENDERSTATE_EXTENTS	138
+enumerator D3DRENDERSTATE_AMBIENT	139
+enumerator D3DRENDERSTATE_FOGVERTEXMODE	140
+enumerator D3DRENDERSTATE_COLORVERTEX	141
+enumerator D3DRENDERSTATE_LOCALVIEWER	142
+enumerator D3DRENDERSTATE_NORMALIZENORMALS	143
+enumerator D3DRENDERSTATE_COLORKEYBLENDENABLE	144
+enumerator D3DRENDERSTATE_DIFFUSEMATERIALSOURCE	145
+enumerator D3DRENDERSTATE_SPECULARMATERIALSOURCE	146
+enumerator D3DRENDERSTATE_AMBIENTMATERIALSOURCE	147
+enumerator D3DRENDERSTATE_EMISSIVEMATERIALSOURCE	148
+enumerator D3DRENDERSTATE_VERTEXBLEND	151
+enumerator D3DRENDERSTATE_CLIPPLANEENABLE	152
+enumerator D3DRENDERSTATE_FORCE_DWORD	2147483647
+enum _D3DTEXTURESTAGESTATETYPE	unsigned int
+enumerator D3DTSS_COLOROP	1
+enumerator D3DTSS_COLORARG1	2
+enumerator D3DTSS_COLORARG2	3
+enumerator D3DTSS_ALPHAOP	4
+enumerator D3DTSS_ALPHAARG1	5
+enumerator D3DTSS_ALPHAARG2	6
+enumerator D3DTSS_BUMPENVMAT00	7
+enumerator D3DTSS_BUMPENVMAT01	8
+enumerator D3DTSS_BUMPENVMAT10	9
+enumerator D3DTSS_BUMPENVMAT11	10
+enumerator D3DTSS_TEXCOORDINDEX	11
+enumerator D3DTSS_ADDRESS	12
+enumerator D3DTSS_ADDRESSU	13
+enumerator D3DTSS_ADDRESSV	14
+enumerator D3DTSS_BORDERCOLOR	15
+enumerator D3DTSS_MAGFILTER	16
+enumerator D3DTSS_MINFILTER	17
+enumerator D3DTSS_MIPFILTER	18
+enumerator D3DTSS_MIPMAPLODBIAS	19
+enumerator D3DTSS_MAXMIPLEVEL	20
+enumerator D3DTSS_MAXANISOTROPY	21
+enumerator D3DTSS_BUMPENVLSCALE	22
+enumerator D3DTSS_BUMPENVLOFFSET	23
+enumerator D3DTSS_TEXTURETRANSFORMFLAGS	24
+enumerator D3DTSS_FORCE_DWORD	2147483647
+enum _D3DTEXTUREOP	unsigned int
+enumerator D3DTOP_DISABLE	1
+enumerator D3DTOP_SELECTARG1	2
+enumerator D3DTOP_SELECTARG2	3
+enumerator D3DTOP_MODULATE	4
+enumerator D3DTOP_MODULATE2X	5
+enumerator D3DTOP_MODULATE4X	6
+enumerator D3DTOP_ADD	7
+enumerator D3DTOP_ADDSIGNED	8
+enumerator D3DTOP_ADDSIGNED2X	9
+enumerator D3DTOP_SUBTRACT	10
+enumerator D3DTOP_ADDSMOOTH	11
+enumerator D3DTOP_BLENDDIFFUSEALPHA	12
+enumerator D3DTOP_BLENDTEXTUREALPHA	13
+enumerator D3DTOP_BLENDFACTORALPHA	14
+enumerator D3DTOP_BLENDTEXTUREALPHAPM	15
+enumerator D3DTOP_BLENDCURRENTALPHA	16
+enumerator D3DTOP_PREMODULATE	17
+enumerator D3DTOP_MODULATEALPHA_ADDCOLOR	18
+enumerator D3DTOP_MODULATECOLOR_ADDALPHA	19
+enumerator D3DTOP_MODULATEINVALPHA_ADDCOLOR	20
+enumerator D3DTOP_MODULATEINVCOLOR_ADDALPHA	21
+enumerator D3DTOP_BUMPENVMAP	22
+enumerator D3DTOP_BUMPENVMAPLUMINANCE	23
+enumerator D3DTOP_DOTPRODUCT3	24
+enumerator D3DTOP_FORCE_DWORD	2147483647
+enum _D3DTEXTUREMAGFILTER	unsigned int
+enumerator D3DTFG_POINT	1
+enumerator D3DTFG_LINEAR	2
+enumerator D3DTFG_FLATCUBIC	3
+enumerator D3DTFG_GAUSSIANCUBIC	4
+enumerator D3DTFG_ANISOTROPIC	5
+enumerator D3DTFG_FORCE_DWORD	2147483647
+enum _D3DTEXTUREMINFILTER	unsigned int
+enumerator D3DTFN_POINT	1
+enumerator D3DTFN_LINEAR	2
+enumerator D3DTFN_ANISOTROPIC	3
+enumerator D3DTFN_FORCE_DWORD	2147483647
+enum _D3DTEXTUREMIPFILTER	unsigned int
+enumerator D3DTFP_NONE	1
+enumerator D3DTFP_POINT	2
+enumerator D3DTFP_LINEAR	3
+enumerator D3DTFP_FORCE_DWORD	2147483647
+macro WINAPI	
+macro CALLBACK	
+macro APIENTRY	
+macro APIPRIVATE	
+macro PASCAL	
+macro CDECL	
+macro WINAPIV	
+macro FAR	
+macro NEAR	
+macro _far	
+macro _near	
+macro CONST	const
+macro VOID	void
+macro __declspec(dllimport)	
+macro __declspec(selectany)	
+macro _declspec(dllimport)	
+macro NULL	0LL
+macro FALSE	type int value 0
+macro TRUE	type int value 1
+macro LF_FACESIZE	type int value 32
+macro MAX_PATH	type int value 260
+macro LOBYTE(0x1234)	type unsigned char value 52
+macro LOBYTE(0xfffffabc)	type unsigned char value 188
+macro LOBYTE(-1)	type unsigned char value 255
+macro HIBYTE(0x1234)	type unsigned char value 18
+macro HIBYTE(0xfffffabc)	type unsigned char value 250
+macro HIBYTE(-1)	type unsigned char value 255
+macro LOWORD(0x12345678)	type unsigned short value 22136
+macro LOWORD(-1)	type unsigned short value 65535
+macro LOWORD(0x123456789aLL)	type unsigned short value 30874
+macro HIWORD(0x12345678)	type unsigned short value 4660
+macro HIWORD(-1)	type unsigned short value 65535
+macro HIWORD(0x123456789aLL)	type unsigned short value 13398
+macro MAKEWORD(0x12, 0x34)	type unsigned short value 13330
+macro MAKEWORD(0x1ff, 0x2ff)	type unsigned short value 65535
+macro MAKEWORD(-1, -2)	type unsigned short value 65279
+macro MAKELONG(0x1234, 0x5678)	type int value 1450709556
+macro MAKELONG(-1, -2)	type int value -65537
+macro MAKELONG(0x12345, 0x6789a)	type int value 2023367493
+macro MAKEWPARAM(0x1234, 0x5678)	type unsigned long long value 1450709556
+macro MAKEWPARAM(-1, -2)	type unsigned long long value 4294901759
+macro MAKELPARAM(0x1234, 0x5678)	type long long value 1450709556
+macro MAKELPARAM(-1, -2)	type long long value 4294901759
+macro MAKELRESULT(0x1234, 0x5678)	type long long value 1450709556
+macro MAKELRESULT(-1, -2)	type long long value 4294901759
+macro RGB(0x12, 0x34, 0x56)	type unsigned int value 5649426
+macro RGB(300, -1, 2)	type unsigned int value 196396
+macro RGB(255, 255, 255)	type unsigned int value 16777215
+macro PALETTERGB(0x12, 0x34, 0x56)	type unsigned int value 39203858
+macro GetRValue(0x123456)	type unsigned char value 86
+macro GetRValue(0xffeeddcc)	type unsigned char value 204
+macro GetRValue(-1)	type unsigned char value 255
+macro GetGValue(0x123456)	type unsigned char value 52
+macro GetGValue(0xffeeddcc)	type unsigned char value 221
+macro GetGValue(-1)	type unsigned char value 255
+macro GetBValue(0x123456)	type unsigned char value 18
+macro GetBValue(0xffeeddcc)	type unsigned char value 238
+macro GetBValue(-1)	type unsigned char value 255
+macro ZeroMemory(p, n)	memset((p),0,(n))
+macro FillMemory(p, n, c)	memset((p),(c),(n))
+macro CopyMemory(d, s, n)	memcpy((d),(s),(n))
+macro MoveMemory(d, s, n)	memmove((d),(s),(n))
+macro __max(3, 7)	type int value 7
+macro __max(-2, 1)	type int value 1
+macro __max(2.5, 1)	type double value 2.5
+macro __min(3, 7)	type int value 3
+macro __min(-2, 1)	type int value -2
+macro __min(2.5, 1)	type double value 1
+macro max(3, 7)	type int value 7
+macro max(-2, 1)	type int value 1
+macro max(2.5, 1)	type double value 2.5
+macro min(3, 7)	type int value 3
+macro min(-2, 1)	type int value -2
+macro min(2.5, 1)	type double value 1
+macro S_OK	type int value 0
+macro S_FALSE	type int value 1
+macro E_FAIL	type int value -2147467259
+macro E_OUTOFMEMORY	type int value -2147024882
+macro E_INVALIDARG	type int value -2147024809
+macro SUCCEEDED(0)	type bool value 1
+macro SUCCEEDED(-1)	type bool value 0
+macro SUCCEEDED(0x80004005)	type bool value 0
+macro SUCCEEDED(1)	type bool value 1
+macro FAILED(0)	type bool value 0
+macro FAILED(-1)	type bool value 1
+macro FAILED(0x80004005)	type bool value 1
+macro FAILED(1)	type bool value 0
+macro ANSI_CHARSET	type unsigned char value 0
+macro DEFAULT_CHARSET	type unsigned char value 1
+macro SYMBOL_CHARSET	type unsigned char value 2
+macro SHIFTJIS_CHARSET	type unsigned char value 128
+macro HANGEUL_CHARSET	type unsigned char value 129
+macro HANGUL_CHARSET	type unsigned char value 129
+macro GB2312_CHARSET	type unsigned char value 134
+macro CHINESEBIG5_CHARSET	type unsigned char value 136
+macro GREEK_CHARSET	type unsigned char value 161
+macro TURKISH_CHARSET	type unsigned char value 162
+macro HEBREW_CHARSET	type unsigned char value 177
+macro ARABIC_CHARSET	type unsigned char value 178
+macro BALTIC_CHARSET	type unsigned char value 186
+macro VIETNAMESE_CHARSET	type unsigned char value 163
+macro RUSSIAN_CHARSET	type unsigned char value 204
+macro EE_CHARSET	type unsigned char value 238
+macro EASTEUROPE_CHARSET	type unsigned char value 238
+macro THAI_CHARSET	type unsigned char value 222
+macro JOHAB_CHARSET	type unsigned char value 130
+macro MAC_CHARSET	type unsigned char value 77
+macro OEM_CHARSET	type unsigned char value 255
+macro VISCII_CHARSET	type unsigned char value 240
+macro TCVN_CHARSET	type unsigned char value 241
+macro KOI8_CHARSET	type unsigned char value 242
+macro ISO3_CHARSET	type unsigned char value 243
+macro ISO4_CHARSET	type unsigned char value 244
+macro ISO10_CHARSET	type unsigned char value 245
+macro CELTIC_CHARSET	type unsigned char value 246
+macro MAKELANGID(0x09, 0x01)	type int value 1033
+macro MAKELANGID(0x3ff, 0x3f)	type int value 65535
+macro MAKELANGID(-1, -1)	type int value 67108863
+macro PRIMARYLANGID(0x0409)	type int value 9
+macro PRIMARYLANGID(0xffff)	type int value 1023
+macro PRIMARYLANGID(-1)	type int value 1023
+macro SUBLANGID(0x0409)	type int value 1
+macro SUBLANGID(0xffff)	type int value 63
+macro SUBLANGID(-1)	type int value 63
+macro LANG_ARABIC	type int value 1
+macro LANG_BULGARIAN	type int value 2
+macro LANG_CHINESE	type int value 4
+macro LANG_CZECH	type int value 5
+macro LANG_GERMAN	type int value 7
+macro LANG_GREEK	type int value 8
+macro LANG_ENGLISH	type int value 9
+macro LANG_HEBREW	type int value 13
+macro LANG_HUNGARIAN	type int value 14
+macro LANG_ITALIAN	type int value 16
+macro LANG_JAPANESE	type int value 17
+macro LANG_KOREAN	type int value 18
+macro LANG_POLISH	type int value 21
+macro LANG_PORTUGUESE	type int value 22
+macro LANG_ROMANIAN	type int value 24
+macro LANG_RUSSIAN	type int value 25
+macro LANG_CROATIAN	type int value 26
+macro LANG_SLOVAK	type int value 27
+macro LANG_THAI	type int value 30
+macro LANG_TURKISH	type int value 31
+macro LANG_UKRAINIAN	type int value 34
+macro LANG_BELARUSIAN	type int value 35
+macro LANG_SLOVENIAN	type int value 36
+macro LANG_ESTONIAN	type int value 37
+macro LANG_LATVIAN	type int value 38
+macro LANG_LITHUANIAN	type int value 39
+macro LANG_VIETNAMESE	type int value 42
+macro LANG_MACEDONIAN	type int value 47
+macro SUBLANG_CHINESE_TRADITIONAL	type int value 1
+macro SUBLANG_CHINESE_SIMPLIFIED	type int value 2
+macro SUBLANG_ENGLISH_US	type int value 1
+macro FW_DONTCARE	type int value 0
+macro FW_THIN	type int value 100
+macro FW_EXTRALIGHT	type int value 200
+macro FW_ULTRALIGHT	type int value 200
+macro FW_LIGHT	type int value 300
+macro FW_NORMAL	type int value 400
+macro FW_REGULAR	type int value 400
+macro FW_MEDIUM	type int value 500
+macro FW_SEMIBOLD	type int value 600
+macro FW_DEMIBOLD	type int value 600
+macro FW_BOLD	type int value 700
+macro FW_EXTRABOLD	type int value 800
+macro FW_ULTRABOLD	type int value 800
+macro FW_HEAVY	type int value 900
+macro FW_BLACK	type int value 900
+macro BI_RGB	type int value 0
+macro BI_RLE8	type int value 1
+macro BI_RLE4	type int value 2
+macro BI_BITFIELDS	type int value 3
+macro VK_LBUTTON	type int value 1
+macro VK_RBUTTON	type int value 2
+macro VK_CANCEL	type int value 3
+macro VK_MBUTTON	type int value 4
+macro VK_XBUTTON1	type int value 5
+macro VK_XBUTTON2	type int value 6
+macro VK_BACK	type int value 8
+macro VK_TAB	type int value 9
+macro VK_CLEAR	type int value 12
+macro VK_RETURN	type int value 13
+macro VK_SHIFT	type int value 16
+macro VK_CONTROL	type int value 17
+macro VK_MENU	type int value 18
+macro VK_PAUSE	type int value 19
+macro VK_CAPITAL	type int value 20
+macro VK_KANA	type int value 21
+macro VK_HANGEUL	type int value 21
+macro VK_HANGUL	type int value 21
+macro VK_JUNJA	type int value 23
+macro VK_FINAL	type int value 24
+macro VK_HANJA	type int value 25
+macro VK_KANJI	type int value 25
+macro VK_ESCAPE	type int value 27
+macro VK_CONVERT	type int value 28
+macro VK_NONCONVERT	type int value 29
+macro VK_ACCEPT	type int value 30
+macro VK_MODECHANGE	type int value 31
+macro VK_SPACE	type int value 32
+macro VK_PRIOR	type int value 33
+macro VK_NEXT	type int value 34
+macro VK_END	type int value 35
+macro VK_HOME	type int value 36
+macro VK_LEFT	type int value 37
+macro VK_UP	type int value 38
+macro VK_RIGHT	type int value 39
+macro VK_DOWN	type int value 40
+macro VK_SELECT	type int value 41
+macro VK_PRINT	type int value 42
+macro VK_EXECUTE	type int value 43
+macro VK_SNAPSHOT	type int value 44
+macro VK_INSERT	type int value 45
+macro VK_DELETE	type int value 46
+macro VK_HELP	type int value 47
+macro VK_LWIN	type int value 91
+macro VK_RWIN	type int value 92
+macro VK_APPS	type int value 93
+macro VK_SLEEP	type int value 95
+macro VK_NUMPAD0	type int value 96
+macro VK_NUMPAD1	type int value 97
+macro VK_NUMPAD2	type int value 98
+macro VK_NUMPAD3	type int value 99
+macro VK_NUMPAD4	type int value 100
+macro VK_NUMPAD5	type int value 101
+macro VK_NUMPAD6	type int value 102
+macro VK_NUMPAD7	type int value 103
+macro VK_NUMPAD8	type int value 104
+macro VK_NUMPAD9	type int value 105
+macro VK_MULTIPLY	type int value 106
+macro VK_ADD	type int value 107
+macro VK_SEPARATOR	type int value 108
+macro VK_SUBTRACT	type int value 109
+macro VK_DECIMAL	type int value 110
+macro VK_DIVIDE	type int value 111
+macro VK_F1	type int value 112
+macro VK_F2	type int value 113
+macro VK_F3	type int value 114
+macro VK_F4	type int value 115
+macro VK_F5	type int value 116
+macro VK_F6	type int value 117
+macro VK_F7	type int value 118
+macro VK_F8	type int value 119
+macro VK_F9	type int value 120
+macro VK_F10	type int value 121
+macro VK_F11	type int value 122
+macro VK_F12	type int value 123
+macro VK_F13	type int value 124
+macro VK_F14	type int value 125
+macro VK_F15	type int value 126
+macro VK_F16	type int value 127
+macro VK_F17	type int value 128
+macro VK_F18	type int value 129
+macro VK_F19	type int value 130
+macro VK_F20	type int value 131
+macro VK_F21	type int value 132
+macro VK_F22	type int value 133
+macro VK_F23	type int value 134
+macro VK_F24	type int value 135
+macro VK_NAVIGATION_VIEW	type int value 136
+macro VK_NAVIGATION_MENU	type int value 137
+macro VK_NAVIGATION_UP	type int value 138
+macro VK_NAVIGATION_DOWN	type int value 139
+macro VK_NAVIGATION_LEFT	type int value 140
+macro VK_NAVIGATION_RIGHT	type int value 141
+macro VK_NAVIGATION_ACCEPT	type int value 142
+macro VK_NAVIGATION_CANCEL	type int value 143
+macro VK_NUMLOCK	type int value 144
+macro VK_SCROLL	type int value 145
+macro VK_OEM_NEC_EQUAL	type int value 146
+macro VK_OEM_FJ_JISHO	type int value 146
+macro VK_OEM_FJ_MASSHOU	type int value 147
+macro VK_OEM_FJ_TOUROKU	type int value 148
+macro VK_OEM_FJ_LOYA	type int value 149
+macro VK_OEM_FJ_ROYA	type int value 150
+macro VK_LSHIFT	type int value 160
+macro VK_RSHIFT	type int value 161
+macro VK_LCONTROL	type int value 162
+macro VK_RCONTROL	type int value 163
+macro VK_LMENU	type int value 164
+macro VK_RMENU	type int value 165
+macro VK_BROWSER_BACK	type int value 166
+macro VK_BROWSER_FORWARD	type int value 167
+macro VK_BROWSER_REFRESH	type int value 168
+macro VK_BROWSER_STOP	type int value 169
+macro VK_BROWSER_SEARCH	type int value 170
+macro VK_BROWSER_FAVORITES	type int value 171
+macro VK_BROWSER_HOME	type int value 172
+macro VK_VOLUME_MUTE	type int value 173
+macro VK_VOLUME_DOWN	type int value 174
+macro VK_VOLUME_UP	type int value 175
+macro VK_MEDIA_NEXT_TRACK	type int value 176
+macro VK_MEDIA_PREV_TRACK	type int value 177
+macro VK_MEDIA_STOP	type int value 178
+macro VK_MEDIA_PLAY_PAUSE	type int value 179
+macro VK_LAUNCH_MAIL	type int value 180
+macro VK_LAUNCH_MEDIA_SELECT	type int value 181
+macro VK_LAUNCH_APP1	type int value 182
+macro VK_LAUNCH_APP2	type int value 183
+macro VK_OEM_1	type int value 186
+macro VK_OEM_PLUS	type int value 187
+macro VK_OEM_COMMA	type int value 188
+macro VK_OEM_MINUS	type int value 189
+macro VK_OEM_PERIOD	type int value 190
+macro VK_OEM_2	type int value 191
+macro VK_OEM_3	type int value 192
+macro VK_GAMEPAD_A	type int value 195
+macro VK_GAMEPAD_B	type int value 196
+macro VK_GAMEPAD_X	type int value 197
+macro VK_GAMEPAD_Y	type int value 198
+macro VK_GAMEPAD_RIGHT_SHOULDER	type int value 199
+macro VK_GAMEPAD_LEFT_SHOULDER	type int value 200
+macro VK_GAMEPAD_LEFT_TRIGGER	type int value 201
+macro VK_GAMEPAD_RIGHT_TRIGGER	type int value 202
+macro VK_GAMEPAD_DPAD_UP	type int value 203
+macro VK_GAMEPAD_DPAD_DOWN	type int value 204
+macro VK_GAMEPAD_DPAD_LEFT	type int value 205
+macro VK_GAMEPAD_DPAD_RIGHT	type int value 206
+macro VK_GAMEPAD_MENU	type int value 207
+macro VK_GAMEPAD_VIEW	type int value 208
+macro VK_GAMEPAD_LEFT_THUMBSTICK_BUTTON	type int value 209
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON	type int value 210
+macro VK_GAMEPAD_LEFT_THUMBSTICK_UP	type int value 211
+macro VK_GAMEPAD_LEFT_THUMBSTICK_DOWN	type int value 212
+macro VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT	type int value 213
+macro VK_GAMEPAD_LEFT_THUMBSTICK_LEFT	type int value 214
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_UP	type int value 215
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_DOWN	type int value 216
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT	type int value 217
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_LEFT	type int value 218
+macro VK_OEM_4	type int value 219
+macro VK_OEM_5	type int value 220
+macro VK_OEM_6	type int value 221
+macro VK_OEM_7	type int value 222
+macro VK_OEM_8	type int value 223
+macro VK_OEM_AX	type int value 225
+macro VK_OEM_102	type int value 226
+macro VK_ICO_HELP	type int value 227
+macro VK_ICO_00	type int value 228
+macro VK_PROCESSKEY	type int value 229
+macro VK_ICO_CLEAR	type int value 230
+macro VK_PACKET	type int value 231
+macro VK_OEM_RESET	type int value 233
+macro VK_OEM_JUMP	type int value 234
+macro VK_OEM_PA1	type int value 235
+macro VK_OEM_PA2	type int value 236
+macro VK_OEM_PA3	type int value 237
+macro VK_OEM_WSCTRL	type int value 238
+macro VK_OEM_CUSEL	type int value 239
+macro VK_OEM_ATTN	type int value 240
+macro VK_OEM_FINISH	type int value 241
+macro VK_OEM_COPY	type int value 242
+macro VK_OEM_AUTO	type int value 243
+macro VK_OEM_ENLW	type int value 244
+macro VK_OEM_BACKTAB	type int value 245
+macro VK_ATTN	type int value 246
+macro VK_CRSEL	type int value 247
+macro VK_EXSEL	type int value 248
+macro VK_EREOF	type int value 249
+macro VK_PLAY	type int value 250
+macro VK_ZOOM	type int value 251
+macro VK_NONAME	type int value 252
+macro VK_PA1	type int value 253
+macro VK_OEM_CLEAR	type int value 254
+macro WM_ACTIVATE	type int value 6
+macro WM_APP	type int value 32768
+macro WM_CHAR	type int value 258
+macro WM_CLOSE	type int value 16
+macro WM_CREATE	type int value 1
+macro WM_DESTROY	type int value 2
+macro WM_ENTERMENULOOP	type int value 529
+macro WM_ENTERSIZEMOVE	type int value 561
+macro WM_ERASEBKGND	type int value 20
+macro WM_EXITMENULOOP	type int value 530
+macro WM_EXITSIZEMOVE	type int value 562
+macro WM_IME_COMPOSITION	type int value 271
+macro WM_IME_ENDCOMPOSITION	type int value 270
+macro WM_IME_NOTIFY	type int value 642
+macro WM_IME_SETCONTEXT	type int value 641
+macro WM_IME_STARTCOMPOSITION	type int value 269
+macro WM_INPUTLANGCHANGE	type int value 81
+macro WM_KEYDOWN	type int value 256
+macro WM_KEYUP	type int value 257
+macro WM_KILLFOCUS	type int value 8
+macro WM_MOUSEMOVE	type int value 512
+macro WM_MOVE	type int value 3
+macro WM_NCACTIVATE	type int value 134
+macro WM_PAINT	type int value 15
+macro WM_QUIT	type int value 18
+macro WM_SETCURSOR	type int value 32
+macro WM_SETFOCUS	type int value 7
+macro WM_SYSCOMMAND	type int value 274
+macro WM_SYSKEYDOWN	type int value 260
+macro WM_USER	type int value 1024
+macro WM_ACTIVATEAPP	type int value 28
+macro WM_NCCREATE	type int value 129
+macro WM_NCDESTROY	type int value 130
+macro WM_SIZE	type int value 5
+macro WM_SYSKEYUP	type int value 261
+macro HTCLIENT	type int value 1
+macro WA_INACTIVE	type int value 0
+macro WA_ACTIVE	type int value 1
+macro SIZE_RESTORED	type int value 0
+macro SIZE_MAXIMIZED	type int value 2
+macro MK_LBUTTON	type int value 1
+macro MK_RBUTTON	type int value 2
+macro MK_SHIFT	type int value 4
+macro MK_CONTROL	type int value 8
+macro MK_MBUTTON	type int value 16
+macro WHEEL_DELTA	type int value 120
+macro D3DTA_SELECTMASK	type int value 15
+macro D3DTA_DIFFUSE	type int value 0
+macro D3DTA_CURRENT	type int value 1
+macro D3DTA_TEXTURE	type int value 2
+macro D3DTA_TFACTOR	type int value 3
+macro D3DTA_SPECULAR	type int value 4
+macro D3DTA_COMPLEMENT	type int value 16
+macro D3DTA_ALPHAREPLICATE	type int value 32
+macro D3DFVF_RESERVED0	type int value 1
+macro D3DFVF_POSITION_MASK	type int value 14
+macro D3DFVF_XYZ	type int value 2
+macro D3DFVF_XYZRHW	type int value 4
+macro D3DFVF_XYZB1	type int value 6
+macro D3DFVF_XYZB2	type int value 8
+macro D3DFVF_XYZB3	type int value 10
+macro D3DFVF_XYZB4	type int value 12
+macro D3DFVF_XYZB5	type int value 14
+macro D3DFVF_NORMAL	type int value 16
+macro D3DFVF_RESERVED1	type int value 32
+macro D3DFVF_DIFFUSE	type int value 64
+macro D3DFVF_SPECULAR	type int value 128
+macro D3DFVF_TEXCOUNT_MASK	type int value 3840
+macro D3DFVF_TEXCOUNT_SHIFT	type int value 8
+macro D3DFVF_TEX0	type int value 0
+macro D3DFVF_TEX1	type int value 256
+macro D3DFVF_TEX2	type int value 512
+macro D3DFVF_TEX3	type int value 768
+macro D3DFVF_TEX4	type int value 1024
+macro D3DFVF_TEX5	type int value 1280
+macro D3DFVF_TEX6	type int value 1536
+macro D3DFVF_TEX7	type int value 1792
+macro D3DFVF_TEX8	type int value 2048
+macro D3DFVF_RESERVED2	type int value 61440
+macro D3DFVF_VERTEX	type int value 274
+macro D3DFVF_LVERTEX	type int value 482
+macro D3DFVF_TLVERTEX	type int value 452
+macro D3DFVF_TEXTUREFORMAT2	type int value 0
+macro D3DFVF_TEXTUREFORMAT1	type int value 3
+macro D3DFVF_TEXTUREFORMAT3	type int value 1
+macro D3DFVF_TEXTUREFORMAT4	type int value 2
+macro D3DFVF_TEXCOORDSIZE1(0)	type int value 196608
+macro D3DFVF_TEXCOORDSIZE1(1)	type int value 786432
+macro D3DFVF_TEXCOORDSIZE1(3)	type int value 12582912
+macro D3DFVF_TEXCOORDSIZE2(0)	type int value 0
+macro D3DFVF_TEXCOORDSIZE2(1)	type int value 0
+macro D3DFVF_TEXCOORDSIZE2(3)	type int value 0
+macro D3DFVF_TEXCOORDSIZE3(0)	type int value 65536
+macro D3DFVF_TEXCOORDSIZE3(1)	type int value 262144
+macro D3DFVF_TEXCOORDSIZE3(3)	type int value 4194304
+macro D3DFVF_TEXCOORDSIZE4(0)	type int value 131072
+macro D3DFVF_TEXCOORDSIZE4(1)	type int value 524288
+macro D3DFVF_TEXCOORDSIZE4(3)	type int value 8388608
+[c]
+typedef CHAR	size 1 align 1 class 1 signed 1
+typedef SHORT	size 2 align 2 class 1 signed 1
+typedef LONG	size 4 align 4 class 1 signed 1
+typedef INT	size 4 align 4 class 1 signed 1
+typedef UINT	size 4 align 4 class 1 signed 0
+typedef BYTE	size 1 align 1 class 1 signed 0
+typedef WORD	size 2 align 2 class 1 signed 0
+typedef DWORD	size 4 align 4 class 1 signed 0
+typedef BOOL	size 4 align 4 class 1 signed 1
+typedef BOOLEAN	size 1 align 1 class 1 signed 0
+typedef UCHAR	size 1 align 1 class 1 signed 0
+typedef USHORT	size 2 align 2 class 1 signed 0
+typedef ULONG	size 4 align 4 class 1 signed 0
+typedef FLOAT	size 4 align 4 class 8
+typedef DOUBLE	size 8 align 8 class 8
+typedef LONGLONG	size 8 align 8 class 1 signed 1
+typedef ULONGLONG	size 8 align 8 class 1 signed 0
+typedef DWORDLONG	size 8 align 8 class 1 signed 0
+typedef byte	size 1 align 1 class 1 signed 0
+typedef INT_PTR	size 8 align 8 class 1 signed 1
+typedef LONG_PTR	size 8 align 8 class 1 signed 1
+typedef UINT_PTR	size 8 align 8 class 1 signed 0
+typedef ULONG_PTR	size 8 align 8 class 1 signed 0
+typedef DWORD_PTR	size 8 align 8 class 1 signed 0
+typedef SIZE_T	size 8 align 8 class 1 signed 0
+typedef SSIZE_T	size 8 align 8 class 1 signed 1
+typedef WPARAM	size 8 align 8 class 1 signed 0
+typedef LPARAM	size 8 align 8 class 1 signed 1
+typedef LRESULT	size 8 align 8 class 1 signed 1
+typedef HRESULT	size 4 align 4 class 1 signed 1
+typedef COLORREF	size 4 align 4 class 1 signed 0
+typedef ATOM	size 2 align 2 class 1 signed 0
+typedef WCHAR	size 2 align 2 class 1 signed 0
+typedef TCHAR	size 1 align 1 class 1 signed 1
+typedef PVOID	size 8 align 8 class 5
+typedef LPVOID	size 8 align 8 class 5
+typedef LPCVOID	size 8 align 8 class 5
+typedef PBYTE	size 8 align 8 class 5
+typedef LPBYTE	size 8 align 8 class 5
+typedef LPWORD	size 8 align 8 class 5
+typedef PDWORD	size 8 align 8 class 5
+typedef LPDWORD	size 8 align 8 class 5
+typedef LPLONG	size 8 align 8 class 5
+typedef LPINT	size 8 align 8 class 5
+typedef PUINT	size 8 align 8 class 5
+typedef LPUINT	size 8 align 8 class 5
+typedef LPBOOL	size 8 align 8 class 5
+typedef PSTR	size 8 align 8 class 5
+typedef LPSTR	size 8 align 8 class 5
+typedef LPCSTR	size 8 align 8 class 5
+typedef LPWSTR	size 8 align 8 class 5
+typedef LPCWSTR	size 8 align 8 class 5
+typedef PTSTR	size 8 align 8 class 5
+typedef LPTSTR	size 8 align 8 class 5
+typedef LPCTSTR	size 8 align 8 class 5
+typedef HANDLE	size 8 align 8 class 5
+typedef PHANDLE	size 8 align 8 class 5
+typedef LPHANDLE	size 8 align 8 class 5
+typedef HGDIOBJ	size 8 align 8 class 5
+typedef HGLOBAL	size 8 align 8 class 5
+typedef HLOCAL	size 8 align 8 class 5
+typedef HWND	size 8 align 8 class 5
+typedef HINSTANCE	size 8 align 8 class 5
+typedef HMODULE	size 8 align 8 class 5
+typedef HDC	size 8 align 8 class 5
+typedef HFONT	size 8 align 8 class 5
+typedef HBITMAP	size 8 align 8 class 5
+typedef HBRUSH	size 8 align 8 class 5
+typedef HPEN	size 8 align 8 class 5
+typedef HRGN	size 8 align 8 class 5
+typedef HPALETTE	size 8 align 8 class 5
+typedef HICON	size 8 align 8 class 5
+typedef HCURSOR	size 8 align 8 class 5
+typedef HMENU	size 8 align 8 class 5
+typedef RECT	size 16 align 4 class 12
+typedef PRECT	size 8 align 8 class 5
+typedef LPRECT	size 8 align 8 class 5
+typedef LPCRECT	size 8 align 8 class 5
+typedef POINT	size 8 align 4 class 12
+typedef PPOINT	size 8 align 8 class 5
+typedef LPPOINT	size 8 align 8 class 5
+typedef SIZE	size 8 align 4 class 12
+typedef PSIZE	size 8 align 8 class 5
+typedef LPSIZE	size 8 align 8 class 5
+typedef PALETTEENTRY	size 4 align 1 class 12
+typedef PPALETTEENTRY	size 8 align 8 class 5
+typedef LPPALETTEENTRY	size 8 align 8 class 5
+typedef RGBQUAD	size 4 align 1 class 12
+typedef LPRGBQUAD	size 8 align 8 class 5
+typedef BITMAPFILEHEADER	size 14 align 2 class 12
+typedef PBITMAPFILEHEADER	size 8 align 8 class 5
+typedef LPBITMAPFILEHEADER	size 8 align 8 class 5
+typedef BITMAPINFOHEADER	size 40 align 4 class 12
+typedef PBITMAPINFOHEADER	size 8 align 8 class 5
+typedef LPBITMAPINFOHEADER	size 8 align 8 class 5
+typedef BITMAPINFO	size 44 align 4 class 12
+typedef PBITMAPINFO	size 8 align 8 class 5
+typedef LPBITMAPINFO	size 8 align 8 class 5
+typedef FILETIME	size 8 align 4 class 12
+typedef PFILETIME	size 8 align 8 class 5
+typedef LPFILETIME	size 8 align 8 class 5
+typedef SYSTEMTIME	size 16 align 2 class 12
+typedef PSYSTEMTIME	size 8 align 8 class 5
+typedef LPSYSTEMTIME	size 8 align 8 class 5
+typedef LOGFONTA	size 60 align 4 class 12
+typedef PLOGFONTA	size 8 align 8 class 5
+typedef LPLOGFONTA	size 8 align 8 class 5
+typedef LOGFONT	size 60 align 4 class 12
+typedef PLOGFONT	size 8 align 8 class 5
+typedef LPLOGFONT	size 8 align 8 class 5
+typedef LANGID	size 2 align 2 class 1 signed 0
+typedef D3DVALUE	size 4 align 4 class 8
+typedef D3DCOLOR	size 4 align 4 class 1 signed 0
+typedef D3DMATRIX	size 64 align 4 class 12
+typedef LPD3DMATRIX	size 8 align 8 class 5
+typedef D3DSHADEMODE	size 4 align 4 class 1
+typedef D3DFILLMODE	size 4 align 4 class 1
+typedef D3DBLEND	size 4 align 4 class 1
+typedef D3DTEXTUREADDRESS	size 4 align 4 class 1
+typedef D3DCULL	size 4 align 4 class 1
+typedef D3DCMPFUNC	size 4 align 4 class 1
+typedef D3DFOGMODE	size 4 align 4 class 1
+typedef D3DZBUFFERTYPE	size 4 align 4 class 1
+typedef D3DPRIMITIVETYPE	size 4 align 4 class 1
+typedef D3DRENDERSTATETYPE	size 4 align 4 class 1
+typedef D3DTEXTURESTAGESTATETYPE	size 4 align 4 class 1
+typedef D3DTEXTUREOP	size 4 align 4 class 1
+typedef D3DTEXTUREMAGFILTER	size 4 align 4 class 1
+typedef D3DTEXTUREMINFILTER	size 4 align 4 class 1
+typedef D3DTEXTUREMIPFILTER	size 4 align 4 class 1
+record HWND__	size 4 align 4
+fields HWND__	unused
+field HWND__.unused	offset 0
+record HINSTANCE__	size 4 align 4
+fields HINSTANCE__	unused
+field HINSTANCE__.unused	offset 0
+record HDC__	size 4 align 4
+fields HDC__	unused
+field HDC__.unused	offset 0
+record HFONT__	size 4 align 4
+fields HFONT__	unused
+field HFONT__.unused	offset 0
+record HBITMAP__	size 4 align 4
+fields HBITMAP__	unused
+field HBITMAP__.unused	offset 0
+record HBRUSH__	size 4 align 4
+fields HBRUSH__	unused
+field HBRUSH__.unused	offset 0
+record HPEN__	size 4 align 4
+fields HPEN__	unused
+field HPEN__.unused	offset 0
+record HRGN__	size 4 align 4
+fields HRGN__	unused
+field HRGN__.unused	offset 0
+record HPALETTE__	size 4 align 4
+fields HPALETTE__	unused
+field HPALETTE__.unused	offset 0
+record HICON__	size 4 align 4
+fields HICON__	unused
+field HICON__.unused	offset 0
+record HMENU__	size 4 align 4
+fields HMENU__	unused
+field HMENU__.unused	offset 0
+record tagRECT	size 16 align 4
+fields tagRECT	left top right bottom
+field tagRECT.left	offset 0
+field tagRECT.top	offset 4
+field tagRECT.right	offset 8
+field tagRECT.bottom	offset 12
+record tagPOINT	size 8 align 4
+fields tagPOINT	x y
+field tagPOINT.x	offset 0
+field tagPOINT.y	offset 4
+record tagSIZE	size 8 align 4
+fields tagSIZE	cx cy
+field tagSIZE.cx	offset 0
+field tagSIZE.cy	offset 4
+record tagPALETTEENTRY	size 4 align 1
+fields tagPALETTEENTRY	peRed peGreen peBlue peFlags
+field tagPALETTEENTRY.peRed	offset 0
+field tagPALETTEENTRY.peGreen	offset 1
+field tagPALETTEENTRY.peBlue	offset 2
+field tagPALETTEENTRY.peFlags	offset 3
+record tagRGBQUAD	size 4 align 1
+fields tagRGBQUAD	rgbBlue rgbGreen rgbRed rgbReserved
+field tagRGBQUAD.rgbBlue	offset 0
+field tagRGBQUAD.rgbGreen	offset 1
+field tagRGBQUAD.rgbRed	offset 2
+field tagRGBQUAD.rgbReserved	offset 3
+record BITMAPFILEHEADER	size 14 align 2
+fields BITMAPFILEHEADER	bfType bfSize bfReserved1 bfReserved2 bfOffBits
+field BITMAPFILEHEADER.bfType	offset 0
+field BITMAPFILEHEADER.bfSize	offset 2
+field BITMAPFILEHEADER.bfReserved1	offset 6
+field BITMAPFILEHEADER.bfReserved2	offset 8
+field BITMAPFILEHEADER.bfOffBits	offset 10
+record BITMAPINFOHEADER	size 40 align 4
+fields BITMAPINFOHEADER	biSize biWidth biHeight biPlanes biBitCount biCompression biSizeImage biXPelsPerMeter biYPelsPerMeter biClrUsed biClrImportant
+field BITMAPINFOHEADER.biSize	offset 0
+field BITMAPINFOHEADER.biWidth	offset 4
+field BITMAPINFOHEADER.biHeight	offset 8
+field BITMAPINFOHEADER.biPlanes	offset 12
+field BITMAPINFOHEADER.biBitCount	offset 14
+field BITMAPINFOHEADER.biCompression	offset 16
+field BITMAPINFOHEADER.biSizeImage	offset 20
+field BITMAPINFOHEADER.biXPelsPerMeter	offset 24
+field BITMAPINFOHEADER.biYPelsPerMeter	offset 28
+field BITMAPINFOHEADER.biClrUsed	offset 32
+field BITMAPINFOHEADER.biClrImportant	offset 36
+record tagBITMAPINFO	size 44 align 4
+fields tagBITMAPINFO	bmiHeader bmiColors
+field tagBITMAPINFO.bmiHeader	offset 0
+field tagBITMAPINFO.bmiColors	offset 40
+record _FILETIME	size 8 align 4
+fields _FILETIME	dwLowDateTime dwHighDateTime
+field _FILETIME.dwLowDateTime	offset 0
+field _FILETIME.dwHighDateTime	offset 4
+record _SYSTEMTIME	size 16 align 2
+fields _SYSTEMTIME	wYear wMonth wDayOfWeek wDay wHour wMinute wSecond wMilliseconds
+field _SYSTEMTIME.wYear	offset 0
+field _SYSTEMTIME.wMonth	offset 2
+field _SYSTEMTIME.wDayOfWeek	offset 4
+field _SYSTEMTIME.wDay	offset 6
+field _SYSTEMTIME.wHour	offset 8
+field _SYSTEMTIME.wMinute	offset 10
+field _SYSTEMTIME.wSecond	offset 12
+field _SYSTEMTIME.wMilliseconds	offset 14
+record tagLOGFONTA	size 60 align 4
+fields tagLOGFONTA	lfHeight lfWidth lfEscapement lfOrientation lfWeight lfItalic lfUnderline lfStrikeOut lfCharSet lfOutPrecision lfClipPrecision lfQuality lfPitchAndFamily lfFaceName
+field tagLOGFONTA.lfHeight	offset 0
+field tagLOGFONTA.lfWidth	offset 4
+field tagLOGFONTA.lfEscapement	offset 8
+field tagLOGFONTA.lfOrientation	offset 12
+field tagLOGFONTA.lfWeight	offset 16
+field tagLOGFONTA.lfItalic	offset 20
+field tagLOGFONTA.lfUnderline	offset 21
+field tagLOGFONTA.lfStrikeOut	offset 22
+field tagLOGFONTA.lfCharSet	offset 23
+field tagLOGFONTA.lfOutPrecision	offset 24
+field tagLOGFONTA.lfClipPrecision	offset 25
+field tagLOGFONTA.lfQuality	offset 26
+field tagLOGFONTA.lfPitchAndFamily	offset 27
+field tagLOGFONTA.lfFaceName	offset 28
+record _D3DMATRIX	size 64 align 4
+fields _D3DMATRIX	_11 _12 _13 _14 _21 _22 _23 _24 _31 _32 _33 _34 _41 _42 _43 _44
+field _D3DMATRIX._11	offset 0
+field _D3DMATRIX._12	offset 4
+field _D3DMATRIX._13	offset 8
+field _D3DMATRIX._14	offset 12
+field _D3DMATRIX._21	offset 16
+field _D3DMATRIX._22	offset 20
+field _D3DMATRIX._23	offset 24
+field _D3DMATRIX._24	offset 28
+field _D3DMATRIX._31	offset 32
+field _D3DMATRIX._32	offset 36
+field _D3DMATRIX._33	offset 40
+field _D3DMATRIX._34	offset 44
+field _D3DMATRIX._41	offset 48
+field _D3DMATRIX._42	offset 52
+field _D3DMATRIX._43	offset 56
+field _D3DMATRIX._44	offset 60
+enumerator D3DSHADE_FLAT	1
+enumerator D3DSHADE_GOURAUD	2
+enumerator D3DSHADE_PHONG	3
+enumerator D3DSHADE_FORCE_DWORD	2147483647
+enumerator D3DFILL_POINT	1
+enumerator D3DFILL_WIREFRAME	2
+enumerator D3DFILL_SOLID	3
+enumerator D3DFILL_FORCE_DWORD	2147483647
+enumerator D3DBLEND_ZERO	1
+enumerator D3DBLEND_ONE	2
+enumerator D3DBLEND_SRCCOLOR	3
+enumerator D3DBLEND_INVSRCCOLOR	4
+enumerator D3DBLEND_SRCALPHA	5
+enumerator D3DBLEND_INVSRCALPHA	6
+enumerator D3DBLEND_DESTALPHA	7
+enumerator D3DBLEND_INVDESTALPHA	8
+enumerator D3DBLEND_DESTCOLOR	9
+enumerator D3DBLEND_INVDESTCOLOR	10
+enumerator D3DBLEND_SRCALPHASAT	11
+enumerator D3DBLEND_BOTHSRCALPHA	12
+enumerator D3DBLEND_BOTHINVSRCALPHA	13
+enumerator D3DBLEND_FORCE_DWORD	2147483647
+enumerator D3DTADDRESS_WRAP	1
+enumerator D3DTADDRESS_MIRROR	2
+enumerator D3DTADDRESS_CLAMP	3
+enumerator D3DTADDRESS_BORDER	4
+enumerator D3DTADDRESS_FORCE_DWORD	2147483647
+enumerator D3DCULL_NONE	1
+enumerator D3DCULL_CW	2
+enumerator D3DCULL_CCW	3
+enumerator D3DCULL_FORCE_DWORD	2147483647
+enumerator D3DCMP_NEVER	1
+enumerator D3DCMP_LESS	2
+enumerator D3DCMP_EQUAL	3
+enumerator D3DCMP_LESSEQUAL	4
+enumerator D3DCMP_GREATER	5
+enumerator D3DCMP_NOTEQUAL	6
+enumerator D3DCMP_GREATEREQUAL	7
+enumerator D3DCMP_ALWAYS	8
+enumerator D3DCMP_FORCE_DWORD	2147483647
+enumerator D3DFOG_NONE	0
+enumerator D3DFOG_EXP	1
+enumerator D3DFOG_EXP2	2
+enumerator D3DFOG_LINEAR	3
+enumerator D3DFOG_FORCE_DWORD	2147483647
+enumerator D3DZB_FALSE	0
+enumerator D3DZB_TRUE	1
+enumerator D3DZB_USEW	2
+enumerator D3DZB_FORCE_DWORD	2147483647
+enumerator D3DPT_POINTLIST	1
+enumerator D3DPT_LINELIST	2
+enumerator D3DPT_LINESTRIP	3
+enumerator D3DPT_TRIANGLELIST	4
+enumerator D3DPT_TRIANGLESTRIP	5
+enumerator D3DPT_TRIANGLEFAN	6
+enumerator D3DPT_FORCE_DWORD	2147483647
+enumerator D3DRENDERSTATE_TEXTUREHANDLE	1
+enumerator D3DRENDERSTATE_ANTIALIAS	2
+enumerator D3DRENDERSTATE_TEXTUREADDRESS	3
+enumerator D3DRENDERSTATE_TEXTUREPERSPECTIVE	4
+enumerator D3DRENDERSTATE_WRAPU	5
+enumerator D3DRENDERSTATE_WRAPV	6
+enumerator D3DRENDERSTATE_ZENABLE	7
+enumerator D3DRENDERSTATE_FILLMODE	8
+enumerator D3DRENDERSTATE_SHADEMODE	9
+enumerator D3DRENDERSTATE_LINEPATTERN	10
+enumerator D3DRENDERSTATE_MONOENABLE	11
+enumerator D3DRENDERSTATE_ROP2	12
+enumerator D3DRENDERSTATE_PLANEMASK	13
+enumerator D3DRENDERSTATE_ZWRITEENABLE	14
+enumerator D3DRENDERSTATE_ALPHATESTENABLE	15
+enumerator D3DRENDERSTATE_LASTPIXEL	16
+enumerator D3DRENDERSTATE_TEXTUREMAG	17
+enumerator D3DRENDERSTATE_TEXTUREMIN	18
+enumerator D3DRENDERSTATE_SRCBLEND	19
+enumerator D3DRENDERSTATE_DESTBLEND	20
+enumerator D3DRENDERSTATE_TEXTUREMAPBLEND	21
+enumerator D3DRENDERSTATE_CULLMODE	22
+enumerator D3DRENDERSTATE_ZFUNC	23
+enumerator D3DRENDERSTATE_ALPHAREF	24
+enumerator D3DRENDERSTATE_ALPHAFUNC	25
+enumerator D3DRENDERSTATE_DITHERENABLE	26
+enumerator D3DRENDERSTATE_ALPHABLENDENABLE	27
+enumerator D3DRENDERSTATE_FOGENABLE	28
+enumerator D3DRENDERSTATE_SPECULARENABLE	29
+enumerator D3DRENDERSTATE_ZVISIBLE	30
+enumerator D3DRENDERSTATE_SUBPIXEL	31
+enumerator D3DRENDERSTATE_SUBPIXELX	32
+enumerator D3DRENDERSTATE_STIPPLEDALPHA	33
+enumerator D3DRENDERSTATE_FOGCOLOR	34
+enumerator D3DRENDERSTATE_FOGTABLEMODE	35
+enumerator D3DRENDERSTATE_FOGTABLESTART	36
+enumerator D3DRENDERSTATE_FOGTABLEEND	37
+enumerator D3DRENDERSTATE_FOGTABLEDENSITY	38
+enumerator D3DRENDERSTATE_FOGSTART	36
+enumerator D3DRENDERSTATE_FOGEND	37
+enumerator D3DRENDERSTATE_FOGDENSITY	38
+enumerator D3DRENDERSTATE_STIPPLEENABLE	39
+enumerator D3DRENDERSTATE_EDGEANTIALIAS	40
+enumerator D3DRENDERSTATE_COLORKEYENABLE	41
+enumerator D3DRENDERSTATE_BORDERCOLOR	43
+enumerator D3DRENDERSTATE_TEXTUREADDRESSU	44
+enumerator D3DRENDERSTATE_TEXTUREADDRESSV	45
+enumerator D3DRENDERSTATE_MIPMAPLODBIAS	46
+enumerator D3DRENDERSTATE_ZBIAS	47
+enumerator D3DRENDERSTATE_RANGEFOGENABLE	48
+enumerator D3DRENDERSTATE_ANISOTROPY	49
+enumerator D3DRENDERSTATE_FLUSHBATCH	50
+enumerator D3DRENDERSTATE_TRANSLUCENTSORTINDEPENDENT	51
+enumerator D3DRENDERSTATE_STENCILENABLE	52
+enumerator D3DRENDERSTATE_STENCILFAIL	53
+enumerator D3DRENDERSTATE_STENCILZFAIL	54
+enumerator D3DRENDERSTATE_STENCILPASS	55
+enumerator D3DRENDERSTATE_STENCILFUNC	56
+enumerator D3DRENDERSTATE_STENCILREF	57
+enumerator D3DRENDERSTATE_STENCILMASK	58
+enumerator D3DRENDERSTATE_STENCILWRITEMASK	59
+enumerator D3DRENDERSTATE_TEXTUREFACTOR	60
+enumerator D3DRENDERSTATE_STIPPLEPATTERN00	64
+enumerator D3DRENDERSTATE_STIPPLEPATTERN01	65
+enumerator D3DRENDERSTATE_STIPPLEPATTERN02	66
+enumerator D3DRENDERSTATE_STIPPLEPATTERN03	67
+enumerator D3DRENDERSTATE_STIPPLEPATTERN04	68
+enumerator D3DRENDERSTATE_STIPPLEPATTERN05	69
+enumerator D3DRENDERSTATE_STIPPLEPATTERN06	70
+enumerator D3DRENDERSTATE_STIPPLEPATTERN07	71
+enumerator D3DRENDERSTATE_STIPPLEPATTERN08	72
+enumerator D3DRENDERSTATE_STIPPLEPATTERN09	73
+enumerator D3DRENDERSTATE_STIPPLEPATTERN10	74
+enumerator D3DRENDERSTATE_STIPPLEPATTERN11	75
+enumerator D3DRENDERSTATE_STIPPLEPATTERN12	76
+enumerator D3DRENDERSTATE_STIPPLEPATTERN13	77
+enumerator D3DRENDERSTATE_STIPPLEPATTERN14	78
+enumerator D3DRENDERSTATE_STIPPLEPATTERN15	79
+enumerator D3DRENDERSTATE_STIPPLEPATTERN16	80
+enumerator D3DRENDERSTATE_STIPPLEPATTERN17	81
+enumerator D3DRENDERSTATE_STIPPLEPATTERN18	82
+enumerator D3DRENDERSTATE_STIPPLEPATTERN19	83
+enumerator D3DRENDERSTATE_STIPPLEPATTERN20	84
+enumerator D3DRENDERSTATE_STIPPLEPATTERN21	85
+enumerator D3DRENDERSTATE_STIPPLEPATTERN22	86
+enumerator D3DRENDERSTATE_STIPPLEPATTERN23	87
+enumerator D3DRENDERSTATE_STIPPLEPATTERN24	88
+enumerator D3DRENDERSTATE_STIPPLEPATTERN25	89
+enumerator D3DRENDERSTATE_STIPPLEPATTERN26	90
+enumerator D3DRENDERSTATE_STIPPLEPATTERN27	91
+enumerator D3DRENDERSTATE_STIPPLEPATTERN28	92
+enumerator D3DRENDERSTATE_STIPPLEPATTERN29	93
+enumerator D3DRENDERSTATE_STIPPLEPATTERN30	94
+enumerator D3DRENDERSTATE_STIPPLEPATTERN31	95
+enumerator D3DRENDERSTATE_WRAP0	128
+enumerator D3DRENDERSTATE_WRAP1	129
+enumerator D3DRENDERSTATE_WRAP2	130
+enumerator D3DRENDERSTATE_WRAP3	131
+enumerator D3DRENDERSTATE_WRAP4	132
+enumerator D3DRENDERSTATE_WRAP5	133
+enumerator D3DRENDERSTATE_WRAP6	134
+enumerator D3DRENDERSTATE_WRAP7	135
+enumerator D3DRENDERSTATE_CLIPPING	136
+enumerator D3DRENDERSTATE_LIGHTING	137
+enumerator D3DRENDERSTATE_EXTENTS	138
+enumerator D3DRENDERSTATE_AMBIENT	139
+enumerator D3DRENDERSTATE_FOGVERTEXMODE	140
+enumerator D3DRENDERSTATE_COLORVERTEX	141
+enumerator D3DRENDERSTATE_LOCALVIEWER	142
+enumerator D3DRENDERSTATE_NORMALIZENORMALS	143
+enumerator D3DRENDERSTATE_COLORKEYBLENDENABLE	144
+enumerator D3DRENDERSTATE_DIFFUSEMATERIALSOURCE	145
+enumerator D3DRENDERSTATE_SPECULARMATERIALSOURCE	146
+enumerator D3DRENDERSTATE_AMBIENTMATERIALSOURCE	147
+enumerator D3DRENDERSTATE_EMISSIVEMATERIALSOURCE	148
+enumerator D3DRENDERSTATE_VERTEXBLEND	151
+enumerator D3DRENDERSTATE_CLIPPLANEENABLE	152
+enumerator D3DRENDERSTATE_FORCE_DWORD	2147483647
+enumerator D3DTSS_COLOROP	1
+enumerator D3DTSS_COLORARG1	2
+enumerator D3DTSS_COLORARG2	3
+enumerator D3DTSS_ALPHAOP	4
+enumerator D3DTSS_ALPHAARG1	5
+enumerator D3DTSS_ALPHAARG2	6
+enumerator D3DTSS_BUMPENVMAT00	7
+enumerator D3DTSS_BUMPENVMAT01	8
+enumerator D3DTSS_BUMPENVMAT10	9
+enumerator D3DTSS_BUMPENVMAT11	10
+enumerator D3DTSS_TEXCOORDINDEX	11
+enumerator D3DTSS_ADDRESS	12
+enumerator D3DTSS_ADDRESSU	13
+enumerator D3DTSS_ADDRESSV	14
+enumerator D3DTSS_BORDERCOLOR	15
+enumerator D3DTSS_MAGFILTER	16
+enumerator D3DTSS_MINFILTER	17
+enumerator D3DTSS_MIPFILTER	18
+enumerator D3DTSS_MIPMAPLODBIAS	19
+enumerator D3DTSS_MAXMIPLEVEL	20
+enumerator D3DTSS_MAXANISOTROPY	21
+enumerator D3DTSS_BUMPENVLSCALE	22
+enumerator D3DTSS_BUMPENVLOFFSET	23
+enumerator D3DTSS_TEXTURETRANSFORMFLAGS	24
+enumerator D3DTSS_FORCE_DWORD	2147483647
+enumerator D3DTOP_DISABLE	1
+enumerator D3DTOP_SELECTARG1	2
+enumerator D3DTOP_SELECTARG2	3
+enumerator D3DTOP_MODULATE	4
+enumerator D3DTOP_MODULATE2X	5
+enumerator D3DTOP_MODULATE4X	6
+enumerator D3DTOP_ADD	7
+enumerator D3DTOP_ADDSIGNED	8
+enumerator D3DTOP_ADDSIGNED2X	9
+enumerator D3DTOP_SUBTRACT	10
+enumerator D3DTOP_ADDSMOOTH	11
+enumerator D3DTOP_BLENDDIFFUSEALPHA	12
+enumerator D3DTOP_BLENDTEXTUREALPHA	13
+enumerator D3DTOP_BLENDFACTORALPHA	14
+enumerator D3DTOP_BLENDTEXTUREALPHAPM	15
+enumerator D3DTOP_BLENDCURRENTALPHA	16
+enumerator D3DTOP_PREMODULATE	17
+enumerator D3DTOP_MODULATEALPHA_ADDCOLOR	18
+enumerator D3DTOP_MODULATECOLOR_ADDALPHA	19
+enumerator D3DTOP_MODULATEINVALPHA_ADDCOLOR	20
+enumerator D3DTOP_MODULATEINVCOLOR_ADDALPHA	21
+enumerator D3DTOP_BUMPENVMAP	22
+enumerator D3DTOP_BUMPENVMAPLUMINANCE	23
+enumerator D3DTOP_DOTPRODUCT3	24
+enumerator D3DTOP_FORCE_DWORD	2147483647
+enumerator D3DTFG_POINT	1
+enumerator D3DTFG_LINEAR	2
+enumerator D3DTFG_FLATCUBIC	3
+enumerator D3DTFG_GAUSSIANCUBIC	4
+enumerator D3DTFG_ANISOTROPIC	5
+enumerator D3DTFG_FORCE_DWORD	2147483647
+enumerator D3DTFN_POINT	1
+enumerator D3DTFN_LINEAR	2
+enumerator D3DTFN_ANISOTROPIC	3
+enumerator D3DTFN_FORCE_DWORD	2147483647
+enumerator D3DTFP_NONE	1
+enumerator D3DTFP_POINT	2
+enumerator D3DTFP_LINEAR	3
+enumerator D3DTFP_FORCE_DWORD	2147483647
+macro WINAPI	
+macro CALLBACK	
+macro APIENTRY	
+macro APIPRIVATE	
+macro PASCAL	
+macro CDECL	
+macro WINAPIV	
+macro FAR	
+macro NEAR	
+macro _far	
+macro _near	
+macro CONST	const
+macro VOID	void
+macro __declspec(dllimport)	
+macro __declspec(selectany)	
+macro _declspec(dllimport)	
+macro NULL	((void*)0)
+macro FALSE	class 1 size 4 signed 1 value 0
+macro TRUE	class 1 size 4 signed 1 value 1
+macro LF_FACESIZE	class 1 size 4 signed 1 value 32
+macro MAX_PATH	class 1 size 4 signed 1 value 260
+macro LOBYTE(0x1234)	class 1 size 1 signed 1 value 52
+macro LOBYTE(0xfffffabc)	class 1 size 1 signed 1 value 188
+macro LOBYTE(-1)	class 1 size 1 signed 1 value 255
+macro HIBYTE(0x1234)	class 1 size 1 signed 1 value 18
+macro HIBYTE(0xfffffabc)	class 1 size 1 signed 1 value 250
+macro HIBYTE(-1)	class 1 size 1 signed 1 value 255
+macro LOWORD(0x12345678)	class 1 size 2 signed 1 value 22136
+macro LOWORD(-1)	class 1 size 2 signed 1 value 65535
+macro LOWORD(0x123456789aLL)	class 1 size 2 signed 1 value 30874
+macro HIWORD(0x12345678)	class 1 size 2 signed 1 value 4660
+macro HIWORD(-1)	class 1 size 2 signed 1 value 65535
+macro HIWORD(0x123456789aLL)	class 1 size 2 signed 1 value 13398
+macro MAKEWORD(0x12, 0x34)	class 1 size 2 signed 1 value 13330
+macro MAKEWORD(0x1ff, 0x2ff)	class 1 size 2 signed 1 value 65535
+macro MAKEWORD(-1, -2)	class 1 size 2 signed 1 value 65279
+macro MAKELONG(0x1234, 0x5678)	class 1 size 4 signed 1 value 1450709556
+macro MAKELONG(-1, -2)	class 1 size 4 signed 1 value -65537
+macro MAKELONG(0x12345, 0x6789a)	class 1 size 4 signed 1 value 2023367493
+macro MAKEWPARAM(0x1234, 0x5678)	class 1 size 8 signed 0 value 1450709556
+macro MAKEWPARAM(-1, -2)	class 1 size 8 signed 0 value 4294901759
+macro MAKELPARAM(0x1234, 0x5678)	class 1 size 8 signed 1 value 1450709556
+macro MAKELPARAM(-1, -2)	class 1 size 8 signed 1 value 4294901759
+macro MAKELRESULT(0x1234, 0x5678)	class 1 size 8 signed 1 value 1450709556
+macro MAKELRESULT(-1, -2)	class 1 size 8 signed 1 value 4294901759
+macro RGB(0x12, 0x34, 0x56)	class 1 size 4 signed 0 value 5649426
+macro RGB(300, -1, 2)	class 1 size 4 signed 0 value 196396
+macro RGB(255, 255, 255)	class 1 size 4 signed 0 value 16777215
+macro PALETTERGB(0x12, 0x34, 0x56)	class 1 size 4 signed 0 value 39203858
+macro GetRValue(0x123456)	class 1 size 1 signed 1 value 86
+macro GetRValue(0xffeeddcc)	class 1 size 1 signed 1 value 204
+macro GetRValue(-1)	class 1 size 1 signed 1 value 255
+macro GetGValue(0x123456)	class 1 size 1 signed 1 value 52
+macro GetGValue(0xffeeddcc)	class 1 size 1 signed 1 value 221
+macro GetGValue(-1)	class 1 size 1 signed 1 value 255
+macro GetBValue(0x123456)	class 1 size 1 signed 1 value 18
+macro GetBValue(0xffeeddcc)	class 1 size 1 signed 1 value 238
+macro GetBValue(-1)	class 1 size 1 signed 1 value 255
+macro ZeroMemory(p, n)	__builtin___memset_chk((p),0,(n),__builtin_object_size((p),0))
+macro FillMemory(p, n, c)	__builtin___memset_chk((p),(c),(n),__builtin_object_size((p),0))
+macro CopyMemory(d, s, n)	__builtin___memcpy_chk((d),(s),(n),__builtin_object_size((d),0))
+macro MoveMemory(d, s, n)	__builtin___memmove_chk((d),(s),(n),__builtin_object_size((d),0))
+macro __max(3, 7)	class 1 size 4 signed 1 value 7
+macro __max(-2, 1)	class 1 size 4 signed 1 value 1
+macro __max(2.5, 1)	class 8 size 8 signed 1 value 2.5
+macro __min(3, 7)	class 1 size 4 signed 1 value 3
+macro __min(-2, 1)	class 1 size 4 signed 1 value -2
+macro __min(2.5, 1)	class 8 size 8 signed 1 value 1
+macro S_OK	class 1 size 4 signed 1 value 0
+macro S_FALSE	class 1 size 4 signed 1 value 1
+macro E_FAIL	class 1 size 4 signed 1 value -2147467259
+macro E_OUTOFMEMORY	class 1 size 4 signed 1 value -2147024882
+macro E_INVALIDARG	class 1 size 4 signed 1 value -2147024809
+macro SUCCEEDED(0)	class 1 size 4 signed 1 value 1
+macro SUCCEEDED(-1)	class 1 size 4 signed 1 value 0
+macro SUCCEEDED(0x80004005)	class 1 size 4 signed 1 value 0
+macro SUCCEEDED(1)	class 1 size 4 signed 1 value 1
+macro FAILED(0)	class 1 size 4 signed 1 value 0
+macro FAILED(-1)	class 1 size 4 signed 1 value 1
+macro FAILED(0x80004005)	class 1 size 4 signed 1 value 1
+macro FAILED(1)	class 1 size 4 signed 1 value 0
+macro ANSI_CHARSET	class 1 size 1 signed 1 value 0
+macro DEFAULT_CHARSET	class 1 size 1 signed 1 value 1
+macro SYMBOL_CHARSET	class 1 size 1 signed 1 value 2
+macro SHIFTJIS_CHARSET	class 1 size 1 signed 1 value 128
+macro HANGEUL_CHARSET	class 1 size 1 signed 1 value 129
+macro HANGUL_CHARSET	class 1 size 1 signed 1 value 129
+macro GB2312_CHARSET	class 1 size 1 signed 1 value 134
+macro CHINESEBIG5_CHARSET	class 1 size 1 signed 1 value 136
+macro GREEK_CHARSET	class 1 size 1 signed 1 value 161
+macro TURKISH_CHARSET	class 1 size 1 signed 1 value 162
+macro HEBREW_CHARSET	class 1 size 1 signed 1 value 177
+macro ARABIC_CHARSET	class 1 size 1 signed 1 value 178
+macro BALTIC_CHARSET	class 1 size 1 signed 1 value 186
+macro VIETNAMESE_CHARSET	class 1 size 1 signed 1 value 163
+macro RUSSIAN_CHARSET	class 1 size 1 signed 1 value 204
+macro EE_CHARSET	class 1 size 1 signed 1 value 238
+macro EASTEUROPE_CHARSET	class 1 size 1 signed 1 value 238
+macro THAI_CHARSET	class 1 size 1 signed 1 value 222
+macro JOHAB_CHARSET	class 1 size 1 signed 1 value 130
+macro MAC_CHARSET	class 1 size 1 signed 1 value 77
+macro OEM_CHARSET	class 1 size 1 signed 1 value 255
+macro VISCII_CHARSET	class 1 size 1 signed 1 value 240
+macro TCVN_CHARSET	class 1 size 1 signed 1 value 241
+macro KOI8_CHARSET	class 1 size 1 signed 1 value 242
+macro ISO3_CHARSET	class 1 size 1 signed 1 value 243
+macro ISO4_CHARSET	class 1 size 1 signed 1 value 244
+macro ISO10_CHARSET	class 1 size 1 signed 1 value 245
+macro CELTIC_CHARSET	class 1 size 1 signed 1 value 246
+macro MAKELANGID(0x09, 0x01)	class 1 size 4 signed 1 value 1033
+macro MAKELANGID(0x3ff, 0x3f)	class 1 size 4 signed 1 value 65535
+macro MAKELANGID(-1, -1)	class 1 size 4 signed 1 value 67108863
+macro PRIMARYLANGID(0x0409)	class 1 size 4 signed 1 value 9
+macro PRIMARYLANGID(0xffff)	class 1 size 4 signed 1 value 1023
+macro PRIMARYLANGID(-1)	class 1 size 4 signed 1 value 1023
+macro SUBLANGID(0x0409)	class 1 size 4 signed 1 value 1
+macro SUBLANGID(0xffff)	class 1 size 4 signed 1 value 63
+macro SUBLANGID(-1)	class 1 size 4 signed 1 value 63
+macro LANG_ARABIC	class 1 size 4 signed 1 value 1
+macro LANG_BULGARIAN	class 1 size 4 signed 1 value 2
+macro LANG_CHINESE	class 1 size 4 signed 1 value 4
+macro LANG_CZECH	class 1 size 4 signed 1 value 5
+macro LANG_GERMAN	class 1 size 4 signed 1 value 7
+macro LANG_GREEK	class 1 size 4 signed 1 value 8
+macro LANG_ENGLISH	class 1 size 4 signed 1 value 9
+macro LANG_HEBREW	class 1 size 4 signed 1 value 13
+macro LANG_HUNGARIAN	class 1 size 4 signed 1 value 14
+macro LANG_ITALIAN	class 1 size 4 signed 1 value 16
+macro LANG_JAPANESE	class 1 size 4 signed 1 value 17
+macro LANG_KOREAN	class 1 size 4 signed 1 value 18
+macro LANG_POLISH	class 1 size 4 signed 1 value 21
+macro LANG_PORTUGUESE	class 1 size 4 signed 1 value 22
+macro LANG_ROMANIAN	class 1 size 4 signed 1 value 24
+macro LANG_RUSSIAN	class 1 size 4 signed 1 value 25
+macro LANG_CROATIAN	class 1 size 4 signed 1 value 26
+macro LANG_SLOVAK	class 1 size 4 signed 1 value 27
+macro LANG_THAI	class 1 size 4 signed 1 value 30
+macro LANG_TURKISH	class 1 size 4 signed 1 value 31
+macro LANG_UKRAINIAN	class 1 size 4 signed 1 value 34
+macro LANG_BELARUSIAN	class 1 size 4 signed 1 value 35
+macro LANG_SLOVENIAN	class 1 size 4 signed 1 value 36
+macro LANG_ESTONIAN	class 1 size 4 signed 1 value 37
+macro LANG_LATVIAN	class 1 size 4 signed 1 value 38
+macro LANG_LITHUANIAN	class 1 size 4 signed 1 value 39
+macro LANG_VIETNAMESE	class 1 size 4 signed 1 value 42
+macro LANG_MACEDONIAN	class 1 size 4 signed 1 value 47
+macro SUBLANG_CHINESE_TRADITIONAL	class 1 size 4 signed 1 value 1
+macro SUBLANG_CHINESE_SIMPLIFIED	class 1 size 4 signed 1 value 2
+macro SUBLANG_ENGLISH_US	class 1 size 4 signed 1 value 1
+macro FW_DONTCARE	class 1 size 4 signed 1 value 0
+macro FW_THIN	class 1 size 4 signed 1 value 100
+macro FW_EXTRALIGHT	class 1 size 4 signed 1 value 200
+macro FW_ULTRALIGHT	class 1 size 4 signed 1 value 200
+macro FW_LIGHT	class 1 size 4 signed 1 value 300
+macro FW_NORMAL	class 1 size 4 signed 1 value 400
+macro FW_REGULAR	class 1 size 4 signed 1 value 400
+macro FW_MEDIUM	class 1 size 4 signed 1 value 500
+macro FW_SEMIBOLD	class 1 size 4 signed 1 value 600
+macro FW_DEMIBOLD	class 1 size 4 signed 1 value 600
+macro FW_BOLD	class 1 size 4 signed 1 value 700
+macro FW_EXTRABOLD	class 1 size 4 signed 1 value 800
+macro FW_ULTRABOLD	class 1 size 4 signed 1 value 800
+macro FW_HEAVY	class 1 size 4 signed 1 value 900
+macro FW_BLACK	class 1 size 4 signed 1 value 900
+macro BI_RGB	class 1 size 4 signed 1 value 0
+macro BI_RLE8	class 1 size 4 signed 1 value 1
+macro BI_RLE4	class 1 size 4 signed 1 value 2
+macro BI_BITFIELDS	class 1 size 4 signed 1 value 3
+macro VK_LBUTTON	class 1 size 4 signed 1 value 1
+macro VK_RBUTTON	class 1 size 4 signed 1 value 2
+macro VK_CANCEL	class 1 size 4 signed 1 value 3
+macro VK_MBUTTON	class 1 size 4 signed 1 value 4
+macro VK_XBUTTON1	class 1 size 4 signed 1 value 5
+macro VK_XBUTTON2	class 1 size 4 signed 1 value 6
+macro VK_BACK	class 1 size 4 signed 1 value 8
+macro VK_TAB	class 1 size 4 signed 1 value 9
+macro VK_CLEAR	class 1 size 4 signed 1 value 12
+macro VK_RETURN	class 1 size 4 signed 1 value 13
+macro VK_SHIFT	class 1 size 4 signed 1 value 16
+macro VK_CONTROL	class 1 size 4 signed 1 value 17
+macro VK_MENU	class 1 size 4 signed 1 value 18
+macro VK_PAUSE	class 1 size 4 signed 1 value 19
+macro VK_CAPITAL	class 1 size 4 signed 1 value 20
+macro VK_KANA	class 1 size 4 signed 1 value 21
+macro VK_HANGEUL	class 1 size 4 signed 1 value 21
+macro VK_HANGUL	class 1 size 4 signed 1 value 21
+macro VK_JUNJA	class 1 size 4 signed 1 value 23
+macro VK_FINAL	class 1 size 4 signed 1 value 24
+macro VK_HANJA	class 1 size 4 signed 1 value 25
+macro VK_KANJI	class 1 size 4 signed 1 value 25
+macro VK_ESCAPE	class 1 size 4 signed 1 value 27
+macro VK_CONVERT	class 1 size 4 signed 1 value 28
+macro VK_NONCONVERT	class 1 size 4 signed 1 value 29
+macro VK_ACCEPT	class 1 size 4 signed 1 value 30
+macro VK_MODECHANGE	class 1 size 4 signed 1 value 31
+macro VK_SPACE	class 1 size 4 signed 1 value 32
+macro VK_PRIOR	class 1 size 4 signed 1 value 33
+macro VK_NEXT	class 1 size 4 signed 1 value 34
+macro VK_END	class 1 size 4 signed 1 value 35
+macro VK_HOME	class 1 size 4 signed 1 value 36
+macro VK_LEFT	class 1 size 4 signed 1 value 37
+macro VK_UP	class 1 size 4 signed 1 value 38
+macro VK_RIGHT	class 1 size 4 signed 1 value 39
+macro VK_DOWN	class 1 size 4 signed 1 value 40
+macro VK_SELECT	class 1 size 4 signed 1 value 41
+macro VK_PRINT	class 1 size 4 signed 1 value 42
+macro VK_EXECUTE	class 1 size 4 signed 1 value 43
+macro VK_SNAPSHOT	class 1 size 4 signed 1 value 44
+macro VK_INSERT	class 1 size 4 signed 1 value 45
+macro VK_DELETE	class 1 size 4 signed 1 value 46
+macro VK_HELP	class 1 size 4 signed 1 value 47
+macro VK_LWIN	class 1 size 4 signed 1 value 91
+macro VK_RWIN	class 1 size 4 signed 1 value 92
+macro VK_APPS	class 1 size 4 signed 1 value 93
+macro VK_SLEEP	class 1 size 4 signed 1 value 95
+macro VK_NUMPAD0	class 1 size 4 signed 1 value 96
+macro VK_NUMPAD1	class 1 size 4 signed 1 value 97
+macro VK_NUMPAD2	class 1 size 4 signed 1 value 98
+macro VK_NUMPAD3	class 1 size 4 signed 1 value 99
+macro VK_NUMPAD4	class 1 size 4 signed 1 value 100
+macro VK_NUMPAD5	class 1 size 4 signed 1 value 101
+macro VK_NUMPAD6	class 1 size 4 signed 1 value 102
+macro VK_NUMPAD7	class 1 size 4 signed 1 value 103
+macro VK_NUMPAD8	class 1 size 4 signed 1 value 104
+macro VK_NUMPAD9	class 1 size 4 signed 1 value 105
+macro VK_MULTIPLY	class 1 size 4 signed 1 value 106
+macro VK_ADD	class 1 size 4 signed 1 value 107
+macro VK_SEPARATOR	class 1 size 4 signed 1 value 108
+macro VK_SUBTRACT	class 1 size 4 signed 1 value 109
+macro VK_DECIMAL	class 1 size 4 signed 1 value 110
+macro VK_DIVIDE	class 1 size 4 signed 1 value 111
+macro VK_F1	class 1 size 4 signed 1 value 112
+macro VK_F2	class 1 size 4 signed 1 value 113
+macro VK_F3	class 1 size 4 signed 1 value 114
+macro VK_F4	class 1 size 4 signed 1 value 115
+macro VK_F5	class 1 size 4 signed 1 value 116
+macro VK_F6	class 1 size 4 signed 1 value 117
+macro VK_F7	class 1 size 4 signed 1 value 118
+macro VK_F8	class 1 size 4 signed 1 value 119
+macro VK_F9	class 1 size 4 signed 1 value 120
+macro VK_F10	class 1 size 4 signed 1 value 121
+macro VK_F11	class 1 size 4 signed 1 value 122
+macro VK_F12	class 1 size 4 signed 1 value 123
+macro VK_F13	class 1 size 4 signed 1 value 124
+macro VK_F14	class 1 size 4 signed 1 value 125
+macro VK_F15	class 1 size 4 signed 1 value 126
+macro VK_F16	class 1 size 4 signed 1 value 127
+macro VK_F17	class 1 size 4 signed 1 value 128
+macro VK_F18	class 1 size 4 signed 1 value 129
+macro VK_F19	class 1 size 4 signed 1 value 130
+macro VK_F20	class 1 size 4 signed 1 value 131
+macro VK_F21	class 1 size 4 signed 1 value 132
+macro VK_F22	class 1 size 4 signed 1 value 133
+macro VK_F23	class 1 size 4 signed 1 value 134
+macro VK_F24	class 1 size 4 signed 1 value 135
+macro VK_NAVIGATION_VIEW	class 1 size 4 signed 1 value 136
+macro VK_NAVIGATION_MENU	class 1 size 4 signed 1 value 137
+macro VK_NAVIGATION_UP	class 1 size 4 signed 1 value 138
+macro VK_NAVIGATION_DOWN	class 1 size 4 signed 1 value 139
+macro VK_NAVIGATION_LEFT	class 1 size 4 signed 1 value 140
+macro VK_NAVIGATION_RIGHT	class 1 size 4 signed 1 value 141
+macro VK_NAVIGATION_ACCEPT	class 1 size 4 signed 1 value 142
+macro VK_NAVIGATION_CANCEL	class 1 size 4 signed 1 value 143
+macro VK_NUMLOCK	class 1 size 4 signed 1 value 144
+macro VK_SCROLL	class 1 size 4 signed 1 value 145
+macro VK_OEM_NEC_EQUAL	class 1 size 4 signed 1 value 146
+macro VK_OEM_FJ_JISHO	class 1 size 4 signed 1 value 146
+macro VK_OEM_FJ_MASSHOU	class 1 size 4 signed 1 value 147
+macro VK_OEM_FJ_TOUROKU	class 1 size 4 signed 1 value 148
+macro VK_OEM_FJ_LOYA	class 1 size 4 signed 1 value 149
+macro VK_OEM_FJ_ROYA	class 1 size 4 signed 1 value 150
+macro VK_LSHIFT	class 1 size 4 signed 1 value 160
+macro VK_RSHIFT	class 1 size 4 signed 1 value 161
+macro VK_LCONTROL	class 1 size 4 signed 1 value 162
+macro VK_RCONTROL	class 1 size 4 signed 1 value 163
+macro VK_LMENU	class 1 size 4 signed 1 value 164
+macro VK_RMENU	class 1 size 4 signed 1 value 165
+macro VK_BROWSER_BACK	class 1 size 4 signed 1 value 166
+macro VK_BROWSER_FORWARD	class 1 size 4 signed 1 value 167
+macro VK_BROWSER_REFRESH	class 1 size 4 signed 1 value 168
+macro VK_BROWSER_STOP	class 1 size 4 signed 1 value 169
+macro VK_BROWSER_SEARCH	class 1 size 4 signed 1 value 170
+macro VK_BROWSER_FAVORITES	class 1 size 4 signed 1 value 171
+macro VK_BROWSER_HOME	class 1 size 4 signed 1 value 172
+macro VK_VOLUME_MUTE	class 1 size 4 signed 1 value 173
+macro VK_VOLUME_DOWN	class 1 size 4 signed 1 value 174
+macro VK_VOLUME_UP	class 1 size 4 signed 1 value 175
+macro VK_MEDIA_NEXT_TRACK	class 1 size 4 signed 1 value 176
+macro VK_MEDIA_PREV_TRACK	class 1 size 4 signed 1 value 177
+macro VK_MEDIA_STOP	class 1 size 4 signed 1 value 178
+macro VK_MEDIA_PLAY_PAUSE	class 1 size 4 signed 1 value 179
+macro VK_LAUNCH_MAIL	class 1 size 4 signed 1 value 180
+macro VK_LAUNCH_MEDIA_SELECT	class 1 size 4 signed 1 value 181
+macro VK_LAUNCH_APP1	class 1 size 4 signed 1 value 182
+macro VK_LAUNCH_APP2	class 1 size 4 signed 1 value 183
+macro VK_OEM_1	class 1 size 4 signed 1 value 186
+macro VK_OEM_PLUS	class 1 size 4 signed 1 value 187
+macro VK_OEM_COMMA	class 1 size 4 signed 1 value 188
+macro VK_OEM_MINUS	class 1 size 4 signed 1 value 189
+macro VK_OEM_PERIOD	class 1 size 4 signed 1 value 190
+macro VK_OEM_2	class 1 size 4 signed 1 value 191
+macro VK_OEM_3	class 1 size 4 signed 1 value 192
+macro VK_GAMEPAD_A	class 1 size 4 signed 1 value 195
+macro VK_GAMEPAD_B	class 1 size 4 signed 1 value 196
+macro VK_GAMEPAD_X	class 1 size 4 signed 1 value 197
+macro VK_GAMEPAD_Y	class 1 size 4 signed 1 value 198
+macro VK_GAMEPAD_RIGHT_SHOULDER	class 1 size 4 signed 1 value 199
+macro VK_GAMEPAD_LEFT_SHOULDER	class 1 size 4 signed 1 value 200
+macro VK_GAMEPAD_LEFT_TRIGGER	class 1 size 4 signed 1 value 201
+macro VK_GAMEPAD_RIGHT_TRIGGER	class 1 size 4 signed 1 value 202
+macro VK_GAMEPAD_DPAD_UP	class 1 size 4 signed 1 value 203
+macro VK_GAMEPAD_DPAD_DOWN	class 1 size 4 signed 1 value 204
+macro VK_GAMEPAD_DPAD_LEFT	class 1 size 4 signed 1 value 205
+macro VK_GAMEPAD_DPAD_RIGHT	class 1 size 4 signed 1 value 206
+macro VK_GAMEPAD_MENU	class 1 size 4 signed 1 value 207
+macro VK_GAMEPAD_VIEW	class 1 size 4 signed 1 value 208
+macro VK_GAMEPAD_LEFT_THUMBSTICK_BUTTON	class 1 size 4 signed 1 value 209
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON	class 1 size 4 signed 1 value 210
+macro VK_GAMEPAD_LEFT_THUMBSTICK_UP	class 1 size 4 signed 1 value 211
+macro VK_GAMEPAD_LEFT_THUMBSTICK_DOWN	class 1 size 4 signed 1 value 212
+macro VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT	class 1 size 4 signed 1 value 213
+macro VK_GAMEPAD_LEFT_THUMBSTICK_LEFT	class 1 size 4 signed 1 value 214
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_UP	class 1 size 4 signed 1 value 215
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_DOWN	class 1 size 4 signed 1 value 216
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT	class 1 size 4 signed 1 value 217
+macro VK_GAMEPAD_RIGHT_THUMBSTICK_LEFT	class 1 size 4 signed 1 value 218
+macro VK_OEM_4	class 1 size 4 signed 1 value 219
+macro VK_OEM_5	class 1 size 4 signed 1 value 220
+macro VK_OEM_6	class 1 size 4 signed 1 value 221
+macro VK_OEM_7	class 1 size 4 signed 1 value 222
+macro VK_OEM_8	class 1 size 4 signed 1 value 223
+macro VK_OEM_AX	class 1 size 4 signed 1 value 225
+macro VK_OEM_102	class 1 size 4 signed 1 value 226
+macro VK_ICO_HELP	class 1 size 4 signed 1 value 227
+macro VK_ICO_00	class 1 size 4 signed 1 value 228
+macro VK_PROCESSKEY	class 1 size 4 signed 1 value 229
+macro VK_ICO_CLEAR	class 1 size 4 signed 1 value 230
+macro VK_PACKET	class 1 size 4 signed 1 value 231
+macro VK_OEM_RESET	class 1 size 4 signed 1 value 233
+macro VK_OEM_JUMP	class 1 size 4 signed 1 value 234
+macro VK_OEM_PA1	class 1 size 4 signed 1 value 235
+macro VK_OEM_PA2	class 1 size 4 signed 1 value 236
+macro VK_OEM_PA3	class 1 size 4 signed 1 value 237
+macro VK_OEM_WSCTRL	class 1 size 4 signed 1 value 238
+macro VK_OEM_CUSEL	class 1 size 4 signed 1 value 239
+macro VK_OEM_ATTN	class 1 size 4 signed 1 value 240
+macro VK_OEM_FINISH	class 1 size 4 signed 1 value 241
+macro VK_OEM_COPY	class 1 size 4 signed 1 value 242
+macro VK_OEM_AUTO	class 1 size 4 signed 1 value 243
+macro VK_OEM_ENLW	class 1 size 4 signed 1 value 244
+macro VK_OEM_BACKTAB	class 1 size 4 signed 1 value 245
+macro VK_ATTN	class 1 size 4 signed 1 value 246
+macro VK_CRSEL	class 1 size 4 signed 1 value 247
+macro VK_EXSEL	class 1 size 4 signed 1 value 248
+macro VK_EREOF	class 1 size 4 signed 1 value 249
+macro VK_PLAY	class 1 size 4 signed 1 value 250
+macro VK_ZOOM	class 1 size 4 signed 1 value 251
+macro VK_NONAME	class 1 size 4 signed 1 value 252
+macro VK_PA1	class 1 size 4 signed 1 value 253
+macro VK_OEM_CLEAR	class 1 size 4 signed 1 value 254
+macro WM_ACTIVATE	class 1 size 4 signed 1 value 6
+macro WM_APP	class 1 size 4 signed 1 value 32768
+macro WM_CHAR	class 1 size 4 signed 1 value 258
+macro WM_CLOSE	class 1 size 4 signed 1 value 16
+macro WM_CREATE	class 1 size 4 signed 1 value 1
+macro WM_DESTROY	class 1 size 4 signed 1 value 2
+macro WM_ENTERMENULOOP	class 1 size 4 signed 1 value 529
+macro WM_ENTERSIZEMOVE	class 1 size 4 signed 1 value 561
+macro WM_ERASEBKGND	class 1 size 4 signed 1 value 20
+macro WM_EXITMENULOOP	class 1 size 4 signed 1 value 530
+macro WM_EXITSIZEMOVE	class 1 size 4 signed 1 value 562
+macro WM_IME_COMPOSITION	class 1 size 4 signed 1 value 271
+macro WM_IME_ENDCOMPOSITION	class 1 size 4 signed 1 value 270
+macro WM_IME_NOTIFY	class 1 size 4 signed 1 value 642
+macro WM_IME_SETCONTEXT	class 1 size 4 signed 1 value 641
+macro WM_IME_STARTCOMPOSITION	class 1 size 4 signed 1 value 269
+macro WM_INPUTLANGCHANGE	class 1 size 4 signed 1 value 81
+macro WM_KEYDOWN	class 1 size 4 signed 1 value 256
+macro WM_KEYUP	class 1 size 4 signed 1 value 257
+macro WM_KILLFOCUS	class 1 size 4 signed 1 value 8
+macro WM_MOUSEMOVE	class 1 size 4 signed 1 value 512
+macro WM_MOVE	class 1 size 4 signed 1 value 3
+macro WM_NCACTIVATE	class 1 size 4 signed 1 value 134
+macro WM_PAINT	class 1 size 4 signed 1 value 15
+macro WM_QUIT	class 1 size 4 signed 1 value 18
+macro WM_SETCURSOR	class 1 size 4 signed 1 value 32
+macro WM_SETFOCUS	class 1 size 4 signed 1 value 7
+macro WM_SYSCOMMAND	class 1 size 4 signed 1 value 274
+macro WM_SYSKEYDOWN	class 1 size 4 signed 1 value 260
+macro WM_USER	class 1 size 4 signed 1 value 1024
+macro WM_ACTIVATEAPP	class 1 size 4 signed 1 value 28
+macro WM_NCCREATE	class 1 size 4 signed 1 value 129
+macro WM_NCDESTROY	class 1 size 4 signed 1 value 130
+macro WM_SIZE	class 1 size 4 signed 1 value 5
+macro WM_SYSKEYUP	class 1 size 4 signed 1 value 261
+macro HTCLIENT	class 1 size 4 signed 1 value 1
+macro WA_INACTIVE	class 1 size 4 signed 1 value 0
+macro WA_ACTIVE	class 1 size 4 signed 1 value 1
+macro SIZE_RESTORED	class 1 size 4 signed 1 value 0
+macro SIZE_MAXIMIZED	class 1 size 4 signed 1 value 2
+macro MK_LBUTTON	class 1 size 4 signed 1 value 1
+macro MK_RBUTTON	class 1 size 4 signed 1 value 2
+macro MK_SHIFT	class 1 size 4 signed 1 value 4
+macro MK_CONTROL	class 1 size 4 signed 1 value 8
+macro MK_MBUTTON	class 1 size 4 signed 1 value 16
+macro WHEEL_DELTA	class 1 size 4 signed 1 value 120
+macro D3DTA_SELECTMASK	class 1 size 4 signed 1 value 15
+macro D3DTA_DIFFUSE	class 1 size 4 signed 1 value 0
+macro D3DTA_CURRENT	class 1 size 4 signed 1 value 1
+macro D3DTA_TEXTURE	class 1 size 4 signed 1 value 2
+macro D3DTA_TFACTOR	class 1 size 4 signed 1 value 3
+macro D3DTA_SPECULAR	class 1 size 4 signed 1 value 4
+macro D3DTA_COMPLEMENT	class 1 size 4 signed 1 value 16
+macro D3DTA_ALPHAREPLICATE	class 1 size 4 signed 1 value 32
+macro D3DFVF_RESERVED0	class 1 size 4 signed 1 value 1
+macro D3DFVF_POSITION_MASK	class 1 size 4 signed 1 value 14
+macro D3DFVF_XYZ	class 1 size 4 signed 1 value 2
+macro D3DFVF_XYZRHW	class 1 size 4 signed 1 value 4
+macro D3DFVF_XYZB1	class 1 size 4 signed 1 value 6
+macro D3DFVF_XYZB2	class 1 size 4 signed 1 value 8
+macro D3DFVF_XYZB3	class 1 size 4 signed 1 value 10
+macro D3DFVF_XYZB4	class 1 size 4 signed 1 value 12
+macro D3DFVF_XYZB5	class 1 size 4 signed 1 value 14
+macro D3DFVF_NORMAL	class 1 size 4 signed 1 value 16
+macro D3DFVF_RESERVED1	class 1 size 4 signed 1 value 32
+macro D3DFVF_DIFFUSE	class 1 size 4 signed 1 value 64
+macro D3DFVF_SPECULAR	class 1 size 4 signed 1 value 128
+macro D3DFVF_TEXCOUNT_MASK	class 1 size 4 signed 1 value 3840
+macro D3DFVF_TEXCOUNT_SHIFT	class 1 size 4 signed 1 value 8
+macro D3DFVF_TEX0	class 1 size 4 signed 1 value 0
+macro D3DFVF_TEX1	class 1 size 4 signed 1 value 256
+macro D3DFVF_TEX2	class 1 size 4 signed 1 value 512
+macro D3DFVF_TEX3	class 1 size 4 signed 1 value 768
+macro D3DFVF_TEX4	class 1 size 4 signed 1 value 1024
+macro D3DFVF_TEX5	class 1 size 4 signed 1 value 1280
+macro D3DFVF_TEX6	class 1 size 4 signed 1 value 1536
+macro D3DFVF_TEX7	class 1 size 4 signed 1 value 1792
+macro D3DFVF_TEX8	class 1 size 4 signed 1 value 2048
+macro D3DFVF_RESERVED2	class 1 size 4 signed 1 value 61440
+macro D3DFVF_VERTEX	class 1 size 4 signed 1 value 274
+macro D3DFVF_LVERTEX	class 1 size 4 signed 1 value 482
+macro D3DFVF_TLVERTEX	class 1 size 4 signed 1 value 452
+macro D3DFVF_TEXTUREFORMAT2	class 1 size 4 signed 1 value 0
+macro D3DFVF_TEXTUREFORMAT1	class 1 size 4 signed 1 value 3
+macro D3DFVF_TEXTUREFORMAT3	class 1 size 4 signed 1 value 1
+macro D3DFVF_TEXTUREFORMAT4	class 1 size 4 signed 1 value 2
+macro D3DFVF_TEXCOORDSIZE1(0)	class 1 size 4 signed 1 value 196608
+macro D3DFVF_TEXCOORDSIZE1(1)	class 1 size 4 signed 1 value 786432
+macro D3DFVF_TEXCOORDSIZE1(3)	class 1 size 4 signed 1 value 12582912
+macro D3DFVF_TEXCOORDSIZE2(0)	class 1 size 4 signed 1 value 0
+macro D3DFVF_TEXCOORDSIZE2(1)	class 1 size 4 signed 1 value 0
+macro D3DFVF_TEXCOORDSIZE2(3)	class 1 size 4 signed 1 value 0
+macro D3DFVF_TEXCOORDSIZE3(0)	class 1 size 4 signed 1 value 65536
+macro D3DFVF_TEXCOORDSIZE3(1)	class 1 size 4 signed 1 value 262144
+macro D3DFVF_TEXCOORDSIZE3(3)	class 1 size 4 signed 1 value 4194304
+macro D3DFVF_TEXCOORDSIZE4(0)	class 1 size 4 signed 1 value 131072
+macro D3DFVF_TEXCOORDSIZE4(1)	class 1 size 4 signed 1 value 524288
+macro D3DFVF_TEXCOORDSIZE4(3)	class 1 size 4 signed 1 value 8388608

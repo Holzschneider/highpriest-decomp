@@ -2,35 +2,51 @@
 """Checks that the packet and file structures have, on arm64 macOS, the size
 and field offsets they had in the 32-bit Windows build (step M2.8).
 
-  layoutcheck.py [--tree DIR] [--ref-tree DIR] [--entry FILE ...] [-v]
-                 [--discover]
+  layoutcheck.py [--tree DIR] [--entry FILE ...] [-v] [--discover]
+  layoutcheck.py --live [--ref-tree DIR] [--write-reference] ...
+  layoutcheck.py --self-test
 
   --tree      the source tree compiled for arm64 (default: src)
-  --ref-tree  the source tree compiled for 32-bit Windows (default: --tree).
-              Give the untouched tree here to check a rewritten one against
-              the original text, not only against itself.
+  --live      compile the 32-bit Windows side now, with the Wine headers
+              (BF_WIN_HEADERS; port/README.md says how to get them back from
+              history), instead of reading it from the reference
+  --ref-tree  with --live: the source tree compiled for 32-bit Windows
+              (default: --tree). Give the untouched tree here to check a
+              rewritten one against the original text, not only against
+              itself.
+  --write-reference  with --live: also write the Windows side to the
+              reference, REFERENCE below
   --entry     check only these entries (paths as in ENTRIES below)
   -v          list every differing field, not only the first of each record
   --discover  list the types the readers fill from file buffers and say which
               of them no entry covers; checks nothing
 
-Each entry is compiled with -fsyntax-only twice: as 32-bit Windows code
+Each entry is compiled with -fsyntax-only as arm64 code with the flags of
+the port's build (port/tools/flags.sh: BF_TARGET, BF_DEFINES, BF_INCLUDES),
+and compared with the same entry compiled as 32-bit Windows code
 (-target i386-pc-windows-msvc, which gives long 4 bytes, double and long long
-8-byte alignment and the Visual C++ rules for #pragma pack and bit-fields)
-and as arm64 code with the flags of the port's build (port/tools/flags.sh:
-BF_TARGET, BF_DEFINES, BF_INCLUDES, the Windows headers in BF_WIN_HEADERS).
-A header entry is compiled as a generated unit that includes common.h and the
-header; a .cpp entry is compiled as it is. clang dumps the layout of every
-complete record (-Xclang -fdump-record-layouts-complete); the two dumps are
-parsed and compared record by record: size, alignment, the set of fields,
-and the offset (and bit range) of every field, nested ones included.
+8-byte alignment and the Visual C++ rules for #pragma pack and bit-fields).
+The Windows side is read from REFERENCE (port/tools/layout-win32.ref), which
+--live --write-reference wrote with the Wine headers before M11.11 removed
+them, from the original text: --ref-tree build/port/layout/reftree/src, made
+with `git archive 454ff09 src | tar -x -C build/port/layout/reftree`, the
+last tree whose src/ compiled for 32-bit Windows without the native modules'
+headers and the BSD socket headers that M11.1-M11.9 put in it. --live
+compiles the Windows side again. A header entry is compiled as a generated
+unit that includes common.h and the header; a .cpp entry is compiled as it
+is. clang dumps the layout of every complete record (-Xclang
+-fdump-record-layouts-complete); the two dumps are parsed and compared
+record by record: size, alignment, the set of fields, and the offset (and
+bit range) of every field, nested ones included.
 
 The Windows compile defines what BF_DEFINES defines except BF_PORT, so it
-sees the original code paths. It reads the C headers of the same Wine tree
-(BF_WIN_CRT_HEADERS, default: the msvcrt directory beside BF_WIN_HEADERS) and
-the SDK's libc++ with a configuration for that target; tool-made shims for
-what that combination lacks live in build/port/layout/shim. Compiler errors
-in system headers are expected there and only counted.
+sees the original code paths. It is given the Windows includes src/common.h
+had before M11.11 (WIN_PRELUDE, force-included, and an empty bf_types.h),
+reads the C headers of the same Wine tree (BF_WIN_CRT_HEADERS, default: the
+msvcrt directory beside BF_WIN_HEADERS) and the SDK's libc++ with a
+configuration for that target; tool-made shims for what that combination
+lacks live in build/port/layout/shim. Compiler errors in system headers are
+expected there and only counted.
 
 Which records count. A record belongs to an entry when the entry's file
 defines it (named records: a struct/class/union definition in the file's
@@ -68,10 +84,24 @@ Exit status: 0 no difference on the path, 1 differences, 2 the tool could
 not do its work (a compile stopped with a fatal error, a file is missing).
 The dumps are kept in build/port/layout/{win32,arm64}/.
 """
-import argparse, concurrent.futures, os, re, shutil, subprocess, sys
+import argparse, concurrent.futures, json, os, re, shutil, subprocess, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT = os.path.join(ROOT, 'build', 'port', 'layout')
+REFERENCE = os.path.join(ROOT, 'port', 'tools', 'layout-win32.ref')
+
+# What src/common.h included from the Windows headers before M11.11 put
+# bf_types.h there: the Windows side of a --live run starts with it.
+WIN_PRELUDE = """#define DIRECTINPUT_VERSION 0x700
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <mmsystem.h>
+#define D3D_OVERLOADS
+#include <d3d.h>
+#include <dsound.h>
+#include <dinput.h>
+#include <shlwapi.h>
+"""
 
 ALL = None   # every record the entry defines is on the path
 
@@ -128,7 +158,7 @@ READERS = r'(resource|base|3dlib|framework)/[^/]+\.cpp$|^(GameWorld|3dGround|3dA
 def port_flags():
     """The variables of flags.sh, split the way census.sh's unquoted
     expansion splits them."""
-    script = ('. "$ROOT/port/tools/flags.sh"; printf "%s\\n" "$WIN_HEADERS" '
+    script = ('. "$ROOT/port/tools/flags.sh"; printf "%s\\n" "${WIN_HEADERS:-}" '
               '"$BF_TARGET" "$BF_DEFINES" "$BF_INCLUDES"')
     env = dict(os.environ, ROOT=ROOT)
     out = subprocess.run(['bash', '-c', script], env=env, check=True,
@@ -141,6 +171,7 @@ def make_shims(sdk):
     i386 Visual C++ target. 'cxx' goes ahead of libc++, 'fill' after
     everything else, so a real header always wins."""
     cxx = os.path.join(OUT, 'shim', 'cxx'); fill = os.path.join(OUT, 'shim', 'fill')
+    os.makedirs(os.path.join(OUT, 'shim', 'win'), exist_ok=True)
     os.makedirs(cxx, exist_ok=True); os.makedirs(os.path.join(fill, 'wine'), exist_ok=True)
     site = open(os.path.join(sdk, 'usr/include/c++/v1/__config_site')).read()
     site = re.sub(r'#define _LIBCPP_HAS_VENDOR_AVAILABILITY_ANNOTATIONS 1',
@@ -152,6 +183,8 @@ def make_shims(sdk):
         os.path.join(cxx, '__config_site'): site,
         os.path.join(fill, 'wine', '32on64utils.h'): '#ifndef HOSTPTR\n#define HOSTPTR\n#endif\n',
         os.path.join(fill, 'wine', 'asm.h'): '/* layoutcheck: nothing the record layouts need */\n',
+        os.path.join(OUT, 'shim', 'win', 'bf_types.h'): '/* layoutcheck: the Windows headers declare it all (win_prelude.h) */\n',
+        os.path.join(fill, 'win_prelude.h'): WIN_PRELUDE,
     }
     for path, text in files.items():
         if not os.path.exists(path) or open(path).read() != text:
@@ -159,10 +192,26 @@ def make_shims(sdk):
     return cxx, fill
 
 
-def compilers(tree, ref_tree):
-    win_headers, target, defines, includes = port_flags()
+def compilers(tree, ref_tree, mode):
+    """The flags of each side. mode: 'reference' (arm64 only), 'live' (the
+    Windows side with the Wine headers), 'bare' (the Windows side with no
+    headers at all, for the self-test)."""
+    build_win_headers, target, defines, includes = port_flags()
+    dump = ['-fsyntax-only', '-ferror-limit=0', '-Xclang', '-fdump-record-layouts-complete']
+    arm = target + dump + defines + includes + ['-I' + tree]
+    if build_win_headers:
+        arm += ['-isystem', build_win_headers]
+    win_target = (['-target', 'i386-pc-windows-msvc', '-fms-extensions', '-fms-compatibility',
+                   '-fshort-wchar', '-Wno-everything'] + dump
+                  + [d for d in defines if d != '-DBF_PORT'])
+    if mode == 'reference':
+        return {'arm64': arm}
+    if mode == 'bare':
+        return {'win32': win_target + ['-nostdinc', '-nostdinc++', '-I' + ref_tree], 'arm64': arm}
+    win_headers = os.environ.get('BF_WIN_HEADERS') or build_win_headers \
+        or os.path.join(ROOT, 'port', 'compat', 'winheaders')
     if not os.path.isfile(os.path.join(win_headers, 'windows.h')):
-        sys.exit(f'layoutcheck: no windows.h in {win_headers}; set BF_WIN_HEADERS')
+        sys.exit(f'layoutcheck: no windows.h in {win_headers}; set BF_WIN_HEADERS (port/README.md)')
     crt = os.environ.get('BF_WIN_CRT_HEADERS')
     if not crt:
         for cand in (os.path.join(os.path.dirname(win_headers), 'msvcrt'),
@@ -174,16 +223,17 @@ def compilers(tree, ref_tree):
     sdk = subprocess.run(['xcrun', '--show-sdk-path'], check=True, capture_output=True,
                          text=True).stdout.strip()
     cxx, fill = make_shims(sdk)
-    dump = ['-fsyntax-only', '-ferror-limit=0', '-Xclang', '-fdump-record-layouts-complete']
-    arm = target + dump + defines + includes + ['-I' + tree, '-isystem', win_headers]
-    win = (['-target', 'i386-pc-windows-msvc', '-fms-extensions', '-fms-compatibility',
-            '-fshort-wchar', '-Wno-everything'] + dump
-           + [d for d in defines if d != '-DBF_PORT']
+    win = (win_target
            # A name of the DirectX 7 SDK that the Wine headers lack (bf_prefix.h
-           # supplies it to the arm64 build).
+           # supplied it to the arm64 build).
            + ['-D_D3DPRIMITIVETYPE=D3DPRIMITIVETYPE']
            + ['-nostdinc++', '-isystem', cxx, '-isystem', os.path.join(sdk, 'usr/include/c++/v1'),
-              '-isystem', crt, '-isystem', win_headers, '-isystem', fill, '-I' + ref_tree])
+              '-isystem', crt, '-isystem', win_headers, '-isystem', fill, '-I' + ref_tree,
+              # The native modules' headers, which src/ includes outright since M11
+              # (bf_sys.h, bf_render.h, ...); bf_types.h is the empty shim.
+              '-I' + os.path.join(OUT, 'shim', 'win')]
+           + [i for i in includes if i.startswith('-I') and not i.endswith('port/compat/include')]
+           + ['-include', os.path.join(fill, 'win_prelude.h')])
     return {'win32': win, 'arm64': arm}
 
 
@@ -462,7 +512,11 @@ def main():
     ap.add_argument('-v', '--verbose', action='store_true')
     ap.add_argument('--discover', action='store_true')
     ap.add_argument('--self-test', action='store_true')
+    ap.add_argument('--live', action='store_true')
+    ap.add_argument('--write-reference', action='store_true')
     args = ap.parse_args()
+    if (args.ref_tree or args.write_reference) and not args.live:
+        ap.error('--ref-tree and --write-reference need --live')
     tree = os.path.abspath(args.tree)
     ref_tree = os.path.abspath(args.ref_tree or args.tree)
     if args.discover:
@@ -472,11 +526,24 @@ def main():
     entries = [e for e in ENTRIES if not args.entry or e[0] in args.entry]
     if not entries:
         sys.exit('layoutcheck: no such entry')
-    return check(tree, ref_tree, entries, args.verbose)[0]
+    if args.write_reference and args.entry:
+        ap.error('--write-reference writes every entry; leave out --entry')
+    mode = 'live' if args.live else 'reference'
+    return check(tree, ref_tree, entries, args.verbose, mode, args.write_reference)[0]
 
 
-SELFTEST = r'''
+# The self-test needs no Windows header on either side: common.h gives the
+# Windows side its own DWORD and 32-bit time_t (it is compiled -nostdinc).
+SELFTEST_COMMON = r'''
+#ifdef _WIN32
+typedef unsigned long DWORD;
+typedef long time_t;
+#else
+#include "bf_types.h"
 #include <time.h>
+#endif
+'''
+SELFTEST = r'''
 #pragma pack(push, 1)
 struct ST_SAME    { short type; DWORD id; char name[24]; unsigned char b : 3, c : 5; };
 struct ST_LONG    { short type; unsigned long id; short x; };       /* 8 -> 12 */
@@ -495,9 +562,9 @@ def self_test():
     """Runs the check on a synthetic header whose answers are known."""
     tree = os.path.join(OUT, 'selftest')
     os.makedirs(tree, exist_ok=True)
-    open(os.path.join(tree, 'common.h'), 'w').write('#include <windows.h>\n')
+    open(os.path.join(tree, 'common.h'), 'w').write(SELFTEST_COMMON)
     open(os.path.join(tree, 'selftest.h'), 'w').write(SELFTEST)
-    code, failing, pointer = check(tree, tree, [('selftest.h', 'packet', ALL)], True)
+    code, failing, pointer = check(tree, tree, [('selftest.h', 'packet', ALL)], True, 'bare', False)
     want_fail = {'ST_LONG', 'ST_TIME', 'ST_NESTED', 'ST_ANON', 'ST_BITS'}
     ok = code == 1 and set(failing) == want_fail and set(pointer) == {'ST_POINTER'}
     print('\nself-test: failing %s, pointer records %s: %s'
@@ -505,13 +572,50 @@ def self_test():
     return 0 if ok else 2
 
 
-def check(tree, ref_tree, entries, verbose):
+def read_reference():
+    """{entry: (records, compiler errors)} of the Windows side."""
+    if not os.path.isfile(REFERENCE):
+        sys.exit('layoutcheck: no %s; write it with --live --write-reference' % REFERENCE)
+    ref = {}
+    for line in open(REFERENCE):
+        if line.startswith('#') or not line.strip():
+            continue
+        r = json.loads(line)
+        recs, _ = ref.setdefault(r['entry'], ({}, r.get('errors', '')))
+        if 'name' in r:
+            recs[r['name']] = {'size': r['size'], 'align': r['align'], 'ptr': r['ptr'],
+                               'fields': {f[0]: (f[1], tuple(f[2]) if f[2] else None, f[3])
+                                          for f in r['fields']}}
+    return ref
+
+
+def write_reference(sides, ref_tree):
+    """sides: [(entry, records, compiler errors)], one JSON object per line."""
+    with open(REFERENCE, 'w') as f:
+        f.write('# The 32-bit Windows side of layoutcheck.py: every record of each entry as\n'
+                '# the Visual C++ rules lay it out (clang, i386-pc-windows-msvc, the Wine\n'
+                '# headers), written by layoutcheck.py --live --write-reference before\n'
+                '# M11.11 removed the Wine headers. One line per entry and per record.\n'
+                '# Windows side compiled from: %s\n' % (os.path.relpath(ref_tree, ROOT)
+                                                       if ref_tree.startswith(ROOT) else ref_tree))
+        for entry, recs, errors in sides:
+            f.write(json.dumps({'entry': entry, 'errors': errors}) + '\n')
+            for name in sorted(recs):
+                r = recs[name]
+                f.write(json.dumps({'entry': entry, 'name': name, 'size': r['size'], 'align': r['align'],
+                                    'ptr': r['ptr'], 'fields': [[p, v[0], list(v[1]) if v[1] else None, v[2]]
+                                                                for p, v in r['fields'].items()]}) + '\n')
+    print('layoutcheck: wrote %s' % os.path.relpath(REFERENCE, ROOT))
+
+
+def check(tree, ref_tree, entries, verbose, mode, write):
     """Returns (exit status, names failing, names of pointer records taken off the path)."""
-    flags = compilers(tree, ref_tree)
+    flags = compilers(tree, ref_tree, mode)
+    reference = read_reference() if mode == 'reference' else None
     for side in flags:
         shutil.rmtree(os.path.join(OUT, side), ignore_errors=True)
     jobs = [(side, flags[side], ref_tree if side == 'win32' else tree, e[0])
-            for e in entries for side in ('win32', 'arm64')]
+            for e in entries for side in flags]
     results = {}
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() or 4) as pool:
         for side, entry, dump, errors in pool.map(compile_entry, jobs):
@@ -521,9 +625,18 @@ def check(tree, ref_tree, entries, verbose):
     failing, pointer_packet, other_ptr, other_plain = [], [], [], []
     print('%-22s %6s %6s %6s %6s   %s' % ('entry', 'path', 'differ', 'other', 'differ', 'compiler errors win32/arm64 (in the tree)'))
     totals = [0, 0, 0, 0]
+    written = []
     for entry, group, names in entries:
         recs, errs = {}, {}
+        if reference is not None:
+            if entry not in reference:
+                print('%s: not in %s; write it with --live --write-reference'
+                      % (entry, os.path.relpath(REFERENCE, ROOT)), file=sys.stderr)
+                fatal = True
+            recs['win32'], errs['win32'] = reference.get(entry, ({}, '-'))
         for side, tr in (('win32', ref_tree), ('arm64', tree)):
+            if side not in flags:
+                continue
             dump, errors = results[side, entry]
             fatal_lines = [l for l in errors if 'fatal error' in l or l.startswith('missing source')]
             if dump is None or fatal_lines:
@@ -539,6 +652,7 @@ def check(tree, ref_tree, entries, verbose):
             errs[side] = '%d (%d)' % (len(errors), in_tree)
             recs[side] = attribute(parse_dump(dump or ''), tr, entry, names or [])
         win, arm = recs['win32'], recs['arm64']
+        written.append((entry, win, errs['win32']))
         on_path = lambda n: names is ALL or n in names
         counts = [0, 0, 0, 0]
         for name in sorted(set(win) | set(arm)):
@@ -612,6 +726,8 @@ def check(tree, ref_tree, entries, verbose):
     if fatal:
         print('layoutcheck: incomplete, see the messages above', file=sys.stderr)
         return (2,) + names
+    if write:
+        write_reference(written, ref_tree)
     print('layoutcheck: %s' % ('FAIL' if failing else 'PASS'))
     return (1 if failing else 0,) + names
 
