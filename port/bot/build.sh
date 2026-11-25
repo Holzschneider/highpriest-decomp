@@ -4,14 +4,13 @@
 #   build/port/bin/bifrost-bot
 #
 # Like the probes (port/probe/build.sh) it compiles the game's own
-# packet.cpp, device/PacketQueue.cpp and device/Connection.cpp, taken from
-# the rewritten copy that port/tools/shadow.sh makes until the rewrites are
-# applied to src/ (BF_SRC=src switches to the real tree). Objects go to
+# packet.cpp, device/PacketQueue.cpp and device/Connection.cpp from src/
+# (BF_SRC names another tree, such as port/tools/shadow.sh's copy). Objects go to
 # build/port/obj/bot so that the two builds can run side by side.
 set -eu
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-SRC=${BF_SRC:-$ROOT/build/port/shadow/src}
-[ -d "$SRC" ] || "$ROOT/port/tools/shadow.sh" > /dev/null
+SRC=${BF_SRC:-$ROOT/src}
+if [ ! -d "$SRC" ]; then echo "no source tree at $SRC" >&2; exit 1; fi
 . "$ROOT/port/tools/flags.sh"
 OUT=$ROOT/build/port; OBJ=$OUT/obj/bot; mkdir -p "$OUT/bin" "$OBJ"
 
