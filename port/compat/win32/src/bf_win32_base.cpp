@@ -1,10 +1,9 @@
 // kernel32 basics on port/native/sys and port/native/text: handles and the
 // last error, code pages and strings, memory, module and process functions,
-// system information, and the functions the client calls but the port does
-// not have (DLLs, processes, CryptoAPI), which fail as the client tolerates.
+// system information, and the process functions the client calls but the
+// port does not have, which fail as the client tolerates.
 #include "bf_win32_internal.h"
 
-#include <crt_externs.h>
 #include <errno.h>
 #include <limits.h>
 #include <mach-o/dyld.h>
@@ -266,38 +265,6 @@ VOID WINAPI OutputDebugStringA(LPCSTR text)
 	BF_TRACE(BFT_W32, "OutputDebugString: %.*s", (int)n, text);
 }
 
-// Only FROM_SYSTEM (a message for an error code) is supported, with or
-// without ALLOCATE_BUFFER; the inserts of a FROM_STRING message are not.
-DWORD WINAPI FormatMessageA(DWORD flags, LPCVOID source, DWORD id, DWORD lang, LPSTR buffer, DWORD size,
-                            __ms_va_list *args)
-{
-	(void)source;
-	(void)lang;
-	(void)args;
-	if (!(flags & FORMAT_MESSAGE_FROM_SYSTEM)) {
-		BF_STUB();
-		t_lastError = ERROR_NOT_SUPPORTED;
-		return 0;
-	}
-	char text[128];
-	snprintf(text, sizeof(text), "Error %u.\r\n", (unsigned)id);
-	size_t n = strlen(text);
-	if (flags & FORMAT_MESSAGE_ALLOCATE_BUFFER) {
-		HLOCAL memory = LocalAlloc(LMEM_FIXED, n + 1 > size ? n + 1 : size);
-		if (!memory)
-			return 0;
-		memcpy(memory, text, n + 1);
-		*(LPSTR *)buffer = (LPSTR)memory;
-		return (DWORD)n;
-	}
-	if (!buffer || size <= n) {
-		t_lastError = ERROR_INSUFFICIENT_BUFFER;
-		return 0;
-	}
-	memcpy(buffer, text, n + 1);
-	return (DWORD)n;
-}
-
 // ---- Memory -----------------------------------------------------------------------
 //
 // GlobalAlloc and LocalAlloc: the handle is the memory itself (as for
@@ -455,30 +422,6 @@ HMODULE WINAPI GetModuleHandleA(LPCSTR name)
 	return NULL;
 }
 
-// There are no DLLs: every LoadLibrary fails as for a missing file, which the
-// client's remaining callers (GameGuard and keyboard-protection loaders in
-// base/FindHack.cpp) treat as "not installed".
-HMODULE WINAPI LoadLibraryA(LPCSTR name)
-{
-	BF_TRACE(BFT_W32, "LoadLibrary(%s): no DLLs in the port", name ? name : "(null)");
-	t_lastError = ERROR_MOD_NOT_FOUND;
-	return NULL;
-}
-
-FARPROC WINAPI GetProcAddress(HMODULE module, LPCSTR name)
-{
-	(void)module;
-	(void)name;
-	t_lastError = ERROR_PROC_NOT_FOUND;
-	return NULL;
-}
-
-BOOL WINAPI FreeLibrary(HMODULE module)
-{
-	(void)module;
-	return TRUE;
-}
-
 // The game folder: the client's working folder, whose path it keeps in
 // g_baseDir3 and puts in front of ScreenShot\..., Chat\..., _tmpskin_\...
 // (bf_file sends those to the write locations).
@@ -507,51 +450,9 @@ extern "C" char *_getcwd(char *buffer, int size)
 	return buffer;
 }
 
-LPSTR WINAPI GetCommandLineA(void)
-{
-	static std::string line = [] {
-		std::string out;
-		int argc = *_NSGetArgc();
-		char **argv = *_NSGetArgv();
-		for (int i = 0; i < argc; ++i) {
-			if (i)
-				out += ' ';
-			bool quote = !argv[i][0] || strpbrk(argv[i], " \t");
-			if (quote)
-				out += '"';
-			out += argv[i];
-			if (quote)
-				out += '"';
-		}
-		return out;
-	}();
-	return (LPSTR)line.c_str();
-}
-
-VOID WINAPI ExitProcess(DWORD code)
-{
-	exit((int)code);
-}
-
 HANDLE WINAPI GetCurrentProcess(void)
 {
 	return (HANDLE)~(ULONG_PTR)0;
-}
-
-DWORD WINAPI GetCurrentProcessId(void)
-{
-	return (DWORD)getpid();
-}
-
-// Other processes are not inspected (base/FindHack.cpp's module scan).
-HANDLE WINAPI OpenProcess(DWORD access, BOOL inherit, DWORD id)
-{
-	(void)access;
-	(void)inherit;
-	(void)id;
-	BF_STUB();
-	t_lastError = ERROR_ACCESS_DENIED;
-	return NULL;
 }
 
 BOOL WINAPI SetPriorityClass(HANDLE process, DWORD priority)
@@ -591,128 +492,4 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(LPTOP_LEVEL_EXCE
 	LPTOP_LEVEL_EXCEPTION_FILTER old = previous;
 	previous = filter;
 	return old;
-}
-
-// ---- System information ------------------------------------------------------------
-
-// Windows XP SP2, what the 2008 client was written for.
-BOOL WINAPI GetVersionExA(OSVERSIONINFOA *info)
-{
-	if (!info || (info->dwOSVersionInfoSize != sizeof(OSVERSIONINFOA)
-	              && info->dwOSVersionInfoSize != sizeof(OSVERSIONINFOEXA))) {
-		t_lastError = ERROR_INSUFFICIENT_BUFFER;
-		return FALSE;
-	}
-	DWORD size = info->dwOSVersionInfoSize;
-	memset(info, 0, size);
-	info->dwOSVersionInfoSize = size;
-	info->dwMajorVersion = 5;
-	info->dwMinorVersion = 1;
-	info->dwBuildNumber = 2600;
-	info->dwPlatformId = VER_PLATFORM_WIN32_NT;
-	strcpy(info->szCSDVersion, "Service Pack 2");
-	if (size == sizeof(OSVERSIONINFOEXA)) {
-		OSVERSIONINFOEXA *ex = (OSVERSIONINFOEXA *)info;
-		ex->wServicePackMajor = 2;
-		ex->wProductType = VER_NT_WORKSTATION;
-	}
-	return TRUE;
-}
-
-// A Windows path; files under it are not found (only base/FindHack.cpp asks).
-UINT WINAPI GetSystemDirectoryA(LPSTR buffer, UINT size)
-{
-	return CopyPath("C:\\WINDOWS\\system32", buffer, size);
-}
-
-// English: the language folder of the client's scripts (CLanguage picks
-// italian\, german\, ... by it; english\ is what the port's tables use).
-LANGID WINAPI GetUserDefaultLangID(void)
-{
-	return MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
-}
-
-// ---- CryptoAPI ---------------------------------------------------------------------
-// Only base/FindHack.cpp's protection code calls these; there is no provider.
-
-BOOL WINAPI CryptAcquireContextA(HCRYPTPROV *provider, LPCSTR container, LPCSTR name, DWORD type, DWORD flags)
-{
-	(void)container;
-	(void)name;
-	(void)type;
-	(void)flags;
-	BF_STUB();
-	if (provider)
-		*provider = 0;
-	t_lastError = (DWORD)NTE_PROV_TYPE_NOT_DEF;
-	return FALSE;
-}
-
-BOOL WINAPI CryptReleaseContext(HCRYPTPROV provider, DWORD flags)
-{
-	(void)provider;
-	(void)flags;
-	return TRUE;
-}
-
-BOOL WINAPI CryptCreateHash(HCRYPTPROV provider, ALG_ID algorithm, HCRYPTKEY key, DWORD flags, HCRYPTHASH *hash)
-{
-	(void)provider;
-	(void)algorithm;
-	(void)key;
-	(void)flags;
-	BF_STUB();
-	if (hash)
-		*hash = 0;
-	t_lastError = ERROR_INVALID_HANDLE;
-	return FALSE;
-}
-
-BOOL WINAPI CryptHashData(HCRYPTHASH hash, const BYTE *data, DWORD size, DWORD flags)
-{
-	(void)hash;
-	(void)data;
-	(void)size;
-	(void)flags;
-	BF_STUB();
-	t_lastError = ERROR_INVALID_HANDLE;
-	return FALSE;
-}
-
-BOOL WINAPI CryptDeriveKey(HCRYPTPROV provider, ALG_ID algorithm, HCRYPTHASH hash, DWORD flags, HCRYPTKEY *key)
-{
-	(void)provider;
-	(void)algorithm;
-	(void)hash;
-	(void)flags;
-	BF_STUB();
-	if (key)
-		*key = 0;
-	t_lastError = ERROR_INVALID_HANDLE;
-	return FALSE;
-}
-
-BOOL WINAPI CryptDecrypt(HCRYPTKEY key, HCRYPTHASH hash, BOOL final, DWORD flags, BYTE *data, DWORD *size)
-{
-	(void)key;
-	(void)hash;
-	(void)final;
-	(void)flags;
-	(void)data;
-	(void)size;
-	BF_STUB();
-	t_lastError = ERROR_INVALID_HANDLE;
-	return FALSE;
-}
-
-BOOL WINAPI CryptDestroyKey(HCRYPTKEY key)
-{
-	(void)key;
-	return TRUE;
-}
-
-BOOL WINAPI CryptDestroyHash(HCRYPTHASH hash)
-{
-	(void)hash;
-	return TRUE;
 }
