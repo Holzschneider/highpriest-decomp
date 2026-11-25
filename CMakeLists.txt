@@ -7,8 +7,7 @@
 #
 # Two files outside this one decide what is built how, and are read at
 # configure time (editing either re-runs the configure step):
-#   sources.mk            the game's units: the GAME list, minus the exclusions
-#                         below
+#   sources.mk            the game's units: the GAME list
 #   port/tools/flags.sh   the client's compile flags, shared with census.sh,
 #                         probe/build.sh and layoutcheck.py
 cmake_minimum_required(VERSION 3.24)
@@ -201,7 +200,7 @@ function(bf_port_flags target)
 endfunction()
 
 # ---------------------------------------------------------------- the client
-# The units of sources.mk's GAME list, in link order, minus the exclusions.
+# The units of sources.mk's GAME list, in link order.
 file(STRINGS ${BF_ROOT}/sources.mk bf_mk)
 set(BF_GAME_UNITS)
 set(bf_in_game OFF)
@@ -231,46 +230,17 @@ if(bf_count EQUAL 0)
 	message(FATAL_ERROR "sources.mk: no GAME list")
 endif()
 
-# Units taken out of the build (implementation plan M2.5, technical plan 3.3),
-# each with its reason. Nothing else in the GAME list names what they define,
-# except where noted. GameGuard's 9 files (NPGameLib, SafeAPI, FileAuthClient,
-# CommPipe, rc4, Common, MemIni, PacketProtect, Crc32) are not here because
-# they are not game units: sources.mk builds them into npgamelibpro.lib, which
-# the port never compiles. Its four entry points (SetHwnd, SendID,
-# ExitFindHack, Auth2 in base/FindHack.cpp) are empty under BF_PORT.
 # Replaced behind their interfaces under BF_PORT, and so still built: the
 # Granny resource classes in resource/Model.cpp are built as they were, on
-# port/native/formats/granny (M12.3a, M11.10). movie/CBink
-# plays through the port's movie player (port/client/include/bf_movie.h, on
-# port/native/formats/bink and audio; M12.4a, M11.10).
-set(BF_CLIENT_EXCLUDE
-	# Keyboard encryption (npkcrypt) and the self-patching code that installs
-	# it: protection, removed (3.3, "Protection").
-	device/EncClient
-	# The hook probe: protection, removed (3.3, "Protection").
-	cKeyProtector
-	# GameGuard's packet protection wrapper: protection, removed (3.3).
-	cSecureGamePack
-	# The Vietnamese input classes: the Vietnamese service's key processor and
-	# its Telex and VNI input modes, not needed by this client (M2.5).
-	LanguageKeyProcess telexInputMode VietnamLanguage VniInputMode
-	# The crash dialog and minidump writer: replaced by the signal handler in
-	# port/client/src/bf_crash.cpp, which writes a backtrace through the
-	# trace and defines ExceptionFilter, the one name WinMain uses (3.3,
-	# "Protection").
-	ExceptionHandler
-)
-foreach(unit IN LISTS BF_CLIENT_EXCLUDE)
-	if(NOT unit IN_LIST BF_GAME_UNITS)
-		message(WARNING "exclusion ${unit} is no longer in sources.mk; drop it here")
-	endif()
-endforeach()
-
+# port/native/formats/granny (M12.3a, M11.10). movie/CBink plays through the
+# port's movie player (port/client/include/bf_movie.h, on
+# port/native/formats/bink and audio; M12.4a, M11.10). The units the port
+# never built (protection, the Vietnamese input, the crash dialog: the
+# exclusions of M2.5) left sources.mk and src/ in M11.11; sources.mk names
+# them and why.
 set(BF_CLIENT_SOURCES)
 foreach(unit IN LISTS BF_GAME_UNITS)
-	if(unit IN_LIST BF_CLIENT_EXCLUDE)
-		continue()
-	elseif(EXISTS ${BF_ROOT}/src/${unit}.cpp)
+	if(EXISTS ${BF_ROOT}/src/${unit}.cpp)
 		list(APPEND BF_CLIENT_SOURCES src/${unit}.cpp)
 	elseif(EXISTS ${BF_ROOT}/src/${unit}.c)
 		list(APPEND BF_CLIENT_SOURCES src/${unit}.c)
@@ -286,8 +256,8 @@ string(REPLACE ";" "\n" bf_units "${BF_CLIENT_SOURCES}")
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 
 # The executable is the application name in lower case. The .app bundle is M12.
-# Port code compiled into the client with the client's flags: what replaces
-# an excluded unit (port/client/src/README.md).
+# Port code compiled into the client with the client's flags, among them what
+# replaces a unit the port does not build (port/client/src/README.md).
 set(BF_CLIENT_PORT_SOURCES
 	port/client/src/bf_crash.cpp
 	port/client/src/bf_client_state.cpp

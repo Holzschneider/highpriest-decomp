@@ -54,7 +54,7 @@ included; `-MM` would hide the Wine tree, which the build passes with
           OWN_HEADERS below whose names a Wine header happens to share
           (src/device/Control.h, not DirectShow's control.h).
   sdk     one of the headers of the Windows libraries the 2008 client
-          linked, copied into src/ (SDK_HEADERS below: Miles' Mss.h,
+          linked, copied into src/ until M11.11 (SDK_HEADERS below: Miles' Mss.h,
           Granny's granny.h, Bink's BINK.H, RAD.H and radbase.h, Intel's
           ijl.h, nProtect's NPGameLib.h, Microsoft's DbgHelp.h). They declare
           the Windows-shaped calls M11.6 and M11.10 replace and include
@@ -92,9 +92,9 @@ STANDIN_NAMES = {'conio.h', 'direct.h', 'io.h', 'mbstring.h', 'minmax.h', 'proce
 # The client's own headers whose names collide with a Wine header (found by
 # comparing the file names of src/ and port/ with the Wine tree's).
 OWN_HEADERS = {'src/device/Control.h'}
-SDK_HEADERS = {'src/device/Mss.h', 'src/granny/granny.h', 'src/movie/BINK.H',
-               'src/movie/RAD.H', 'src/movie/radbase.h', 'src/ijl.h',
-               'src/NPGameLib.h', 'src/DbgHelp.h'}
+# None left: M11.6 and M11.10 deleted Mss.h, granny.h, BINK.H, RAD.H and
+# radbase.h; M11.11 ijl.h, NPGameLib.h and DbgHelp.h (and src/WinCrypt.h).
+SDK_HEADERS = set()
 _case = {}
 
 

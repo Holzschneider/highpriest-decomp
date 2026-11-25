@@ -11,34 +11,7 @@ The source covers the game and the libraries the original linked statically: the
 
 ## Building
 
-```bash
-make          # builds build/HighPriest.exe
-make check    # builds it and compares its SHA-256 with the original's
-make clean
-```
-
-A full build takes a few seconds on a many-core machine. It needs:
-
-- Linux on x86-64 with glibc 2.38 and the libstdc++ of GCC 13, or newer (Ubuntu 24.04, Debian 13): the bundled `wibo` is linked against them. GNU Make, Bash and Python 3.
-- Wine on the `PATH` (tested with 9.0), for `LINK.EXE` and `RC.EXE`. It uses the default prefix, `~/.wine`, and ignores `WINEPREFIX`; a first run creates the prefix (about 1.3 GB).
-- A checkout whose absolute path has at most 154 characters and no spaces. The compilers order some symbols and sections by the length of the directory they run in, so every compile runs in a directory padded to a fixed length.
-
-The compilers, the assembler and the librarian are in `tools/` and run under the bundled `tools/bin/wibo`. Nothing is downloaded.
-
-## How the build works
-
-`Makefile` holds the rules and `sources.mk` the lists: which compiler and flags each source gets, the members of each library and the order of the link command line.
-
-1. Each source compiles in a directory of its own under `build/stage/`, with the clock fixed and a minimal environment. The original project compiled through an automatic precompiled header of `common.h`; four units build the way their objects show (three make the header, one reads it).
-2. The statically linked libraries are archived from `src/` with their members in the stock libraries' order. The import libraries of `binkw32`, `mss32`, `granny2`, `ijl15` and `cps` are built from `src/imports/`.
-3. `LINK.EXE` 6.00 links the objects in the original's order.
-4. `tools/stamp.py` writes three values no build can repeat: the link time, and the signature, age and path of the program database that the image's debug record names. The `Makefile` gives them.
-
-Three things in the image do not come from `src/`:
-
-- `wlocale.obj` of `libcpmt.lib` is the stock library's member. No compile of its source gives the stock member's section order.
-- The import records of the system DLLs and of DirectX come from the stock import libraries.
-- The three stamped values above.
+The Windows build (the `Makefile`, the compiler and library lists of `sources.mk`, the compilers and SDK files of `tools/`, the runtime sources of `vendor/`, and the parts of `src/` only it compiles: `src/library/`, `src/imports/`, `src/res/`, GameGuard and the other units the port leaves out) is on `main`, where `make check` builds `HighPriest.exe` and compares it with the original byte for byte. This branch, `macos-port`, removed them in M11.11: it builds the macOS client only, with CMake and Ninja, `cmake --preset debug && cmake --build --preset debug`. [port/README.md](port/README.md) ("Build and fast check") describes the presets, the targets and the checks.
 
 ## Steering markers
 

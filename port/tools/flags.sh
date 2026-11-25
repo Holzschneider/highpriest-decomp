@@ -3,7 +3,7 @@
 # CMake project at configure time, which takes every word from here. Sets:
 #   BF_APP_NAME  the application name, from port/name.cmake
 #   BF_DEFINES   the preprocessor symbols of the original project (BASE in
-#                sources.mk) plus BF_PORT, which marks the macOS build
+#                main's sources.mk) plus BF_PORT, which marks the macOS build
 #   BF_INCLUDES  the prefix header and the port's include paths (the game's
 #                tree follows them); no Windows headers since M11.11
 #   BF_TARGET    the target (arm64, macOS 14) and the language options

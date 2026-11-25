@@ -29,10 +29,9 @@ Third-party interface headers are left alone unless --all-files is given.
 """
 import argparse, os, re, sys
 
-THIRD_PARTY = {
-    'device/Mss.h', 'movie/BINK.H', 'movie/RAD.H', 'movie/radbase.h', 'granny/granny.h',
-    'ijl.h', 'DbgHelp.h', 'WinCrypt.h',
-}
+# None left in src/ since M11.11 (Mss.h, BINK.H, RAD.H, radbase.h, granny.h,
+# ijl.h, DbgHelp.h and WinCrypt.h were deleted in M11.6, M11.10 and M11.11).
+THIRD_PARTY = set()
 
 def is_lua(rel):
     name = os.path.basename(rel)

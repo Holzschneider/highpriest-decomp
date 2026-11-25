@@ -20,8 +20,8 @@ client's arithmetic stays. bf_prefix.h includes bf_clock.h in every unit.
 
 "Read by the build": every header, and every .c/.cpp that the build's
 compile_commands.json compiles. Units the port never builds (GameGuard's
-NPGameLib.cpp, which takes the functions' addresses) are left for M11.11,
-which deletes them. Running the tool again on a rewritten tree changes nothing.
+NPGameLib.cpp, which takes the functions' addresses) were left for M11.11,
+which deleted them. Running the tool again on a rewritten tree changes nothing.
 """
 import argparse, json, os, re, sys
 

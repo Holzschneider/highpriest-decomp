@@ -42,7 +42,7 @@ port/tools/shadow.sh     # applies the automatic rewrites to a copy of src/ and 
 | after the 64-bit plumbing, the stubs and the assembly sites (M2.3, M2.5, M2.6; 139 units, the build's exclusions skipped) | 89 | 352 |
 | after the last sweep (M2.4) | 139 | 0 |
 
-The census skips the units the build excludes (`BF_CLIENT_EXCLUDE` in the root `CMakeLists.txt`; `BF_CENSUS_ALL=1` counts them). Since M2.4 every unit compiles.
+The census checks the units of `sources.mk` (since M11.11 exactly the client's: the units the build had excluded left `src/` then). Since M2.4 every unit compiles.
 
 ## Probes
 

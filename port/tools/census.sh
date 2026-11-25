@@ -16,9 +16,6 @@
 #               is not a literal) is left out; it is counted on its own line.
 #               The faults are listed by location at the end; the pass mark
 #               is "errors: 0".
-#
-# The units the build excludes (BF_CLIENT_EXCLUDE in the root CMakeLists.txt)
-# are skipped and counted on the "excluded" line; BF_CENSUS_ALL=1 checks them.
 set -u
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 TREE=$ROOT/src; OUT=$ROOT/build/port/census; WARN=${BF_CENSUS_WARN:-}
@@ -36,12 +33,6 @@ mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd); find "$OUT" -name '*.log' -delete
 
 # The link order of sources.mk lists the game's translation units.
 GAME=$(awk '/^GAME :=/{f=1} f{print} f&&!/\\$/{f=0}' "$ROOT/sources.mk" | sed 's/GAME :=//; s/\\//g')
-# The units the build leaves out, each with its reason (BF_CLIENT_EXCLUDE in
-# the root CMakeLists.txt), are not checked; BF_CENSUS_ALL=1 checks them too.
-EXCLUDED=$(awk '/^set\(BF_CLIENT_EXCLUDE/{f=1;next} f&&/^\)/{f=0} f' "$ROOT/CMakeLists.txt" | sed 's/#.*//')
-if [ -z "${BF_CENSUS_ALL:-}" ]; then
-  GAME=$(echo $GAME | tr ' ' '\n' | grep -vxF -f <(echo $EXCLUDED | tr ' ' '\n'))
-fi
 
 [ -n "$WARN" ] && set -- -Wformat -Werror=format -Wno-format-security -Wformat-security "$@"
 FLAGS="$BF_TARGET -fsyntax-only -ferror-limit=0 $BF_DEFINES $BF_INCLUDES -I$TREE $*"
@@ -61,7 +52,6 @@ cd "$OUT"
 cat *.log > all.txt
 errors() { grep -E ' (fatal )?error: ' "$@"; }
 echo "sources:            $(ls *.log | wc -l | tr -d ' ')"
-[ -z "${BF_CENSUS_ALL:-}" ] && echo "excluded:           $(echo $EXCLUDED | wc -w | tr -d ' ') (BF_CLIENT_EXCLUDE in CMakeLists.txt)"
 echo "clean:              $(grep -L -E ' (fatal )?error: ' *.log | wc -l | tr -d ' ')"
 echo "errors:             $(errors all.txt | wc -l | tr -d ' ')"
 echo "distinct locations: $(errors all.txt | cut -d: -f1-3 | sort -u | wc -l | tr -d ' ')"

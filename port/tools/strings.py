@@ -353,8 +353,8 @@ OTHER_CALLEES = {
     'TTPair': 'typed chat command, matched against the player\'s input; not shown',
 }
 # Whole modules or functions that do not run for the English (america) service, or never show their literals.
-SECURITY_FILES = ('cSecureGamePack.cpp', 'cKeyProtector.cpp', 'base/FindHack.cpp', 'NPGameLib.cpp', 'PacketProtect.cpp',
-                  'cSecureGamePack.h', 'CommPipe.cpp')
+# (cSecureGamePack, cKeyProtector, NPGameLib, PacketProtect and CommPipe left src/ in M11.11.)
+SECURITY_FILES = ('base/FindHack.cpp',)
 OTHER_FUNCS = {
     'CRenderer::ScreenEffect': 'dead code: a message buffer that is filled and never used',
     'CSession::InitVariables': 'initial value of a name field, overwritten before it is shown',

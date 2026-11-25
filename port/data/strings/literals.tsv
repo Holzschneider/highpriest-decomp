@@ -12,7 +12,6 @@ src/3dlib/Renderer.cpp	1926	CRenderer::DrawBattleFieldIcon	path	argument of Get(
 src/3dlib/Renderer.cpp	1927	CRenderer::DrawBattleFieldIcon	path	argument of Get(), a file or resource name	c0ccc6d1c6ae5c52616e6b466f6e742e737072	이팩트\\RankFont.spr
 src/3dlib/Renderer.cpp	2020	CRenderer::DrawAgeRate	path	argument of GetTexture(), a file or resource name	c0afc0fac0cec5cdc6e4c0ccbdba5c745f3132bcbc2e746761	유저인터페이스\\t_12세.tga
 src/3dlib/Texture.cpp	486	CTexture::Create	displayed	default: not a path, not a diagnostic (review)	47464320b8a620b1b8b5bfc7d220bcf620bef8b4c220baf1b5f0bfc0bdc3bdbac5dbc0d4b4cfb4d9	GFC 를 구동할 수 없는 비디오시스템입니다
-src/Common.cpp	10		other	not CP949 text (binary or obfuscated bytes)	0119b0467a25ea6e4888634da384859441323e	
 src/GameActor.cpp	51	#define PATH_HUMAN	path	assigned to PATH_HUMAN, a file or folder name part	c0ceb0a3c1b75c	인간족\\
 src/GameActor.cpp	812	CRenderObject::RenderMercenary	path	file name shape (folder separator or resource extension)	c0ceb0a3c1b75cb8d3b8aec5eb5cbfa95c25645fbfa92e616374	인간족\\머리통\\여\\%d_여.act
 src/GameActor.cpp	815	CRenderObject::RenderMercenary	path	file name shape (folder separator or resource extension)	c0ceb0a3c1b75cb8d3b8aec5eb5cbfa95c25645fbfa92e737072	인간족\\머리통\\여\\%d_여.spr
@@ -1495,254 +1494,6 @@ src/MsgStrings.cpp	1424		other	built-in Korean message table: the English servic
 src/MsgStrings.cpp	1425		other	built-in Korean message table: the English service type loads msgStringTable.txt instead	20b8f3bdbac5cd20bbe7b3c9c0bb20c5ebc7d820bef2c0bb20bcf620c0d6b4c220b0e6c7e8c4a1b0a1203330bad0b0a32032b9e8b7ce20c1f5b0a1c7d5b4cfb4d92e	 몬스터 사냥을 통해 얻을 수 있는 경험치가 30분간 2배로 증가합니다.
 src/MsgStrings.cpp	1426		other	built-in Korean message table: the English service type loads msgStringTable.txt instead	20b8f3bdbac5cd20bbe7b3c9c0bb20c5ebc7d820bef2c0bb20bcf620c0d6b4c220b0e6c7e8c4a1b0a1203630bad0b0a320312e35b9e8b7ce20c1f5b0a1c7d5b4cfb4d92e	 몬스터 사냥을 통해 얻을 수 있는 경험치가 60분간 1.5배로 증가합니다.
 src/MsgStrings.cpp	1482	GetMsgString	other	debug trace (a BFT_GAME line in the port)	b4d9c0bd20c7d1b1db20b8debdc3c1f6bfa120c7d8b4e7c7cfb4c220b9f8bfaa20bdbac5a9b8b3c6aeb0a120bef8bdc0b4cfb4d92e0a2049443a25642cb8debdc3c1f6b8ed3a2573	다음 한글 메시지에 해당하는 번역 스크립트가 없습니다.\n ID:%d,메시지명:%s
-src/NPGameLib.cpp	211	#define s_logInitGameMonInactive	other	not CP949 text (binary or obfuscated bytes)	010c89c6fc36288863903ec548cd7ca3f32a4951f98d	
-src/NPGameLib.cpp	212	#define s_logInitGameMonActive	other	not CP949 text (binary or obfuscated bytes)	01e6176b8e6f0f8fe5b3b3c0b3a5bebbde2718f03316e0888e	
-src/NPGameLib.cpp	214	#define s_logSendCSAuth	other	not CP949 text (binary or obfuscated bytes)	0135044e5b3442d933da958f786484	
-src/NPGameLib.cpp	215	#define s_gameGuardDirectorySuffix	other	not CP949 text (binary or obfuscated bytes)	010a83c823f13a277239c6335da2	
-src/NPGameLib.cpp	216	#define s_kernel32Dll	other	not CP949 text (binary or obfuscated bytes)	01daf31e04e3b9f46222109031f29746	
-src/NPGameLib.cpp	217	#define s_process32First	other	not CP949 text (binary or obfuscated bytes)	014431c1c77f0416fc9e58dd6e141a307d	
-src/NPGameLib.cpp	218	#define s_process32Next	other	not CP949 text (binary or obfuscated bytes)	0114a10fdb85ab97e0bcd2839354a0e09c77eff10cf3d2	
-src/NPGameLib.cpp	219	#define s_logCloseGameMonBegin	other	not CP949 text (binary or obfuscated bytes)	019b36cf89fb9140b7e1164c3b2a6b2e0d3176689e966ce7	
-src/NPGameLib.cpp	220	#define s_logCloseGameMonEnd	other	not CP949 text (binary or obfuscated bytes)	01473af4ad6f2d8c53959ad09f5eb7e229657a03610d07	
-src/NPGameLib.cpp	221	#define s_logSetHwndBegin	other	not CP949 text (binary or obfuscated bytes)	01cecfb51687473de6b637c1352e4311f43342a3c6b5a9	
-src/NPGameLib.cpp	222	#define s_logSetHwndCallback	other	not CP949 text (binary or obfuscated bytes)	01901561c369eb86bcb6e0acb1818e57e9b1996dad9c0cf2de44400404	
-src/NPGameLib.cpp	223	#define s_logSetHwndCallbackFailed	other	not CP949 text (binary or obfuscated bytes)	01576a62fd721ee3848a994c8e31674b8369e4f7d812fe9c63	
-src/NPGameLib.cpp	224	#define s_logSetHwndEnd	other	not CP949 text (binary or obfuscated bytes)	013607561e9f3fc59e5eff293d569bc96cdb0a0bcead11963f25791b	
-src/NPGameLib.cpp	225	#define s_logProcessFormat	other	not CP949 text (binary or obfuscated bytes)	015a738ece236628b7bd8302ba2317df17fef68723538b1ac7ce2362da05b7ae	
-src/NPGameLib.cpp	226	#define s_logProcessHeader	other	not CP949 text (binary or obfuscated bytes)	01bb96d40be72c3c51aad5589a290feea75f967b6a375e93720fe6abfa97c7a7c2ff82d31812ff7701afc6bb884ec1316b4b8f	
-src/NPGameLib.cpp	227	#define s_logModuleFormat	other	not CP949 text (binary or obfuscated bytes)	0173be6bb3ca2b792af4ee8307af2e238a17fef68a23538b1ac7cb70	
-src/NPGameLib.cpp	228	#define s_logModuleHeader	other	not CP949 text (binary or obfuscated bytes)	014d4c2cb1a49b710dcd79adaeb8a9e0e8b1ccdd10e9b4d538a19c2fe1ca01240c15fefdf08976b4cb040f245afc246528014dc918	
-src/NPGameLib.cpp	229	#define s_logExceptionBytes	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01cfd2a26726056a2e0717322601cad26d	菊줳&j.2&杆m
-src/NPGameLib.cpp	230	#define s_exceptionByteFormat	other	not CP949 text (binary or obfuscated bytes)	01e10854098d42d1f4	
-src/NPGameLib.cpp	231	#define s_logUnhandledException	other	not CP949 text (binary or obfuscated bytes)	01af72bec7c6a50a8e206d5b9321aaf28e4bcac3262a7ee3bc9902ba2643f21bfeb0c62642911ac282766edf51afa3f3c413f7c333	
-src/NPGameLib.cpp	232	#define s_logResolverException	other	not CP949 text (binary or obfuscated bytes)	0187fa0c831c4747957efaa3d71cfccf6f253aca89f363b33618c553bbe9926a169342cbce62269b44e1eab2ce0baa	
-src/NPGameLib.cpp	233	#define s_versionDll	other	not CP949 text (binary or obfuscated bytes)	01f6470535072d2552859930f79e63	
-src/NPGameLib.cpp	234	#define s_versionSizeProc	other	not CP949 text (binary or obfuscated bytes)	016ba63cfd021ac5ab13d30d2f650dda3d418fe5bca8dd8a98ba97	
-src/NPGameLib.cpp	235	#define s_versionInfoProc	other	not CP949 text (binary or obfuscated bytes)	01c2ab29a08b7704965abe9cf28c40bbc0284234216122	
-src/NPGameLib.cpp	236	#define s_versionQueryProc	other	not CP949 text (binary or obfuscated bytes)	014e4f28fd5f95bf76278d4f8dabfb8b5693	
-src/NPGameLib.cpp	237	#define s_logFileVersion	other	not CP949 text (binary or obfuscated bytes)	0131f835ea68122a2d6a2631490e9c693119ed2d1cc86c4c	
-src/NPGameLib.cpp	238	#define s_registryKey	other	not CP949 text (binary or obfuscated bytes)	01c7ba263dfab10bd33616540bc1204aa8ff99a8e09790b0bae80f03c2501de19299954bf210674c8572e5b99e3ef381672c7ff592e252ef5514c747bfa7db2d4fc7539397	
-src/NPGameLib.cpp	239	#define s_registryValue	other	not CP949 text (binary or obfuscated bytes)	014025b875a5ee710b18f0b951ec4e0f3434643c	
-src/NPGameLib.cpp	240	#define s_logTimeGetTimeHookModule	other	not CP949 text (binary or obfuscated bytes)	0175c49680fe8396648ec0d938e9f102e48344405849d4	
-src/NPGameLib.cpp	241	#define s_logTimeGetTimePointers	other	not CP949 text (binary or obfuscated bytes)	01f95026e0126cdbfce89021dce9a8f49c05a8	
-src/NPGameLib.cpp	242	#define s_timeGetTimeProc	other	not CP949 text (binary or obfuscated bytes)	01483dfb7d3d58bd8619d9149049c0	
-src/NPGameLib.cpp	243	#define s_winmmDll	other	not CP949 text (binary or obfuscated bytes)	019627a7346b519b76a4b3d21f	
-src/NPGameLib.cpp	244	#define s_logTickCountHookModule	other	not CP949 text (binary or obfuscated bytes)	01556476201ee3b697fd77f99809112244a32460386974	
-src/NPGameLib.cpp	245	#define s_logTickCountPointers	other	not CP949 text (binary or obfuscated bytes)	0127dac8c9b7a1e5f69e5a4fc63f52aad6d3a2	
-src/NPGameLib.cpp	246	#define s_tickCountProc	other	not CP949 text (binary or obfuscated bytes)	01f6470224072b0252899c5dfc876112	
-src/NPGameLib.cpp	247	#define s_logPerformanceHookModule	other	not CP949 text (binary or obfuscated bytes)	014431dfd57f061fc4a862b02d08142b617231494d8811	
-src/NPGameLib.cpp	248	#define s_logPerformancePointers	other	not CP949 text (binary or obfuscated bytes)	01628bd596dea0d8fff38b522fb23357bfdeb3	
-src/NPGameLib.cpp	249	#define s_performanceProc	other	not CP949 text (binary or obfuscated bytes)	01c4b15b4ce58c866c28c46eeb8faba9e4a6f289be5fbcfa817df3	
-src/NPGameLib.cpp	250	#define s_clockKernelDll	other	not CP949 text (binary or obfuscated bytes)	01d6e7e268278d58bea6a4cc1db6c32a	
-src/NPGameLib.cpp	251	#define s_ttCoreDll	other	not CP949 text (binary or obfuscated bytes)	019524af7ce50f72e28cda7114cd	
-src/NPGameLib.cpp	252	#define s_acLayersDll	other	not CP949 text (binary or obfuscated bytes)	01daf31e2ee587fb7e2b51d131f29746	
-src/NPGameLib.cpp	253	#define s_logTimeGetTimeHook	other	not CP949 text (binary or obfuscated bytes)	013f22915e14c55cfe87f51b0a8b1fd7d65b	
-src/NPGameLib.cpp	254	#define s_logTickCountHook	other	not CP949 text (binary or obfuscated bytes)	01eb26a57288816862b86298e6b7db03eaf7	
-src/NPGameLib.cpp	255	#define s_logPerformanceHook	other	not CP949 text (binary or obfuscated bytes)	01fb5635a29871f8d25e362856870bf3bae7	
-src/NPGameLib.cpp	256	#define s_logSendHookModule	other	not CP949 text (binary or obfuscated bytes)	0186f70adb9d600d181fc94aefa2d73bf46e6d1ed62257de	
-src/NPGameLib.cpp	257	#define s_logSendPointers	other	not CP949 text (binary or obfuscated bytes)	01380d702a216b2c2b4c5880714c59b8240cd558	
-src/NPGameLib.cpp	258	#define s_sendProc	other	not CP949 text (binary or obfuscated bytes)	01fd5c4953fc6a21	
-src/NPGameLib.cpp	259	#define s_logWSASendHookModule	other	not CP949 text (binary or obfuscated bytes)	01c6b7491b5da0cd7ce9263de6ac1b9a7b225a11d7680fe3bbe29f	
-src/NPGameLib.cpp	260	#define s_logWSASendPointers	other	not CP949 text (binary or obfuscated bytes)	018e0f753c29e67da6ecdb4cbb2f6706ab3e4fa3fba25f	
-src/NPGameLib.cpp	261	#define s_wsaSendProc	other	not CP949 text (binary or obfuscated bytes)	0118ad47ae77e47bd42279	
-src/NPGameLib.cpp	262	#define s_ws2Dll	other	not CP949 text (binary or obfuscated bytes)	01f5440f3f625e22837b3a11f46d	
-src/NPGameLib.cpp	263	#define s_logSendHook	other	not CP949 text (binary or obfuscated bytes)	011095f769f3620b7937602675405d95792c2d	
-src/NPGameLib.cpp	264	#define s_logWSASendHook	other	not CP949 text (binary or obfuscated bytes)	01b88df291abeaa3b1bbae719af19b7cad9c48b0813c	
-src/NPGameLib.cpp	265	#define s_providerSignatureIE5	other	not CP949 text (binary or obfuscated bytes)	01a148183f14d7277501ed7359	
-src/NPGameLib.cpp	266	#define s_logProviderIE5	other	not CP949 text (binary or obfuscated bytes)	019d3cfa524a8587898269733445d8755192fc84e539b1ebb8f6df	
-src/NPGameLib.cpp	267	#define s_providerSignatureIE6	other	not CP949 text (binary or obfuscated bytes)	014940f077cc4fdf2d69e59b91	
-src/NPGameLib.cpp	268	#define s_logProviderIE6	other	not CP949 text (binary or obfuscated bytes)	01e4117b2fc3287614eb6412896c55c48c9bd14518701f9a651f92	
-src/NPGameLib.cpp	269	#define s_logProviderVersion	other	not CP949 text (binary or obfuscated bytes)	01129b1a215b81284fa3afb4222a0d877bb8de4e	
-src/NPGameLib.cpp	270	#define s_providerSuffix	other	not CP949 text (binary or obfuscated bytes)	014e4f2af748948f61238c53f5aefb92	
-src/NPGameLib.cpp	271	#define s_logProviderSignature	other	not CP949 text (binary or obfuscated bytes)	01b37ead0146a1e5bbb3fb9187e5f69e5a45e63357bfd493da029e717a1fd32bb8af	
-src/NPGameLib.cpp	272	#define s_providerSignatureName	other	not CP949 text (binary or obfuscated bytes)	014637d780db2848ca4e929c66	
-src/NPGameLib.cpp	273	#define s_providerRegistryKey	other	not CP949 text (binary or obfuscated bytes)	017edf8be80511ea6413fd83b7b74ecd316d4c997dfe8bfd01eb9f72247df5afd34ae64a3fcf51bfa6de3b55f76a9581752b9b53a996da9750a0c035643c332e21032c331ba98567e3866001191bd746aae19f26e965215797771da6bdab297e7f	
-src/NPGameLib.cpp	274	#define s_logIEVersion	other	not CP949 text (binary or obfuscated bytes)	012eef08025fa798c650ec7f14c40dfef6c1	
-src/NPGameLib.cpp	275	#define s_ieVersionName	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	016697f965b7dd35623529	f쀹e룀5b5)
-src/NPGameLib.cpp	276	#define s_ieRegistryKey	other	not CP949 text (binary or obfuscated bytes)	0121c8b4bf9256bde3946ae4e020e9da160a1b1eeaa98ce05aa1dd13322854b9413d783d43cf15fb88	
-src/NPGameLib.cpp	277	#define s_logCompatibilityMode	other	not CP949 text (binary or obfuscated bytes)	01f035cb8213c0309850cc4add293ddd869070428139fe	
-src/NPGameLib.cpp	278	#define s_compatibilityLayersKey	other	not CP949 text (binary or obfuscated bytes)	0144318ece7f0f00e29953f9512d3027772762031bc415431cf665539a7319aab1b4b2792f224cda216e84aebec976ea99c9a1dc7e9f642454ac8710cc278a78e949c8296fe3	
-src/NPGameLib.cpp	279	#define s_logNpscDebugger	other	not CP949 text (binary or obfuscated bytes)	010b86c4f3633e19823af2d70ac4376912eac2	
-src/NPGameLib.cpp	280	#define s_logProviderFileSize	other	not CP949 text (binary or obfuscated bytes)	0122cb93742759c725b6de46c2	
-src/NPGameLib.cpp	281	#define s_logProviderOpenFailed	other	not CP949 text (binary or obfuscated bytes)	010f92ff693b7fe9eec543f67a5b8f53f2f3973c	
-src/NPGameLib.cpp	282	#define s_runFaqLocalSuffix	other	not CP949 text (binary or obfuscated bytes)	0170b54e1dbb4cad1ce350c943a8c1770e11e78a4eee23043c37	
-src/NPGameLib.cpp	283	#define s_runFaqLocalPageAuth	other	not CP949 text (binary or obfuscated bytes)	01c6b75a6202ff97	
-src/NPGameLib.cpp	284	#define s_runFaqLocalPageUpdate	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01c8bd74b8e4856a	횟t멧꿭
-src/NPGameLib.cpp	285	#define s_runFaqLocalPageInit	other	not CP949 text (binary or obfuscated bytes)	01cecfa51a8b53	
-src/NPGameLib.cpp	286	#define s_runFaqLocalFormat	other	not CP949 text (binary or obfuscated bytes)	017ddcc5856aa4e0fbff894e	
-src/NPGameLib.cpp	287	#define s_runFaqLocalCreateFailed	other	not CP949 text (binary or obfuscated bytes)	013e1f8f895fd97e3455aad459d51540e7a70c963e386511c1680fe3ef	
-src/NPGameLib.cpp	288	#define s_runFaqLocalCreateOk	other	not CP949 text (binary or obfuscated bytes)	011ab35d5db3e5faa0e98690adb9c95057bb60	
-src/NPGameLib.cpp	289	#define s_runFaqWebPageDefault	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	016594f629b089	e뷉)컞
-src/NPGameLib.cpp	290	#define s_runFaqWebPageHack	other	not CP949 text (binary or obfuscated bytes)	01f23befc52ea3c23e	
-src/NPGameLib.cpp	291	#define s_runFaqWebPageSpeedHack	other	not CP949 text (binary or obfuscated bytes)	01f84d25ab34753863	
-src/NPGameLib.cpp	292	#define s_runFaqWebPageVirus	other	not CP949 text (binary or obfuscated bytes)	01f84d25ab34753862	
-src/NPGameLib.cpp	293	#define s_runFaqWebPageCollision	other	not CP949 text (binary or obfuscated bytes)	01f23befc52ea3c23b	
-src/NPGameLib.cpp	294	#define s_runFaqWebPageExecute	other	not CP949 text (binary or obfuscated bytes)	0184f1096f60198460	
-src/NPGameLib.cpp	295	#define s_runFaqWebPageInit	other	not CP949 text (binary or obfuscated bytes)	01047189efe09904e3	
-src/NPGameLib.cpp	296	#define s_runFaqWebPageUnknown	other	not CP949 text (binary or obfuscated bytes)	01d0d5bd536c7d10ae	
-src/NPGameLib.cpp	297	#define s_runFaqWebPageGameMon	other	not CP949 text (binary or obfuscated bytes)	0115a4269900f8	
-src/NPGameLib.cpp	298	#define s_runFaqWebPageAuth	other	not CP949 text (binary or obfuscated bytes)	012ae3ebadb3d20404ea721ee3	
-src/NPGameLib.cpp	299	#define s_runFaqRegistryKey	other	not CP949 text (binary or obfuscated bytes)	01cecf8e78f5213ad4832df307097b1fc0214ab5d79293dab3beacbede061bc27c02ea88b79948c32e635192	
-src/NPGameLib.cpp	300	#define s_runFaqRegistryFormat	other	not CP949 text (binary or obfuscated bytes)	014c493f55b86948997003cbca9f867b733748d9305f94bdbfc437e7aaa6bade129668251a9e802df2658a0acd5cdc	
-src/NPGameLib.cpp	301	#define s_runFaqRegistryCreateFailed	other	not CP949 text (binary or obfuscated bytes)	01c2ab19b59b6d62b673fb8cf6975ff2c929797a24610d0c3a354fcab15fc2d25c0f1f1f870ba7	
-src/NPGameLib.cpp	302	#define s_runFaqRegistryCreateOk	other	not CP949 text (binary or obfuscated bytes)	014637d295f31e06d853938b3962da45	
-src/NPGameLib.cpp	303	#define s_logCloseNPSCBegin	other	not CP949 text (binary or obfuscated bytes)	01ac697bd6944eef682e0917466842181cc23d	
-src/NPGameLib.cpp	304	#define s_logCloseNPSCTimeout	other	not CP949 text (binary or obfuscated bytes)	0187fa34fa2670529f75eba3db53fabc451f72f5abc246	
-src/NPGameLib.cpp	305	#define s_logCloseNPSCEnd	other	not CP949 text (binary or obfuscated bytes)	016fb24165c755948b4d12ac75fb8ef89056	
-src/NPGameLib.cpp	306	#define s_npscFileName	other	not CP949 text (binary or obfuscated bytes)	01ef32c7c85bc90440e7a70c	
-src/NPGameLib.cpp	307	#define s_logInitNPSCBegin	other	not CP949 text (binary or obfuscated bytes)	01d9f0071d5bb1b532fd13ba04f65cd03e69	
-src/NPGameLib.cpp	308	#define s_logInitNPSCPath	other	not CP949 text (binary or obfuscated bytes)	015b769d793404d3371c	
-src/NPGameLib.cpp	309	#define s_logInitNPSCAuthFailed	other	not CP949 text (binary or obfuscated bytes)	01380d7938317120310a1cd925341be8725fc3645588c9c8d4687d754d	
-src/NPGameLib.cpp	310	#define s_logInitNPSCLoadLibraryFailed	other	not CP949 text (binary or obfuscated bytes)	01e6176aff3d4ea2c7b3a5fc8290a6f6dd0b1ef23f52aa82	
-src/NPGameLib.cpp	311	#define s_logInitNPSCProcFailed	other	not CP949 text (binary or obfuscated bytes)	01bd9c1e273c30553a7e0f3cd42d6655fe605581201c80	
-src/NPGameLib.cpp	312	#define s_logInitNPSCCreateEventFailed	other	not CP949 text (binary or obfuscated bytes)	0181e8d34f2f3548c0307d97b9a3d439d7b5edb4c875916a3f70aea412d9609f45cc44916979	
-src/NPGameLib.cpp	313	#define s_logInitNPSCCreateThreadFailed	other	not CP949 text (binary or obfuscated bytes)	018d0c43135bd1344c8488a5d27ce5a1a8b7cd549c292756aca90ec8219d08850dd5	
-src/NPGameLib.cpp	314	#define s_logInitNPSCThread	other	not CP949 text (binary or obfuscated bytes)	01d1d8dc2fdd259c40e640d42f76d59f917b0cf574ff85b8a0a581d5d6dd15a5e1	
-src/NPGameLib.cpp	315	#define s_logInitNPSCResultFailed	other	not CP949 text (binary or obfuscated bytes)	0182ebed6ec02a766c867eefb3fd1bf78c6d6b7ce6a7cf0ebf331f	
-src/NPGameLib.cpp	316	#define s_logInitNPSCSuccess	other	not CP949 text (binary or obfuscated bytes)	01e51478d16f55994e69b7a6c8b5633335	
-src/NPGameLib.cpp	317	#define s_singleInstanceMutex	other	not CP949 text (binary or obfuscated bytes)	0123cead65f37919cb5b829ec63768fb7dab	
-src/NPGameLib.cpp	318	#define s_singleInstanceMutexAlt	other	not CP949 text (binary or obfuscated bytes)	01fc5943483c69222df705	
-src/NPGameLib.cpp	319	#define s_logSingleInstanceCreateFailed	other	not CP949 text (binary or obfuscated bytes)	01a5542a9fa011c80c9046856bd0223ae4c997671dc068e8c0b4b1f1ade9cddd15a5e1	
-src/NPGameLib.cpp	320	#define s_gameMonSingleInstanceMutex	other	not CP949 text (binary or obfuscated bytes)	01077aa969afeddd17f7561a4a8b5c3fc186	
-src/NPGameLib.cpp	321	#define s_gameMonSingleInstanceMutexAlt	other	not CP949 text (binary or obfuscated bytes)	01e4116b30c4315a25df4c	
-src/NPGameLib.cpp	322	#define s_logGameMonSingleInstanceCreateFailed	other	not CP949 text (binary or obfuscated bytes)	0132fb35f03f3e5782c9459a240fede50b963838721fc7370fabfeaea2f6c2c2fabace	
-src/NPGameLib.cpp	323	#define s_logGameMonSingleInstanceTimeout	other	not CP949 text (binary or obfuscated bytes)	017edfc0fc0b1afb5e1de1c68a9655cb226646d65ef2becd07b3	
-src/NPGameLib.cpp	324	#define s_gameMonCheckMutex	other	not CP949 text (binary or obfuscated bytes)	01d2dbc4d0925cb0ce2a571733762d321811	
-src/NPGameLib.cpp	325	#define s_gameMonCheckMutexAlt	other	not CP949 text (binary or obfuscated bytes)	019b36dc87e3867d82e801	
-src/NPGameLib.cpp	326	#define s_logGameMonInactiveTooLong	other	not CP949 text (binary or obfuscated bytes)	018e0f712812c24da8ccef31fa6732739c7c4fe0aaf36b6e15932f	
-src/NPGameLib.cpp	327	#define s_logGameMonNotRunning	other	not CP949 text (binary or obfuscated bytes)	01679a100d4bc77cfdb57af03f3e5782c9459a010feaae5f806e7a	
-src/NPGameLib.cpp	328	#define s_logGameMonExited	other	not CP949 text (binary or obfuscated bytes)	011198167f85655a8fabb8b66d303564db3b1887bda4cc39b2f7b8	
-src/NPGameLib.cpp	329	#define s_logGameMonMutexMissing	other	not CP949 text (binary or obfuscated bytes)	01628bc584e68681b498eb2d16f3763fe088cb9d408e2c725a983becb6d71fb2ca6a3e	
-src/NPGameLib.cpp	330	#define s_logGameMonSingleMutexMissing	other	not CP949 text (binary or obfuscated bytes)	0119b055571dfd6257a3507e85888dbc63337046c43056c1baacc975a4e0e4a4	
-src/NPGameLib.cpp	331	#define s_ftpBegin	other	not CP949 text (binary or obfuscated bytes)	01d7eafd78e7827c03051ec25caf	
-src/NPGameLib.cpp	332	#define s_ftpRegistryKey	other	not CP949 text (binary or obfuscated bytes)	01bfa22ec5b46ce30912608afa62f4242fcaac0bd32924720aef3c7fb4e4aea2ed97a5bebbde2d02ff6116d3a8bbbd46c3264e5694	
-src/NPGameLib.cpp	333	#define s_ftpRegistryBuild	other	not CP949 text (binary or obfuscated bytes)	0125d4b81c0db00d9410c940fb45adf060	
-src/NPGameLib.cpp	334	#define s_ftpRegistryValue	other	not CP949 text (binary or obfuscated bytes)	01077aad4bb1f0d004f865225087	
-src/NPGameLib.cpp	335	#define s_ftpRegistryBuildSet	other	not CP949 text (binary or obfuscated bytes)	01b584c8cc9de01da46039508bb51dc030	
-src/NPGameLib.cpp	337	#define s_ftpCloseLog	other	not CP949 text (binary or obfuscated bytes)	01d1d8ca1ad9308a41cb4cd43e71b1	
-src/NPGameLib.cpp	338	#define s_ftpWinInetDll	other	not CP949 text (binary or obfuscated bytes)	01ae6f8dbcf369274dc76bb89f46db	
-src/NPGameLib.cpp	339	#define s_ftpInternetOpenA	other	not CP949 text (binary or obfuscated bytes)	017ddcc0e977f0a0fabfc949bf79315b99	
-src/NPGameLib.cpp	340	#define s_ftpInternetConnectA	other	not CP949 text (binary or obfuscated bytes)	0100657838e2a9b5db5ab0cc2233234efc673149	
-src/NPGameLib.cpp	341	#define s_ftpInternetCloseHandle	other	not CP949 text (binary or obfuscated bytes)	01d3dec0fb2152ce48898b77019359a8afdf9f5db6c323	
-src/NPGameLib.cpp	342	#define s_ftpFtpPutFileA	other	not CP949 text (binary or obfuscated bytes)	01b27ba171aaa3e23a52ed538b8b42	
-src/NPGameLib.cpp	343	#define s_ftpInternetAgent	other	not CP949 text (binary or obfuscated bytes)	0117aa32b0a3d52347	
-src/NPGameLib.cpp	344	#define s_ftpPassword	other	not CP949 text (binary or obfuscated bytes)	01b687e0d648bc7344eb009af9cbdbc8eb19cec649739b07b7fb1b6702bb9e2a3a263b8281d5def78486dc41ab9f3d45263e	
-src/NPGameLib.cpp	345	#define s_ftpUser	other	not CP949 text (binary or obfuscated bytes)	01cecfa34cdd021cef	
-src/NPGameLib.cpp	346	#define s_ftpServer	other	not CP949 text (binary or obfuscated bytes)	0169a012b2f4a6e69413c33c7a07e1	
-src/NPGameLib.cpp	347	#define s_ftpReason1	other	not CP949 text (binary or obfuscated bytes)	01d1d8c71dc137985dd6	
-src/NPGameLib.cpp	348	#define s_ftpReason2	other	not CP949 text (binary or obfuscated bytes)	0136074b46d06df989	
-src/NPGameLib.cpp	350	#define s_ftpReason4	other	not CP949 text (binary or obfuscated bytes)	01f23bee9e70fa86	
-src/NPGameLib.cpp	351	#define s_ftpReason5	other	not CP949 text (binary or obfuscated bytes)	01aa636636385d85	
-src/NPGameLib.cpp	352	#define s_ftpReason6	other	not CP949 text (binary or obfuscated bytes)	01e71a8fa0cc57ef721ade52	
-src/NPGameLib.cpp	353	#define s_ftpReason7	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01c5b4534d91b8acd47c	킴SM뫖г|
-src/NPGameLib.cpp	354	#define s_ftpReason8	other	not CP949 text (binary or obfuscated bytes)	0116a72ba0eada15f0	
-src/NPGameLib.cpp	355	#define s_ftpReason9	other	not CP949 text (binary or obfuscated bytes)	0156676aecac1cd3	
-src/NPGameLib.cpp	356	#define s_ftpReasonOther	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01d3ded0c5275f	大斤'_
-src/NPGameLib.cpp	357	#define s_ftpRemoteFormat	other	not CP949 text (binary or obfuscated bytes)	01daf34633c1aaf7620956c36df2a744c7393f6eead574fd2b4be79d5ac5046f7321962170e3f885e2fdbcc7efe2dfd995bb2340eb5912df179c27c2f0d32bb8b303b0b7df342fa057eb9310fb385e9a04ba10786143d956	
-src/NPGameLib.cpp	359	#define s_logWriteFormat	other	not CP949 text (binary or obfuscated bytes)	01c8bd6aace4873c7bd91df21d9e009803a8a7355947f1d801bc2813544e	
-src/NPGameLib.cpp	360	#define s_logCloseFormat	other	not CP949 text (binary or obfuscated bytes)	0114a14cb0dde4f9b8f5acd1c00de9d89a7fa1fa04eed0170d0d15acbca48911e58c05736810ab606a2d611ed950ace4873c7bd91df21d9e009803a8a7355947f1dd52bc305d647938752c51408d441e78920c36	
-src/NPGameLib.cpp	362	#define s_logCommPipeCallback	other	not CP949 text (binary or obfuscated bytes)	01eb26b0549789622f9a5ab2a8b79d52bec3246a392c34434733231bcf9b6b	
-src/NPGameLib.cpp	363	#define s_logCommPipeThreshold	other	not CP949 text (binary or obfuscated bytes)	013d1c9fa39689c898d8bcb86f85dba65dad9c48eccc	
-src/NPGameLib.cpp	364	#define s_logCommPipeCallbackFailed	other	not CP949 text (binary or obfuscated bytes)	01982dd909cd55cd11b8f5620c15f1d842f062133c642024644c58dc3c	
-src/NPGameLib.cpp	365	#define s_logCommPipeSetValue	other	not CP949 text (binary or obfuscated bytes)	01ea23af5cfe9e49dc7e10618e9c0b9f1f	
-src/NPGameLib.cpp	366	#define s_logCommPipeTicketStart	other	not CP949 text (binary or obfuscated bytes)	0175c489bef49e8e59a6fad57ee0d501	
-src/NPGameLib.cpp	367	#define s_logCommPipeTicketMismatch	other	not CP949 text (binary or obfuscated bytes)	010c89f7fb080ca36e8f34e975e16189c2472626deb16fdb2d0430226364314911c5653450f474	
-src/NPGameLib.cpp	405	#define s_preInitCommPipeRun	other	not CP949 text (binary or obfuscated bytes)	0132fb28de68	
-src/NPGameLib.cpp	406	#define s_gameMonCrcValueName	other	not CP949 text (binary or obfuscated bytes)	01370a5a7abf5e4fceaae96f1842ce6af3	
-src/NPGameLib.cpp	428	#define s_preInitGameMonMessageFailed	other	not CP949 text (binary or obfuscated bytes)	0111981c6b9f694d81b6a5bc7f3a706cc6275793f0ed8575f1e9a8f4df11d02c27	
-src/NPGameLib.cpp	429	#define s_gameMonMessageMapping	other	not CP949 text (binary or obfuscated bytes)	01fd5c4367f56b27693d70ee1df19ae51f06	
-src/NPGameLib.cpp	430	#define s_gameMonMessageMappingAlt	other	not CP949 text (binary or obfuscated bytes)	01e61779e03f5788db9d80	
-src/NPGameLib.cpp	431	#define s_gameMonMessageMutex	other	not CP949 text (binary or obfuscated bytes)	01ae6f888cf6682c42ce43db8f52f019007f	
-src/NPGameLib.cpp	432	#define s_gameMonMessageMutexAlt	other	not CP949 text (binary or obfuscated bytes)	01ab666c37d35684c5ec3b	
-src/NPGameLib.cpp	487		other	not CP949 text (binary or obfuscated bytes)	0119b0467a25ea6e4888634da384859441323e	
-src/NPGameLib.cpp	691	CLog::Open	other	not CP949 text (binary or obfuscated bytes)	01af72c6dbd6c71a937e3f02cb26aa9bd114b2bc722a68f3abc702fe625b8f07eab79d6a16995ec8cb33709b16fefaa59a09f79f746f60623e510665730bd9933eaecf325b56479a13febfb27c	
-src/NPGameLib.cpp	768	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01df0228b569efb6ca16d686742e79f3a1d15bbf701ac35bfef6d6	
-src/NPGameLib.cpp	772	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	018a034a9146bca6b99b41be	
-src/NPGameLib.cpp	778	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0139106f51f1d644ee61	
-src/NPGameLib.cpp	785	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	014e4f0f8617cace4d12b857b6afdb9751fcc32f697a034b43143a2448839870b3d76b46515a8246b0a2925bb6	
-src/NPGameLib.cpp	786	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01d0d582312e2869f76d3146016bdc1dec99da367bdc49b73ec548cd6185d92a4951f98d0dbc4a0134214b297c0947906c6759b84058897203c4c0d8c954	
-src/NPGameLib.cpp	795	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01df0229b17ae7b2f21af0cf672768e2afc75bbf5303c344aaf2	
-src/NPGameLib.cpp	799	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	019c39eaa2849e6e3c3c75f13b40af8c8aed	
-src/NPGameLib.cpp	817	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	015d7cb3038b41c45cd46c74fe8080660dc23ce896bcaaf1e8f78d945ce5b4d074f4	
-src/NPGameLib.cpp	822	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01c4b1535ee28c95611d817bea86b0aaecbbf9cc9846acfa8138e7dd04ec9544400404	
-src/NPGameLib.cpp	827	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01ba93ec4c140e1bd34be3ebd11fef6c3e50d37719e3a5ee272842cb73badb0fdb2b	
-src/NPGameLib.cpp	830	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01c0a52ad67d	
-src/NPGameLib.cpp	840	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01340131aa615481a29d907e397e4dd126	
-src/NPGameLib.cpp	842	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0111980d52827419828a9d9f687d755a	
-src/NPGameLib.cpp	852	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	019c39f2a49d85647d3648dd3918c4b0b88c39a1a9fdfd8c1883	
-src/NPGameLib.cpp	856	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	010f92ff693b7fe9eec543f67a5b8f53f2f3973c	
-src/NPGameLib.cpp	858	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0122cb93742759c725b6de46c2	
-src/NPGameLib.cpp	863	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01e71a8cbecc51eb7012d20dfef6ca	
-src/NPGameLib.cpp	875	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01ee2fd4f9a9a6ec8291baf8df061bbe751bf7838fdb	
-src/NPGameLib.cpp	879	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0177ca89b952bfca017e3b356a43232a2253ca917ffa9e21460e02ce5ae3ecd001b5	
-src/NPGameLib.cpp	883	CGameGuard::PreInitNPGameMonI	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01dbf619ede5	法張
-src/NPGameLib.cpp	889	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01380d737961693d31490e906c6c55bd791cc87819c19d	
-src/NPGameLib.cpp	904	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01972a951d2157aed24eea1501e0a70cc57b2c7617df720ab5a7fae2eacfc2bcbbdf5057bb60	
-src/NPGameLib.cpp	916	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01525b54501bc71757afff99a8ea86b2adb9d80f04ed3314ee8f879f438063275383	
-src/NPGameLib.cpp	917	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01e5146adf605188474c85978cd16533395dc7205b84aaa8ce6da4a3e9b8c01dd56521	
-src/NPGameLib.cpp	922	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01f74a151987	
-src/NPGameLib.cpp	931	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01e51471b6685284	
-src/NPGameLib.cpp	934	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01ad6c6ed9277d55d9744885205f858c84d12939700cd0	
-src/NPGameLib.cpp	941	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01628bc2aee08ac29bb3d8180eee6752e9878296078b2f771fd377ff	
-src/NPGameLib.cpp	945	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01566769c48332f3160559	
-src/NPGameLib.cpp	947	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	017edfdffc2b3adb4c3cceabae	
-src/NPGameLib.cpp	947	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	014a43056ab850c498e93d	
-src/NPGameLib.cpp	949	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01bfa20dd19a47d210325faa8645d5134eeea30bd533	
-src/NPGameLib.cpp	952	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	013a1375dca3a5be62fc0f	
-src/NPGameLib.cpp	953	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01dcf92cf269f81849d9a4b1	
-src/NPGameLib.cpp	954	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	014b460214085136321b176faf	
-src/NPGameLib.cpp	955	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	014a430a6db34dc384f73cdc	
-src/NPGameLib.cpp	956	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01a85d576ef5187da28e8e	
-src/NPGameLib.cpp	957	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01a45120f220dd9dfa161eaa6c8c2ce1	
-src/NPGameLib.cpp	958	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01689d033a24d0bd65df45251a0f5a015f3838e21f5539	
-src/NPGameLib.cpp	959	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01cfd2a0155b1f024a202a1a1570b5a452dca5	
-src/NPGameLib.cpp	961	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0190157ac629	
-src/NPGameLib.cpp	965	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01e30e68253e3b5ea79870bd966a15	
-src/NPGameLib.cpp	968	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	015461410a70d83e652d611ec550ace4872061d91df20184009803b4bd355946ed	
-src/NPGameLib.cpp	972	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01ae6f9b8cd74f7403872fa4830a926e614aef831b881f4ea6f24dce7b6f274ccb	
-src/NPGameLib.cpp	974	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	013c1986acb9	
-src/NPGameLib.cpp	978	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0125d4be1f2091488d16ca0bcd49a9	
-src/NPGameLib.cpp	980	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0125d4a01f2091488d16ca05c65eb8bd760601fb9c0dbc2813	
-src/NPGameLib.cpp	986	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	019c39f2a49d85647d3648dd3918c4b0b88c39a1a9fdfd8c1883	
-src/NPGameLib.cpp	989	CGameGuard::PreInitNPGameMonI	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	01036e81ab4d	n겓M
-src/NPGameLib.cpp	992	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01f23be4be70fa862f250417ca0ea5e3d61a	
-src/NPGameLib.cpp	996	CGameGuard::PreInitNPGameMonI	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	015a73908635	Zs릤5
-src/NPGameLib.cpp	1000	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	012eef1c197ff1a7d04bf078578a5eb0ba886f03cf16c7826a20c516feae	
-src/NPGameLib.cpp	1008	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0188fd10e9b1996da19901f59941091d51a9b1a58911b9cd41793e00bc7c652d290c9808	
-src/NPGameLib.cpp	1018	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	017edfd4d25e	
-src/NPGameLib.cpp	1021	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	019c39eaa2849e6e3c3c75f13b40af8c8aed	
-src/NPGameLib.cpp	1050	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01972a951d2157aed24eea1501e0a70cc57b2c7617df720ab5a7fae2eacfc2bcbbdf5057bb60	
-src/NPGameLib.cpp	1053	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	010980bf0d504854e0a8	
-src/NPGameLib.cpp	1063	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01b37ebc005aa8c8b5aae3c384bebfd74a52fa	
-src/NPGameLib.cpp	1066	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	017cd9d6c6a7fc81a958bbf1947ca1f509ba9941091d01af729da584974afa2b705a977faa9eda49b2ca6a3e	
-src/NPGameLib.cpp	1074	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	010e8fe8ac9648cc226e63b375f290f320d7	
-src/NPGameLib.cpp	1078	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01f647180a0c36221b8d9a6df6d261091f5ade4bb7ae9f53f77f	
-src/NPGameLib.cpp	1082	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01eb26ba53898777629159afeaee9b47fe8f63672f	
-src/NPGameLib.cpp	1087	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01eb26ba53898777629159afeaee9b47fe8f63672f	
-src/NPGameLib.cpp	1090	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01c3ae4b6b519f6faab1d71d	
-src/NPGameLib.cpp	1093	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01483de14e3558bd8c13c360b04acc5c912a7cf985	
-src/NPGameLib.cpp	1096	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	010e8fe8ac9648cc226e63b375f290f320d7	
-src/NPGameLib.cpp	1099	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01b990ed93780bc4	
-src/NPGameLib.cpp	1106	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01d7eaf05ad6d262090f1f	
-src/NPGameLib.cpp	1117	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01f441ec64ae10d071c15ca9dc740d06afd804f8	
-src/NPGameLib.cpp	1121	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	0125d4a7112f95599316c74ecd458df9741b4eb5dd45	
-src/NPGameLib.cpp	1124	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01d2dbdec48e56b7cb05633f2465432b313f4fca917ffa9e	
-src/NPGameLib.cpp	1127	CGameGuard::PreInitNPGameMonI	other	obfuscated blob (leading control byte, decoded at run time); anti-cheat code	0171b8633575	q퇭5u
-src/NPGameLib.cpp	1130	CGameGuard::PreInitNPGameMonI	other	not CP949 text (binary or obfuscated bytes)	01a96041793868411e18f9277d01d6517b8c6d5ca98a86d168323e4c	
-src/NPGameLib.cpp	2119	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	01473aeb8566309153b7f9a5d057bec3	
-src/NPGameLib.cpp	2125	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	010e8ffea88842cf37676b9974e6bfdb1fe2dc341874e6bed04af062	
-src/NPGameLib.cpp	2131	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	01c4b1424de28697700bd22fbfa6b0b6f6bc	
-src/NPGameLib.cpp	2137	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	016ba626ea1501e0a70cc56878591bcb26	
-src/NPGameLib.cpp	2143	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	014e4f2be655839b6f27cc049da3e58d47	
-src/NPGameLib.cpp	2149	InitToolhelp32	other	not CP949 text (binary or obfuscated bytes)	01901574ec73e995b5a1b6fadf898544	
-src/NPGameLib.cpp	2403	#define s_logGameMonCrcFileFailed	other	not CP949 text (binary or obfuscated bytes)	01c2ab22849c6071cd50b2a6f2de55b3c62a2b7f342243473b761e8e	
-src/NPGameLib.cpp	2404	#define s_gameMonCrcKey	other	not CP949 text (binary or obfuscated bytes)	01bb96d579f81807658ef46ee62e20c08336d82f2f6510d62673a8dba8a8fa8681ab91da0712d96613fd82b7af57ca22765a	
-src/NPGameLib.cpp	2405	#define s_logGameMonCrcRegistryMismatch	other	not CP949 text (binary or obfuscated bytes)	0122cb88552b44e16df5db4ede383512eade079a4216	
-src/NPGameLib.cpp	2406	#define s_logGameMonCrcKeyFailed	other	not CP949 text (binary or obfuscated bytes)	01f84d33da6c206b3a0ccf15eef4d339289017e05cc850	
-src/NPGameLib.cpp	2407	#define s_logGameMonCrcMismatch	other	not CP949 text (binary or obfuscated bytes)	01473af5a3662fbc44b8eaf39755b48f637376672b1b	
-src/NPGameLib.cpp	2453	ReadMemCrc	other	not CP949 text (binary or obfuscated bytes)	01e1085d47d802e7b1d96b73d249ac15	
-src/NPGameLib.cpp	2454	ReadMemCrc	other	not CP949 text (binary or obfuscated bytes)	01df0224a274e5bbd616fe9f357948e2afc772ed7918cf44ad9ed72249d943	
-src/NPGameLib.cpp	2455	ReadMemCrc	other	not CP949 text (binary or obfuscated bytes)	014025b963a9fc743906fa9b44ef7e2d3c296a3a68	
 src/Npc.cpp	44	CBlowEffect::OnInit	path	argument of SetSprName(), a file or resource name	c0ccc6d1c6ae5cc0ccc6d1c6ae2e737072	이팩트\\이팩트.spr
 src/Npc.cpp	45	CBlowEffect::OnInit	path	argument of SetActName(), a file or resource name	c0ccc6d1c6ae5cc0ccc6d1c6ae2e616374	이팩트\\이팩트.act
 src/Npc.cpp	280	CNumEffect::OnInit	path	argument of SetSprName(), a file or resource name	c0ccc6d1c6ae5cbcfdc0da2e737072	이팩트\\숫자.spr
@@ -1751,9 +1502,6 @@ src/Npc.cpp	608	CNpc::SetSprJob	path	file name shape (folder separator or resour
 src/Npc.cpp	609	CNpc::SetSprJob	path	file name shape (folder separator or resource extension)	c0ceb0a3c1b75cb8f6c5eb5c25732e616374	인간족\\몸통\\%s.act
 src/Npc.cpp	614	CNpc::SetSprJob	path	file name shape (folder separator or resource extension)	b8f3bdbac5cd5c25732e737072	몬스터\\%s.spr
 src/Npc.cpp	615	CNpc::SetSprJob	path	file name shape (folder separator or resource extension)	b8f3bdbac5cd5c25732e616374	몬스터\\%s.act
-src/PacketProtect.cpp	366	InitPacketProtect	other	not CP949 text (binary or obfuscated bytes)	a3fe918febe1dc5c41e02040aea6aba7	
-src/PacketProtect.cpp	373	InitPacketProtect	other	not CP949 text (binary or obfuscated bytes)	1bc20aca43dc7d2fb3a9d0364d986aee	
-src/PacketProtect.cpp	380	InitPacketProtect	other	not CP949 text (binary or obfuscated bytes)	ebb6dc11aad8307c2fe6bdc758fc6e5d	
 src/Pc.cpp	60	#define PATH_HUMAN	path	assigned to PATH_HUMAN, a file or folder name part	c0ceb0a3c1b75c	인간족\\
 src/Pc.cpp	289	CPc::SetSprWeapon	path	file name shape (folder separator or resource extension)	c0ceb0a3c1b75c2573257325732e616374	인간족\\%s%s%s.act
 src/Pc.cpp	292	CPc::SetSprWeapon	path	file name shape (folder separator or resource extension)	c0ceb0a3c1b75c2573257325732e737072	인간족\\%s%s%s.spr
@@ -2163,8 +1911,6 @@ src/RagEffect2.cpp	24859	CRagEffect::Vallentine	path	argument of SetSprName(), a
 src/RagEffect2.cpp	24860	CRagEffect::Vallentine	path	argument of SetActName(), a file or resource name	c0ccc6d1c6ae5c726f326566666563742e616374	이팩트\\ro2effect.act
 src/RagEffect2.cpp	24867	CRagEffect::Vallentine	path	argument of SetSprName(), a file or resource name	c0ccc6d1c6ae5c76616c6c656e74696e652e737072	이팩트\\vallentine.spr
 src/RagEffect2.cpp	24868	CRagEffect::Vallentine	path	argument of SetActName(), a file or resource name	c0ccc6d1c6ae5c76616c6c656e74696e652e616374	이팩트\\vallentine.act
-src/SafeAPI.cpp	62		other	not CP949 text (binary or obfuscated bytes)	0119b0467a25ea6e4888634da384859441323e	
-src/SafeAPI.cpp	171	DeleteTempSafeDll	other	not CP949 text (binary or obfuscated bytes)	01a55432b6b15683349454	
 src/Session.cpp	197	CSession::Init	displayed	default: not a path, not a diagnostic (review)	bfebbab4	용병
 src/Session.cpp	562	CSession::InitTable	other	debug trace (a BFT_GAME line in the port)	bcbcbcc720bfa1bcad20c5d7c0ccbaed20c3cab1e2c8ad20b3a1	세션 에서 테이블 초기화 끝
 src/Session.cpp	611	CSession::InitPcNameTable	path	initial entry of a sprite folder name table	c3cabab8c0da	초보자
@@ -3993,20 +3739,6 @@ src/base/FindHack.cpp	658	NKCStartKeycrypt	other	anti-cheat or security module; 
 src/base/Res.cpp	200	CResMgr::Get	path	file name shape (folder separator or resource extension)	7370726974655cb8f3bdbac5cd5c706f72696e672e737072	sprite\\몬스터\\poring.spr
 src/base/Res.cpp	202	CResMgr::Get	path	file name shape (folder separator or resource extension)	7370726974655cb8f3bdbac5cd5c706f72696e672e616374	sprite\\몬스터\\poring.act
 src/base/xml.cpp	140	XMLDocument::ReadDocument	other	debug trace (a BFT_GAME line in the port)	c0ccc0fc20584d4c446f63756d656e74b8a620bbe8c1a6c7d5b4cfb4d92e2121	이전 XMLDocument를 삭제합니다.!!
-src/cKeyProtector.cpp	27	cKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f6	키보드 보안 정지
-src/cKeyProtector.cpp	30	cKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f620bdc7c6d0	키보드 보안 정지 실패
-src/cKeyProtector.cpp	59	cKeyProtector::InitKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820444c4cc0bb20c0bb20bcbab0f8c0fbc0b8b7ce204c6f616420c7cfbfb4bdc0b4cfb4d92e0a	키보드 보안 DLL을 을 성공적으로 Load 하였습니다.\n
-src/cKeyProtector.cpp	62	cKeyProtector::InitKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec8c0bb204c6f6164c7cfb4c2b5a520bdc7c6d0c7cfbfb4bdc0b4cfb4d92e0a	키보드 보안을 Load하는데 실패하였습니다.\n
-src/cKeyProtector.cpp	66	cKeyProtector::InitKeyProtector	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820444c4cc0bb20b7ceb5e5c7cfb4c2b5a520bdc7c6d0c7cfbfb4bdc0b4cfb4d92e0a	키보드 보안 DLL을 로드하는데 실패하였습니다.\n
-src/cKeyProtector.cpp	81	cKeyProtector::Start	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820bdbac5b8c6ae	키보드 보안 스타트
-src/cKeyProtector.cpp	83	cKeyProtector::Start	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820bdbac5b8c6ae20bdc7c6d0	키보드 보안 스타트 실패
-src/cKeyProtector.cpp	98	cKeyProtector::Stop	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f6	키보드 보안 정지
-src/cKeyProtector.cpp	100	cKeyProtector::Stop	other	anti-cheat or security module; not run for the english service type	c5b0bab8b5e520bab8bec820c1a4c1f620bdc7c6d0	키보드 보안 정지 실패
-src/cSecureGamePack.cpp	56	cSecureGamePack	other	anti-cheat or security module; not run for the english service type	5365637572652047616d65205061636bc0cc20c1a4bbf3c0fbc0b8b7ce20c7d8c1a6c7cfbfb4bdc0b4cfb4d9	Secure Game Pack이 정상적으로 해제하였습니다
-src/cSecureGamePack.cpp	87	cSecureGamePack::InitSecureGamePack	other	anti-cheat or security module; not run for the english service type	494d455343484c502e646c6cc0bb20b7ceb5e5c7cfb4c2b5a520bdc7c6d0	IMESCHLP.dll을 로드하는데 실패
-src/cSecureGamePack.cpp	122	cSecureGamePack::InitSecureGamePack	other	anti-cheat or security module; not run for the english service type	5365637572652047616d65205061636bc0cc20c1a4bbf3c0fbc0b8b7ce20bdc7c7e0b5c7befabdc0b4cfb4d9	Secure Game Pack이 정상적으로 실행되었습니다
-src/cSecureGamePack.cpp	134	cSecureGamePack::InitSecureGamePack	other	anti-cheat or security module; not run for the english service type	b3bbbacec0fbc0ce20bfc0b7f9b0a120b9dfbbfdc7cfbfa920b4f520c0ccbbf320c1f8c7e0c7d220bcf620bef8bdc0b4cfb4d920202020200a0abfa1b7af20c4dab5e53a203078253038582c20307825303858	내부적인 오류가 발생하여 더 이상 진행할 수 없습니다     \n\n에러 코드: 0x%08X, 0x%08X
-src/cSecureGamePack.cpp	202	cSecureGamePack::DestroySecureGamePack	other	anti-cheat or security module; not run for the english service type	5365637572652047616d65205061636bc0cc20c1a4bbf3c0fbc0b8b7ce20c7d8c1a6c7cfbfb4bdc0b4cfb4d9	Secure Game Pack이 정상적으로 해제하였습니다
 src/framework/Language.cpp	679	CLanguageTC::CLanguageTC	other	code-page conversion table	a374a378a3bea3bfa3a4a3bda3bba3aba3afa3b3a376a3a73f3f3fa3a2a3a6a3a9a3aca3b9a3ada3b1a3aaa3baa3b0a3b4a375a3a1a37aa3a53fa3a3a3793fa3a8a377a3b7a3b5a3aea3b2a3b6	즨즬＞？＄＝；＋／３즪＇???＂＆），９－１＊：０４즩！즮％?＃즭?（즫７５．２６
 src/framework/Locale.cpp	205	InitClientInfo	path	assigned to TITLE_FILE, a file or folder name part	c0afc0fac0cec5cdc6e4c0ccbdba5c6267695f74656d702e626d70	유저인터페이스\\bgi_temp.bmp
 src/framework/Locale.cpp	330	SetOption	path	file name shape (folder separator or resource extension)	c0afc0fac0cec5cdc6e4c0ccbdba5c2573	유저인터페이스\\%s
