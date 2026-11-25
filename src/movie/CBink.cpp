@@ -9,8 +9,9 @@
 #include <ddraw.h>
 #include "CBink.h"
 #if defined(BF_PORT)
-// The SDK's names on the port's Bink reader (port/compat/bink, M12.4a).
-#include "bf_bink_sdk.h"
+// The movie player of the port (port/client, bf_movie.h) in place of the
+// Bink SDK: the reader, the sound module and the clock (M12.4a, M11.10).
+#include "bf_movie.h"
 #include "../base/File.h"
 #endif
 
@@ -33,6 +34,24 @@ extern BinkSleepState g_binkSleep;
 extern unsigned __int64 g_binkFrequency;
 extern int g_binkGotFrequency;
 
+namespace {
+// The pixel format of a DirectDraw 7 surface for bf_movie_copy, as the Bink
+// SDK's BinkDDSurfaceType named it: 32-bit X8R8G8B8, 16-bit 5:6:5 and 5:5:5;
+// -1 for anything else.
+int MovieSurfaceFormat(LPDIRECTDRAWSURFACE7 s)
+{
+    DDPIXELFORMAT pf;
+    if (!s) return -1;
+    memset(&pf, 0, sizeof pf);
+    pf.dwSize = sizeof pf;
+    if (FAILED(s->GetPixelFormat(&pf)) || !(pf.dwFlags & DDPF_RGB)) return -1;
+    if (pf.dwRGBBitCount == 32 && pf.dwRBitMask == 0xFF0000 && pf.dwBBitMask == 0xFF) return BF_MOVIE_BGRA8888;
+    if (pf.dwRGBBitCount == 16 && pf.dwGBitMask == 0x07E0) return BF_MOVIE_RGB565;
+    if (pf.dwRGBBitCount == 16 && pf.dwGBitMask == 0x03E0) return BF_MOVIE_XRGB1555;
+    return -1;
+}
+}
+
 
 
 CBink::CBink()
@@ -42,9 +61,9 @@ CBink::CBink()
     m_IsBinkPlaying = 0;
 }
 
-int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
+int CBink::BinkShowNextFrame(bf_movie* bink, HWND__* window)
 {
-    BinkDoFrame(bink);
+    bf_movie_decode(bink);
 
     LPDIRECTDRAWSURFACE7 lpSurfaceDest = g_3dDevice.GetFrontBuffer();
     LPDIRECTDRAWSURFACE7 lpSurfaceSrc  = g_3dDevice.GetBackBuffer();
@@ -53,7 +72,7 @@ int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
     RECT                 src          = { 0, 0, 0x200, 0x15b };
     RECT                 dest;
 
-    surface_type = BinkDDSurfaceType(lpSurfaceSrc);
+    surface_type = MovieSurfaceFormat(lpSurfaceSrc);
 #if defined(BF_PORT)
     // Bink only writes: without WRITEONLY the adapter would read the whole
     // target back first (port/compat/d3d, "Lazy render-target lock").
@@ -63,7 +82,7 @@ int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
 #endif
         return 0;
     }
-    BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, ddsd.dwHeight, 0, 0, surface_type);
+    bf_movie_copy(bink, ddsd.lpSurface, ddsd.lPitch, ddsd.dwHeight, 0, 0, surface_type);
     lpSurfaceSrc->Unlock(NULL);
 
     GetClientRect(g_hMainWnd, &dest);
@@ -72,10 +91,10 @@ int CBink::BinkShowNextFrame(BINK* bink, HWND__* window)
 
     lpSurfaceDest->Blt(&dest, lpSurfaceSrc, &src, DDBLT_WAIT, NULL);
 
-    if (bink->FrameNum == bink->Frames) {
+    if (bf_movie_frame(bink) == bf_movie_frames(bink)) {
         return 0;
     }
-    BinkNextFrame(bink);
+    bf_movie_next(bink);
     return 1;
 }
 
@@ -112,7 +131,7 @@ void CBink::BinkGoodSleepUs(int microseconds)
 
 int CBink::InitOpenning()
 {
-    BinkSoundUseDirectSound(0);
+    bf_movie_use_sound(1);   // the SDK's DirectSound: the movie's sound plays
 #if defined(BF_PORT)
     // BF_INTRO_MOVIE names another movie in place of openning.bik, which
     // none of the port's data has: an absolute path, or a name the file
@@ -121,19 +140,19 @@ int CBink::InitOpenning()
     if (other && *other) {
         unsigned int size = 0;
         void* data = other[0] == '/' ? NULL : g_fileMgr.GetData(other, &size);
-        m_Bink = data ? BfBinkOpenMemory(data, size, other) : BinkOpen(other, 0);
+        m_Bink = data ? bf_movie_open_memory(data, size, other) : bf_movie_open(other);
         if (data) g_fileMgr.ReleaseData(data);
         return m_Bink != 0;
     }
 #endif
-    m_Bink = BinkOpen("openning.bik", 0);
+    m_Bink = bf_movie_open("openning.bik");
     return m_Bink != 0;
 }
 
 int CBink::CloseOpenning()
 {
     if (m_Bink) {
-        BinkClose(m_Bink);
+        bf_movie_close(m_Bink);
         m_Bink = 0;
     }
     return 1;
@@ -142,7 +161,7 @@ int CBink::CloseOpenning()
 int CBink::Break(unsigned short param)
 {
     if (m_IsBinkPlaying) {
-        if (param == 'g') BinkGoto(m_Bink, 1500, BINKGOTOQUICK);
+        if (param == 'g') bf_movie_goto(m_Bink, 1500);
         else              m_IsBinkPlaying = 0;
 
         if (param == 'R') m_BinkMode = 0;
@@ -158,7 +177,7 @@ void CBink::Pause(int flag)
     // Spec section 3: in the background the client keeps running at full
     // rate; the movie too.
 #else
-    BinkPause(m_Bink, flag);
+    bf_movie_pause(m_Bink, flag);
 #endif
 }
 
@@ -205,10 +224,10 @@ void CBink::OpenningMain(int flag)
         return;
     }
     if (!InitOpenning()) {
-        BF_TRACE(BFT_UI, "intro: no movie (%s)", BinkGetError());
+        BF_TRACE(BFT_UI, "intro: no movie (%s)", bf_movie_error());
         return;
     }
-    BF_TRACE(BFT_UI, "intro: start, %u frames", m_Bink->Frames);
+    BF_TRACE(BFT_UI, "intro: start, %u frames", bf_movie_frames(m_Bink));
 #else
     if (m_BinkMode == 1 && flag == 1) return;
     if (!InitOpenning()) return;
@@ -227,7 +246,7 @@ void CBink::OpenningMain(int flag)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
-            if (!BinkWait(m_Bink)) {
+            if (!bf_movie_wait(m_Bink)) {
                 if (!BinkShowNextFrame(m_Bink, g_hMainWnd) || m_IsBinkPlaying == false) break;
             } else {
                 BinkGoodSleepUs(500);
@@ -236,8 +255,8 @@ void CBink::OpenningMain(int flag)
     }
     m_IsBinkPlaying = false;
 #if defined(BF_PORT)
-    BF_TRACE(BFT_UI, "intro: end at frame %u of %u (%s)", m_Bink->LastFrameNum, m_Bink->Frames,
-             m_Bink->LastFrameNum >= m_Bink->Frames ? "ended" : "stopped");
+    BF_TRACE(BFT_UI, "intro: end at frame %u of %u (%s)", bf_movie_last_frame(m_Bink), bf_movie_frames(m_Bink),
+             bf_movie_last_frame(m_Bink) >= bf_movie_frames(m_Bink) ? "ended" : "stopped");
 #endif
     CloseOpenning();
     WriteBinkModeRegistry();
