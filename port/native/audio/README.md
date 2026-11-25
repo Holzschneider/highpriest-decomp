@@ -1,6 +1,6 @@
 # audio
 
-Sound for the port. It provides AVAudioEngine voices for effects, one looping music stream read from a file, and WAV and MP3 decoding through AudioToolbox. The contract is [`include/bf_audio.h`](include/bf_audio.h). [`MILES-USAGE.md`](MILES-USAGE.md) lists every Miles call the client makes and what the adapter maps it to, and names the variables the fade thread shares with the main thread.
+Sound for the port. It provides AVAudioEngine voices for effects, one looping music stream read from a file, and WAV and MP3 decoding through AudioToolbox. The contract is [`include/bf_audio.h`](include/bf_audio.h). [`MILES-USAGE.md`](MILES-USAGE.md) lists every Miles call the 2008 client made and what the adapter of stage A mapped it to, and names the variables the fade thread shares with the main thread. Since M11.6 the client calls this module itself; see "The client" below.
 
 ## Build and test
 
@@ -31,6 +31,16 @@ What it checks:
 - **Recent voices, for tests:** every call of `bf_audio_play` (started or refused) goes into a ring of the last 64 (`bf_audio_recent_voices`), with the volume and pan as passed and the sound's length. A caller that knows the file name and the distance tags the next call on its thread (`bf_audio_tag_next_voice`); the client's `PlayWave` does, and the control socket's `sound` part and event read the ring. `bf_audio_stream_position` gives the seconds into the current pass from the player's clock (0 in SILENT mode).
 - **The DES-flagged `.wav` files** of `data.grf` (the button sound, the Poring's, the Novice's) decode once the client's GRF reader has decrypted them: M7's `sound` harness script plays them in the client.
 - **SDK deprecations:** the macOS 27 SDK deprecates `connect:to:…format:` and `play` in favour of `…error:` variants that exist only on macOS 27. The module targets macOS 14 and keeps the old calls, which do not warn at that target.
+
+## The client
+
+Since M11.6 `src/device/Sound.cpp` and `src/resource/Wave.cpp` call this module directly; the Miles adapter (`port/compat/miles`) and `src/device/Mss.h` are gone. What the adapter decided now lives in the client:
+
+- **Driver (`InitMSS`, `UnInitMSS`):** `bf_audio_start(DEVICE, 48 voices)` unless the module already runs (the intro movie starts it first, a test may start it OFFLINE); a SILENT fallback still counts as a driver. `UnInitMSS` stops the voices and the stream, then `bf_audio_stop`.
+- **Sample handles:** `CMssVariables::hSamples` are `CMssSample`s (allocated, voice, volume 0..127). `PlayDigital` takes the first allocated one whose voice is no longer playing, stops it, and plays at `volume / 127` (clamped), pan 0, once; a wave that cannot be decoded takes the handle and starts nothing. Sound mode 2 allocates no handle (no 3D provider), as Miles without one did; `Play3DDigital` falls back to `PlayDigital`; `SetRoomEffect` and `SetListenerOrient` do nothing.
+- **The decoded sound** belongs to the `CWave`: `Load` keeps the file image (PCM, ADPCM, MP3 alike), the first play makes the `bf_audio_sound` from it and frees the image, `Reset` destroys the sound. An image that cannot be decoded is traced once per load (`sound: <file> cannot be played`, counter `sound.undecodable_waves`) and not tried again. The address-keyed cache of the adapter, and with it the stale-address rules (`bf_miles_forget_image`, the drop on `AIL_file_type` and `AIL_mem_free_lock`), are no longer needed.
+- **The music stream:** `PlayStream` resolves the client's name (`bgm\01.mp3`) under the game folder in any letter case with `bf_file_resolve` (a missing file is still handed to `bf_audio_stream_open`, which counts the failure), then volume, loop count 0 and start. `hDigitalStream` is a flag, under `Sound.cpp`'s stream lock, so the fade thread's calls cannot reach a closed stream (the adapter's stale-token check).
+- **Volumes** are Miles' 0..127 over 127, for samples and the stream.
 
 ## Untested or open
 

@@ -1,5 +1,7 @@
 # How the client uses Miles, and what the adapter maps it to
 
+**History since M11.6:** the adapter is deleted and the client calls `bf_audio_*` itself; [README.md](README.md), "The client", says where each rule below went. This file is kept as the record of the mapping.
+
 The specification of the Miles adapter (step M7.2a, `port/compat`). It lists every `AIL_*` function the client calls, where, how, and the `bf_audio_*` call (header: [`include/bf_audio.h`](include/bf_audio.h)) that replaces it. Gathered from `src/device/Sound.cpp`, `src/resource/Wave.cpp`, `src/Mode.cpp`, `src/WinMain.cpp`, `src/Session.cpp`, `src/GameMode*.cpp`, `src/LoginMode.cpp` and `src/window/UIFrameWnd2.cpp`. `src/device/Mss.h` declares about 400 more; nothing calls them.
 
 ## The path that runs

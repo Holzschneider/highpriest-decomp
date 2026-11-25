@@ -3,9 +3,11 @@
  * effects, one looping music stream read from a file, and WAV and MP3
  * decoding through AudioToolbox.
  *
- * This header is the contract the Miles adapter (port/compat) is written
- * against; port/native/audio/MILES-USAGE.md says which AIL_* call maps to
- * which function here. It is a C header usable from C and C++14.
+ * This header is the contract the client's sound code is written against:
+ * src/device/Sound.cpp and src/resource/Wave.cpp call it directly since
+ * M11.6 (before, the Miles adapter of port/compat did; MILES-USAGE.md says
+ * which AIL_* call became which function here). It is a C header usable from
+ * C and C++14.
  *
  * Threads. Decoding functions keep no state and may be called from any
  * thread at the same time. Every other function may be called from any
