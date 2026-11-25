@@ -2,8 +2,8 @@
  * bf_clock: the one clock of the process.
  *
  * Nothing else in the port reads the time. Every timeGetTime, GetTickCount,
- * QueryPerformanceCounter, Sleep and GetLocalTime of the client ends here,
- * through the adapters in port/compat and later directly.
+ * QueryPerformanceCounter, Sleep and GetLocalTime of the 2008 client ends
+ * here; since M11.1 the client calls these functions directly.
  *
  * The real source is mach_absolute_time, counted from the moment the module
  * is loaded. A replacement source can be installed (bf_clock_set_source) so
