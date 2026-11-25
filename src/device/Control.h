@@ -15,8 +15,10 @@ enum {
 };
 
 class CMouse;
+#ifndef BF_PORT
 struct IDirectInputA;
 struct IDirectInputDeviceA;
+#endif
 
 class CMouse {
 	friend int SetAcquire(int acquire);
@@ -54,8 +56,12 @@ public:
 	void SetWBtn(EBtnState);
 	void SetButtonPressed(int n) { m_oldBtnState[n] = m_btnState[n] = BTN_PRESSED; }
 private:
+#if defined(BF_PORT)
+	int m_pMouse;   // the port's mouse (bf_input.h) is set up
+#else
 	IDirectInputA* m_lpdi;
 	IDirectInputDeviceA* m_pMouse;
+#endif
 	void* m_hevtMouse;
 	int m_xDelta;
 	int m_yDelta;

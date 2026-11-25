@@ -504,8 +504,12 @@ void	CSession :: WriteOptionToRegistry()
 		DWORD isGravityID = g_isGravityID;
 		bf_setting_set(hKey, "g_isGravityID", isGravityID);
 
+#if defined(BF_PORT)
+		RECT windowRect = { 0, 0, 0, 0 };   // macOS owns the window's position; stored as 0, as before
+#else
 		RECT windowRect;
 		GetWindowRect(g_hMainWnd, &windowRect);
+#endif
 		bf_setting_set(hKey, "window_left", windowRect.left);
 		bf_setting_set(hKey, "window_top", windowRect.top);
 		bf_setting_close(hKey);
@@ -7243,7 +7247,11 @@ const char *	CSession :: RemoveUnderbar(const char *msg, char *buf)
 	while(*textIter) {
 		if(*textIter == '_')
 			*textIter = ' ';
+#if defined(BF_PORT)
+		textIter += bf_text_char_length(g_codePage, textIter, -1);
+#else
 		textIter = CharNextExA(g_codePage, textIter, 0);
+#endif
 	}
 
 	return	buf;

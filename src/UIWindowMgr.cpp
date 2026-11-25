@@ -1,6 +1,7 @@
 #include "common.h"
 #include "bf_setting_key.h"
 #include "bf_sys.h"
+#include "bf_input.h"
 #include "device/Control.h"
 #include "GameMode.h"
 #include "3dlib/DrawUtil.h"
@@ -4667,7 +4668,11 @@ bool UIWindowMgr::ExcuteMsgInBattleModeVietnam(int lnKey)
 
 inline BOOL CheckKeyPressed(int vkcode)
 {
+#if defined(BF_PORT)
+	return HIBYTE(bf_input_async_key_state(vkcode));
+#else
 	return HIBYTE(GetAsyncKeyState(vkcode));
+#endif
 }
 
 void UIWindowMgr::SetTextAtBattleMode()
@@ -4739,7 +4744,11 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 			break;
 		}
 		if (m_editWindow) {
+#if defined(BF_PORT)
+			if (bf_input_async_key_state(VK_SHIFT)) {
+#else
 			if (GetAsyncKeyState(VK_SHIFT)) {
+#endif
 				if (IsFirstFocusEdit(m_editWindow))
 					SetFocusEditLast();
 				else

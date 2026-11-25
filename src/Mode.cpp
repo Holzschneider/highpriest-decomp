@@ -8,6 +8,7 @@
 
 int g_mustPumpOutReceiveQueue = 0;
 #include "bf_sys.h"
+#include "bf_input.h"
 #include <atomic>
 #include "Mode.h"
 #include "GameMode.h"
@@ -36,7 +37,11 @@ std::atomic<int> FadeCnt(0);
 
 inline BOOL CheckKeyPressed(int vkcode)
 {
+#if defined(BF_PORT)
+	return HIBYTE(bf_input_async_key_state(vkcode));
+#else
 	return HIBYTE(GetAsyncKeyState(vkcode));
+#endif
 }
 
 void ErrorMsg(const char *msg)
@@ -51,7 +56,7 @@ void ErrorMsg(const char *msg)
 void ErrorMsg(int num)
 {
 	char buf[0x50];
-	wsprintfA(buf, "%d\n", num);
+	sprintf(buf, "%d\n", num);   // wsprintfA's %d is printf's
 #if defined(BF_PORT)
 	BF_TRACE(BFT_ERR, "ErrorMsg: %d", num);
 #endif

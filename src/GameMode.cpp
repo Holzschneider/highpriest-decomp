@@ -1,5 +1,6 @@
 #include "common.h"
 #include "bf_setting_key.h"
+#include "bf_input.h"
 #include "packet.h"
 #include "PaddingPacket.h"
 #include "GameMode.h"
@@ -184,7 +185,11 @@ bool g_pingLog = false;
 
 inline int CheckKeyPressed(int vkcode)
 {
+#if defined(BF_PORT)
+	return HIBYTE(bf_input_async_key_state(vkcode));
+#else
 	return HIBYTE(GetAsyncKeyState(vkcode));
+#endif
 }
 
 inline bool IsGatherJob(int job)

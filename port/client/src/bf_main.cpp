@@ -19,9 +19,8 @@
 // command line was (WinMain parses it with strstr).
 //
 // The graphics device is created by bf_port_start_graphics, which WinMain
-// calls right after InitApp has made the window (the input adapter's
-// CreateWindowExA creates the window, its Metal layer and the view): one
-// line in WinMain, and neither adapter creates what the other owns.
+// calls right after InitApp has made the window (bf_input_window_create
+// creates the window, its Metal layer and the view): one line in WinMain.
 //
 // The control socket is served from bf_port_frame, which CheckSystemMessage
 // calls at the top of every frame of both modes: the frame presented last is
@@ -45,11 +44,11 @@
 #include "bf_app.h"
 #include "bf_clock.h"
 #include "bf_compat_d3d.h"
-#include "bf_compat_input.h"
 #include "bf_coverage.h"
 #include "bf_control.h"
 #include "bf_file.h"
 #include "bf_gfx.h"
+#include "bf_input.h"
 #include "bf_port.h"
 #include "bf_prefs.h"
 #include "bf_settings.h"
@@ -85,9 +84,8 @@ uint64_t ClockMs()
 void Quit(void *)
 {
 	// What Cmd+Q does: WM_CLOSE to the window, whose procedure sets g_sysQuit.
-	HWND w = bf_compat_input_main_window();
-	if (w)
-		PostMessageA(w, WM_CLOSE, 0, 0);
+	if (bf_input_window())
+		bf_input_post(WM_CLOSE, 0, 0);
 	else
 		exit(0);
 }
@@ -648,7 +646,7 @@ int main(int argc, char **argv)
 		bf_prefs_install_menu_item();
 		// Display/UIScale, as the settings window writes it; absent: auto (0),
 		// the view's rule.
-		bf_compat_input_set_scale_setting(bf_settings_int(bf_settings_shared(), BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE, 0));
+		bf_input_set_scale_setting(bf_settings_int(bf_settings_shared(), BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE, 0));
 	}
 
 	const char *control = bf_control_path_from_args(argc, argv);

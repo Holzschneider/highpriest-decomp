@@ -14,6 +14,7 @@
 #include "../../native/sys/include/bf_settings.h"
 #include "../../native/sys/include/bf_sys.h"
 #include "../../native/strings/include/bf_strings.h"
+#include "../../native/text/include/bf_text.h"
 
 #ifdef __cplusplus
 extern "C" {

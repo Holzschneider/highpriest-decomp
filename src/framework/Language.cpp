@@ -4,9 +4,12 @@
 #include "ftwbrk.h"
 #include "../base/File.h"
 #include "../base/Res.h"
+#include "bf_input.h"
 
 #include <windows.h>
+#ifndef BF_PORT
 #include <imm.h>
+#endif
 #include <minmax.h>
 #include <string>
 #include <list>
@@ -150,7 +153,11 @@ CLanguage :: CLanguage()
 	m_languageFolder(""),
 	m_underLineStart(0),
 	m_underLineEnd(0),
+#if defined(BF_PORT)
+	m_langId(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US))	// the keyboard layout the port reports (macOS composes the text)
+#else
 	m_langId(LOWORD(GetKeyboardLayout(0)))
+#endif
 {
 	m_codePage = g_multiLang ? (GetCodePageFromLang(m_langId)) : g_codePage;
 
@@ -281,6 +288,11 @@ void CLanguage :: SetSelection(int origin, int cursor)
 
 const char* CLanguage :: GetCandidateString(int nCandidate)
 {
+#if defined(BF_PORT)
+	// m_candidateCount stays 0: macOS input methods show their own
+	// candidates and commit the text, which arrives as WM_CHAR.
+	return "";
+#else
 	if(nCandidate < m_candidateCount) {
 
 		wchar_t*	candidateStrW = (wchar_t*)(&m_candidateBuffer[m_candidateList->dwOffset[nCandidate]]);
@@ -294,6 +306,7 @@ const char* CLanguage :: GetCandidateString(int nCandidate)
 	} else {
 		return "";
 	}
+#endif
 }
 
 LRESULT CLanguage :: ProcessImeMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, bool* trapped)
@@ -310,6 +323,7 @@ LRESULT CLanguage :: ProcessImeMessage(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 
 		case WM_IME_COMPOSITION:
+#ifndef BF_PORT   // the IME messages never come under the port: macOS composes the text
 			if(lParam&GCS_COMPSTR) {
 				GetImeCompStr();
 				ClearKeyStroke();
@@ -324,6 +338,7 @@ LRESULT CLanguage :: ProcessImeMessage(HWND hWnd, UINT message, WPARAM wParam, L
 			if(lParam&GCS_COMPATTR) {
 				GetImeCompAttr();
 			}
+#endif
 			break;
 
 		case WM_IME_ENDCOMPOSITION:
@@ -332,6 +347,7 @@ LRESULT CLanguage :: ProcessImeMessage(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 
 		case WM_IME_NOTIFY:
+#ifndef BF_PORT
 			switch (wParam) {
 				case IMN_OPENCANDIDATE:
 				case IMN_CHANGECANDIDATE:
@@ -342,6 +358,7 @@ LRESULT CLanguage :: ProcessImeMessage(HWND hWnd, UINT message, WPARAM wParam, L
 					m_candidateCount = 0;
 					break;
 			}
+#endif
 			break;
 		default:
 		*trapped = 0;
@@ -375,7 +392,11 @@ void CLanguage :: OnChar(WPARAM wParam, LPARAM lParam)
 
 void CLanguage :: OnKeyDown(WPARAM wParam, LPARAM lParam)
 {
+#if defined(BF_PORT)
+	if(HIBYTE(bf_input_key_state(VK_SHIFT))) {
+#else
 	if(HIBYTE(GetKeyState(VK_SHIFT))) {
+#endif
 		switch(wParam) {
 		case VK_LEFT:
 			DecreaseSelection();
@@ -396,7 +417,11 @@ void CLanguage :: OnKeyDown(WPARAM wParam, LPARAM lParam)
 			CopyTextFromClipBoard();
 			break;
 		}
+#if defined(BF_PORT)
+	} else if(HIBYTE(bf_input_key_state(VK_CONTROL))) {
+#else
 	} else if(HIBYTE(GetKeyState(VK_CONTROL))) {
+#endif
 		switch(wParam) {
 		case 'X':
 			CutTextToClipBoard();
@@ -441,11 +466,20 @@ void CLanguage :: HideText(bool bHideText)
 
 const char* CLanguage :: GetWordBreak(const char* text, unsigned int size)
 {
+#if defined(BF_PORT)
+	return text + bf_text_char_length(g_codePage, text, -1);
+#else
 	return CharNextExA(g_codePage, text, 0);
+#endif
 }
 
 void CLanguage :: GetImeCompStr()
 {
+#if defined(BF_PORT)
+	// No input method context under the port (ImmGetContext gave NULL):
+	// macOS composes the text and commits it as characters.
+	m_compStr.resize(0);
+#else
 	HIMC himc = ImmGetContext(g_hMainWnd);
 	if(!himc) { m_compStr.resize(0); return; }
 
@@ -458,12 +492,16 @@ void CLanguage :: GetImeCompStr()
 	ImmReleaseContext(g_hMainWnd, himc);
 
 	m_compStr.assign(compStr, compStr+compStrLen);
+#endif
 }
 
 
 
 void CLanguage :: GetImeResultStr()
 {
+#if defined(BF_PORT)
+	m_compStr.resize(0);   // no input method context
+#else
 	HIMC himc = ImmGetContext(g_hMainWnd);
 	if(!himc) { m_compStr.resize(0); return; }
 
@@ -490,6 +528,7 @@ void CLanguage :: GetImeResultStr()
 	ImmReleaseContext(g_hMainWnd, himc);
 
 	AddInput((const char*)resultStr);
+#endif
 }
 
 void CLanguage :: GetImeCompAttr()
@@ -499,16 +538,23 @@ void CLanguage :: GetImeCompAttr()
 
 void CLanguage :: GetImeCursorPos()
 {
+#if defined(BF_PORT)
+	m_compStr.resize(0);   // no input method context
+#else
 	HIMC himc = ImmGetContext(g_hMainWnd);
 	if(!himc) { m_compStr.resize(0); return; }
 
 	ImmGetCompositionString(himc, GCS_CURSORPOS, &m_compCursorPos, sizeof(m_compCursorPos));
 
 	ImmReleaseContext(g_hMainWnd, himc);
+#endif
 }
 
 void CLanguage :: GetImeCandidateList()
 {
+#if defined(BF_PORT)
+	m_candidateCount = 0;   // no input method context
+#else
 	HIMC himc = ImmGetContext(g_hMainWnd);
 
 	if(himc) {
@@ -534,10 +580,12 @@ void CLanguage :: GetImeCandidateList()
 	} else {
 		m_candidateCount = 0;
 	}
+#endif
 }
 
 void CLanguage :: CancelComposition()
 {
+#ifndef BF_PORT   // no input method context: nothing to cancel
 	HIMC himc = ImmGetContext(g_hMainWnd);
 
 	if(!himc) return;
@@ -545,6 +593,7 @@ void CLanguage :: CancelComposition()
 	ImmNotifyIME(himc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
 
 	ImmReleaseContext(g_hMainWnd, himc);
+#endif
 }
 
 void CLanguage :: AddInput(const char* input)
@@ -558,6 +607,16 @@ void CLanguage :: CopyTextToClipBoard()
 {
 	if(!GetSelectionSize()) return;
 
+#if defined(BF_PORT)
+	// The selection, or as many '*' when the text is hidden, to the Mac
+	// clipboard (bf_input.h: CP1252 to UTF-8, CR LF as LF).
+	int start, end;
+	GetSelectionRange(&start, &end);
+	if(!m_bHideText)
+		bf_input_clipboard_set_text(m_input.c_str()+start, GetSelectionSize());
+	else
+		bf_input_clipboard_set_text(string(GetSelectionSize(), '*').c_str(), GetSelectionSize());
+#else
 	if (!OpenClipboard(g_hMainWnd)) return;
 
 	HANDLE hText = GlobalAlloc(GMEM_DDESHARE, GetSelectionSize()+1);
@@ -587,10 +646,20 @@ void CLanguage :: CopyTextToClipBoard()
 	}
 
 	CloseClipboard();
+#endif
 }
 
 void CLanguage :: CopyTextFromClipBoard()
 {
+#if defined(BF_PORT)
+	// The Mac clipboard's text in CP1252, lines ending CR LF (bf_input.h).
+	char* lpText = bf_input_clipboard_text();
+
+	if(lpText) {
+		AddInput(lpText);
+		free(lpText);
+	}
+#else
 	if(!OpenClipboard(g_hMainWnd)) return;
 
 	HANDLE hText = GetClipboardData(CF_TEXT);
@@ -606,6 +675,7 @@ void CLanguage :: CopyTextFromClipBoard()
 	}
 
 	CloseClipboard();
+#endif
 }
 
 void CLanguage :: CutTextToClipBoard()
@@ -621,7 +691,11 @@ void CLanguage :: IncreaseSelection()
 	else if(m_selectionCursor > m_input.size())
 		m_selectionCursor = m_input.size();
 	else
+#if defined(BF_PORT)
+		m_selectionCursor += bf_text_char_length(m_codePage, m_input.c_str() + m_selectionCursor, -1);
+#else
 		m_selectionCursor = CharNextExA(m_codePage, m_input.c_str() + m_selectionCursor, 0) - m_input.c_str();
+#endif
 }
 
 void CLanguage :: DecreaseSelection()
@@ -631,7 +705,11 @@ void CLanguage :: DecreaseSelection()
 	else if(m_selectionCursor < 0)
 		m_selectionCursor = 0;
 	else
+#if defined(BF_PORT)
+		m_selectionCursor = bf_text_char_prev(m_codePage, m_input.c_str(), m_selectionCursor);
+#else
 		m_selectionCursor = CharPrevExA(m_codePage, m_input.c_str(), m_input.c_str() + m_selectionCursor, 0) - m_input.c_str();
+#endif
 }
 
 void CLanguage :: DeleteSelection()
@@ -655,7 +733,11 @@ void CLanguage :: MoveUpSelection( int newPos )
 			m_selectionCursor -= newPos;
 	}
 
+#if defined(BF_PORT)
+	if ( !HIBYTE(bf_input_key_state(VK_SHIFT)) )
+#else
 	if ( !HIBYTE(GetKeyState(VK_SHIFT)) )
+#endif
 		m_selectionOrigin = m_selectionCursor;
 }
 
@@ -671,7 +753,11 @@ void CLanguage :: MoveDownSelection( int newPos )
 			m_selectionCursor += newPos;
 	}
 
+#if defined(BF_PORT)
+	if ( !HIBYTE(bf_input_key_state(VK_SHIFT)) )
+#else
 	if ( !HIBYTE(GetKeyState(VK_SHIFT)) )
+#endif
 		m_selectionOrigin = m_selectionCursor;
 }
 

@@ -12,6 +12,7 @@
 // The movie player of the port (port/client, bf_movie.h) in place of the
 // Bink SDK: the reader, the sound module and the clock (M12.4a, M11.10).
 #include "bf_movie.h"
+#include "bf_input.h"
 #include "../base/File.h"
 #endif
 
@@ -85,9 +86,19 @@ int CBink::BinkShowNextFrame(bf_movie* bink, HWND__* window)
     bf_movie_copy(bink, ddsd.lpSurface, ddsd.lPitch, ddsd.dwHeight, 0, 0, surface_type);
     lpSurfaceSrc->Unlock(NULL);
 
+#if defined(BF_PORT)
+    // The client area in logical pixels; "screen" coordinates are the client's.
+    int destW, destH;
+    bf_input_client_size(&destW, &destH);
+    dest.left = 0;
+    dest.top = 0;
+    dest.right = destW;
+    dest.bottom = destH;
+#else
     GetClientRect(g_hMainWnd, &dest);
     ClientToScreen(g_hMainWnd, (POINT*)&dest.left);
     ClientToScreen(g_hMainWnd, (POINT*)&dest.right);
+#endif
 
     lpSurfaceDest->Blt(&dest, lpSurfaceSrc, &src, DDBLT_WAIT, NULL);
 
@@ -209,7 +220,11 @@ int CBink::WriteBinkModeRegistry()
 
 void CBink::OpenningMain(int flag)
 {
+#if defined(BF_PORT)
+    bf_input_msg msg;
+#else
     MSG msg;
+#endif
 
     ReadBinkModeRegistry();
 #if defined(BF_PORT)
@@ -241,11 +256,18 @@ void CBink::OpenningMain(int flag)
         bf_port_frame();
         if (g_sysQuit) break;
 #endif
+#if defined(BF_PORT)
+        if (bf_input_peek(&msg)) {
+            if (msg.message == WM_QUIT) break;
+            bf_input_dispatch(&msg);
+        } else {
+#else
         if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
+#endif
             if (!bf_movie_wait(m_Bink)) {
                 if (!BinkShowNextFrame(m_Bink, g_hMainWnd) || m_IsBinkPlaying == false) break;
             } else {

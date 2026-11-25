@@ -35,6 +35,7 @@
 #include "GameMode.h"
 #if defined(BF_PORT)
 #include "LoginMode.h"
+#include "bf_input.h"
 #endif
 
 
@@ -92,7 +93,9 @@ int g_isLightMap = 1;
 Registry RStr;
 char g_baseDir3[128];
 Registry2 g_registry;
+#ifndef BF_PORT   // unused: the edit controls are the client's own
 WNDPROC lpfnNewEditWndProc;
+#endif
 CBink g_Bink;
 HWND g_hMainWnd = NULL;
 HWND g_hActiveXWnd = NULL;
@@ -169,6 +172,13 @@ void CheckSystemMessage()
 	if (g_bfModalDepth)
 		return;   // inside bf_client_modal_frame: AppKit holds the event loop
 #endif
+#if defined(BF_PORT)
+	// The port's pump (bf_input.h): PeekMessage and TranslateMessage in one;
+	// no VK_PROCESSKEY ever comes (macOS composes text itself).
+	bf_input_msg msg;
+	while (bf_input_peek(&msg))
+		bf_input_dispatch(&msg);
+#else
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
@@ -179,6 +189,7 @@ void CheckSystemMessage()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#endif
 }
 
 bool GetWindowActiveMode()
@@ -292,11 +303,15 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			if (GetWindowActiveMode())
 			{
 				g_activatedNow = TRUE;
+#ifndef BF_PORT   // macOS owns the window's state
 				ShowWindow(hWnd, SW_MAXIMIZE);
+#endif
 			}
 			else
 			{
+#ifndef BF_PORT
 				ShowWindow(hWnd, SW_MINIMIZE);
+#endif
 			}
 		}
 		return TRUE;
@@ -308,7 +323,11 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	case WM_EXITMENULOOP:
 	case WM_EXITSIZEMOVE:
+#if defined(BF_PORT)
+		SetWindowActiveMode(TRUE);   // never sent; the window is never iconic to the client
+#else
 		SetWindowActiveMode(GetActiveWindow() == hWnd || !IsIconic(hWnd));
+#endif
 		break;
 
 	case WM_CLOSE:
@@ -324,6 +343,7 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		if (g_windowMgr.ProcessPushButton(wParam, (~(UINT)lParam >> 30) & 1, 0)) return 0;
 		break;
 
+#ifndef BF_PORT   // AppKit has no system menu: never sent
 	case WM_SYSCOMMAND:
 		switch (wParam & 0xFFF0)
 		{
@@ -342,13 +362,18 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 		}
 		break;
+#endif
 
 	case WM_MOUSEMOVE:
 		if (GetWindowActiveMode() == FALSE && g_3dDevice.IsFullscreen() == FALSE)
 		{
 			POINT ptMouse;
+#if defined(BF_PORT)
+			bf_input_cursor_pos(&ptMouse.x, &ptMouse.y);   // logical: "screen" coordinates are the client's
+#else
 			GetCursorPos(&ptMouse);
 			ScreenToClient(g_hMainWnd, &ptMouse);
+#endif
 			g_mouse.SetXPos(ptMouse.x);
 			g_mouse.SetYPos(ptMouse.y);
 		}
@@ -356,7 +381,11 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 	case WM_SETCURSOR:
 		if (g_3dDevice.IsFullscreen() == FALSE)
+#if defined(BF_PORT)
+			bf_input_hide_cursor();
+#else
 			SetCursor(NULL);
+#endif
 		return 0;
 
 	case WM_IME_SETCONTEXT:
@@ -442,17 +471,30 @@ LRESULT FAR PASCAL WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		return TRUE;
 
 	case WM_PAINT:
+#ifndef BF_PORT   // never sent
 		ValidateRect(hWnd, NULL);
+#endif
 		return 0;
 	}
 
+#if defined(BF_PORT)
+	return bf_input_default_proc(hWnd, message, wParam, lParam);
+#else
 	return DefWindowProcA(hWnd, message, wParam, lParam);
+#endif
 }
 
 int InitApp(HINSTANCE hInstance, int nCmdShow)
 {
 	g_hInstance = hInstance;
 
+#if defined(BF_PORT)
+	// main's bf_app_init made the single-instance test: a second launch has
+	// brought this one to the front and left before WinMain (g_multiSTOP
+	// stays 0). The window's position is macOS's: bf_app centres it, the
+	// user moves it, and Session.cpp stores 0 for window_left/window_top.
+	g_hMainWnd = bf_input_window_create(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, WindowProc);
+#else
 	if (FindWindowA(WINDOW_NAME, WINDOW_NAME))
 		g_multiSTOP = 1;
 
@@ -477,25 +519,10 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 	bool lResult = bf_setting_open(hKey, OptionPath);
 	if (lResult)
 	{
-#if defined(BF_PORT)
-		// the value is a DWORD; win_left and win_top are shorts (a 4-byte read overruns them)
-		DWORD stored;
-		DATALENGTH = sizeof(stored);
-		if (!bf_setting_read(hKey, "window_left", &stored, &DATALENGTH))
-			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
-		else
-			win_left = (short)stored;
-		DATALENGTH = sizeof(stored);
-		if (!bf_setting_read(hKey, "window_top", &stored, &DATALENGTH))
-			win_top = 0;
-		else
-			win_top = (short)stored;
-#else
 		if (!bf_setting_read(hKey, "window_left", &win_left, &DATALENGTH))
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 		if (!bf_setting_read(hKey, "window_top", &win_top, &DATALENGTH))
 			win_top = 0;
-#endif
 		if ((short)win_left > GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH)
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 		if ((short)win_left < 0)
@@ -511,15 +538,19 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 								 (short)win_left, (short)win_top,
 								 windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 								 NULL, NULL, hInstance, NULL);
+#endif
 	if (!g_hMainWnd)
 	{
 		bf_port_alert("ERROR", "Window Creation Failed", BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 		return 0;
 	}
 
+#ifndef BF_PORT   // bf_app shows the window when it makes it
 	ShowWindow(g_hMainWnd, SW_SHOW);
 	UpdateWindow(g_hMainWnd);
+#endif
 
+#ifndef BF_PORT   // the keyboard-crypt driver: IsEnableOldKeycrypt() is false (FindHack.cpp)
 	if (IsEnableOldKeycrypt())
 	{
 		if (NpKeyMyLoadLibrary())
@@ -582,6 +613,7 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 			}
 		}
 	}
+#endif
 
 	if (strlen(bf_file_location(BF_LOCATION_GAME)) < 0x80)   // the game folder, if it fits
 		strcpy(g_baseDir3, bf_file_location(BF_LOCATION_GAME));
@@ -594,7 +626,11 @@ void ExitApp()
 #ifndef BF_PORT
 	CoUninitialize();
 #endif
+#if defined(BF_PORT)
+	bf_input_window_destroy();
+#else
 	DestroyWindow(g_hMainWnd);
+#endif
 }
 
 extern const char* g_regPath;
@@ -939,9 +975,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	if (!CConnection::Startup()) return 1;
 
 	InitTimer(60);
+#if defined(BF_PORT)
+	// SetFocus: keyboard focus is the system's
+	if (g_3dDevice.IsFullscreen())
+		bf_input_hide_cursor();
+#else
 	SetFocus(g_hMainWnd);
 	if (g_3dDevice.IsFullscreen())
 		ShowCursor(FALSE);
+#endif
 	SetHwnd();
 	g_mouse.Init();
 
@@ -986,7 +1028,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifndef BF_PORT
 	CoUninitialize();
 #endif
+#if defined(BF_PORT)
+	bf_input_window_destroy();
+#else
 	DestroyWindow(g_hMainWnd);
+#endif
 	DeleteHack();
 #ifndef BF_PORT
 	CoUninitialize();

@@ -7,7 +7,10 @@
 #define DIRECTINPUT_VERSION 0x0700
 #include <windows.h>
 #include <mmsystem.h>
+#ifndef BF_PORT
 #include <dinput.h>
+#endif
+#include "bf_input.h"
 
 #include "Control.h"
 #include "../3dlib/Device.h"
@@ -17,6 +20,12 @@ CMouse g_mouse;
 
 void CMouse::Init()
 {
+#if defined(BF_PORT)
+	// The port's mouse (bf_input.h) in place of DirectInput's system mouse:
+	// the same state, in the logical pixels the client draws in.
+	m_pMouse = 1;
+	bf_input_mouse_acquire(1);
+#else
 	HRESULT hr;
 
 	hr = DirectInputCreateA(g_hInstance, DIRECTINPUT_VERSION, &m_lpdi, NULL);
@@ -39,6 +48,7 @@ void CMouse::Init()
 	}
 
 	m_pMouse->Acquire();
+#endif
 
 	m_xPos = 320;
 	m_yPos = 240;
@@ -51,14 +61,24 @@ void CMouse::Init()
 	m_dblclkTime = 500;
 
 
+#if defined(BF_PORT)
+	m_bSwapButton = FALSE;   // macOS swaps the buttons before the app module reports them
+#else
 	if (GetSystemMetrics(SM_SWAPBUTTON) != 0)
 		m_bSwapButton = TRUE;
 	else
 		m_bSwapButton = FALSE;
+#endif
 }
 
 void CMouse::Exit()
 {
+#if defined(BF_PORT)
+	if (m_pMouse) {
+		bf_input_mouse_acquire(0);
+		m_pMouse = 0;
+	}
+#else
 	if (m_lpdi) {
 		if (m_pMouse) {
 			m_pMouse->Unacquire();
@@ -68,11 +88,16 @@ void CMouse::Exit()
 		m_lpdi->Release();
 		m_lpdi = NULL;
 	}
+#endif
 }
 
 void CMouse::ReadState()
 {
+#if defined(BF_PORT)
+	bf_input_mouse_state mouseState;
+#else
 	DIMOUSESTATE mouseState;
+#endif
 	int curBtnState[3];
 	HRESULT hr;
 
@@ -84,11 +109,19 @@ void CMouse::ReadState()
 	m_yDelta = 0;
 	m_wheel = 0;
 
+#if defined(BF_PORT)
+	hr = bf_input_mouse_read(m_xPos, m_yPos, &mouseState);
+	if (FAILED(hr) && g_isAppActive) {
+		bf_input_mouse_acquire(1);
+		hr = bf_input_mouse_read(m_xPos, m_yPos, &mouseState);
+	}
+#else
 	hr = m_pMouse->GetDeviceState(sizeof(mouseState), &mouseState);
 	if (FAILED(hr) && g_isAppActive) {
 		m_pMouse->Acquire();
 		hr = m_pMouse->GetDeviceState(sizeof(mouseState), &mouseState);
 	}
+#endif
 
 	if (SUCCEEDED(hr)) {
 		m_xPos += mouseState.lX;
@@ -171,9 +204,13 @@ HRESULT SetAcquire(BOOL acquire)
 {
 	if (!g_mouse.m_pMouse)
 		return S_FALSE;
+#if defined(BF_PORT)
+	bf_input_mouse_acquire(acquire);
+#else
 	if (acquire)
 		g_mouse.m_pMouse->Acquire();
 	else
 		g_mouse.m_pMouse->Unacquire();
+#endif
 	return S_OK;
 }

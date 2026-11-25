@@ -6,7 +6,9 @@ class CLanguage;
 class CLanguageTC;
 class CLanguageTH;
 struct HWND__;
+#ifndef BF_PORT
 struct tagCANDIDATELIST;
+#endif
 
 typedef enum {
 	LanguageKorean = 0,
@@ -82,7 +84,11 @@ protected:
 	void ClearCandidate();
 protected:
 	std::deque<unsigned int> m_fakeInput;
+#if defined(BF_PORT)
+	void* m_candidateList;   // no input method candidates under the port (Language.cpp)
+#else
 	tagCANDIDATELIST* m_candidateList;
+#endif
 	int m_candidateCount;
 	int m_candidatePageSize;
 	int m_candidateSelection;
