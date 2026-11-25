@@ -131,7 +131,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 9a31eb4 | M9.3 Translation of the table | tools | M9.2 |
 | [x] 72ebb50 | M9.4 Font mapping and text test screen | src | M4.5a |
 | [x] e1ef316 | M9.5 Coverage report | src | M9.2, M6 exit |
-| [ ] | M9 exit (verifier) | | M8 exit, M9.1–M9.5 |
+| [x] d064da0 | M9 exit (verifier) | | M8 exit, M9.1–M9.5 |
 
 ## M10. Protocol seam
 
