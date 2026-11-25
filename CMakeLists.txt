@@ -195,7 +195,6 @@ endfunction()
 # C++17 and without the game's tree. Areas own disjoint sets of Win32 names:
 #   win32  kernel32, advapi32, winmm, shell32, MessageBox (on port/native/sys)
 #   d3d    DirectDraw 7, Direct3D 7 (on port/native/gfx)
-#   gdi    gdi32 (on port/native/text)
 # BF_COMPAT_ADAPTER tells the prefix header that the source is port code: the
 # C library's file names (fopen, access, remove, ...) keep their own meaning
 # there instead of going through the game-folder translation of the win32 area.
@@ -207,7 +206,7 @@ function(bf_compat_flags target)
 	target_include_directories(${target} SYSTEM PRIVATE ${BF_CLIENT_WIN_HEADERS})
 	set_target_properties(${target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 endfunction()
-set(BF_COMPAT_AREAS win32 d3d gdi)
+set(BF_COMPAT_AREAS win32 d3d)
 set(BF_COMPAT_LIBS)
 add_custom_target(compat)
 foreach(area IN LISTS BF_COMPAT_AREAS)
