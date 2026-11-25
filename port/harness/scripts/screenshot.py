@@ -1,4 +1,4 @@
-"""M8.1g (second half): screenshots.
+"""M8.1g (second half): screenshots; and the chat log /savechat writes.
 
 Done when (implementation plan, M8.1; spec section 5): the 2008 client's
 screenshot key writes the picture to ~/Pictures/<name>/, a JPEG (Ctrl with
@@ -21,6 +21,12 @@ read here): its size is the client's screen (the `view` part), its pixels
 are not black and resemble the frame the control socket captures at the same
 moment (mean brightness within a tolerance).
 
+The same for the chat log: `/savechat` (TT_REQ_SAVE_CHAT, UINewChatWnd::
+WriteChatToFile) writes Chat\Chat.txt below g_baseDir3, which lands in
+<run dir>/home/Documents/<name>/Chat/, and the chat line names it there.
+With `BF_APP_FOLDER` set to a long path (110, 300, 1000 bytes), the run also
+shows that the game folder's length does not matter (g_baseDir3 is "C:").
+
 Set-up: a fresh account whose character bifrost-bot creates, at
 prt_fild08 230,250 (SQL).
 """
@@ -37,7 +43,7 @@ from bfharness.play import enter_game, login, own_home
 
 NAME = "screenshot"
 MILESTONE = "M8"
-DESCRIPTION = "the screenshot key writes a JPEG (Ctrl: BMP) of the screen to ~/Pictures/<name>/ and says so"
+DESCRIPTION = "the screenshot key writes a JPEG (Ctrl: BMP) of the screen to ~/Pictures/<name>/, /savechat the chat log to ~/Documents/<name>/Chat/, and each says so"
 MANIFEST = "port/harness/manifests/m8-screenshot.sha256"
 NEEDS_SERVER = True
 
@@ -61,6 +67,12 @@ def app_name():
     import re
     m = re.search(r'set\(BF_APP_NAME "([^"]+)"\)', text)
     return m.group(1) if m else APP
+
+
+def documents(t):
+    if t.mock:
+        return t.run_dir / "mock-documents"
+    return t.run_dir / "home" / "Documents" / app_name()
 
 
 def listing(d):
@@ -181,6 +193,7 @@ def run(t):
     env["BF_MULTI_INSTANCE"] = "1"     # other clients may be running on this machine
     if t.mock:
         env["BF_MOCK_PICTURES"] = str(pictures(t))
+        env["BF_MOCK_DOCUMENTS"] = str(documents(t))
     ctl = t.launch(env=env)
     login(t, ctl, user, password)
     enter_game(t, ctl)
@@ -191,9 +204,27 @@ def run(t):
         take(t, s, ctl, "screenshot-bmp", ("ctrl",), ".bmp")
     with t.step("Cmd+Shift+S", "the Print Screen substitute for Apple keyboards: a JPEG in Pictures/<name>/") as s:
         take(t, s, ctl, "screenshot-cmd-shift-s", (), ".jpg", key=("s", "cmd", "shift"))
-    with t.step("the user's own folder", "nothing written to ~/Pictures/<name>/ by this run") as s:
+    with t.step("/savechat", "the chat log: Chat\\Chat.txt in Documents/<name>/Chat/, the chat line names it") as s:
+        folder = documents(t) / "Chat"
+        before = listing(folder)
+        real_chat = Path(os.path.expanduser("~/Documents")) / app_name() / "Chat"
+        real_before = listing(real_chat)
+        after_seq = ctl.last_seq
+        ctl.say("/savechat")
+        ev = ctl.wait_event("chat", lambda e: "is Saved" in (e.get("text") or ""), after=after_seq, timeout=15)
+        s.state("chat line", ev["text"])
+        time.sleep(0.5)
+        new = {k: v for k, v in listing(folder).items() if k not in before}
+        s.state("new files in %s" % folder, new)
+        ok(s, len(new) == 1, "one new file (%d)" % len(new))
+        name = sorted(new)[0] if new else ""
+        ok(s, name.lower().startswith("chat") and name.lower().endswith(".txt"), "%s: Chat...txt" % name)
+        ok(s, str(folder / name) in ev["text"], "the chat line names the file where it is: %s" % (folder / name))
+        ok(s, new.get(name, 0) > 0, "not empty: %d bytes" % new.get(name, 0))
+    with t.step("the user's own folder", "nothing written to ~/Pictures/<name>/ or ~/Documents/<name>/Chat/ by this run") as s:
         real = Path(os.path.expanduser("~/Pictures")) / app_name()
         s.state("pictures folder of this run", str(pictures(t)))
         mine = [n for n in listing(real) if n in listing(pictures(t))]
         ok(s, not mine or t.mock, "none of this run's files in %s" % real)
+        ok(s, listing(real_chat) == real_before, "%s unchanged by /savechat" % real_chat)
     t.stop_client()

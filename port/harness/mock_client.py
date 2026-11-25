@@ -540,6 +540,18 @@ class SkillsOptionsMixin:
             o["isEffectOn"] = 1 - o["isEffectOn"]
             self.system("Effects On" if o["isEffectOn"] else "Effects Off")
             return True
+        if cmd == "/savechat":   # UINewChatWnd::WriteChatToFile: Chat\\Chat.txt in Documents/<name>/Chat
+            folder = os.path.join(os.environ.get("BF_MOCK_DOCUMENTS") or os.path.join(
+                os.path.dirname(os.environ.get("BF_MOCK_DB") or self.path), "mock-documents"), "Chat")
+            os.makedirs(folder, exist_ok=True)
+            name, n = "Chat.txt", 0
+            while os.path.exists(os.path.join(folder, name)):
+                n += 1
+                name = "Chat%03d.txt" % n
+            with open(os.path.join(folder, name), "w") as f:
+                f.write("chat log\n")
+            self.system("%s is Saved." % os.path.join(folder, name))
+            return True
         if cmd == "/camera":
             o["g_isFixedCamera"] = 1 - o["g_isFixedCamera"]
             self.system("Camera Zooming On" if o["g_isFixedCamera"] else "Camera Zooming Off")
