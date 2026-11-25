@@ -7,8 +7,9 @@ item actor, the client picks it up by clicking it, and the server logs the
 pickup and holds the item in the inventory.
 
 Set-up: a fresh group-99 account and its male Novice (bifrost-bot creates
-the character and logs out again; SQL places it on prt_fild08;
-play.fresh_character). In game, the
+the character and logs out again; SQL places it on prt_fild08 at 200,340,
+open ground away from the south gate's arrival, where gate, sound, soak and
+english_session spawn their Porings; play.fresh_character). In game, the
 client types `@monster 1002 1` (a Poring beside the character; set-up by
 atcommand, in atcommandlog).
 
@@ -26,12 +27,19 @@ and job_exp after logout against the row before login. The ground item is
 the actor of type `item` at the Poring's cell; a click on it sends
 CZ_ITEM_PICKUP and the server logs picklog type P for the character, and the
 `inventory` table holds the item after logout.
+
+Porings are looters, and the field has its own besides those other scripts
+spawn: one standing by takes a drop within a second (picklog type L). So the
+drop is clicked the moment it lands (field.grab_drop, as gate.py does), and
+if it was lost to a looter another Poring is fought, up to six; the pick-up
+itself is always the client's click, confirmed by picklog P.
 """
 
 import re
+import time
 
 from bfharness.accounts import unique_name
-from bfharness.field import ground_items, kill_until_drop, ok, pick_up
+from bfharness.field import find, grab_drop, kill_until_drop, ok
 from bfharness.play import enter_game, fresh_character, login, own_home
 from bfharness.sql import wait_rows
 
@@ -42,7 +50,7 @@ MANIFEST = "port/harness/manifests/m8-combat.sha256"
 NEEDS_SERVER = True
 
 PORING = 1002
-START = ("prt_fild08", 170, 375)
+START = ("prt_fild08", 200, 340)
 
 
 def run(t):
@@ -61,7 +69,22 @@ def run(t):
     t.gm.ctl = ctl
     first = ctl.last_seq
 
-    _, cell, drops = kill_until_drop(t, ctl, PORING, START[0])
+    mark = t.logs.mark()
+    grabbed = {}
+
+    def on_death(s, cell):
+        grabbed["item"] = grab_drop(ctl, s, cell)
+
+    def picked(drops):
+        it = grabbed.pop("item", None)
+        if not drops or not it or it["job"] not in set(r["nameid"] for r in drops):
+            return False
+        rows = wait_rows(lambda: t.logs.picked_up(char_id, it["job"], after=mark), timeout=20)
+        if rows:
+            grabbed.update(item=it, rows=rows)
+        return bool(rows)
+
+    _, cell, drops = kill_until_drop(t, ctl, PORING, START[0], tries=6, on_death=on_death, enough=picked)
 
     with t.step("attack sounds", "M8.1c/M7: the attack's voices: the own character's act sound, the hit, the Poring's") as s:
         vs = [e for e in ctl.events_named("sound", first) if e.get("started")]
@@ -80,15 +103,20 @@ def run(t):
 
     with t.step("the drop on the ground", "M8.1c: the monster's drop appears as an item actor") as s:
         ok(s, drops, "a Poring dropped something (picklog M)")
-        dropped = set(r["nameid"] for r in drops)
-        items = ground_items(ctl, dropped, cell)
-        s.state("items near %r" % (cell,), items)
-        ok(s, items, "an item of %s on the ground beside the Poring's last cell" % sorted(dropped))
+        s.rows("picklog M from mob %d on %s" % (PORING, START[0]), drops, min_rows=0)
+        it = grabbed.get("item")
+        s.state("the item actor clicked as it landed beside %r" % (cell,), it)
+        ok(s, it and it["job"] in set(r["nameid"] for r in drops),
+           "an item actor of the Poring's drop on the ground beside its last cell, within 6 kills "
+           "(Porings loot drops)")
         s.frame("drop")
 
     with t.step("pick it up", "M8.1c: a click on the item picks it up (picklog P)") as s:
-        it = items[0]
-        pick_up(t, ctl, s, it, char_id)
+        s.rows("picklog P item %s by %d" % (it["job"], char_id), grabbed["rows"])
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline and find(ctl, it["id"]):
+            time.sleep(0.5)
+        ok(s, not find(ctl, it["id"]), "the item is gone from the ground")
         picked = it["job"]
 
     t.stop_client()
