@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_sys.h"
 #include "device/Control.h"
 #include "GameMode.h"
 #include "3dlib/DrawUtil.h"
@@ -5053,8 +5054,7 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 			return true;
 		}
 		else if (g_session.IsMasterAid(8) && CheckKeyPressed(VK_CONTROL)) {
-			unsigned int threadId;
-			CreateThread(NULL, 0, FinalStrike, this, 0, &threadId);
+			bf_sys_thread_create(FinalStrike, this, NULL);
 			return true;
 		}
 		break;

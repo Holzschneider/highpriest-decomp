@@ -1224,13 +1224,13 @@ void	CRenderObject :: RenderBody(matrix &vtm, char FLAG1)
 
 	if (g_session.m_isDA_illusionON == 1 && FLAG1 == 1)
 	{
-		SYSTEMTIME sTime;
-		GetLocalTime(&sTime);
+		bf_clock_date sTime;
+		bf_clock_local_time(&sTime);
 
 		int DA_job;
-		if ((sTime.wDay % 3) == 0)
+		if ((sTime.day % 3) == 0)
 			DA_job = 0x520;
-		else if ((sTime.wDay % 3) == 1)
+		else if ((sTime.day % 3) == 1)
 			DA_job = 0x56d;
 		else
 			DA_job = 0x4f8;

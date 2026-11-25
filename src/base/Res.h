@@ -2,6 +2,7 @@
 #define HIGHPRIEST_BASE_RES_H
 
 #include "hash.h"
+#include "bf_sys.h"
 
 
 class CRes {
@@ -70,7 +71,7 @@ private:
 	std::vector<char const *> m_typeDir;
 	std::vector<CRes *> m_objTypes;
 	std::vector<std::map<CHash *, CRes *, ResPtrLess > > m_fileList;
-	_RTL_CRITICAL_SECTION m_GetResSection;
+	bf_sys_mutex *m_GetResSection;
 	std::map<std::string, std::string> m_realResName;
 public:
 	unsigned int m_usedForSprTexture;

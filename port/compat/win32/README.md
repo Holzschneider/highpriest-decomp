@@ -1,6 +1,6 @@
-# compat/win32: kernel32, the registry, winmm's clock, ShellExecute, MessageBox, the C library's file calls
+# compat/win32: kernel32, the registry, ShellExecute, MessageBox, the C library's file calls
 
-The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_clock`, `bf_file`, `bf_settings`, threads, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below.
+The Win32 system names the client calls (step M3.1a), on `port/native/sys` (`bf_file`, `bf_settings`, Keychain, alerts) and `port/native/text` (code pages). Stage A only: M11 deletes this folder and changes the call sites to the native functions named below. Time, threads, critical sections and `Interlocked*` left with M11.1 (`bf_win32_thread.cpp`): the client calls `bf_clock_*`, `bf_sys_thread_*` and `bf_sys_mutex_*` itself, and the compiler's atomics.
 
 ```
 cmake --preset debug && cmake --build --preset debug --target bf_compat_win32 bifrost-compat-win32-test
@@ -22,14 +22,14 @@ The macros rename the name everywhere in a game unit, the standard headers inclu
 
 ## Names
 
-Kernel objects (files, mappings, finds, threads) are registered handles: a handle the client never got (`FindClose(INVALID_HANDLE_VALUE)`, `RegCloseKey` of a key whose open failed, `WaitForSingleObject(NULL)`) fails with `ERROR_INVALID_HANDLE` instead of crashing. `GetLastError` is per thread. `CP_ACP` is `bf_file_user_codepage()`, the code page the client sets with `bf_file_set_user_codepage` per service (949 by default, 1252); it also decodes registry names and `REG_SZ` data and message box text.
+Kernel objects (files, mappings, finds) are registered handles: a handle the client never got (`FindClose(INVALID_HANDLE_VALUE)`, `RegCloseKey` of a key whose open failed) fails with `ERROR_INVALID_HANDLE` instead of crashing. `GetLastError` is per thread. `CP_ACP` is `bf_file_user_codepage()`, the code page the client sets with `bf_file_set_user_codepage` per service (949 by default, 1252); it also decodes registry names and `REG_SZ` data and message box text.
 
 | Name | Maps to | Notes |
 |---|---|---|
 | `CreateFileA` | `bf_file_open` | dispositions 1-5 to `BF_FILE_CREATE/TRUNCATE/EXCLUSIVE`; `ERROR_ALREADY_EXISTS` after `CREATE_ALWAYS`/`OPEN_ALWAYS` on an existing file; `ERROR_FILE_EXISTS` for `CREATE_NEW` |
 | `ReadFile`, `WriteFile` | `bf_file_read`, `bf_file_write` | no `OVERLAPPED` (stub) |
 | `SetFilePointer`, `GetFileSize`, `SetEndOfFile`, `FlushFileBuffers` | `bf_file_seek/tell/size`, `bf_file_truncate_here` | 64-bit with the high part; `ERROR_NEGATIVE_SEEK` |
-| `CloseHandle` | the object's release (`bf_file_close`, mapping, `bf_sys_thread_release`) | pseudo-handles ignored |
+| `CloseHandle` | the object's release (`bf_file_close`, mapping) | the process pseudo-handle ignored |
 | `DeleteFileA`, `MoveFileA`, `CreateDirectoryA`, `GetFileAttributesA` | `bf_file_remove`, `bf_file_rename`, `bf_file_make_folder`, `bf_file_stat` | not called by the client today |
 | `FindFirstFileA`, `FindNextFileA`, `FindClose` | `bf_file_find_*` | `*`/`?` without regard to case; `.` and `..` not listed; game files `FILE_ATTRIBUTE_READONLY` |
 | `CreateFileMappingA`, `MapViewOfFile`, `UnmapViewOfFile` | `bf_file_map_open_file` | the whole file mapped read-only once; a view is `data + offset` (offset a multiple of 64 KiB, else `ERROR_MAPPED_ALIGNMENT`); the mapping lives until its handle is closed and its last view unmapped. `PAGE_READWRITE` and paging-file sections: stub |
@@ -38,17 +38,6 @@ Kernel objects (files, mappings, finds, threads) are registered handles: a handl
 | `GlobalAlloc/Lock/Unlock/Free/Size`, `LocalAlloc/Lock/Free` | `malloc` with a size header | the handle is the memory (as `GMEM_FIXED`); `GlobalSize` for the clipboard adapter |
 | `GetProcessHeap`, `HeapCompact`, `HeapAlloc`, `HeapFree` | `malloc`, `free` | |
 | `GlobalMemoryStatus` | `sysctl hw.memsize` | |
-| `GetTickCount`, `timeGetTime` | `bf_clock_ms` | |
-| `QueryPerformanceFrequency`, `QueryPerformanceCounter` | 1 MHz, `bf_clock_us` | |
-| `Sleep` | `bf_clock_sleep_ms` | |
-| `GetLocalTime`, `GetSystemTime` | `bf_clock_local_time`, `bf_clock_utc_time` | |
-| `FileTimeToSystemTime` | `gmtime_r` | |
-| `timeGetDevCaps`, `timeBeginPeriod`, `timeEndPeriod` | 1 ms .. 1000 s; no-ops | |
-| `CreateThread`, `_beginthreadex` | `bf_sys_thread_create` | ids from one counter, reported before the thread runs and equal to its `GetCurrentThreadId`; `CREATE_SUSPENDED`: stub (starts at once) |
-| `WaitForSingleObject`, `GetExitCodeThread` | `bf_sys_thread_wait` | threads only (the client waits on nothing else) |
-| `GetCurrentThread`, `GetCurrentThreadId`, `SetThreadPriority` | pseudo-handle, counter, `bf_sys_thread_set_priority` | priority of the calling thread only |
-| `InitializeCriticalSection[AndSpinCount]`, `Enter/TryEnter/Leave/DeleteCriticalSection` | `bf_sys_mutex_*` | the mutex pointer lives in `LockSemaphore`; created on first entry if never initialised |
-| `Interlocked*` | the Wine headers' inline functions | compiler atomics on the `LONG` (32-bit) |
 | `GetLastError`, `SetLastError` | thread-local | `errno` translated (`ENOENT` -> 2, `EACCES` -> 5, ...) |
 | `GetCurrentDirectoryA`, `_getcwd` | `bf_file_location(BF_LOCATION_GAME)` | |
 | `GetModuleFileNameA`, `GetModuleHandleA` | `_NSGetExecutablePath` | the executable (CLoginMode hashes it); `GetModuleHandle(name)` fails |

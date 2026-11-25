@@ -431,136 +431,17 @@ void TestRegistry()
 	Check(raw.find("secret") == std::string::npos, "  ... no password in the file");
 }
 
-// ---- Threads -------------------------------------------------------------------------
+// ---- Last error ------------------------------------------------------------------------
+// Threads, critical sections and the clock left with M11.1: the client calls
+// port/native/sys (bf_sys_thread_*, bf_sys_mutex_*, bf_clock_*) directly.
 
-CRITICAL_SECTION g_section;
-long long g_counter = 0;
-LONG g_atomic = 0;
-const int kRounds = 200000;
-
-DWORD WINAPI Worker(LPVOID argument)
+void TestLastError()
 {
-	for (int i = 0; i < kRounds; ++i) {
-		EnterCriticalSection(&g_section);
-		EnterCriticalSection(&g_section);   // recursive, as a critical section is
-		++g_counter;
-		LeaveCriticalSection(&g_section);
-		LeaveCriticalSection(&g_section);
-		InterlockedIncrement(&g_atomic);
-	}
-	return (DWORD)(uintptr_t)argument;
-}
-
-std::atomic<int> g_tryResult(-1);
-DWORD WINAPI TryWorker(LPVOID)
-{
-	g_tryResult = TryEnterCriticalSection(&g_section) ? 1 : 0;
-	if (g_tryResult == 1)
-		LeaveCriticalSection(&g_section);
-	return 0;
-}
-
-DWORD WINAPI Sleeper(LPVOID)
-{
-	Sleep(300);
-	return 0;
-}
-
-std::atomic<unsigned> g_seenId(0);
-unsigned __stdcall CrtThread(void *argument)
-{
-	g_seenId = GetCurrentThreadId();
-	return (unsigned)(uintptr_t)argument;
-}
-
-void TestThreads()
-{
-	InitializeCriticalSection(&g_section);
-	HANDLE threads[4];
-	DWORD ids[4];
-	for (int i = 0; i < 4; ++i)
-		threads[i] = CreateThread(NULL, 0, Worker, (LPVOID)(uintptr_t)(40 + i), 0, &ids[i]);
-	bool all = true;
-	DWORD code = 0;
-	for (int i = 0; i < 4; ++i) {
-		all = all && threads[i] && WaitForSingleObject(threads[i], INFINITE) == WAIT_OBJECT_0
-		      && GetExitCodeThread(threads[i], &code) && code == (DWORD)(40 + i);
-		CloseHandle(threads[i]);
-	}
-	Check(all && ids[0] && ids[0] != ids[1], "CreateThread x4, WaitForSingleObject(INFINITE), GetExitCodeThread");
-	Check(g_counter == 4LL * kRounds, "critical section under contention: no lost update (4 x 200000)");
-	Check(g_atomic == 4 * kRounds, "InterlockedIncrement under contention");
-	int bg = 0;   // GameWorld's m_bgObjThread is an int
-	InterlockedIncrement((LONG *)&bg);
-	InterlockedIncrement((LONG *)&bg);
-	Check(InterlockedDecrement((LONG *)&bg) == 1 && bg == 1, "InterlockedDecrement returns the new value");
-	LONG target = 5;
-	Check(InterlockedCompareExchange(&target, 9, 5) == 5 && target == 9 && InterlockedExchange(&target, 1) == 9,
-	      "InterlockedCompareExchange, InterlockedExchange");
-
-	EnterCriticalSection(&g_section);
-	HANDLE t = CreateThread(NULL, 0, TryWorker, NULL, 0, NULL);
-	WaitForSingleObject(t, INFINITE);
-	CloseHandle(t);
-	LeaveCriticalSection(&g_section);
-	Check(g_tryResult == 0, "TryEnterCriticalSection from another thread while held: FALSE");
-	DeleteCriticalSection(&g_section);
-
-	t = CreateThread(NULL, 0, Sleeper, NULL, 0, NULL);
-	Check(WaitForSingleObject(t, 10) == WAIT_TIMEOUT && WaitForSingleObject(t, INFINITE) == WAIT_OBJECT_0,
-	      "WaitForSingleObject with a timeout: WAIT_TIMEOUT, then WAIT_OBJECT_0");
-	CloseHandle(t);
-	Check(WaitForSingleObject(NULL, 0) == WAIT_FAILED, "WaitForSingleObject(NULL): WAIT_FAILED (no process from CreateProcess)");
-
-	unsigned tid = 0;
-	uintptr_t crt = _beginthreadex(NULL, 0, CrtThread, (void *)7, 0, &tid);   // Mode.cpp's FadeBgm
-	Check(crt && WaitForSingleObject((HANDLE)crt, INFINITE) == WAIT_OBJECT_0 && tid && g_seenId == tid,
-	      "_beginthreadex: the id it reports is the thread's GetCurrentThreadId");
-	CloseHandle((HANDLE)crt);
-	Check(SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST)
-	      && SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL), "SetThreadPriority(GetCurrentThread())");
-
 	SetLastError(1234);
 	DWORD seen = 0;
 	std::thread other([&] { SetLastError(5); seen = GetLastError(); });
 	other.join();
 	Check(GetLastError() == 1234 && seen == 5, "GetLastError is per thread");
-}
-
-// ---- Time ------------------------------------------------------------------------------
-
-void TestTime()
-{
-	DWORD last = timeGetTime();
-	bool monotonic = true;
-	for (int i = 0; i < 100000; ++i) {
-		DWORD now = timeGetTime();
-		if ((LONG)(now - last) < 0)
-			monotonic = false;
-		last = now;
-	}
-	DWORD before = timeGetTime();
-	Sleep(25);
-	DWORD slept = timeGetTime() - before;
-	Check(monotonic && slept >= 25 && slept < 1000, "timeGetTime monotonic; Sleep(25) advances it by >= 25 ms");
-	Check((LONG)(GetTickCount() - timeGetTime()) <= 0 && timeGetTime() - GetTickCount() < 50, "GetTickCount is the same clock");
-	LARGE_INTEGER f, a, b;
-	Check(QueryPerformanceFrequency(&f) && f.QuadPart == 1000000 && QueryPerformanceCounter(&a) && (Sleep(2), true)
-	      && QueryPerformanceCounter(&b) && b.QuadPart - a.QuadPart >= 2000, "QueryPerformanceFrequency/Counter: 1 MHz");
-	TIMECAPS tc;
-	Check(timeGetDevCaps(&tc, sizeof(tc)) == TIMERR_NOERROR && tc.wPeriodMin == 1 && timeBeginPeriod(1) == TIMERR_NOERROR
-	      && timeEndPeriod(1) == TIMERR_NOERROR, "timeGetDevCaps, timeBeginPeriod, timeEndPeriod (WinMain)");
-	SYSTEMTIME local, utc;
-	GetLocalTime(&local);
-	GetSystemTime(&utc);
-	Check(local.wYear >= 2024 && local.wMonth >= 1 && local.wMonth <= 12 && utc.wYear >= 2024, "GetLocalTime, GetSystemTime");
-	// 2008-04-01 12:34:56.789 UTC.
-	uint64_t t = (uint64_t)(1207053296LL + 11644473600LL) * 10000000ULL + 7890000ULL;
-	FILETIME ft = { (DWORD)t, (DWORD)(t >> 32) };
-	SYSTEMTIME st;
-	Check(FileTimeToSystemTime(&ft, &st) && st.wYear == 2008 && st.wMonth == 4 && st.wDay == 1 && st.wHour == 12
-	      && st.wMinute == 34 && st.wSecond == 56 && st.wMilliseconds == 789 && st.wDayOfWeek == 2,
-	      "FileTimeToSystemTime (GameModePacket's expiry time)");
 }
 
 // ---- Strings, memory, the rest -----------------------------------------------------------
@@ -612,10 +493,10 @@ void TestMisc()
 	Check(!CryptAcquireContextA(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT), "CryptAcquireContext: no provider");
 	OutputDebugStringA("compat-win32 test\n");
 
-	DWORD start = timeGetTime();
+	DWORD start = bf_clock_ticks();
 	Check(MessageBoxA(NULL, "Window Creation Failed", "ERROR", 0) == IDOK
 	      && MessageBoxA(NULL, "patch.exe is changed. Press ok to restart", "Alert", MB_OKCANCEL | MB_ICONINFORMATION) == IDOK
-	      && MessageBoxA(NULL, "\xC0\xAF\xC0\xFA?", "Keycrypt", 0x1044) == IDYES && timeGetTime() - start < 2000,
+	      && MessageBoxA(NULL, "\xC0\xAF\xC0\xFA?", "Keycrypt", 0x1044) == IDYES && bf_clock_ticks() - start < 2000,
 	      "MessageBox with BF_NO_ALERTS: logged, answered with the first button at once");
 	Check((INT_PTR)ShellExecuteA(NULL, "open", "http://127.0.0.1/", NULL, NULL, SW_SHOWNORMAL) > 32,
 	      "ShellExecute(open, URL) with BF_NO_OPEN: done");
@@ -661,8 +542,7 @@ int main()
 	TestMapping();
 	TestCrt();
 	TestRegistry();
-	TestThreads();
-	TestTime();
+	TestLastError();
 	TestMisc();
 
 	printf("%s: %d failed\n", g_failed ? "FAIL" : "PASS", g_failed);

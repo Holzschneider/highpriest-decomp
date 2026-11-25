@@ -8587,9 +8587,9 @@ bool	CSession :: IsHaveAnotherPalette(int job, char *palName)
 
 DWORD	CSession :: GetCurSystemTime()
 {
-	SYSTEMTIME	st;
-	GetSystemTime(&st);
-	return	(((st.wYear&0xff) * 32140800u) + (st.wMonth * 2678400u) + (st.wDay * 86400u) + ((st.wHour+9) * 3600u) + (st.wMinute * 60u) + st.wSecond)*1000u + st.wMilliseconds;
+	bf_clock_date	st;
+	bf_clock_utc_time(&st);
+	return	(((st.year&0xff) * 32140800u) + (st.month * 2678400u) + (st.day * 86400u) + ((st.hour+9) * 3600u) + (st.minute * 60u) + st.second)*1000u + st.millisecond;
 }
 
 void	CSession :: AddToExNameList(const char *exName)

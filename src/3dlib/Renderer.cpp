@@ -1975,15 +1975,15 @@ void	CRenderer :: DrawBattleFieldIcon()
 void	CRenderer :: DrawAgeRate()
 {
 	RAG_BUDGET_FILL(55)
-	SYSTEMTIME sTime;
-	GetLocalTime(&sTime);
+	bf_clock_date sTime;
+	bf_clock_local_time(&sTime);
 
-	if (sTime.wMinute == 0 && sTime.wSecond == 0 && g_AgeRate == 0)
+	if (sTime.minute == 0 && sTime.second == 0 && g_AgeRate == 0)
 	{
 		g_AgeRate = 1;
 		g_AgeAlpha = 0;
 	}
-	else if (sTime.wMinute == 0 && sTime.wSecond >= 10 && g_AgeRate == 1)
+	else if (sTime.minute == 0 && sTime.second >= 10 && g_AgeRate == 1)
 	{
 		g_AgeRate = 2;
 	}

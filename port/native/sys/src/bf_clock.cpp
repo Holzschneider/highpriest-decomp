@@ -141,3 +141,19 @@ extern "C" void bf_clock_utc_time(bf_clock_date *out)
 	gmtime_r(&now.tv_sec, &t);
 	Fill(out, t, (int)(now.tv_usec / 1000));
 }
+
+extern "C" int bf_clock_utc_date(int64_t unix_ms, bf_clock_date *out)
+{
+	int64_t ms = unix_ms % 1000;
+	int64_t seconds = unix_ms / 1000;
+	if (ms < 0) {
+		ms += 1000;
+		--seconds;
+	}
+	time_t t = (time_t)seconds;
+	struct tm tm;
+	if (!gmtime_r(&t, &tm))
+		return 0;
+	Fill(out, tm, (int)ms);
+	return 1;
+}

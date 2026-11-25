@@ -5291,10 +5291,10 @@ void	CSession :: AppendProhibit(DWORD AID, DWORD prohibitTime)
 	log.prohibitTime = prohibitTime;
 	log.AID = AID;
 	log.GID = GID;
-	SYSTEMTIME sTime;
-	GetLocalTime(&sTime);
-	log.logDate = (sTime.wYear << 16) | ((short)sTime.wMonth << 8) | (short)sTime.wDay;
-	log.logTime = (sTime.wHour << 16) | ((short)sTime.wMinute << 8) | (short)sTime.wSecond;
+	bf_clock_date sTime;
+	bf_clock_local_time(&sTime);
+	log.logDate = (sTime.year << 16) | ((short)sTime.month << 8) | (short)sTime.day;
+	log.logTime = (sTime.hour << 16) | ((short)sTime.minute << 8) | (short)sTime.second;
 	m_chatProhibitLog.push_back(log);
 
 	char *buf;

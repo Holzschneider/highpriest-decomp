@@ -133,14 +133,14 @@ CResMgr :: CResMgr()
 	m_ResModAmount = 0;
 	m_ResWavAmount = 0;
 
-	InitializeCriticalSection(&m_GetResSection);
+	m_GetResSection = bf_sys_mutex_create();
 }
 
 
 CResMgr :: ~CResMgr()
 {
 	Reset();
-	DeleteCriticalSection(&m_GetResSection);
+	bf_sys_mutex_destroy(m_GetResSection);
 }
 
 
@@ -153,7 +153,7 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 {
 	if(!fNameInput) return NULL;
 
-	EnterCriticalSection(&m_GetResSection);
+	bf_sys_mutex_lock(m_GetResSection);
 
 	char	fName[128];
 	strcpy(fName, fNameInput);
@@ -162,7 +162,7 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 
 	if(extIndex < 0)
 	{
-		LeaveCriticalSection(&m_GetResSection);
+		bf_sys_mutex_unlock(m_GetResSection);
 		return NULL;
 	}
 
@@ -174,7 +174,7 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 	if(newRes != NULL && bRefresh == false)
 	{
 		newRes->UpdateTimeStamp();
-		LeaveCriticalSection(&m_GetResSection);
+		bf_sys_mutex_unlock(m_GetResSection);
 		return newRes;
 	}
 
@@ -205,12 +205,12 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 				MakeOpenName(openFileName, fName, m_typeDir[extIndex]);
 				newRes->UpdateInfo(openFileName, extIndex);
 				m_fileList[extIndex].insert(res_map_value(&newRes->m_fName, newRes));
-				LeaveCriticalSection(&m_GetResSection);
+				bf_sys_mutex_unlock(m_GetResSection);
 				return newRes;
 			}
 #endif
 			delete newRes;
-			LeaveCriticalSection(&m_GetResSection);
+			bf_sys_mutex_unlock(m_GetResSection);
 			return NULL;
 		}
 	}
@@ -218,7 +218,7 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 	newRes->UpdateInfo(openFileName, extIndex);
 	m_fileList[extIndex].insert(res_map_value(&newRes->m_fName, newRes));
 
-	LeaveCriticalSection(&m_GetResSection);
+	bf_sys_mutex_unlock(m_GetResSection);
 
 	return newRes;
 }

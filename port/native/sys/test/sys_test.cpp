@@ -197,6 +197,15 @@ void TestClock()
 	      && date.weekday <= 6 && utc.year >= 2024,
 	      Format("clock: calendar %04d-%02d-%02d %02d:%02d:%02d.%03d", date.year, date.month, date.day,
 	             date.hour, date.minute, date.second, date.millisecond).c_str());
+
+	// 2008-04-01 12:34:56.789 UTC, a Tuesday; and 1969-12-31 23:59:59.999.
+	bf_clock_date at = {};
+	bf_clock_date before = {};
+	Check(bf_clock_utc_date(1207053296789LL, &at) && at.year == 2008 && at.month == 4 && at.day == 1
+	      && at.weekday == 2 && at.hour == 12 && at.minute == 34 && at.second == 56 && at.millisecond == 789
+	      && bf_clock_utc_date(-1, &before) && before.year == 1969 && before.month == 12 && before.day == 31
+	      && before.hour == 23 && before.second == 59 && before.millisecond == 999,
+	      "clock: utc date of a moment (FileTimeToSystemTime)");
 }
 
 // ---- Threads -----------------------------------------------------------------

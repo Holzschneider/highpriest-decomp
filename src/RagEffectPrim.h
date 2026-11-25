@@ -51,7 +51,7 @@ private:
 	vector3d m_Ambient;
 	vector3d m_EnvDiff;
 	CRagEffect* m_Effect;
-	_SYSTEMTIME m_st;
+	bf_clock_date m_st;
 	int m_nDayCount;
 };
 extern CWeather g_Weather;

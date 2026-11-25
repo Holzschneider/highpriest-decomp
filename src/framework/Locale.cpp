@@ -103,7 +103,7 @@ void InitDefaultLoadingScreen(int count = 0);
 void InitClientInfo(const char* clientInfo)
 {
 	CFile        fp;
-	SYSTEMTIME   sTime;
+	bf_clock_date sTime;
 
 	if (fp.Open(clientInfo, CFile::modeRead))
 	{
@@ -189,14 +189,14 @@ void InitClientInfo(const char* clientInfo)
 
 	if (g_serviceType == ServiceKorea)
 	{
-		GetLocalTime(&sTime);
+		bf_clock_local_time(&sTime);
 		if (g_serviceType == ServiceKorea)
 		{
-			title_random = (char)((int)sTime.wSecond % 4);
+			title_random = (char)((int)sTime.second % 4);
 		}
 		else
 		{
-			title_random = (char)((int)sTime.wSecond % 2);
+			title_random = (char)((int)sTime.second % 2);
 		}
 		goto switch_server;
 	}

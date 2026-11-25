@@ -199,10 +199,10 @@ static	int	l_TraceAI ( lua_State* L )
 		s += "\n";
 		OutputDebugString (s.c_str()) ;
 
-		SYSTEMTIME sTime;
-		GetLocalTime(&sTime);
-		DWORD logDate = (sTime.wYear << 16) | ((short)sTime.wMonth << 8) | (short)sTime.wDay;
-		DWORD logTime = (sTime.wHour << 16) | ((short)sTime.wMinute << 8) | (short)sTime.wSecond;
+		bf_clock_date sTime;
+		bf_clock_local_time(&sTime);
+		DWORD logDate = (sTime.year << 16) | ((short)sTime.month << 8) | (short)sTime.day;
+		DWORD logTime = (sTime.hour << 16) | ((short)sTime.minute << 8) | (short)sTime.second;
 
 		char *buf;
 		CFile fp;

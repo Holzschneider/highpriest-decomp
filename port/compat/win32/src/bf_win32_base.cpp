@@ -155,10 +155,10 @@ VOID WINAPI SetLastError(DWORD error)
 }
 
 // CloseHandle for every kind of kernel object; the kinds' own clean-up is in
-// their destructors (files, mappings, threads). Pseudo-handles are ignored.
+// their destructors (files, mappings). The pseudo-handle is ignored.
 BOOL WINAPI CloseHandle(HANDLE handle)
 {
-	if (handle == GetCurrentProcess() || handle == GetCurrentThread())
+	if (handle == GetCurrentProcess())
 		return TRUE;
 	{
 		std::lock_guard<std::mutex> guard(g_handleLock);

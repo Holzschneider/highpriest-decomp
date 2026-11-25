@@ -886,6 +886,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	// the x87 rounded them to 24 bits (only sprite extents and one line
 	// test use doubles).
 
+#ifndef BF_PORT   // no timer period: the clock (bf_clock) resolves far below a millisecond
 	UINT wTimerRes = 0;
 	TIMECAPS tc;
 	if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
@@ -893,6 +894,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		wTimerRes = min(max(tc.wPeriodMin, 1), tc.wPeriodMax);
 		timeBeginPeriod(wTimerRes);
 	}
+#endif
 
 	ResetTimer();
 	CoInitialize(NULL);
@@ -971,6 +973,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	DestroyWindow(g_hMainWnd);
 	DeleteHack();
 	CoUninitialize();
+#ifndef BF_PORT
 	if (wTimerRes) timeEndPeriod(wTimerRes);
+#endif
 	return 0;
 }

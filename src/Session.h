@@ -1641,7 +1641,7 @@ public:
 	std::string killedName;
 	int m_winPoint;
 	int m_losePoint;
-	_SYSTEMTIME expireTime;
+	bf_clock_date expireTime;
 	unsigned int m_homunGID;
 	char m_homunName[32];
 	int m_homunAtk;

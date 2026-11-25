@@ -1,4 +1,4 @@
-# port/compat/win32: kernel32, advapi32's registry, winmm's clock, shell32's
+# port/compat/win32: kernel32, advapi32's registry, shell32's
 # ShellExecute, user32's MessageBox and the C library's file functions on
 # client paths, on port/native/sys and port/native/text (M3.1a).
 # Built only under the root project (bf_compat_flags, bf_sys, bf_text, bf_instrument).
@@ -7,8 +7,7 @@ add_library(bf_compat_win32 STATIC
 	src/bf_win32_file.cpp
 	src/bf_win32_misc.cpp
 	src/bf_win32_registry.cpp
-	src/bf_win32_shell.cpp
-	src/bf_win32_thread.cpp)
+	src/bf_win32_shell.cpp)
 bf_compat_flags(bf_compat_win32)
 target_compile_options(bf_compat_win32 PRIVATE -Wall -Wextra)
 target_link_libraries(bf_compat_win32 PUBLIC bf_sys bf_text bf_instrument)

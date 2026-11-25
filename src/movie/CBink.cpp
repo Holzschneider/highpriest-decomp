@@ -89,7 +89,7 @@ void CBink::BinkGoodSleepUs(int microseconds)
 
     if (!got_frequency) {
         got_frequency = 1;
-        QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
+        frequency = 1000000;   // bf_clock_us counts microseconds
     }
 
     total_sleep += microseconds;
@@ -98,9 +98,9 @@ void CBink::BinkGoodSleepUs(int microseconds)
         unsigned __int64 start, end;
         total_sleep -= slept_in_advance;
 
-        QueryPerformanceCounter((LARGE_INTEGER*)&start);
+        start = bf_clock_us();
         bf_clock_sleep_ms(total_sleep / 1000);
-        QueryPerformanceCounter((LARGE_INTEGER*)&end);
+        end = bf_clock_us();
 
         end = ((end - start) * (unsigned __int64)1000000) / frequency;
 

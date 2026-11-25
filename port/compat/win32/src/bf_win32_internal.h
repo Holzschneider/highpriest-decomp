@@ -17,7 +17,7 @@ namespace bf_win32 {
 // a handle the client passes is checked before use: the client closes
 // handles it never opened (FindClose(INVALID_HANDLE_VALUE), RegCloseKey of a
 // key whose open failed).
-enum Kind { kFile = 1, kMapping, kThread, kFind };
+enum Kind { kFile = 1, kMapping, kFind };
 
 struct Object {
 	explicit Object(Kind k) : kind(k) {}

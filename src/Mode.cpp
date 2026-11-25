@@ -8,7 +8,7 @@
 #include <shellapi.h>
 
 int g_mustPumpOutReceiveQueue = 0;
-#include <process.h>
+#include "bf_sys.h"
 #include <atomic>
 #include "Mode.h"
 #include "GameMode.h"
@@ -324,7 +324,6 @@ void CMode::ProcessFadeIn()
 {
 	if (m_fadeInCount) {
 		dwFadeStart = bf_clock_ticks();
-		unsigned int hFadeBgmThread;
 #if defined(BF_PORT)
 		// M8.5 (docs/port/threads.md): the volume is tested here, on the
 		// main thread that sets it, not in the thread. The 2008 thread
@@ -332,7 +331,7 @@ void CMode::ProcessFadeIn()
 		// at 1 or more and every later fade thread waited forever.
 		if (g_session.m_BgmVolume)
 #endif
-		_beginthreadex(NULL, 0, FadeBgm, (void*)(INT_PTR)g_session.m_BgmVolume, 0, &hFadeBgmThread);
+		bf_sys_thread_create(FadeBgm, (void*)(INT_PTR)g_session.m_BgmVolume, NULL);
 		m_fadeInCount = FALSE;
 	}
 	DWORD dwFadeCurrent = (bf_clock_ticks() - dwFadeStart);
@@ -345,11 +344,10 @@ void CMode::ProcessFadeIn()
 extern unsigned int dwFadeStart;
 void CMode::RunFadeOut(int bDrawLogo)
 {
-	unsigned int hFadeBgmThread;
 #if defined(BF_PORT)
 	if (g_session.m_BgmVolume)   // M8.5: see ProcessFadeIn
 #endif
-	_beginthreadex(NULL, 0, FadeBgm, (void *)0, 0, &hFadeBgmThread);
+	bf_sys_thread_create(FadeBgm, (void *)0, NULL);
 	dwFadeStart = bf_clock_ticks();
 	g_renderer->BackupFrame();
 	DWORD dwFadeCurrent;
@@ -433,13 +431,13 @@ void CMode::ScreenShot()
 {
 	if (m_screenShotNow) {
 		{
-			SYSTEMTIME st;
-			GetLocalTime(&st);
+			bf_clock_date st;
+			bf_clock_local_time(&st);
 			char msg[128];
 			const char *week[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", };
 
 			if (g_serviceType != ServiceKorea)
-				sprintf(msg, "%d/%02d/%02d/%s  %02d: %02d: %02d", st.wYear, st.wMonth, st.wDay, week[st.wDayOfWeek], st.wHour, st.wMinute, st.wSecond);
+				sprintf(msg, "%d/%02d/%02d/%s  %02d: %02d: %02d", st.year, st.month, st.day, week[st.weekday], st.hour, st.minute, st.second);
 			else
 			{
 
@@ -495,7 +493,7 @@ void CMode::ScreenShot()
 						}
 					}
 
-					sprintf(msg, "%d/%02d/%02d/%s  %02d: %02d: %02d     %s", st.wYear, st.wMonth, st.wDay, week[st.wDayOfWeek], st.wHour, st.wMinute, st.wSecond, ID);
+					sprintf(msg, "%d/%02d/%02d/%s  %02d: %02d: %02d     %s", st.year, st.month, st.day, week[st.weekday], st.hour, st.minute, st.second, ID);
 				}
 			}
 

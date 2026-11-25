@@ -73,6 +73,13 @@ typedef struct bf_clock_date {
 void bf_clock_local_time(bf_clock_date *out);   /* GetLocalTime */
 void bf_clock_utc_time(bf_clock_date *out);     /* GetSystemTime */
 
+/*
+ * The calendar, UTC, of a moment given in milliseconds since 1970 (negative
+ * before): what FileTimeToSystemTime gives for a time on the wire. 0 when the
+ * system cannot represent the year (out is then left as it was), else 1.
+ */
+int bf_clock_utc_date(int64_t unix_ms, bf_clock_date *out);
+
 #ifdef __cplusplus
 }
 #endif

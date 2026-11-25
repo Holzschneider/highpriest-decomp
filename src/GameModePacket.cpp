@@ -12409,9 +12409,9 @@ void CGameMode::Zc_Notify_PKinfo(char const *buf)
 	g_session.killedName = p->killedName;
 
 	if (p->expireTime.dwLowDateTime > 0)
-		FileTimeToSystemTime(&p->expireTime, &g_session.expireTime);
+		bf_clock_utc_date((long long)((((unsigned long long)p->expireTime.dwHighDateTime << 32) | p->expireTime.dwLowDateTime) / 10000) - 11644473600000LL, &g_session.expireTime);   // FILETIME: 100 ns since 1601
 	else
-		g_session.expireTime.wMonth = 0;
+		g_session.expireTime.month = 0;
 
 	UIStatusWnd *window = g_windowMgr.GetStatusWnd();
 	if (window)

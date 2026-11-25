@@ -1263,7 +1263,7 @@ void	CWorld :: ProcessActors()
 		for ( ; m_bgObjCount < targetBgObjCount; ++m_bgObjCount )
 		{
 			m_rootNode.InsertObject(m_bgObjList[m_bgObjCount], 0);
-			InterlockedDecrement(&m_bgObjThread);
+			__sync_sub_and_fetch(&m_bgObjThread, 1);
 		}
 	}
 
@@ -1459,13 +1459,15 @@ void	CWorld :: FreeSceneGraph()
 void CWorld :: Add3DActorToWorld(C3dActor *actor)
 {
 	m_bgObjList.push_back(actor);
-	InterlockedIncrement(&m_bgObjThread);
+	__sync_add_and_fetch(&m_bgObjThread, 1);
 }
 
 void	CWorld ::WaitForThreadEnd()
 {
+#if !defined(BF_PORT)   // M8.5: no loader thread (OnEnterFrame), nothing to wait for
 	if (g_farModelThread)
 		WaitForSingleObject(g_farModelThread, INFINITE);
+#endif
 
 	g_farModelThread = NULL;
 
