@@ -120,7 +120,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 059ea41 | M8.4 Protocol differences resolved on the client side | src | M6 exit |
 | [x] e0bfadc | M8.5 Worker threads made safe | src | M6 exit |
 | [x] | M8.6 Sanitizer runs and one-hour soak | src | M8.1 |
-| [ ] | M8 exit (verifier) | | M7 exit, M8.1–M8.6 |
+| [x] 4f1e693 | M8 exit (verifier) | | M7 exit, M8.1–M8.6 |
 
 ## M9. English
 
