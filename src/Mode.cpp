@@ -568,7 +568,7 @@ void CMode::ScreenShot()
 
 #if defined(BF_PORT)
 // Declared in Mode.h, never defined in the reconstruction; the control
-// socket's `mode` reads it (port/compat/stubs/bf_client_state.cpp).
+// socket's `mode` reads it (port/client/src/bf_client_state.cpp).
 int CMode::GetSubMode()
 {
 	return m_subMode;

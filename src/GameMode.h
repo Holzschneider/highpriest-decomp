@@ -155,7 +155,7 @@ enum MAKE_MSG_EFFECT_TYPE {
 class CGameMode : public CMode {
 	friend class CWorld;
 #if defined(BF_PORT)
-	friend struct BfClientGame;   // port/compat/stubs/bf_client_game.cpp reads the actor names, without asking the server
+	friend struct BfClientGame;   // port/client/src/bf_client_game.cpp reads the actor names, without asking the server
 #endif
 	static unsigned int m_lastLockOnPcGid;
 	static unsigned int m_dwOldAutoFollowTime;

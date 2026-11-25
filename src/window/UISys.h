@@ -550,7 +550,7 @@ public:
 	friend class SnapObject;
 	friend class CSnapMgr;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 protected:
 	UIWindow* m_parent;
@@ -843,7 +843,7 @@ protected:
 	std::string m_bgImgOver;
 	WINDOWID m_callerWid;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -892,7 +892,7 @@ protected:
 public:
 	std::string m_text;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1027,7 +1027,7 @@ protected:
 	std::string m_text;
 	std::string m_fullText;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1073,7 +1073,7 @@ public:
 protected:
 	int m_nSlotID;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1356,7 +1356,7 @@ protected:
 	std::string m_toolTip;
 	int m_isDisabled;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1543,7 +1543,7 @@ protected:
 	int m_itemSpacing;
 	char m_noColor;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -2105,7 +2105,7 @@ private:
 	SubChatWndInfo subChatWndStInfo;
 	SubChatWndInfo subChatWndBtInfo;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 

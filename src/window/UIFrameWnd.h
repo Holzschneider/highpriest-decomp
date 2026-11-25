@@ -487,7 +487,7 @@ protected:
 	int m_menuItemSpacing;
 	std::vector<std::string> m_menuItems;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -527,7 +527,7 @@ protected:
 	UICheckBox* m_noCtrlCheckBox;
 	UINoneVisibleButton* m_skinSelectButton;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -793,7 +793,7 @@ protected:
 	int m_curSearchBtn;
 	ITEM_INFO m_item;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -812,7 +812,7 @@ protected:
 	int m_auctionID;
 	char itemName[25];
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -828,7 +828,7 @@ public:
 protected:
 	UIImgMenu* m_imgMenu;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1037,7 +1037,7 @@ protected:
 	UIEditCtrl* m_editCtrl;
 	unsigned int m_naid;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1248,7 +1248,7 @@ private:
 	viewSprite m_viewChar;
 	UIStaticText* m_text[6];
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1430,7 +1430,7 @@ private:
 	UISlotBitmap* m_slots[13];
 	UIBitmapButton* m_changeNameBtn;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1509,7 +1509,7 @@ protected:
 	int m_vertScrEnabled;
 	std::list<ITEM_INFO> m_itemList;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -1972,7 +1972,7 @@ protected:
 public:
 	int m_typeWnd;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -2066,7 +2066,7 @@ protected:
 	int m_maxSlot;
 	int m_slot;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -2162,7 +2162,7 @@ protected:
 	SayDialogWndInfo* m_info;
 	int m_bClearTextViewer;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 
@@ -2181,7 +2181,7 @@ protected:
 	unsigned int m_naid;
 	ChooseWndInfo* m_info;
 #if defined(BF_PORT)
-	friend struct BfUiProbe;   // port/compat/stubs/bf_client_state.cpp: the control socket's `windows`
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
 #endif
 };
 

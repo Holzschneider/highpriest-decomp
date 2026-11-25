@@ -755,7 +755,7 @@ private:
 	CMsgEffect* m_cursorEffect;
 	std::list<CMsgEffect *> m_msgEffectList;
 #if defined(BF_PORT)
-	friend struct BfClientGame;   // port/compat/stubs/bf_client_game.cpp reads the emote balloons (m_msgEffectList)
+	friend struct BfClientGame;   // port/client/src/bf_client_game.cpp reads the emote balloons (m_msgEffectList)
 #endif
 };
 const int	PC_LAYER_SIZE = 4;
