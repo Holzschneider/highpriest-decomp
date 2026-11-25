@@ -4,7 +4,8 @@
 # programs that need no window and no sound, and runs the compile census.
 # Since M11.11 also: no unit of the build read a Windows or DirectX header and
 # no source names one (nowin.py --ninja, --text), and the client links Apple
-# frameworks, zlib and the system libraries only (otool -L).
+# frameworks, zlib and the system libraries only (otool -L). Since M12.1, with
+# --client: the .app bundle is built and its ad-hoc signature verifies.
 # Prints one summary line per part; exits non-zero when a part fails.
 #
 #   port/tools/fastcheck.sh [--client | --client-errors]
@@ -45,7 +46,7 @@ else
 fi
 
 # build: the native modules and their tests, the probes, the client if asked
-TARGETS="native probes"; [ $CLIENT = build ] && TARGETS="$TARGETS $(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake | tr '[:upper:]' '[:lower:]')"
+TARGETS="native probes"; [ $CLIENT = build ] && TARGETS="$TARGETS $(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake | tr '[:upper:]' '[:lower:]') app"
 t=$SECONDS
 if cmake --build --preset debug --target $TARGETS -- -k 0 > "$LOGS/build.log" 2>&1; then
   warnings=$(grep -c ' warning: ' "$LOGS/build.log")
@@ -77,6 +78,18 @@ if [ $CLIENT = build ]; then
     fi
   else
     fail link "otool -L $exe"
+  fi
+fi
+
+# app: the bundle (M12.1) is sealed and its signature verifies; its Info.plist
+# is well formed and names the executable that is there
+if [ $CLIENT = build ]; then
+  bundle=$BIN/$(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' port/name.cmake).app
+  if codesign --verify --deep --strict "$bundle" > "$LOGS/app.log" 2>&1 && plutil -lint "$bundle/Contents/Info.plist" >> "$LOGS/app.log" 2>&1 \
+     && [ -x "$bundle/Contents/MacOS/$(plutil -extract CFBundleExecutable raw "$bundle/Contents/Info.plist")" ]; then
+    line app ok "$(basename "$bundle"): ad-hoc signature verifies, $(find "$bundle" -type f | wc -l | tr -d ' ') files"
+  else
+    fail app "codesign --verify --deep --strict $bundle"
   fi
 fi
 

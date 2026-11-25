@@ -255,7 +255,7 @@ message(STATUS "client: ${bf_count} units from sources.mk")
 string(REPLACE ";" "\n" bf_units "${BF_CLIENT_SOURCES}")
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 
-# The executable is the application name in lower case. The .app bundle is M12.
+# The executable is the application name in lower case; the bundle is below.
 # Port code compiled into the client with the client's flags, among them what
 # replaces a unit the port does not build (port/client/src/README.md).
 set(BF_CLIENT_PORT_SOURCES
@@ -329,6 +329,47 @@ foreach(lib IN LISTS BF_NATIVE_LIBS)
 	list(APPEND bf_link $<LINK_ONLY:${lib}>)
 endforeach()
 target_link_libraries(${BF_EXE} PRIVATE $<LINK_ONLY:bf_port_main> $<LINK_ONLY:bf_instrument> ${bf_link} z)
+
+# ---------------------------------------------------------------- the bundle
+# <name>.app (M12.1), the target `app`, part of `all`: the client executable
+# above copied into Contents/MacOS, the Info.plist made from
+# port/app/Info.plist.in, the icon drawn by bifrost-icon (shapes only, no game
+# artwork), then an ad-hoc signature over the whole bundle and its
+# verification. No game data goes into the bundle: the game folder is chosen
+# at run time (port/native/prefs). The bare executable stays where it is, for
+# the fast check and the harness (BF_CLIENT); the harness launches the bundle
+# through LaunchServices with BF_APP (port/harness/README.md).
+set(BF_APP_VERSION "0.12.0" CACHE STRING "CFBundleShortVersionString of the bundle")
+set(BF_APP_BUILD "12" CACHE STRING "CFBundleVersion of the bundle")
+set(BF_MACOS_MIN ${bf_macos})
+set(BF_APP_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/${BF_APP_NAME}.app)
+set(bf_app_work ${CMAKE_CURRENT_BINARY_DIR}/app)
+configure_file(${BF_ROOT}/port/app/Info.plist.in ${bf_app_work}/Info.plist @ONLY)
+file(WRITE ${bf_app_work}/PkgInfo "APPL????")
+add_executable(${BF_EXE}-icon port/app/bf_icon.cpp)
+target_compile_options(${BF_EXE}-icon PRIVATE -Wall -Wextra)
+set_target_properties(${BF_EXE}-icon PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+target_link_libraries(${BF_EXE}-icon PRIVATE "-framework CoreFoundation" "-framework CoreGraphics" "-framework ImageIO")
+set(bf_icns ${bf_app_work}/${BF_APP_NAME}.icns)
+add_custom_command(OUTPUT ${bf_icns}
+	COMMAND ${CMAKE_COMMAND} -E rm -rf ${bf_app_work}/${BF_APP_NAME}.iconset
+	COMMAND ${BF_EXE}-icon ${bf_app_work}/${BF_APP_NAME}.iconset
+	COMMAND iconutil -c icns -o ${bf_icns} ${bf_app_work}/${BF_APP_NAME}.iconset
+	DEPENDS ${BF_EXE}-icon
+	COMMENT "Drawing the application icon" VERBATIM)
+set(bf_app_stamp ${bf_app_work}/bundle.stamp)
+add_custom_command(OUTPUT ${bf_app_stamp}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${BF_APP_BUNDLE}/Contents/MacOS ${BF_APP_BUNDLE}/Contents/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${BF_EXE}> ${BF_APP_BUNDLE}/Contents/MacOS/${BF_EXE}
+	COMMAND ${CMAKE_COMMAND} -E copy ${bf_app_work}/Info.plist ${bf_app_work}/PkgInfo ${BF_APP_BUNDLE}/Contents/
+	COMMAND ${CMAKE_COMMAND} -E copy ${bf_icns} ${BF_APP_BUNDLE}/Contents/Resources/
+	COMMAND plutil -lint -s ${BF_APP_BUNDLE}/Contents/Info.plist
+	COMMAND codesign --force --sign - --timestamp=none --identifier ${BF_BUNDLE_ID} ${BF_APP_BUNDLE}
+	COMMAND codesign --verify --deep --strict ${BF_APP_BUNDLE}
+	COMMAND ${CMAKE_COMMAND} -E touch ${bf_app_stamp}
+	DEPENDS ${BF_EXE} ${bf_app_work}/Info.plist ${bf_icns}
+	COMMENT "Assembling and signing ${BF_APP_NAME}.app (ad hoc)" VERBATIM)
+add_custom_target(app ALL DEPENDS ${bf_app_stamp})
 
 # bifrost-setting-key-test: the client's settings keys (port/client, M11.4)
 # on bf_settings, and the Settings.plist they leave. Built with the client.

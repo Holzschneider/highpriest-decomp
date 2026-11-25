@@ -6,6 +6,7 @@ Scripted play for the milestones that need playing (spec sections 6 and 7): a sc
 python3 port/harness/run.py --self-test                      # harness tests: mock client + one read-only server check
 python3 port/harness/run.py port/harness/scripts/login.py --mock
 BF_CLIENT=<client binary> python3 port/harness/run.py login  # the real test (server must be online)
+BF_APP=<path>/Bifrost.app python3 port/harness/run.py gate   # the same, the bundle launched as Finder does (M12.1)
 python3 port/harness/run.py --server-status
 ```
 
@@ -19,7 +20,7 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 | `bfharness/server.py` | the test server through `docker compose`: `status`, `online` (container running, "Map Server is now online" since it started, ports open), `ensure_up`, and a guarded `restart` |
 | `bfharness/sql.py` | `Sql` (MariaDB via `docker compose exec -T db mariadb --batch`), `MockSql`, `Marker`, and the `Logs` readers |
 | `bfharness/accounts.py` | test accounts, offline set-up in SQL (`create_account`, `set_char`, and `make_char`: the one insert of a character row, in any slot, with the character server's defaults and any column over them), `GM` atcommands typed by the client |
-| `bfharness/client.py` | launches `BF_CLIENT` with `--control` and the `BF_*` environment, collects trace and exit code, kills on timeout |
+| `bfharness/client.py` | launches `BF_CLIENT` with `--control` and the `BF_*` environment, collects trace and exit code, kills on timeout; with `BF_APP`, launches the bundle through LaunchServices (section "Launching the bundle") |
 | `bfharness/control.py` | the socket client: requests by id, the event stream, helpers (`type_text`, `say`, `click`, `click_control`, `wait_mode`, `capture` ...) |
 | `bfharness/frames.py` | captures to `<game folder>/test/frames/<script>/<name>.png`, checked against the reply's SHA-256; the checksum manifest |
 | `bfharness/npcplay.py` | M8.1e steps: `new_player`, a fresh account (generated name) and character in SQL through `Accounts.make_char` (cell, zeny, items, skills, storage), an NPC's line from the server's npc/, `run_dialogue` (Next, menu entry + OK, number/text input, Close), `drag_item`, `type_into` (count window), `click_tab`, `check_sent` |
@@ -45,6 +46,8 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 | Variable | Used for |
 |---|---|
 | `BF_CLIENT` | the client binary (or command line) under test |
+| `BF_APP` | the `.app` bundle under test instead of `BF_CLIENT` (section "Launching the bundle") |
+| `BF_APP_FOLDER` | with `BF_APP`: the game folder stored in the settings, a path or `links` (default: the game folder) |
 | `BF_TRACE` | trace categories passed to the client (default `err,net,mode,stub`) |
 | `BF_CLIENT_DIR` | game folder, passed through; default `~/Games/<name>` |
 | `BF_FRAMES_DIR` | where frames go instead of `<game folder>/test/frames` |
@@ -52,6 +55,15 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 | `BF_SERVER_RESTART=1` | allows `Server.restart` |
 
 The client also receives `BF_TRACE_FILE`, `BF_PKT_LOG` (both in the run directory) and `BF_CONTROL` (the socket path, in addition to `--control`).
+
+## Launching the bundle
+
+`BF_APP=<build>/<name>.app` (built by the target `app`, `cmake --build --preset debug`) makes every script launch the bundle the way Finder does (M12.1), with no change to the script:
+
+- **Through LaunchServices:** `open -n <bundle> --args --control <socket> <script args>`, run from `/` with only `HOME`, `USER` and `LOGNAME` in `open`'s own environment. The client therefore gets launchd's environment, as from Finder: `/` as working directory, the system `PATH`, no terminal. `-n` starts a new process even while another copy of the bundle runs. The client's own single-instance check still applies, and Finder's double-click would bring the running copy to the front instead.
+- **The harness's variables** travel by `open --env`: `BF_TRACE` (always with `mode`, see below), `BF_TRACE_FILE`, `BF_PKT_LOG`, `BF_CONTROL`, `BF_WINDOW_SCREEN`, whatever the script passes (`BF_HOME`, ...), and every `BF_*`, `ASAN_*`, `UBSAN_*`, `TSAN_*`, `LSAN_*` variable of the harness's own environment.
+- **The game folder comes from the settings,** as if it had been chosen in the chooser: when the launch has its own `BF_HOME` (`play.own_home` and the scripts' own homes), the harness writes `Paths/GameFolder` into that home's `Settings.plist` and does not pass `BF_CLIENT_DIR`. A value the script stored is kept, and a `BF_CLIENT_DIR` the script passes itself (intro's folder E) is passed. `BF_APP_FOLDER=links` stores a folder of symbolic links to the game folder's entries, made as `<run>/game`, so that the trace line `start: ..., game folder <run>/game` can only have come from the setting. A launch without its own home (none of gate, granny, intro) gets `BF_CLIENT_DIR`, so that the user's real settings are never written.
+- **The process** is launchd's child, and `open -W` cannot wait for it on this macOS ("Unable to block on application"). The harness therefore takes the new process running the bundle's executable (`ps`), confirmed by the `pid` of `hello`, checks it with `kill(pid, 0)`, and stops it by signal when it overstays. The exit status is read from the trace line `exit: WinMain returned N`, which the client writes on every orderly exit. A client that vanished without that line has the status `None`, which fails the runner's "client exits cleanly" step. Stdout and stderr go to `client-stdout.txt` (`open --stdout/--stderr`); each launch's command line is appended to `launch.txt` in the run directory.
 
 ## SQL evidence per criterion
 
