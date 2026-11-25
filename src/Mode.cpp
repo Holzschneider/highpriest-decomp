@@ -5,7 +5,6 @@
 #include <io.h>
 #include <stdio.h>
 #include <windows.h>
-#include <shellapi.h>
 
 int g_mustPumpOutReceiveQueue = 0;
 #include "bf_sys.h"
@@ -46,7 +45,7 @@ void ErrorMsg(const char *msg)
 	BF_TRACE(BFT_ERR, "ErrorMsg: %s", msg);
 #endif
 	GDIFlip();
-	MessageBoxA(g_hMainWnd, msg, "Error", 0);
+	bf_sys_alert_codepage(0, "Error", msg, BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 }
 
 void ErrorMsg(int num)
@@ -57,7 +56,7 @@ void ErrorMsg(int num)
 	BF_TRACE(BFT_ERR, "ErrorMsg: %d", num);
 #endif
 	GDIFlip();
-	MessageBoxA(g_hMainWnd, buf, "Error", 0);
+	bf_sys_alert_codepage(0, "Error", buf, BF_ALERT_INFO, BF_ALERT_BUTTONS_OK);
 }
 
 CMode::CMode()
@@ -510,7 +509,7 @@ void CMode::ScreenShot()
 
 		sprintf(tmp, "%s\\ScreenShot", g_baseDir3);
 		if (access(tmp, 0)) {
-			if (_mkdir(tmp))
+			if (bf_file_make_folder(tmp) != 1)
 				return;
 		}
 
@@ -643,7 +642,7 @@ void CModeMgr::Quit()
 {
 	m_curMode->PostQuitMsg();
 	if (g_serviceType == ServiceIndia) {
-		ShellExecuteA(g_hMainWnd, "open", "http://www.ragnarok.co.in/index.php", NULL, NULL, 1);
+		bf_sys_open_url("http://www.ragnarok.co.in/index.php");
 	}
 	m_loopCond = 0;
 }

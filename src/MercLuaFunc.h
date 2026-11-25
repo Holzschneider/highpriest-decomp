@@ -195,9 +195,7 @@ static	int	l_TraceAI ( lua_State* L )
 		else
 			return 0 ;
 
-		string s = szBuffer;
-		s += "\n";
-		OutputDebugString (s.c_str()) ;
+		Trace("%s", szBuffer);
 
 		bf_clock_date sTime;
 		bf_clock_local_time(&sTime);
@@ -207,7 +205,8 @@ static	int	l_TraceAI ( lua_State* L )
 		char *buf;
 		CFile fp;
 		char curPath[256];
-		GetCurrentDirectory(256, curPath);
+		const char *game = bf_file_location(BF_LOCATION_GAME);
+		snprintf(curPath, sizeof(curPath), "%s", game ? game : "");
 
 		INT_PTR Pos = (INT_PTR)strstr(curPath, "\\data"); int logCnt = 0, size = 0;
 		if (Pos) {

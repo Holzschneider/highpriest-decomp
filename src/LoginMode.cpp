@@ -3,7 +3,6 @@
 #include "framework/Locale.h"
 #include "device/Sound.h"
 #include <windows.h>
-#include <shellapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +10,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <mach-o/dyld.h>
 #include "LoginMode.h"
 #include "Session.h"
 #include "GuildInfo.h"
@@ -59,7 +59,9 @@ extern const char* TITLE_FILE;
 extern const char* g_accountAddr;
 extern const char* g_accountPort;
 
+#ifndef BF_PORT
 #include <Nb30.h>
+#endif
 
 #if defined(BF_PORT)
 // Launch arguments (spec section 2): bf_main.cpp hands over --server,
@@ -74,6 +76,7 @@ static bool g_bfLaunchServerDone = false;
 static bool g_bfLaunchCharDone = false;
 #endif
 
+#ifndef BF_PORT
 typedef struct _ASTAT_
 {
 	ADAPTER_STATUS adapt;
@@ -81,13 +84,16 @@ typedef struct _ASTAT_
 }ASTAT, * PASTAT;
 
 extern _ASTAT_ Adapter;
+#endif
 extern int g_bOldServer;
 
 
 int g_loginStartMode = 3;
 ServerAddressEx g_charServerAddr;
 CHARACTER_INFO g_charInfo;
+#ifndef BF_PORT
 _ASTAT_ Adapter;
+#endif
 ServerAddress g_zoneServerAddr;
 
 
@@ -290,7 +296,9 @@ int CLoginMode::GenerateExeHash(unsigned char Hash[16])
 	exehash.init();
 
 	char szFile[MAX_PATH];
-	GetModuleFileName(g_hInstance, szFile, sizeof(szFile));
+	uint32_t cbFile = sizeof(szFile);
+	if (_NSGetExecutablePath(szFile, &cbFile) != 0)
+		return FALSE;
 
 	FILE *exefile = fopen(szFile, "rb");
 	if (exefile) {
@@ -665,6 +673,11 @@ void CLoginMode::OnChangeState(int state)
 					memcpy((char *)p.Passwd, m_userPassword, sizeof(p.Passwd));
 					p.clienttype = GetAccountType();
 
+#if defined(BF_PORT)
+					// No machine identifier is handed to a server: what the
+					// 2008 client sent when the NetBIOS query failed.
+					strcpy((char *)p.m_szMacAddr, "111111111111");
+#else
 					NCB ncb;
 					memset(&ncb, 0, sizeof(ncb));
 					ncb.ncb_command = NCBRESET;
@@ -688,6 +701,7 @@ void CLoginMode::OnChangeState(int state)
 					} else {
 						strcpy((char *)p.m_szMacAddr, "111111111111");
 					}
+#endif
 
 					char host[100];
 					gethostname(host, sizeof(host));
@@ -933,20 +947,20 @@ void CLoginMode::OpenSettlePage()
 	switch (g_serviceType) {
 	case ServiceKorea:
 		if (!g_isGravityID)
-			ShellExecute(g_hMainWnd, "open", MsgStr(MSI_SETTLE_WEB_URL), NULL, NULL, SW_SHOWNORMAL);
+			bf_sys_open_url(MsgStr(MSI_SETTLE_WEB_URL));
 		else
-			ShellExecute(g_hMainWnd, "open", MsgStr(MSI_SETTLE_WEB_URL_HANGAME), NULL, NULL, SW_SHOWNORMAL);
+			bf_sys_open_url(MsgStr(MSI_SETTLE_WEB_URL_HANGAME));
 		break;
 	case ServiceAmerica:
-		ShellExecute(g_hMainWnd, "open", "https://iro.ragnarokonline.com/member/memberjoin1.asp?mNum=1", NULL, NULL, SW_SHOWNORMAL);
+		bf_sys_open_url("https://iro.ragnarokonline.com/member/memberjoin1.asp?mNum=1");
 		break;
 	case ServiceJapan:
 		break;
 	case ServiceChina:
-		ShellExecute(g_hMainWnd, "open", "http://ro.sdo.com/business/index.asp?a=3", NULL, NULL, SW_SHOWNORMAL);
+		bf_sys_open_url("http://ro.sdo.com/business/index.asp?a=3");
 		break;
 	default:
-		ShellExecute(g_hMainWnd, "open", MsgStr(MSI_SETTLE_WEB_URL), NULL, NULL, SW_SHOWNORMAL);
+		bf_sys_open_url(MsgStr(MSI_SETTLE_WEB_URL));
 		break;
 	}
 }
@@ -1365,9 +1379,9 @@ void CLoginMode::Ac_Refuse_Login(const char *buf)
 				if (g_windowMgr.ErrorMsg(bf_tr("\xba\xf1\xb9\xd0\xb9\xf8\xc8\xa3\xb8\xa6 3\xc8\xb8 \xc0\xdf\xb8\xf8\xc0\xd4\xb7\xc2\xc7\xcf\xbf\xb4\xbd\xc0\xb4\xcf\xb4\xd9. \xba\xf1\xb9\xd0\xb9\xf8\xc8\xa3\xb8\xa6 \xc8\xae\xc0\xce\xc7\xd8\xc1\xd6\xbc\xbc\xbf\xe4.              \xc5\xac\xb6\xf3\xc0\xcc\xbe\xf0\xc6\xae \xbd\xc7\xc7\xe0\xc0\xbb \xc1\xbe\xb7\xe1\xc7\xd5\xb4\xcf\xb4\xd9."),
 						ME_OK, TRUE, TRUE, 0) == ID_OK) {
 					if (!g_isGravityID) {
-						ShellExecute(g_hMainWnd, "open", "http://ragnarok.co.kr", NULL, NULL, SW_SHOWNORMAL);
+						bf_sys_open_url("http://ragnarok.co.kr");
 					} else {
-						ShellExecute(g_hMainWnd, "open", "http://www.hangame.com", NULL, NULL, SW_SHOWNORMAL);
+						bf_sys_open_url("http://www.hangame.com");
 					}
 					g_modeMgr.Quit();
 				}
@@ -1447,9 +1461,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buf)
 		if (g_serviceType == ServiceKorea) {
 			if (g_windowMgr.ErrorMsg(bf_tr("\xba\xf1\xb9\xd0 \xb9\xf8\xc8\xa3 \xba\xaf\xb0\xe6 \xc8\xc4, \xb4\xd9\xbd\xc3 \xc1\xa2\xbc\xd3 \xc7\xd8\xc1\xd6\xbd\xc3\xb1\xe2 \xb9\xd9\xb6\xf8\xb4\xcf\xb4\xd9."),
 					ME_OK, TRUE, TRUE, 0) == ID_OK) {
-				ShellExecute(g_hMainWnd, "open",
-					"http://www.ragnarok.co.kr/setNewPW/password_change_agreement.asp",
-					NULL, NULL, SW_SHOWNORMAL);
+				bf_sys_open_url("http://www.ragnarok.co.kr/setNewPW/password_change_agreement.asp");
 				g_modeMgr.Quit();
 			}
 		}
@@ -2230,6 +2242,11 @@ void CLoginMode::SendCaIpSecurity()
 	memcpy(p.Passwd, m_userPassword, 24);
 	p.clienttype = GetAccountType();
 
+#if defined(BF_PORT)
+	// No machine identifier is handed to a server: what the 2008 client sent
+	// when the NetBIOS query failed.
+	strcpy((char *)p.MacAdress, "111111111111");
+#else
 	NCB ncb;
 	memset(&ncb, 0, sizeof(ncb));
 	ncb.ncb_command = NCBRESET;
@@ -2256,6 +2273,7 @@ void CLoginMode::SendCaIpSecurity()
 	} else {
 		strcpy((char *)p.MacAdress, "111111111111");
 	}
+#endif
 
 	char host[100];
 	gethostname(host, 100);

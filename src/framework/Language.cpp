@@ -154,7 +154,11 @@ CLanguage :: CLanguage()
 {
 	m_codePage = g_multiLang ? (GetCodePageFromLang(m_langId)) : g_codePage;
 
+#if defined(BF_PORT)
+	int langId = LANG_ENGLISH;	// the port's script tables are in english\ (M11.5)
+#else
 	int langId = PRIMARYLANGID(GetUserDefaultLangID());
+#endif
 
 	switch( langId )
 	{
