@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Recapture the M11 reference frames: one command.
 
-    BF_CLIENT=<client> python3 port/harness/m11_reference.py [--runs 2] [--check 1] [--out <dir>]
+    BF_CLIENT=<client> python3 port/harness/m11_reference.py [--runs 4] [--check 1] [--out <dir>]
 
 What it does, at the commit that is checked out (the client named by
 BF_CLIENT must be built from it):
 
 1. Moves an existing reference at <out> (default <game folder>/test/reference/m11)
    aside to <out>-<its commit>.
-2. Runs port/harness/scripts/m11_frames.py --runs times (default 2), each
+2. Runs port/harness/scripts/m11_frames.py --runs times (default 4), each
    replaying the recorded session (port/harness/fixtures/m11-session.pktlog;
    no server needed) with its frames under <out>/runs/run<n>/m11/.
 3. Builds the reference from those runs with framecmp.py (masks from the
@@ -80,7 +80,7 @@ def write_manifest(frames_dir, commit):
 def main():
     ap = argparse.ArgumentParser(description="recapture the M11 reference frames")
     ap.add_argument("--out", default=str(paths.client_dir() / "test" / "reference" / "m11"))
-    ap.add_argument("--runs", type=int, default=2)
+    ap.add_argument("--runs", type=int, default=4)
     ap.add_argument("--check", type=int, default=1)
     a = ap.parse_args()
     if not os.environ.get("BF_CLIENT"):

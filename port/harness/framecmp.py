@@ -22,11 +22,11 @@ What "match" means (the definition, written before the reference was taken):
    commit. Outside game mode (login, server list, selection, creation) the
    whole frame is; in game mode the UI windows are, and the world nearly is.
 2. Masks only where the picture moves by itself. The reference is built from
-   two runs at the base commit, three captures per frame each (the primary
-   and its two samples, 400 ms apart, together spanning more than the 500 ms
-   half-period of the edit caret). A frame's mask is every pixel in which
-   any of these six captures differs from another, by any amount, widened
-   by 3 device pixels. Added to it: the rectangles the capturing script
+   several runs at the base commit (m11_reference.py: four), three captures
+   per frame each (the primary and its two samples, 400 ms apart, together
+   spanning more than the 500 ms half-period of the edit caret). A frame's
+   mask is every pixel in which any of these captures differs from another,
+   by any amount, widened by 3 device pixels. Added to it: the rectangles the capturing script
    names in <name>.json with a reason (one so far: the date and time
    CMode::ScreenShot stamps on the read-back, which changes every second
    and every day). What the masks hold, read
@@ -48,14 +48,17 @@ What "match" means (the definition, written before the reference was taken):
    change may round a blend differently by one step; a moved, filtered,
    re-keyed or re-blended UI changes many pixels by far more, and one wrong
    glyph changes a connected stroke.
-5. Outside the mask, in the world region: at most 1 % of the region's pixels
+5. Outside the mask, in the world region: at most 2 % of the region's pixels
    beyond that tolerance. The world is not fully reproducible at the base
-   commit: isolated polygon-edge pixels, random smoke puffs past the mask,
-   and lightmap patches that come out in one of two variants per run (an
-   indoor floor patch of 0.75 %, seen in the reference work) differ; a
-   shifted, re-filtered or re-blended world changes most of its pixels.
+   commit: isolated polygon-edge pixels and random smoke puffs past the mask
+   differ, and some lit patches come out in one of two variants per run
+   (prt_in's floor: 0.75 % of the frame, 1.3 % of its world region; not
+   from uninitialised locals, a build with -ftrivial-auto-var-init=pattern
+   shows the same two variants). Four reference runs all show the same
+   variant with a chance of 1 in 8; the 2 % covers that case. A shifted
+   world changes 40-65 % of the region (the planted half-pixel fault).
 6. Inside the mask, per 32x32 device-pixel tile holding at least 32 masked
-   pixels: the mean colour of the masked pixels within the range of the six
+   pixels: the mean colour of the masked pixels within the range of the
    reference captures' means of that tile, widened by 24 per channel (an
    animated thing that vanishes, turns black or magenta, or is blended
    wrongly). Judged for tiles wholly in the strict region; counted and
@@ -63,7 +66,7 @@ What "match" means (the definition, written before the reference was taken):
    a window's edge, move tile means by more).
    The pointer box (48x56 logical pixels from 8 above and left of the
    pointer the capture records) is reported, not judged, by points 4-6:
-   the cursor animates on the clock in every mode, and six captures do not
+   the cursor animates on the clock in every mode, and the captures do not
    see every phase of it. A cursor drawn anywhere else than in that box
    (wrong position, wrong scale) still fails points 4 or 5.
 7. Anywhere: no pixel of placeholder magenta (R and B at least 240, G at
@@ -93,7 +96,7 @@ DILATE = 3             # device pixels the mask is widened by
 TILE = 32              # device pixels, the tile of the masked-region check
 TILE_MIN = 32          # masked pixels a tile needs to be checked
 TILE_MARGIN = 24       # per channel, around the reference's range of tile means
-WORLD_SHARE = 0.01     # share of the world region allowed beyond the tolerance
+WORLD_SHARE = 0.02     # share of the world region allowed beyond the tolerance
 ISOLATED = 16          # isolated pixels allowed beyond the tolerance in the strict region
 WEAK_SHARE = 0.10      # mask share above which a frame is reported as weak
 SAMPLE_RE = re.compile(r"^(?P<name>[A-Za-z0-9_-]+)(?:\.s(?P<k>\d+))?\.png$")
