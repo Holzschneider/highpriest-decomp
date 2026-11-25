@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "../MsgStrings.h"
 #include "../framework/Locale.h"
 #include <string>
@@ -622,35 +623,29 @@ void UISelectServerWnd::OnCreate(int cx, int cy)
 
 void UISelectServerWnd::SaveCurItemToReg(const char* regkey)
 {
-	HKEY hKey;
-	DWORD dwDisposition;
+	bf_setting_key hKey;
 
 	m_defaultCurItem = m_serverList->GetSelected();
-	dwDisposition = 0;
-	LRESULT lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, 0, 0, KEY_ALL_ACCESS, 0, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS) {
-		RegSetValueEx(hKey, regkey, 0, REG_DWORD, (LPBYTE)&m_defaultCurItem, 4);
-		RegCloseKey(hKey);
+	bool lResult = bf_setting_create(hKey, g_regPath);
+	if (lResult) {
+		bf_setting_set(hKey, regkey, m_defaultCurItem);
+		bf_setting_close(hKey);
 	}
 }
 
 void UISelectServerWnd::InitDefaultCurItemFromReg(const char* regkey)
 {
-	HKEY hResultKey;
-	HKEY hKey;
-	DWORD REG_TYPE;
-	DWORD DATALENGTH;
+	bf_setting_key hResultKey;
+	bf_setting_key hKey;
 
 	m_defaultCurItem = g_serviceType;
-	LRESULT lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	if (lResult == ERROR_SUCCESS) {
-		RegCloseKey(hResultKey);
-		LRESULT lResult1 = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hKey);
-		if (lResult1 == ERROR_SUCCESS) {
-			REG_TYPE = REG_DWORD;
-			DATALENGTH = 4;
-			RegQueryValueEx(hKey, regkey, NULL, &REG_TYPE, (LPBYTE)&m_defaultCurItem, &DATALENGTH);
-			RegCloseKey(hKey);
+	bool lResult = bf_setting_open(hResultKey, g_regPath);
+	if (lResult) {
+		bf_setting_close(hResultKey);
+		bool lResult1 = bf_setting_open(hKey, g_regPath);
+		if (lResult1) {
+			bf_setting_get(hKey, regkey, m_defaultCurItem);
+			bf_setting_close(hKey);
 		}
 	}
 }
@@ -765,15 +760,14 @@ UILoginWnd::~UILoginWnd()
 
 void UILoginWnd::WriteToReg()
 {
-	HKEY hKey;
-	DWORD dwDisposition = 0;
+	bf_setting_key hKey;
 	DWORD bitwise;
 	DWORD checkSave;
 	char passwordName[26];
 	char idName[26];
 
-	LRESULT lResult = RegCreateKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS)
+	bool lResult = bf_setting_create(hKey, g_regPath);
+	if (lResult)
 	{
 		if (m_isCheckOn)
 		{
@@ -795,20 +789,20 @@ void UILoginWnd::WriteToReg()
 		// registry adapter maps PASSWORD to the Keychain item of the account
 		// in ID). Unchecked, the item is deleted while ID still names it.
 		if (m_isCheckOn) {
-			RegSetValueExA(hKey, "ID", 0, REG_SZ, (LPBYTE)idName, 25);
+			bf_setting_set_string(hKey, "ID", idName, 25);
 			strncpy(passwordName, m_password->GetText(), 25);
 			passwordName[24] = 0;
 		}
 		else
 			passwordName[0] = 0;
-		RegSetValueExA(hKey, "PASSWORD", 0, REG_SZ, (LPBYTE)passwordName, (DWORD)strlen(passwordName) + 1);
+		bf_setting_set_string(hKey, "PASSWORD", passwordName, (DWORD)strlen(passwordName) + 1);
 		memset(passwordName, 0, sizeof(passwordName));
 #endif
-		RegSetValueExA(hKey, "ID", 0, REG_SZ, (LPBYTE)idName, 25);
-		RegSetValueExA(hKey, "CHECKSAVE", 0, REG_DWORD, (LPBYTE)&checkSave, 4);
+		bf_setting_set_string(hKey, "ID", idName, 25);
+		bf_setting_set(hKey, "CHECKSAVE", checkSave);
 		bitwise = 1;
-		RegSetValueExA(hKey, "BITWISE", 0, REG_DWORD, (LPBYTE)&bitwise, 4);
-		RegCloseKey(hKey);
+		bf_setting_set(hKey, "BITWISE", bitwise);
+		bf_setting_close(hKey);
 	}
 }
 
@@ -927,41 +921,37 @@ void UILoginWnd::OnCreate(int cx, int cy)
 
 void UILoginWnd::InitFromReg()
 {
-	HKEY hResultKey;
-	HKEY hKey;
+	bf_setting_key hResultKey;
+	bf_setting_key hKey;
 	DWORD DATALENGTH;
-	DWORD REG_TYPE;
 	DWORD CHECKSAVE;
 	DWORD bitwise;
 	char passwordName[26];
 	char idName[26];
 
-	LRESULT lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, 1, &hResultKey);
-	if (lResult == 0)
+	bool lResult = bf_setting_open(hResultKey, g_regPath);
+	if (lResult)
 	{
-		RegCloseKey(hResultKey);
+		bf_setting_close(hResultKey);
 
-		LRESULT lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, 1, &hKey);
-		if (lResult1 != 0)
+		bool lResult1 = bf_setting_open(hKey, g_regPath);
+		if (!lResult1)
 			return;
 
-		REG_TYPE = 4;
 		DATALENGTH = 4;
-		RegQueryValueExA(hKey, "CHECKSAVE", 0, &REG_TYPE, (LPBYTE)&CHECKSAVE, &DATALENGTH);
+		bf_setting_get(hKey, "CHECKSAVE", CHECKSAVE);
 		if (CHECKSAVE != 1)
 			CHECKSAVE = 0;
-		RegQueryValueExA(hKey, "BITWISE", 0, &REG_TYPE, (LPBYTE)&bitwise, &DATALENGTH);
+		bf_setting_get(hKey, "BITWISE", bitwise);
 
 		memset(idName, 0, sizeof(idName));
 		memset(passwordName, 0, sizeof(passwordName));
 
-		REG_TYPE = 1;
 		DATALENGTH = 25;
-		RegQueryValueExA(hKey, "PASSWORD", 0, &REG_TYPE, (LPBYTE)passwordName, &DATALENGTH);
+		bf_setting_read(hKey, "PASSWORD", passwordName, &DATALENGTH);
 		passwordName[24] = 0;
-		REG_TYPE = 1;
 		DATALENGTH = 25;
-		RegQueryValueExA(hKey, "ID", 0, &REG_TYPE, (LPBYTE)idName, &DATALENGTH);
+		bf_setting_read(hKey, "ID", idName, &DATALENGTH);
 		idName[24] = 0;
 		passwordName[24] = 0;
 
@@ -977,7 +967,7 @@ void UILoginWnd::InitFromReg()
 #if defined(BF_PORT)
 		memset(passwordName, 0, sizeof(passwordName));
 #endif
-		RegCloseKey(hKey);
+		bf_setting_close(hKey);
 		return;
 	}
 	m_login->SetText("");
@@ -1772,24 +1762,21 @@ void UISelectCharWnd::InvalidateWallPaper() {}
 
 void UISelectCharWnd::WriteToReg()
 {
-	HKEY hKey;
-	DWORD dwDisposition = 0;
+	bf_setting_key hKey;
 	DWORD CURSLOT;
 
-	LRESULT lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS) {
+	bool lResult = bf_setting_create(hKey, g_regPath);
+	if (lResult) {
 		CURSLOT = m_curPage * 3 + m_curSlot;
-		RegSetValueEx(hKey, "CURSLOT", 0, REG_DWORD, (LPBYTE)&CURSLOT, 4);
-		RegCloseKey(hKey);
+		bf_setting_set(hKey, "CURSLOT", CURSLOT);
+		bf_setting_close(hKey);
 	}
 }
 
 void UISelectCharWnd::InitFromReg()
 {
-	HKEY hResultKey;
-	HKEY hKey;
-	DWORD DATALENGTH;
-	DWORD REG_TYPE;
+	bf_setting_key hResultKey;
+	bf_setting_key hKey;
 #if defined(BF_PORT)
 	// Read even when the value is absent (first start, or never clicked a
 	// slot): uninitialised, as in the 2008 client (0x45FB40), it put the
@@ -1799,21 +1786,19 @@ void UISelectCharWnd::InitFromReg()
 	DWORD CURSLOT;
 #endif
 
-	LONG ret = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, 1, &hResultKey);
+	bool ret = bf_setting_open(hResultKey, g_regPath);
 	m_curPage = 0;
 	m_curSlot = 0;
-	if (ret != 0)
+	if (!ret)
 		return;
-	RegCloseKey(hResultKey);
+	bf_setting_close(hResultKey);
 
-	LONG ret1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, 1, &hKey);
-	if (ret1 != 0)
+	bool ret1 = bf_setting_open(hKey, g_regPath);
+	if (!ret1)
 		return;
 
-	REG_TYPE = 4;
-	DATALENGTH = 4;
-	RegQueryValueExA(hKey, "CURSLOT", 0, &REG_TYPE, (LPBYTE)&CURSLOT, &DATALENGTH);
-	RegCloseKey(hKey);
+	bf_setting_get(hKey, "CURSLOT", CURSLOT);
+	bf_setting_close(hKey);
 
 	m_curPage = CURSLOT / 3;
 	m_curSlot = CURSLOT % 3;

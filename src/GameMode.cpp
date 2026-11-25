@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "packet.h"
 #include "PaddingPacket.h"
 #include "GameMode.h"
@@ -865,27 +866,23 @@ void CGameMode::OnExit()
 void CGameMode::InitNameBalloonPosFromReg()
 {
 	char NameBalloonPosPath[512];
-	HKEY hKey;
-	HKEY hResultKey;
-	DWORD REG_TYPE;
-	DWORD DATALENGTH;
+	bf_setting_key hKey;
+	bf_setting_key hResultKey;
 
 	strcpy(NameBalloonPosPath, g_regPath);
 	strcat(NameBalloonPosPath, "\\NameBaloon");
 	strcat(NameBalloonPosPath, "\\");
 	strcat(NameBalloonPosPath, g_session.m_lastServerName.c_str());
 
-	LRESULT lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, NameBalloonPosPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	if (lResult == ERROR_SUCCESS)
+	bool lResult = bf_setting_open(hResultKey, NameBalloonPosPath);
+	if (lResult)
 	{
-		RegCloseKey(hResultKey);
-		LRESULT lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, NameBalloonPosPath, 0, KEY_ALL_ACCESS, &hKey);
-		if (lResult1 == ERROR_SUCCESS)
+		bf_setting_close(hResultKey);
+		bool lResult1 = bf_setting_open(hKey, NameBalloonPosPath);
+		if (lResult1)
 		{
-			REG_TYPE = REG_DWORD;
-			DATALENGTH = sizeof(DWORD);
-			RegQueryValueExA(hKey, "POS", NULL, &REG_TYPE, (LPBYTE)&m_nameBalloonType, &DATALENGTH);
-			RegCloseKey(hKey);
+			bf_setting_get(hKey, "POS", m_nameBalloonType);
+			bf_setting_close(hKey);
 		}
 	}
 
@@ -975,14 +972,12 @@ void	CGameMode :: WriteRagPathToReg()
 	strcpy(RagPath, g_regPath);
 	strcat(RagPath, "\\");
 
-	DWORD	dwDisposition = 0;
-	HKEY	hKey;
+	bf_setting_key	hKey;
 
-	LRESULT lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, RagPath, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS) {
-		RegSetValueEx(hKey, "RAGPATH", NULL, REG_SZ, (LPBYTE)g_baseDir3, sizeof(char)*strlen(g_baseDir3));
-		RegCloseKey(hKey);
+	bool lResult = bf_setting_create(hKey, RagPath);
+	if (lResult) {
+		bf_setting_set_string(hKey, "RAGPATH", g_baseDir3, sizeof(char)*strlen(g_baseDir3));
+		bf_setting_close(hKey);
 	}
 }
 
@@ -994,14 +989,12 @@ void	CGameMode :: WriteNameBalloonPosToReg()
 	strcat(NameBalloonPosPath, "\\");
 	strcat(NameBalloonPosPath, g_session.m_lastServerName.c_str());
 
-	DWORD	dwDisposition = 0;
-	HKEY	hKey;
+	bf_setting_key	hKey;
 
-	LRESULT lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, NameBalloonPosPath, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS) {
-		RegSetValueEx(hKey, "POS", NULL, REG_DWORD, (LPBYTE)(&m_nameBalloonType), sizeof(DWORD));
-		RegCloseKey(hKey);
+	bool lResult = bf_setting_create(hKey, NameBalloonPosPath);
+	if (lResult) {
+		bf_setting_set(hKey, "POS", m_nameBalloonType);
+		bf_setting_close(hKey);
 	}
 }
 

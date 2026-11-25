@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "MsgStrings.h"
 #include "framework/Locale.h"
 
@@ -5394,12 +5395,11 @@ void UITipOfTheDayWnd::OnDraw()
 }
 
 void UITipOfTheDayWnd::WriteToReg() {
-	HKEY hKey;
-	DWORD dwDisposition = 0;
-	LRESULT lResult = RegCreateKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult == ERROR_SUCCESS) {
-		RegSetValueExA(hKey, "SHOWTIPSATSTARTUP", 0, REG_DWORD, (BYTE*)&m_showTipsAtStartup, 4);
-		RegCloseKey(hKey);
+	bf_setting_key hKey;
+	bool lResult = bf_setting_create(hKey, g_regPath);
+	if (lResult) {
+		bf_setting_set(hKey, "SHOWTIPSATSTARTUP", m_showTipsAtStartup);
+		bf_setting_close(hKey);
 	}
 }
 
@@ -8800,8 +8800,7 @@ char * UIBookWnd::GetContents(char const * text)
 
 void UIBookWnd::WriteBookMarkToRegistry(char const * bookName, int page)
 {
-	HKEY hKey;
-	DWORD dwDisposition;
+	bf_setting_key hKey;
 	char BookMarkPath[512];
 
 	strcpy(BookMarkPath, g_regPath);
@@ -8811,22 +8810,19 @@ void UIBookWnd::WriteBookMarkToRegistry(char const * bookName, int page)
 	strcat(BookMarkPath, "\\");
 	strcat(BookMarkPath, g_session.GetCharName());
 
-	dwDisposition = 0;
-	RegDeleteKeyA(HKEY_LOCAL_MACHINE, BookMarkPath);
-	LONG result = RegCreateKeyExA(HKEY_LOCAL_MACHINE, BookMarkPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (result == ERROR_SUCCESS) {
-		RegSetValueExA(hKey, bookName, 0, REG_DWORD, (BYTE*)&page, 4);
-		RegCloseKey(hKey);
+	bf_setting_remove(BookMarkPath);
+	bool result = bf_setting_create(hKey, BookMarkPath);
+	if (result) {
+		bf_setting_set(hKey, bookName, page);
+		bf_setting_close(hKey);
 	}
 }
 
 int UIBookWnd::ReadBookMarkFromRegistry(char const * bookName)
 {
 	int page;
-	HKEY hKey;
-	HKEY hResultKey;
-	DWORD REG_TYPE;
-	DWORD DATALENGTH;
+	bf_setting_key hKey;
+	bf_setting_key hResultKey;
 	char BookMarkPath[512];
 
 	strcpy(BookMarkPath, g_regPath);
@@ -8836,17 +8832,15 @@ int UIBookWnd::ReadBookMarkFromRegistry(char const * bookName)
 	strcat(BookMarkPath, "\\");
 	strcat(BookMarkPath, g_session.GetCharName());
 
-	LONG result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, BookMarkPath, 0, KEY_QUERY_VALUE, &hResultKey);
+	bool result = bf_setting_open(hResultKey, BookMarkPath);
 	page = 1;
-	if (result == ERROR_SUCCESS) {
-		RegCloseKey(hResultKey);
-		LONG result1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, BookMarkPath, 0, KEY_QUERY_VALUE, &hKey);
-		if (result1 == ERROR_SUCCESS) {
-			REG_TYPE = REG_DWORD;
-			DATALENGTH = 4;
-			if (RegQueryValueExA(hKey, bookName, NULL, &REG_TYPE, (BYTE*)&page, &DATALENGTH) != ERROR_SUCCESS)
+	if (result) {
+		bf_setting_close(hResultKey);
+		bool result1 = bf_setting_open(hKey, BookMarkPath);
+		if (result1) {
+			if (!bf_setting_get(hKey, bookName, page))
 				page = 1;
-			RegCloseKey(hKey);
+			bf_setting_close(hKey);
 		}
 	}
 	return page;

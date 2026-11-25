@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "bf_sys.h"
 #include "device/Control.h"
 #include "GameMode.h"
@@ -90,69 +91,67 @@ bool g_mouseMoved = 0;
 
 void UIWindowMgr::InitUIRectInfoFromReg()
 {
-	DWORD REG_TYPE;
 	DWORD DATALENGTH;
-	HKEY hResultKey;
-	HKEY hKey;
+	bf_setting_key hResultKey;
+	bf_setting_key hKey;
 	char UIPath[512];
 
 	strcpy(UIPath, g_regPath);
 	strcat(UIPath, g_uiPath);
 
-	LRESULT lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	if (lResult == ERROR_SUCCESS)
+	bool lResult = bf_setting_open(hResultKey, UIPath);
+	if (lResult)
 	{
-	RegCloseKey(hResultKey);
-	LRESULT lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hKey);
-	if (lResult1 == ERROR_SUCCESS)
+	bf_setting_close(hResultKey);
+	bool lResult1 = bf_setting_open(hKey, UIPath);
+	if (lResult1)
 	{
 
-	REG_TYPE = REG_DWORD;
 	DATALENGTH = 4;
 
-	RegQueryValueExA(hKey, "m_minimapZoomWnd", 0, &REG_TYPE, (LPBYTE)&m_miniMapZoomFactor, &DATALENGTH);
-	if (RegQueryValueExA(hKey, "M_ISDRAGALL", 0, &REG_TYPE, (LPBYTE)&m_isDragAll, &DATALENGTH) != 0)
+	bf_setting_get(hKey, "m_minimapZoomWnd", m_miniMapZoomFactor);
+	if (!bf_setting_get(hKey, "M_ISDRAGALL", m_isDragAll))
 		m_isDragAll = 1;
 	if (m_isDragAll != 0)
 		m_isDragAll = 1;
-	if (RegQueryValueExA(hKey, "M_ISDRAWCOMPASS", 0, &REG_TYPE, (LPBYTE)&m_isDrawCompass, &DATALENGTH) != 0)
+	if (!bf_setting_get(hKey, "M_ISDRAWCOMPASS", m_isDrawCompass))
 		m_isDrawCompass = 0;
-	if (RegQueryValueExA(hKey, "M_MINIMAPARGB", 0, &REG_TYPE, (LPBYTE)&m_miniMapArgb, &DATALENGTH) != 0)
+	if (!bf_setting_get(hKey, "M_MINIMAPARGB", m_miniMapArgb))
 		m_miniMapArgb = 0xaaffffff;
 	if (m_miniMapArgb != 0xffffffff)
 		m_miniMapArgb = 0xaaffffff;
-	RegQueryValueExA(hKey, "M_CHATWNDHEIGHT", 0, &REG_TYPE, (LPBYTE)&m_chatWndHeight, &DATALENGTH);
-	RegQueryValueExA(hKey, "M_CHATWNDX", 0, &REG_TYPE, (LPBYTE)&m_chatWndX, &DATALENGTH);
-	RegQueryValueExA(hKey, "M_CHATWNDY", 0, &REG_TYPE, (LPBYTE)&m_chatWndY, &DATALENGTH);
-	RegQueryValueExA(hKey, "M_CHATWNDSHOW", 0, &REG_TYPE, (LPBYTE)&m_chatWndShow, &DATALENGTH);
+	bf_setting_get(hKey, "M_CHATWNDHEIGHT", m_chatWndHeight);
+	bf_setting_get(hKey, "M_CHATWNDX", m_chatWndX);
+	bf_setting_get(hKey, "M_CHATWNDY", m_chatWndY);
+	bf_setting_get(hKey, "M_CHATWNDSHOW", m_chatWndShow);
 
-	RegQueryValueExA(hKey, "SAYDIALOGWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&sayDialogWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SAYDIALOGWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&sayDialogWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SAYDIALOGWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&sayDialogWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SAYDIALOGWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&sayDialogWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SAYDIALOGWNDINFO.X", sayDialogWndInfo.x);
+	bf_setting_get(hKey, "SAYDIALOGWNDINFO.Y", sayDialogWndInfo.y);
+	bf_setting_get(hKey, "SAYDIALOGWNDINFO.W", sayDialogWndInfo.w);
+	bf_setting_get(hKey, "SAYDIALOGWNDINFO.H", sayDialogWndInfo.h);
 
-	RegQueryValueExA(hKey, "CHOOSEWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&chooseWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHOOSEWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&chooseWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHOOSEWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&chooseWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHOOSEWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&chooseWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "CHOOSEWNDINFO.X", chooseWndInfo.x);
+	bf_setting_get(hKey, "CHOOSEWNDINFO.Y", chooseWndInfo.y);
+	bf_setting_get(hKey, "CHOOSEWNDINFO.W", chooseWndInfo.w);
+	bf_setting_get(hKey, "CHOOSEWNDINFO.H", chooseWndInfo.h);
 
-	RegQueryValueExA(hKey, "BASICINFOWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&basicInfoWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "BASICINFOWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&basicInfoWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "BASICINFOWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&basicInfoWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "BASICINFOWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&basicInfoWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "BASICINFOWNDINFO.X", basicInfoWndInfo.x);
+	bf_setting_get(hKey, "BASICINFOWNDINFO.Y", basicInfoWndInfo.y);
+	bf_setting_get(hKey, "BASICINFOWNDINFO.W", basicInfoWndInfo.w);
+	bf_setting_get(hKey, "BASICINFOWNDINFO.H", basicInfoWndInfo.h);
 	basicInfoWndInfo.x = 740;
 	basicInfoWndInfo.y = 645;
 	basicInfoWndInfo.h = 120;
 
-	RegQueryValueExA(hKey, "ITEMWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.h, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.ORGHEIGHT", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.orgHeight, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.CURTAB", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.curTab, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.CURRADIO1", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.curRadio1, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.CURRADIO2", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.curRadio2, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMWNDINFO.CURRADIO3", 0, &REG_TYPE, (LPBYTE)&itemWndInfo.curRadio3, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMWNDINFO.X", itemWndInfo.x);
+	bf_setting_get(hKey, "ITEMWNDINFO.Y", itemWndInfo.y);
+	bf_setting_get(hKey, "ITEMWNDINFO.W", itemWndInfo.w);
+	bf_setting_get(hKey, "ITEMWNDINFO.H", itemWndInfo.h);
+	bf_setting_get(hKey, "ITEMWNDINFO.ORGHEIGHT", itemWndInfo.orgHeight);
+	bf_setting_get(hKey, "ITEMWNDINFO.CURTAB", itemWndInfo.curTab);
+	bf_setting_get(hKey, "ITEMWNDINFO.CURRADIO1", itemWndInfo.curRadio1);
+	bf_setting_get(hKey, "ITEMWNDINFO.CURRADIO2", itemWndInfo.curRadio2);
+	bf_setting_get(hKey, "ITEMWNDINFO.CURRADIO3", itemWndInfo.curRadio3);
 	itemWndInfo.x = 744;
 	itemWndInfo.y = 514;
 	itemWndInfo.w = 280;
@@ -161,186 +160,186 @@ void UIWindowMgr::InitUIRectInfoFromReg()
 	itemWndInfo.curTab = 1;
 	itemWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "QUESTWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&questWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&questWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&questWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&questWndInfo.h, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.ORGHEIGHT", 0, &REG_TYPE, (LPBYTE)&questWndInfo.orgHeight, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.CURTAB", 0, &REG_TYPE, (LPBYTE)&questWndInfo.curTab, &DATALENGTH);
-	RegQueryValueExA(hKey, "QUESTWNDINFO.SHOW", 0, &REG_TYPE, (LPBYTE)&questWndInfo.show, &DATALENGTH);
+	bf_setting_get(hKey, "QUESTWNDINFO.X", questWndInfo.x);
+	bf_setting_get(hKey, "QUESTWNDINFO.Y", questWndInfo.y);
+	bf_setting_get(hKey, "QUESTWNDINFO.W", questWndInfo.w);
+	bf_setting_get(hKey, "QUESTWNDINFO.H", questWndInfo.h);
+	bf_setting_get(hKey, "QUESTWNDINFO.ORGHEIGHT", questWndInfo.orgHeight);
+	bf_setting_get(hKey, "QUESTWNDINFO.CURTAB", questWndInfo.curTab);
+	bf_setting_get(hKey, "QUESTWNDINFO.SHOW", questWndInfo.show);
 
-	RegQueryValueExA(hKey, "STATUSWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&statusWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "STATUSWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&statusWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "STATUSWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&statusWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "STATUSWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&statusWndInfo.h, &DATALENGTH);
-	RegQueryValueExA(hKey, "STATUSWNDINFO.ORGHEIGHT", 0, &REG_TYPE, (LPBYTE)&statusWndInfo.orgHeight, &DATALENGTH);
+	bf_setting_get(hKey, "STATUSWNDINFO.X", statusWndInfo.x);
+	bf_setting_get(hKey, "STATUSWNDINFO.Y", statusWndInfo.y);
+	bf_setting_get(hKey, "STATUSWNDINFO.W", statusWndInfo.w);
+	bf_setting_get(hKey, "STATUSWNDINFO.H", statusWndInfo.h);
+	bf_setting_get(hKey, "STATUSWNDINFO.ORGHEIGHT", statusWndInfo.orgHeight);
 	statusWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "EQUIPWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&equipWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "EQUIPWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&equipWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "EQUIPWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&equipWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "EQUIPWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&equipWndInfo.h, &DATALENGTH);
-	RegQueryValueExA(hKey, "EQUIPWNDINFO.ORGHEIGHT", 0, &REG_TYPE, (LPBYTE)&equipWndInfo.orgHeight, &DATALENGTH);
+	bf_setting_get(hKey, "EQUIPWNDINFO.X", equipWndInfo.x);
+	bf_setting_get(hKey, "EQUIPWNDINFO.Y", equipWndInfo.y);
+	bf_setting_get(hKey, "EQUIPWNDINFO.W", equipWndInfo.w);
+	bf_setting_get(hKey, "EQUIPWNDINFO.H", equipWndInfo.h);
+	bf_setting_get(hKey, "EQUIPWNDINFO.ORGHEIGHT", equipWndInfo.orgHeight);
 	equipWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "OPTIONWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&optionWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "OPTIONWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&optionWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "OPTIONWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&optionWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "OPTIONWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&optionWndInfo.h, &DATALENGTH);
-	RegQueryValueExA(hKey, "OPTIONWNDINFO.ORGHEIGHT", 0, &REG_TYPE, (LPBYTE)&optionWndInfo.orgHeight, &DATALENGTH);
+	bf_setting_get(hKey, "OPTIONWNDINFO.X", optionWndInfo.x);
+	bf_setting_get(hKey, "OPTIONWNDINFO.Y", optionWndInfo.y);
+	bf_setting_get(hKey, "OPTIONWNDINFO.W", optionWndInfo.w);
+	bf_setting_get(hKey, "OPTIONWNDINFO.H", optionWndInfo.h);
+	bf_setting_get(hKey, "OPTIONWNDINFO.ORGHEIGHT", optionWndInfo.orgHeight);
 	optionWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "SHORTENITEMWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&shortenItemWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTENITEMWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&shortenItemWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTENITEMWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&shortenItemWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTENITEMWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&shortenItemWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SHORTENITEMWNDINFO.X", shortenItemWndInfo.x);
+	bf_setting_get(hKey, "SHORTENITEMWNDINFO.Y", shortenItemWndInfo.y);
+	bf_setting_get(hKey, "SHORTENITEMWNDINFO.W", shortenItemWndInfo.w);
+	bf_setting_get(hKey, "SHORTENITEMWNDINFO.H", shortenItemWndInfo.h);
 	shortenItemWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "SHORTCUTWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&shortCutWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTCUTWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&shortCutWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTCUTWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&shortCutWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SHORTCUTWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&shortCutWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SHORTCUTWNDINFO.X", shortCutWndInfo.x);
+	bf_setting_get(hKey, "SHORTCUTWNDINFO.Y", shortCutWndInfo.y);
+	bf_setting_get(hKey, "SHORTCUTWNDINFO.W", shortCutWndInfo.w);
+	bf_setting_get(hKey, "SHORTCUTWNDINFO.H", shortCutWndInfo.h);
 	shortCutWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "CHATROOMWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&chatRoomWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHATROOMWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&chatRoomWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHATROOMWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&chatRoomWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "CHATROOMWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&chatRoomWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "CHATROOMWNDINFO.X", chatRoomWndInfo.x);
+	bf_setting_get(hKey, "CHATROOMWNDINFO.Y", chatRoomWndInfo.y);
+	bf_setting_get(hKey, "CHATROOMWNDINFO.W", chatRoomWndInfo.w);
+	bf_setting_get(hKey, "CHATROOMWNDINFO.H", chatRoomWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMSTOREWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemStoreWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSTOREWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemStoreWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSTOREWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemStoreWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSTOREWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemStoreWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMSTOREWNDINFO.X", itemStoreWndInfo.x);
+	bf_setting_get(hKey, "ITEMSTOREWNDINFO.Y", itemStoreWndInfo.y);
+	bf_setting_get(hKey, "ITEMSTOREWNDINFO.W", itemStoreWndInfo.w);
+	bf_setting_get(hKey, "ITEMSTOREWNDINFO.H", itemStoreWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMSHOPWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemShopWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSHOPWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemShopWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSHOPWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemShopWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSHOPWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemShopWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMSHOPWNDINFO.X", itemShopWndInfo.x);
+	bf_setting_get(hKey, "ITEMSHOPWNDINFO.Y", itemShopWndInfo.y);
+	bf_setting_get(hKey, "ITEMSHOPWNDINFO.W", itemShopWndInfo.w);
+	bf_setting_get(hKey, "ITEMSHOPWNDINFO.H", itemShopWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMSELLWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemSellWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSELLWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemSellWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSELLWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemSellWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMSELLWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemSellWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMSELLWNDINFO.X", itemSellWndInfo.x);
+	bf_setting_get(hKey, "ITEMSELLWNDINFO.Y", itemSellWndInfo.y);
+	bf_setting_get(hKey, "ITEMSELLWNDINFO.W", itemSellWndInfo.w);
+	bf_setting_get(hKey, "ITEMSELLWNDINFO.H", itemSellWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMPURCHASEWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemPurchaseWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPURCHASEWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemPurchaseWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPURCHASEWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemPurchaseWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPURCHASEWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemPurchaseWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMPURCHASEWNDINFO.X", itemPurchaseWndInfo.x);
+	bf_setting_get(hKey, "ITEMPURCHASEWNDINFO.Y", itemPurchaseWndInfo.y);
+	bf_setting_get(hKey, "ITEMPURCHASEWNDINFO.W", itemPurchaseWndInfo.w);
+	bf_setting_get(hKey, "ITEMPURCHASEWNDINFO.H", itemPurchaseWndInfo.h);
 
-	RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.h, &DATALENGTH);
-	if (RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.SHOW", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.show, &DATALENGTH) != 0)
+	bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.X", messengerGroupWndInfo.x);
+	bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.Y", messengerGroupWndInfo.y);
+	bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.W", messengerGroupWndInfo.w);
+	bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.H", messengerGroupWndInfo.h);
+	if (!bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.SHOW", messengerGroupWndInfo.show))
 		messengerGroupWndInfo.show = 0;
-	if (RegQueryValueExA(hKey, "MESSENGERGROUPWNDINFO.RADIO", 0, &REG_TYPE, (LPBYTE)&messengerGroupWndInfo.radio, &DATALENGTH) != 0)
+	if (!bf_setting_get(hKey, "MESSENGERGROUPWNDINFO.RADIO", messengerGroupWndInfo.radio))
 		messengerGroupWndInfo.radio = 1;
 
-	RegQueryValueExA(hKey, "EXCHANGEACCEPTWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&exchangeAcceptWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "EXCHANGEACCEPTWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&exchangeAcceptWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "EXCHANGEACCEPTWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&exchangeAcceptWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "EXCHANGEACCEPTWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&exchangeAcceptWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "EXCHANGEACCEPTWNDINFO.X", exchangeAcceptWndInfo.x);
+	bf_setting_get(hKey, "EXCHANGEACCEPTWNDINFO.Y", exchangeAcceptWndInfo.y);
+	bf_setting_get(hKey, "EXCHANGEACCEPTWNDINFO.W", exchangeAcceptWndInfo.w);
+	bf_setting_get(hKey, "EXCHANGEACCEPTWNDINFO.H", exchangeAcceptWndInfo.h);
 
-	RegQueryValueExA(hKey, "SKILLLISTWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&skillListWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SKILLLISTWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&skillListWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SKILLLISTWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&skillListWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SKILLLISTWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&skillListWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SKILLLISTWNDINFO.X", skillListWndInfo.x);
+	bf_setting_get(hKey, "SKILLLISTWNDINFO.Y", skillListWndInfo.y);
+	bf_setting_get(hKey, "SKILLLISTWNDINFO.W", skillListWndInfo.w);
+	bf_setting_get(hKey, "SKILLLISTWNDINFO.H", skillListWndInfo.h);
 	skillListWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "MERCHANTITEMWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantItemWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantItemWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantItemWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantItemWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTITEMWNDINFO.X", merchantItemWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTITEMWNDINFO.Y", merchantItemWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTITEMWNDINFO.W", merchantItemWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTITEMWNDINFO.H", merchantItemWndInfo.h);
 	merchantItemWndInfo.show = 0;
 
-	RegQueryValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantMirrorItemWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantMirrorItemWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantMirrorItemWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantMirrorItemWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTMIRRORITEMWNDINFO.X", merchantMirrorItemWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTMIRRORITEMWNDINFO.Y", merchantMirrorItemWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTMIRRORITEMWNDINFO.W", merchantMirrorItemWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTMIRRORITEMWNDINFO.H", merchantMirrorItemWndInfo.h);
 
-	RegQueryValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantShopMakeWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantShopMakeWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantShopMakeWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantShopMakeWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTSHOPMAKEWNDINFO.X", merchantShopMakeWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTSHOPMAKEWNDINFO.Y", merchantShopMakeWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTSHOPMAKEWNDINFO.W", merchantShopMakeWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTSHOPMAKEWNDINFO.H", merchantShopMakeWndInfo.h);
 
-	RegQueryValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantItemShopWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantItemShopWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantItemShopWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantItemShopWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTITEMSHOPWNDINFO.X", merchantItemShopWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTITEMSHOPWNDINFO.Y", merchantItemShopWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTITEMSHOPWNDINFO.W", merchantItemShopWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTITEMSHOPWNDINFO.H", merchantItemShopWndInfo.h);
 
-	RegQueryValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantItemMyShopWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantItemMyShopWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantItemMyShopWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantItemMyShopWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTITEMMYSHOPWNDINFO.X", merchantItemMyShopWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTITEMMYSHOPWNDINFO.Y", merchantItemMyShopWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTITEMMYSHOPWNDINFO.W", merchantItemMyShopWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTITEMMYSHOPWNDINFO.H", merchantItemMyShopWndInfo.h);
 
-	RegQueryValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&merchantItemPurchaseWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&merchantItemPurchaseWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&merchantItemPurchaseWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&merchantItemPurchaseWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "MERCHANTITEMPURCHASEWNDINFO.X", merchantItemPurchaseWndInfo.x);
+	bf_setting_get(hKey, "MERCHANTITEMPURCHASEWNDINFO.Y", merchantItemPurchaseWndInfo.y);
+	bf_setting_get(hKey, "MERCHANTITEMPURCHASEWNDINFO.W", merchantItemPurchaseWndInfo.w);
+	bf_setting_get(hKey, "MERCHANTITEMPURCHASEWNDINFO.H", merchantItemPurchaseWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMCOLLECTIONWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemCollectionWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOLLECTIONWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemCollectionWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOLLECTIONWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemCollectionWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOLLECTIONWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemCollectionWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMCOLLECTIONWNDINFO.X", itemCollectionWndInfo.x);
+	bf_setting_get(hKey, "ITEMCOLLECTIONWNDINFO.Y", itemCollectionWndInfo.y);
+	bf_setting_get(hKey, "ITEMCOLLECTIONWNDINFO.W", itemCollectionWndInfo.w);
+	bf_setting_get(hKey, "ITEMCOLLECTIONWNDINFO.H", itemCollectionWndInfo.h);
 
-	RegQueryValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&combinedCardItemCollectionWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&combinedCardItemCollectionWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&combinedCardItemCollectionWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&combinedCardItemCollectionWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.X", combinedCardItemCollectionWndInfo.x);
+	bf_setting_get(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.Y", combinedCardItemCollectionWndInfo.y);
+	bf_setting_get(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.W", combinedCardItemCollectionWndInfo.w);
+	bf_setting_get(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.H", combinedCardItemCollectionWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemParamChangeDisplayWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemParamChangeDisplayWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemParamChangeDisplayWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemParamChangeDisplayWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.X", itemParamChangeDisplayWndInfo.x);
+	bf_setting_get(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.Y", itemParamChangeDisplayWndInfo.y);
+	bf_setting_get(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.W", itemParamChangeDisplayWndInfo.w);
+	bf_setting_get(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.H", itemParamChangeDisplayWndInfo.h);
 
-	RegQueryValueExA(hKey, "PARTYSETTINGWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&partySettingWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "PARTYSETTINGWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&partySettingWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "PARTYSETTINGWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&partySettingWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "PARTYSETTINGWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&partySettingWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "PARTYSETTINGWNDINFO.X", partySettingWndInfo.x);
+	bf_setting_get(hKey, "PARTYSETTINGWNDINFO.Y", partySettingWndInfo.y);
+	bf_setting_get(hKey, "PARTYSETTINGWNDINFO.W", partySettingWndInfo.w);
+	bf_setting_get(hKey, "PARTYSETTINGWNDINFO.H", partySettingWndInfo.h);
 
-	RegQueryValueExA(hKey, "DETAILLEVELWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&detailLevelWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "DETAILLEVELWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&detailLevelWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "DETAILLEVELWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&detailLevelWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "DETAILLEVELWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&detailLevelWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "DETAILLEVELWNDINFO.X", detailLevelWndInfo.x);
+	bf_setting_get(hKey, "DETAILLEVELWNDINFO.Y", detailLevelWndInfo.y);
+	bf_setting_get(hKey, "DETAILLEVELWNDINFO.W", detailLevelWndInfo.w);
+	bf_setting_get(hKey, "DETAILLEVELWNDINFO.H", detailLevelWndInfo.h);
 
-	RegQueryValueExA(hKey, "WHISPERWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&whisperWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "WHISPERWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&whisperWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "WHISPERWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&whisperWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "WHISPERWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&whisperWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "WHISPERWNDINFO.X", whisperWndInfo.x);
+	bf_setting_get(hKey, "WHISPERWNDINFO.Y", whisperWndInfo.y);
+	bf_setting_get(hKey, "WHISPERWNDINFO.W", whisperWndInfo.w);
+	bf_setting_get(hKey, "WHISPERWNDINFO.H", whisperWndInfo.h);
 
-	RegQueryValueExA(hKey, "FRIENDOPTIONWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&friendOptionWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "FRIENDOPTIONWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&friendOptionWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "FRIENDOPTIONWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&friendOptionWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "FRIENDOPTIONWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&friendOptionWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "FRIENDOPTIONWNDINFO.X", friendOptionWndInfo.x);
+	bf_setting_get(hKey, "FRIENDOPTIONWNDINFO.Y", friendOptionWndInfo.y);
+	bf_setting_get(hKey, "FRIENDOPTIONWNDINFO.W", friendOptionWndInfo.w);
+	bf_setting_get(hKey, "FRIENDOPTIONWNDINFO.H", friendOptionWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemCompositionWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemCompositionWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemCompositionWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemCompositionWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMCOMPOSITIONWNDINFO.X", itemCompositionWndInfo.x);
+	bf_setting_get(hKey, "ITEMCOMPOSITIONWNDINFO.Y", itemCompositionWndInfo.y);
+	bf_setting_get(hKey, "ITEMCOMPOSITIONWNDINFO.W", itemCompositionWndInfo.w);
+	bf_setting_get(hKey, "ITEMCOMPOSITIONWNDINFO.H", itemCompositionWndInfo.h);
 
-	RegQueryValueExA(hKey, "ITEMIDENTIFYWNDINFO.X", 0, &REG_TYPE, (LPBYTE)&itemIdentifyWndInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMIDENTIFYWNDINFO.Y", 0, &REG_TYPE, (LPBYTE)&itemIdentifyWndInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMIDENTIFYWNDINFO.W", 0, &REG_TYPE, (LPBYTE)&itemIdentifyWndInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "ITEMIDENTIFYWNDINFO.H", 0, &REG_TYPE, (LPBYTE)&itemIdentifyWndInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "ITEMIDENTIFYWNDINFO.X", itemIdentifyWndInfo.x);
+	bf_setting_get(hKey, "ITEMIDENTIFYWNDINFO.Y", itemIdentifyWndInfo.y);
+	bf_setting_get(hKey, "ITEMIDENTIFYWNDINFO.W", itemIdentifyWndInfo.w);
+	bf_setting_get(hKey, "ITEMIDENTIFYWNDINFO.H", itemIdentifyWndInfo.h);
 
-	RegQueryValueExA(hKey, "SUBCHATWNDST.X", 0, &REG_TYPE, (LPBYTE)&subChatWndStInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDST.Y", 0, &REG_TYPE, (LPBYTE)&subChatWndStInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDST.W", 0, &REG_TYPE, (LPBYTE)&subChatWndStInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDST.H", 0, &REG_TYPE, (LPBYTE)&subChatWndStInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SUBCHATWNDST.X", subChatWndStInfo.x);
+	bf_setting_get(hKey, "SUBCHATWNDST.Y", subChatWndStInfo.y);
+	bf_setting_get(hKey, "SUBCHATWNDST.W", subChatWndStInfo.w);
+	bf_setting_get(hKey, "SUBCHATWNDST.H", subChatWndStInfo.h);
 
-	RegQueryValueExA(hKey, "SUBCHATWNDBT.X", 0, &REG_TYPE, (LPBYTE)&subChatWndBtInfo.x, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDBT.Y", 0, &REG_TYPE, (LPBYTE)&subChatWndBtInfo.y, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDBT.W", 0, &REG_TYPE, (LPBYTE)&subChatWndBtInfo.w, &DATALENGTH);
-	RegQueryValueExA(hKey, "SUBCHATWNDBT.H", 0, &REG_TYPE, (LPBYTE)&subChatWndBtInfo.h, &DATALENGTH);
+	bf_setting_get(hKey, "SUBCHATWNDBT.X", subChatWndBtInfo.x);
+	bf_setting_get(hKey, "SUBCHATWNDBT.Y", subChatWndBtInfo.y);
+	bf_setting_get(hKey, "SUBCHATWNDBT.W", subChatWndBtInfo.w);
+	bf_setting_get(hKey, "SUBCHATWNDBT.H", subChatWndBtInfo.h);
 
-	RegQueryValueExA(hKey, "CHATWNDSTICKON", 0, &REG_TYPE, (LPBYTE)&m_chatWndStickOn, &DATALENGTH);
-	RegQueryValueExA(hKey, "ONSTSUBCHAT", 0, &REG_TYPE, (LPBYTE)&m_onStSubChat, &DATALENGTH);
-	RegQueryValueExA(hKey, "ONBTSUBCHAT", 0, &REG_TYPE, (LPBYTE)&m_onBtSubChat, &DATALENGTH);
-	RegQueryValueExA(hKey, "MEMORIALDUNWND.X", 0, &REG_TYPE, (LPBYTE)&g_session.dunInfoWndX, &DATALENGTH);
-	RegQueryValueExA(hKey, "MEMORIALDUNWND.Y", 0, &REG_TYPE, (LPBYTE)&g_session.dunInfoWndY, &DATALENGTH);
+	bf_setting_read(hKey, "CHATWNDSTICKON", &m_chatWndStickOn, &DATALENGTH);
+	bf_setting_read(hKey, "ONSTSUBCHAT", &m_onStSubChat, &DATALENGTH);
+	bf_setting_read(hKey, "ONBTSUBCHAT", &m_onBtSubChat, &DATALENGTH);
+	bf_setting_read(hKey, "MEMORIALDUNWND.X", &g_session.dunInfoWndX, &DATALENGTH);
+	bf_setting_read(hKey, "MEMORIALDUNWND.Y", &g_session.dunInfoWndY, &DATALENGTH);
 
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 	}
 
 	return;
@@ -352,10 +351,9 @@ void UIWindowMgr::InitUIRectInfoFromReg()
 void UIWindowMgr::InitShortcutItemInfoFromReg()
 {
 	int shortenSkillUseLevel;
-	HKEY hKey;
-	DWORD REG_TYPE;
+	bf_setting_key hKey;
 	DWORD DATALENGTH;
-	HKEY hResultKey;
+	bf_setting_key hResultKey;
 	char itemName[33];
 	char sItemRegName[33];
 	char UIPath[512];
@@ -368,26 +366,25 @@ void UIWindowMgr::InitShortcutItemInfoFromReg()
 	else
 		strcat(UIPath, g_session.m_lastServerName.c_str());
 
-	LRESULT lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	if (lResult == ERROR_SUCCESS)
+	bool lResult = bf_setting_open(hResultKey, UIPath);
+	if (lResult)
 	{
-		RegCloseKey(hResultKey);
-		LRESULT lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hKey);
-		if (lResult1 == ERROR_SUCCESS)
+		bf_setting_close(hResultKey);
+		bool lResult1 = bf_setting_open(hKey, UIPath);
+		if (lResult1)
 		{
 			g_session.ClearShortenItemName();
 			g_session.ClearShortenSkillUseLevel();
 
 			for (int i = 0; i < 27; ++i)
 			{
-				REG_TYPE = 1;
 				DATALENGTH = 0x20;
 				sprintf(sItemRegName, "SITEM%d%d%d", i, g_serviceType, g_session.m_charSlot);
 				memset(itemName, 0, sizeof(itemName));
-				LONG res = RegQueryValueExA(hKey, sItemRegName, 0, &REG_TYPE, (LPBYTE)itemName, &DATALENGTH);
+				bool res = bf_setting_read(hKey, sItemRegName, itemName, &DATALENGTH);
 				int flag = 0;
 				g_session.m_shortcutSlotCnt = i / 9;
-				if (res == 0) {
+				if (res) {
 					if (itemName[0] != '#')
 						g_session.SetShortenItemName(itemName, i);
 					else
@@ -396,13 +393,12 @@ void UIWindowMgr::InitShortcutItemInfoFromReg()
 				else
 					g_session.SetShortenItemName("nothing", i);
 
-				REG_TYPE = 4;
 				DATALENGTH = 4;
 				sprintf(sItemRegName, "S_SKILL_USE_LEVEL%d%d%d", i, g_serviceType, g_session.m_charSlot);
 				shortenSkillUseLevel = 0;
-				res = RegQueryValueExA(hKey, sItemRegName, 0, &REG_TYPE, (LPBYTE)&shortenSkillUseLevel, &DATALENGTH);
+				res = bf_setting_get(hKey, sItemRegName, shortenSkillUseLevel);
 
-				if (res == 0)
+				if (res)
 					g_session.SetShortenSkillUseLevel(shortenSkillUseLevel, i);
 				else
 				{
@@ -414,7 +410,7 @@ void UIWindowMgr::InitShortcutItemInfoFromReg()
 					g_session.SetShortenSkillName(itemName, shortenSkillUseLevel, i);
 			}
 
-			RegCloseKey(hKey);
+			bf_setting_close(hKey);
 		}
 	}
 	g_session.m_shortcutSlotCnt = 0;
@@ -422,9 +418,8 @@ void UIWindowMgr::InitShortcutItemInfoFromReg()
 
 void UIWindowMgr::WriteShorcutItemInfoToReg()
 {
-	HKEY hKey;
+	bf_setting_key hKey;
 	int shortenSkillUseLevel;
-	DWORD dwDisposition;
 	char sItemRegName[33];
 	char itemName[33];
 	char UIPath[512];
@@ -438,9 +433,8 @@ void UIWindowMgr::WriteShorcutItemInfoToReg()
 	else
 		strcat(UIPath, g_session.m_lastServerName.c_str());
 
-	dwDisposition = 0;
-	LRESULT lResult = RegCreateKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult != ERROR_SUCCESS)
+	bool lResult = bf_setting_create(hKey, UIPath);
+	if (!lResult)
 		return;
 
 	for (i = 0; i < 27; ++i)
@@ -448,275 +442,269 @@ void UIWindowMgr::WriteShorcutItemInfoToReg()
 		memset(itemName, 0, sizeof(itemName));
 		strcpy(itemName, g_session.GetShortenItemName(i));
 		sprintf(sItemRegName, "SITEM%d%d%d", i, g_serviceType, g_session.m_charSlot);
-		RegSetValueExA(hKey, sItemRegName, 0, REG_SZ, (LPBYTE)itemName, 0x20);
+		bf_setting_set_string(hKey, sItemRegName, itemName, 0x20);
 
 		shortenSkillUseLevel = g_session.GetShortenSkillUseLevel(i);
 		sprintf(sItemRegName, "S_SKILL_USE_LEVEL%d%d%d", i, g_serviceType, g_session.m_charSlot);
-		RegSetValueExA(hKey, sItemRegName, 0, REG_DWORD, (LPBYTE)&shortenSkillUseLevel, 4);
+		bf_setting_set(hKey, sItemRegName, shortenSkillUseLevel);
 	}
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }
 
 void UIWindowMgr::WriteUIRectInfoToReg()
 {
-	HKEY hKey;
-	DWORD dwDisposition;
+	bf_setting_key hKey;
 	char UIPath[512];
 
 	strcpy(UIPath, g_regPath);
 	strcat(UIPath, g_uiPath);
 
-	dwDisposition = 0;
-	LRESULT lResult = RegCreateKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult != ERROR_SUCCESS)
+	bool lResult = bf_setting_create(hKey, UIPath);
+	if (!lResult)
 		return;
 
-	RegSetValueExA(hKey, "m_minimapZoomWnd", 0, REG_DWORD, (LPBYTE)&m_miniMapZoomFactor, 4);
-	RegSetValueExA(hKey, "M_ISDRAGALL", 0, REG_DWORD, (LPBYTE)&m_isDragAll, 4);
-	RegSetValueExA(hKey, "M_ISDRAWCOMPASS", 0, REG_DWORD, (LPBYTE)&m_isDrawCompass, 4);
-	RegSetValueExA(hKey, "M_MINIMAPARGB", 0, REG_DWORD, (LPBYTE)&m_miniMapArgb, 4);
-	RegSetValueExA(hKey, "M_CHATWNDSTATUS", 0, REG_DWORD, (LPBYTE)&m_chatWndStatus, 4);
-	RegSetValueExA(hKey, "M_CHATWNDHEIGHT", 0, REG_DWORD, (LPBYTE)&m_chatWndHeight, 4);
-	RegSetValueExA(hKey, "M_CHATWNDX", 0, REG_DWORD, (LPBYTE)&m_chatWndX, 4);
-	RegSetValueExA(hKey, "M_CHATWNDY", 0, REG_DWORD, (LPBYTE)&m_chatWndY, 4);
-	RegSetValueExA(hKey, "M_CHATWNDSHOW", 0, REG_DWORD, (LPBYTE)&m_chatWndShow, 4);
+	bf_setting_set(hKey, "m_minimapZoomWnd", m_miniMapZoomFactor);
+	bf_setting_set(hKey, "M_ISDRAGALL", m_isDragAll);
+	bf_setting_set(hKey, "M_ISDRAWCOMPASS", m_isDrawCompass);
+	bf_setting_set(hKey, "M_MINIMAPARGB", m_miniMapArgb);
+	bf_setting_set(hKey, "M_CHATWNDSTATUS", m_chatWndStatus);
+	bf_setting_set(hKey, "M_CHATWNDHEIGHT", m_chatWndHeight);
+	bf_setting_set(hKey, "M_CHATWNDX", m_chatWndX);
+	bf_setting_set(hKey, "M_CHATWNDY", m_chatWndY);
+	bf_setting_set(hKey, "M_CHATWNDSHOW", m_chatWndShow);
 
-	RegSetValueExA(hKey, "SAYDIALOGWNDINFO.X", 0, REG_DWORD, (LPBYTE)&sayDialogWndInfo.x, 4);
-	RegSetValueExA(hKey, "SAYDIALOGWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&sayDialogWndInfo.y, 4);
-	RegSetValueExA(hKey, "SAYDIALOGWNDINFO.W", 0, REG_DWORD, (LPBYTE)&sayDialogWndInfo.w, 4);
-	RegSetValueExA(hKey, "SAYDIALOGWNDINFO.H", 0, REG_DWORD, (LPBYTE)&sayDialogWndInfo.h, 4);
+	bf_setting_set(hKey, "SAYDIALOGWNDINFO.X", sayDialogWndInfo.x);
+	bf_setting_set(hKey, "SAYDIALOGWNDINFO.Y", sayDialogWndInfo.y);
+	bf_setting_set(hKey, "SAYDIALOGWNDINFO.W", sayDialogWndInfo.w);
+	bf_setting_set(hKey, "SAYDIALOGWNDINFO.H", sayDialogWndInfo.h);
 
-	RegSetValueExA(hKey, "CHOOSEWNDINFO.X", 0, REG_DWORD, (LPBYTE)&chooseWndInfo.x, 4);
-	RegSetValueExA(hKey, "CHOOSEWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&chooseWndInfo.y, 4);
-	RegSetValueExA(hKey, "CHOOSEWNDINFO.W", 0, REG_DWORD, (LPBYTE)&chooseWndInfo.w, 4);
-	RegSetValueExA(hKey, "CHOOSEWNDINFO.H", 0, REG_DWORD, (LPBYTE)&chooseWndInfo.h, 4);
+	bf_setting_set(hKey, "CHOOSEWNDINFO.X", chooseWndInfo.x);
+	bf_setting_set(hKey, "CHOOSEWNDINFO.Y", chooseWndInfo.y);
+	bf_setting_set(hKey, "CHOOSEWNDINFO.W", chooseWndInfo.w);
+	bf_setting_set(hKey, "CHOOSEWNDINFO.H", chooseWndInfo.h);
 
-	RegSetValueExA(hKey, "BASICINFOWNDINFO.X", 0, REG_DWORD, (LPBYTE)&basicInfoWndInfo.x, 4);
-	RegSetValueExA(hKey, "BASICINFOWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&basicInfoWndInfo.y, 4);
-	RegSetValueExA(hKey, "BASICINFOWNDINFO.W", 0, REG_DWORD, (LPBYTE)&basicInfoWndInfo.w, 4);
-	RegSetValueExA(hKey, "BASICINFOWNDINFO.H", 0, REG_DWORD, (LPBYTE)&basicInfoWndInfo.h, 4);
+	bf_setting_set(hKey, "BASICINFOWNDINFO.X", basicInfoWndInfo.x);
+	bf_setting_set(hKey, "BASICINFOWNDINFO.Y", basicInfoWndInfo.y);
+	bf_setting_set(hKey, "BASICINFOWNDINFO.W", basicInfoWndInfo.w);
+	bf_setting_set(hKey, "BASICINFOWNDINFO.H", basicInfoWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemWndInfo.h, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.ORGHEIGHT", 0, REG_DWORD, (LPBYTE)&itemWndInfo.orgHeight, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.CURTAB", 0, REG_DWORD, (LPBYTE)&itemWndInfo.curTab, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.CURRADIO1", 0, REG_DWORD, (LPBYTE)&itemWndInfo.curRadio1, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.CURRADIO2", 0, REG_DWORD, (LPBYTE)&itemWndInfo.curRadio2, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.CURRADIO3", 0, REG_DWORD, (LPBYTE)&itemWndInfo.curRadio3, 4);
-	RegSetValueExA(hKey, "ITEMWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&itemWndInfo.show, 4);
+	bf_setting_set(hKey, "ITEMWNDINFO.X", itemWndInfo.x);
+	bf_setting_set(hKey, "ITEMWNDINFO.Y", itemWndInfo.y);
+	bf_setting_set(hKey, "ITEMWNDINFO.W", itemWndInfo.w);
+	bf_setting_set(hKey, "ITEMWNDINFO.H", itemWndInfo.h);
+	bf_setting_set(hKey, "ITEMWNDINFO.ORGHEIGHT", itemWndInfo.orgHeight);
+	bf_setting_set(hKey, "ITEMWNDINFO.CURTAB", itemWndInfo.curTab);
+	bf_setting_set(hKey, "ITEMWNDINFO.CURRADIO1", itemWndInfo.curRadio1);
+	bf_setting_set(hKey, "ITEMWNDINFO.CURRADIO2", itemWndInfo.curRadio2);
+	bf_setting_set(hKey, "ITEMWNDINFO.CURRADIO3", itemWndInfo.curRadio3);
+	bf_setting_set(hKey, "ITEMWNDINFO.SHOW", itemWndInfo.show);
 
-	RegSetValueExA(hKey, "QUESTWNDINFO.X", 0, REG_DWORD, (LPBYTE)&questWndInfo.x, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&questWndInfo.y, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.W", 0, REG_DWORD, (LPBYTE)&questWndInfo.w, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.H", 0, REG_DWORD, (LPBYTE)&questWndInfo.h, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.ORGHEIGHT", 0, REG_DWORD, (LPBYTE)&questWndInfo.orgHeight, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.CURTAB", 0, REG_DWORD, (LPBYTE)&questWndInfo.curTab, 4);
-	RegSetValueExA(hKey, "QUESTWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&questWndInfo.show, 4);
+	bf_setting_set(hKey, "QUESTWNDINFO.X", questWndInfo.x);
+	bf_setting_set(hKey, "QUESTWNDINFO.Y", questWndInfo.y);
+	bf_setting_set(hKey, "QUESTWNDINFO.W", questWndInfo.w);
+	bf_setting_set(hKey, "QUESTWNDINFO.H", questWndInfo.h);
+	bf_setting_set(hKey, "QUESTWNDINFO.ORGHEIGHT", questWndInfo.orgHeight);
+	bf_setting_set(hKey, "QUESTWNDINFO.CURTAB", questWndInfo.curTab);
+	bf_setting_set(hKey, "QUESTWNDINFO.SHOW", questWndInfo.show);
 
-	RegSetValueExA(hKey, "STATUSWNDINFO.X", 0, REG_DWORD, (LPBYTE)&statusWndInfo.x, 4);
-	RegSetValueExA(hKey, "STATUSWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&statusWndInfo.y, 4);
-	RegSetValueExA(hKey, "STATUSWNDINFO.W", 0, REG_DWORD, (LPBYTE)&statusWndInfo.w, 4);
-	RegSetValueExA(hKey, "STATUSWNDINFO.H", 0, REG_DWORD, (LPBYTE)&statusWndInfo.h, 4);
-	RegSetValueExA(hKey, "STATUSWNDINFO.ORGHEIGHT", 0, REG_DWORD, (LPBYTE)&statusWndInfo.orgHeight, 4);
-	RegSetValueExA(hKey, "STATUSWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&statusWndInfo.show, 4);
+	bf_setting_set(hKey, "STATUSWNDINFO.X", statusWndInfo.x);
+	bf_setting_set(hKey, "STATUSWNDINFO.Y", statusWndInfo.y);
+	bf_setting_set(hKey, "STATUSWNDINFO.W", statusWndInfo.w);
+	bf_setting_set(hKey, "STATUSWNDINFO.H", statusWndInfo.h);
+	bf_setting_set(hKey, "STATUSWNDINFO.ORGHEIGHT", statusWndInfo.orgHeight);
+	bf_setting_set(hKey, "STATUSWNDINFO.SHOW", statusWndInfo.show);
 
-	RegSetValueExA(hKey, "EQUIPWNDINFO.X", 0, REG_DWORD, (LPBYTE)&equipWndInfo.x, 4);
-	RegSetValueExA(hKey, "EQUIPWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&equipWndInfo.y, 4);
-	RegSetValueExA(hKey, "EQUIPWNDINFO.W", 0, REG_DWORD, (LPBYTE)&equipWndInfo.w, 4);
-	RegSetValueExA(hKey, "EQUIPWNDINFO.H", 0, REG_DWORD, (LPBYTE)&equipWndInfo.h, 4);
-	RegSetValueExA(hKey, "EQUIPWNDINFO.ORGHEIGHT", 0, REG_DWORD, (LPBYTE)&equipWndInfo.orgHeight, 4);
-	RegSetValueExA(hKey, "EQUIPWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&equipWndInfo.show, 4);
+	bf_setting_set(hKey, "EQUIPWNDINFO.X", equipWndInfo.x);
+	bf_setting_set(hKey, "EQUIPWNDINFO.Y", equipWndInfo.y);
+	bf_setting_set(hKey, "EQUIPWNDINFO.W", equipWndInfo.w);
+	bf_setting_set(hKey, "EQUIPWNDINFO.H", equipWndInfo.h);
+	bf_setting_set(hKey, "EQUIPWNDINFO.ORGHEIGHT", equipWndInfo.orgHeight);
+	bf_setting_set(hKey, "EQUIPWNDINFO.SHOW", equipWndInfo.show);
 
-	RegSetValueExA(hKey, "OPTIONWNDINFO.X", 0, REG_DWORD, (LPBYTE)&optionWndInfo.x, 4);
-	RegSetValueExA(hKey, "OPTIONWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&optionWndInfo.y, 4);
-	RegSetValueExA(hKey, "OPTIONWNDINFO.W", 0, REG_DWORD, (LPBYTE)&optionWndInfo.w, 4);
-	RegSetValueExA(hKey, "OPTIONWNDINFO.H", 0, REG_DWORD, (LPBYTE)&optionWndInfo.h, 4);
-	RegSetValueExA(hKey, "OPTIONWNDINFO.ORGHEIGHT", 0, REG_DWORD, (LPBYTE)&optionWndInfo.orgHeight, 4);
-	RegSetValueExA(hKey, "OPTIONWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&optionWndInfo.show, 4);
+	bf_setting_set(hKey, "OPTIONWNDINFO.X", optionWndInfo.x);
+	bf_setting_set(hKey, "OPTIONWNDINFO.Y", optionWndInfo.y);
+	bf_setting_set(hKey, "OPTIONWNDINFO.W", optionWndInfo.w);
+	bf_setting_set(hKey, "OPTIONWNDINFO.H", optionWndInfo.h);
+	bf_setting_set(hKey, "OPTIONWNDINFO.ORGHEIGHT", optionWndInfo.orgHeight);
+	bf_setting_set(hKey, "OPTIONWNDINFO.SHOW", optionWndInfo.show);
 
-	RegSetValueExA(hKey, "SHORTENITEMWNDINFO.X", 0, REG_DWORD, (LPBYTE)&shortenItemWndInfo.x, 4);
-	RegSetValueExA(hKey, "SHORTENITEMWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&shortenItemWndInfo.y, 4);
-	RegSetValueExA(hKey, "SHORTENITEMWNDINFO.W", 0, REG_DWORD, (LPBYTE)&shortenItemWndInfo.w, 4);
-	RegSetValueExA(hKey, "SHORTENITEMWNDINFO.H", 0, REG_DWORD, (LPBYTE)&shortenItemWndInfo.h, 4);
-	RegSetValueExA(hKey, "SHORTENITEMWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&shortenItemWndInfo.show, 4);
+	bf_setting_set(hKey, "SHORTENITEMWNDINFO.X", shortenItemWndInfo.x);
+	bf_setting_set(hKey, "SHORTENITEMWNDINFO.Y", shortenItemWndInfo.y);
+	bf_setting_set(hKey, "SHORTENITEMWNDINFO.W", shortenItemWndInfo.w);
+	bf_setting_set(hKey, "SHORTENITEMWNDINFO.H", shortenItemWndInfo.h);
+	bf_setting_set(hKey, "SHORTENITEMWNDINFO.SHOW", shortenItemWndInfo.show);
 
-	RegSetValueExA(hKey, "SHORTCUTWNDINFO.X", 0, REG_DWORD, (LPBYTE)&shortCutWndInfo.x, 4);
-	RegSetValueExA(hKey, "SHORTCUTWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&shortCutWndInfo.y, 4);
-	RegSetValueExA(hKey, "SHORTCUTWNDINFO.W", 0, REG_DWORD, (LPBYTE)&shortCutWndInfo.w, 4);
-	RegSetValueExA(hKey, "SHORTCUTWNDINFO.H", 0, REG_DWORD, (LPBYTE)&shortCutWndInfo.h, 4);
-	RegSetValueExA(hKey, "SHORTCUTWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&shortCutWndInfo.show, 4);
+	bf_setting_set(hKey, "SHORTCUTWNDINFO.X", shortCutWndInfo.x);
+	bf_setting_set(hKey, "SHORTCUTWNDINFO.Y", shortCutWndInfo.y);
+	bf_setting_set(hKey, "SHORTCUTWNDINFO.W", shortCutWndInfo.w);
+	bf_setting_set(hKey, "SHORTCUTWNDINFO.H", shortCutWndInfo.h);
+	bf_setting_set(hKey, "SHORTCUTWNDINFO.SHOW", shortCutWndInfo.show);
 
-	RegSetValueExA(hKey, "CHATROOMWNDINFO.X", 0, REG_DWORD, (LPBYTE)&chatRoomWndInfo.x, 4);
-	RegSetValueExA(hKey, "CHATROOMWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&chatRoomWndInfo.y, 4);
-	RegSetValueExA(hKey, "CHATROOMWNDINFO.W", 0, REG_DWORD, (LPBYTE)&chatRoomWndInfo.w, 4);
-	RegSetValueExA(hKey, "CHATROOMWNDINFO.H", 0, REG_DWORD, (LPBYTE)&chatRoomWndInfo.h, 4);
+	bf_setting_set(hKey, "CHATROOMWNDINFO.X", chatRoomWndInfo.x);
+	bf_setting_set(hKey, "CHATROOMWNDINFO.Y", chatRoomWndInfo.y);
+	bf_setting_set(hKey, "CHATROOMWNDINFO.W", chatRoomWndInfo.w);
+	bf_setting_set(hKey, "CHATROOMWNDINFO.H", chatRoomWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMSTOREWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemStoreWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMSTOREWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemStoreWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMSTOREWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemStoreWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMSTOREWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemStoreWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMSTOREWNDINFO.X", itemStoreWndInfo.x);
+	bf_setting_set(hKey, "ITEMSTOREWNDINFO.Y", itemStoreWndInfo.y);
+	bf_setting_set(hKey, "ITEMSTOREWNDINFO.W", itemStoreWndInfo.w);
+	bf_setting_set(hKey, "ITEMSTOREWNDINFO.H", itemStoreWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMSHOPWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemShopWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMSHOPWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemShopWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMSHOPWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemShopWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMSHOPWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemShopWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMSHOPWNDINFO.X", itemShopWndInfo.x);
+	bf_setting_set(hKey, "ITEMSHOPWNDINFO.Y", itemShopWndInfo.y);
+	bf_setting_set(hKey, "ITEMSHOPWNDINFO.W", itemShopWndInfo.w);
+	bf_setting_set(hKey, "ITEMSHOPWNDINFO.H", itemShopWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMSELLWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemSellWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMSELLWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemSellWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMSELLWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemSellWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMSELLWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemSellWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMSELLWNDINFO.X", itemSellWndInfo.x);
+	bf_setting_set(hKey, "ITEMSELLWNDINFO.Y", itemSellWndInfo.y);
+	bf_setting_set(hKey, "ITEMSELLWNDINFO.W", itemSellWndInfo.w);
+	bf_setting_set(hKey, "ITEMSELLWNDINFO.H", itemSellWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMPURCHASEWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemPurchaseWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMPURCHASEWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemPurchaseWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMPURCHASEWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemPurchaseWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMPURCHASEWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemPurchaseWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMPURCHASEWNDINFO.X", itemPurchaseWndInfo.x);
+	bf_setting_set(hKey, "ITEMPURCHASEWNDINFO.Y", itemPurchaseWndInfo.y);
+	bf_setting_set(hKey, "ITEMPURCHASEWNDINFO.W", itemPurchaseWndInfo.w);
+	bf_setting_set(hKey, "ITEMPURCHASEWNDINFO.H", itemPurchaseWndInfo.h);
 
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.X", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.x, 4);
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.y, 4);
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.W", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.w, 4);
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.H", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.h, 4);
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.show, 4);
-	RegSetValueExA(hKey, "MESSENGERGROUPWNDINFO.RADIO", 0, REG_DWORD, (LPBYTE)&messengerGroupWndInfo.radio, 4);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.X", messengerGroupWndInfo.x);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.Y", messengerGroupWndInfo.y);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.W", messengerGroupWndInfo.w);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.H", messengerGroupWndInfo.h);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.SHOW", messengerGroupWndInfo.show);
+	bf_setting_set(hKey, "MESSENGERGROUPWNDINFO.RADIO", messengerGroupWndInfo.radio);
 
-	RegSetValueExA(hKey, "EXCHANGEACCEPTWNDINFO.X", 0, REG_DWORD, (LPBYTE)&exchangeAcceptWndInfo.x, 4);
-	RegSetValueExA(hKey, "EXCHANGEACCEPTWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&exchangeAcceptWndInfo.y, 4);
-	RegSetValueExA(hKey, "EXCHANGEACCEPTWNDINFO.W", 0, REG_DWORD, (LPBYTE)&exchangeAcceptWndInfo.w, 4);
-	RegSetValueExA(hKey, "EXCHANGEACCEPTWNDINFO.H", 0, REG_DWORD, (LPBYTE)&exchangeAcceptWndInfo.h, 4);
+	bf_setting_set(hKey, "EXCHANGEACCEPTWNDINFO.X", exchangeAcceptWndInfo.x);
+	bf_setting_set(hKey, "EXCHANGEACCEPTWNDINFO.Y", exchangeAcceptWndInfo.y);
+	bf_setting_set(hKey, "EXCHANGEACCEPTWNDINFO.W", exchangeAcceptWndInfo.w);
+	bf_setting_set(hKey, "EXCHANGEACCEPTWNDINFO.H", exchangeAcceptWndInfo.h);
 
-	RegSetValueExA(hKey, "SKILLLISTWNDINFO.X", 0, REG_DWORD, (LPBYTE)&skillListWndInfo.x, 4);
-	RegSetValueExA(hKey, "SKILLLISTWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&skillListWndInfo.y, 4);
-	RegSetValueExA(hKey, "SKILLLISTWNDINFO.W", 0, REG_DWORD, (LPBYTE)&skillListWndInfo.w, 4);
-	RegSetValueExA(hKey, "SKILLLISTWNDINFO.H", 0, REG_DWORD, (LPBYTE)&skillListWndInfo.h, 4);
-	RegSetValueExA(hKey, "SKILLLISTWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&skillListWndInfo.show, 4);
+	bf_setting_set(hKey, "SKILLLISTWNDINFO.X", skillListWndInfo.x);
+	bf_setting_set(hKey, "SKILLLISTWNDINFO.Y", skillListWndInfo.y);
+	bf_setting_set(hKey, "SKILLLISTWNDINFO.W", skillListWndInfo.w);
+	bf_setting_set(hKey, "SKILLLISTWNDINFO.H", skillListWndInfo.h);
+	bf_setting_set(hKey, "SKILLLISTWNDINFO.SHOW", skillListWndInfo.show);
 
-	RegSetValueExA(hKey, "MERCHANTITEMWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantItemWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantItemWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantItemWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantItemWndInfo.h, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMWNDINFO.SHOW", 0, REG_DWORD, (LPBYTE)&merchantItemWndInfo.show, 4);
+	bf_setting_set(hKey, "MERCHANTITEMWNDINFO.X", merchantItemWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTITEMWNDINFO.Y", merchantItemWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTITEMWNDINFO.W", merchantItemWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTITEMWNDINFO.H", merchantItemWndInfo.h);
+	bf_setting_set(hKey, "MERCHANTITEMWNDINFO.SHOW", merchantItemWndInfo.show);
 
-	RegSetValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantMirrorItemWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantMirrorItemWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantMirrorItemWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTMIRRORITEMWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantMirrorItemWndInfo.h, 4);
+	bf_setting_set(hKey, "MERCHANTMIRRORITEMWNDINFO.X", merchantMirrorItemWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTMIRRORITEMWNDINFO.Y", merchantMirrorItemWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTMIRRORITEMWNDINFO.W", merchantMirrorItemWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTMIRRORITEMWNDINFO.H", merchantMirrorItemWndInfo.h);
 
-	RegSetValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantShopMakeWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantShopMakeWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantShopMakeWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTSHOPMAKEWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantShopMakeWndInfo.h, 4);
+	bf_setting_set(hKey, "MERCHANTSHOPMAKEWNDINFO.X", merchantShopMakeWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTSHOPMAKEWNDINFO.Y", merchantShopMakeWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTSHOPMAKEWNDINFO.W", merchantShopMakeWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTSHOPMAKEWNDINFO.H", merchantShopMakeWndInfo.h);
 
-	RegSetValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantItemShopWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantItemShopWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantItemShopWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMSHOPWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantItemShopWndInfo.h, 4);
+	bf_setting_set(hKey, "MERCHANTITEMSHOPWNDINFO.X", merchantItemShopWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTITEMSHOPWNDINFO.Y", merchantItemShopWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTITEMSHOPWNDINFO.W", merchantItemShopWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTITEMSHOPWNDINFO.H", merchantItemShopWndInfo.h);
 
-	RegSetValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantItemMyShopWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantItemMyShopWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantItemMyShopWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMMYSHOPWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantItemMyShopWndInfo.h, 4);
+	bf_setting_set(hKey, "MERCHANTITEMMYSHOPWNDINFO.X", merchantItemMyShopWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTITEMMYSHOPWNDINFO.Y", merchantItemMyShopWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTITEMMYSHOPWNDINFO.W", merchantItemMyShopWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTITEMMYSHOPWNDINFO.H", merchantItemMyShopWndInfo.h);
 
-	RegSetValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.X", 0, REG_DWORD, (LPBYTE)&merchantItemPurchaseWndInfo.x, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&merchantItemPurchaseWndInfo.y, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.W", 0, REG_DWORD, (LPBYTE)&merchantItemPurchaseWndInfo.w, 4);
-	RegSetValueExA(hKey, "MERCHANTITEMPURCHASEWNDINFO.H", 0, REG_DWORD, (LPBYTE)&merchantItemPurchaseWndInfo.h, 4);
+	bf_setting_set(hKey, "MERCHANTITEMPURCHASEWNDINFO.X", merchantItemPurchaseWndInfo.x);
+	bf_setting_set(hKey, "MERCHANTITEMPURCHASEWNDINFO.Y", merchantItemPurchaseWndInfo.y);
+	bf_setting_set(hKey, "MERCHANTITEMPURCHASEWNDINFO.W", merchantItemPurchaseWndInfo.w);
+	bf_setting_set(hKey, "MERCHANTITEMPURCHASEWNDINFO.H", merchantItemPurchaseWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMCOLLECTIONWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemCollectionWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMCOLLECTIONWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemCollectionWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMCOLLECTIONWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemCollectionWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMCOLLECTIONWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemCollectionWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMCOLLECTIONWNDINFO.X", itemCollectionWndInfo.x);
+	bf_setting_set(hKey, "ITEMCOLLECTIONWNDINFO.Y", itemCollectionWndInfo.y);
+	bf_setting_set(hKey, "ITEMCOLLECTIONWNDINFO.W", itemCollectionWndInfo.w);
+	bf_setting_set(hKey, "ITEMCOLLECTIONWNDINFO.H", itemCollectionWndInfo.h);
 
-	RegSetValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.X", 0, REG_DWORD, (LPBYTE)&combinedCardItemCollectionWndInfo.x, 4);
-	RegSetValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&combinedCardItemCollectionWndInfo.y, 4);
-	RegSetValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.W", 0, REG_DWORD, (LPBYTE)&combinedCardItemCollectionWndInfo.w, 4);
-	RegSetValueExA(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.H", 0, REG_DWORD, (LPBYTE)&combinedCardItemCollectionWndInfo.h, 4);
+	bf_setting_set(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.X", combinedCardItemCollectionWndInfo.x);
+	bf_setting_set(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.Y", combinedCardItemCollectionWndInfo.y);
+	bf_setting_set(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.W", combinedCardItemCollectionWndInfo.w);
+	bf_setting_set(hKey, "COMBINEDCARDITEMCOLLECTIONWNDINFO.H", combinedCardItemCollectionWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemParamChangeDisplayWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemParamChangeDisplayWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemParamChangeDisplayWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemParamChangeDisplayWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.X", itemParamChangeDisplayWndInfo.x);
+	bf_setting_set(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.Y", itemParamChangeDisplayWndInfo.y);
+	bf_setting_set(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.W", itemParamChangeDisplayWndInfo.w);
+	bf_setting_set(hKey, "ITEMPARAMCHANGEDISPLAYWNDINFO.H", itemParamChangeDisplayWndInfo.h);
 
-	RegSetValueExA(hKey, "PARTYSETTINGWNDINFO.X", 0, REG_DWORD, (LPBYTE)&partySettingWndInfo.x, 4);
-	RegSetValueExA(hKey, "PARTYSETTINGWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&partySettingWndInfo.y, 4);
-	RegSetValueExA(hKey, "PARTYSETTINGWNDINFO.W", 0, REG_DWORD, (LPBYTE)&partySettingWndInfo.w, 4);
-	RegSetValueExA(hKey, "PARTYSETTINGWNDINFO.H", 0, REG_DWORD, (LPBYTE)&partySettingWndInfo.h, 4);
+	bf_setting_set(hKey, "PARTYSETTINGWNDINFO.X", partySettingWndInfo.x);
+	bf_setting_set(hKey, "PARTYSETTINGWNDINFO.Y", partySettingWndInfo.y);
+	bf_setting_set(hKey, "PARTYSETTINGWNDINFO.W", partySettingWndInfo.w);
+	bf_setting_set(hKey, "PARTYSETTINGWNDINFO.H", partySettingWndInfo.h);
 
-	RegSetValueExA(hKey, "DETAILLEVELWNDINFO.X", 0, REG_DWORD, (LPBYTE)&detailLevelWndInfo.x, 4);
-	RegSetValueExA(hKey, "DETAILLEVELWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&detailLevelWndInfo.y, 4);
-	RegSetValueExA(hKey, "DETAILLEVELWNDINFO.W", 0, REG_DWORD, (LPBYTE)&detailLevelWndInfo.w, 4);
-	RegSetValueExA(hKey, "DETAILLEVELWNDINFO.H", 0, REG_DWORD, (LPBYTE)&detailLevelWndInfo.h, 4);
+	bf_setting_set(hKey, "DETAILLEVELWNDINFO.X", detailLevelWndInfo.x);
+	bf_setting_set(hKey, "DETAILLEVELWNDINFO.Y", detailLevelWndInfo.y);
+	bf_setting_set(hKey, "DETAILLEVELWNDINFO.W", detailLevelWndInfo.w);
+	bf_setting_set(hKey, "DETAILLEVELWNDINFO.H", detailLevelWndInfo.h);
 
-	RegSetValueExA(hKey, "WHISPERWNDINFO.X", 0, REG_DWORD, (LPBYTE)&whisperWndInfo.x, 4);
-	RegSetValueExA(hKey, "WHISPERWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&whisperWndInfo.y, 4);
-	RegSetValueExA(hKey, "WHISPERWNDINFO.W", 0, REG_DWORD, (LPBYTE)&whisperWndInfo.w, 4);
-	RegSetValueExA(hKey, "WHISPERWNDINFO.H", 0, REG_DWORD, (LPBYTE)&whisperWndInfo.h, 4);
+	bf_setting_set(hKey, "WHISPERWNDINFO.X", whisperWndInfo.x);
+	bf_setting_set(hKey, "WHISPERWNDINFO.Y", whisperWndInfo.y);
+	bf_setting_set(hKey, "WHISPERWNDINFO.W", whisperWndInfo.w);
+	bf_setting_set(hKey, "WHISPERWNDINFO.H", whisperWndInfo.h);
 
-	RegSetValueExA(hKey, "FRIENDOPTIONWNDINFO.X", 0, REG_DWORD, (LPBYTE)&friendOptionWndInfo.x, 4);
-	RegSetValueExA(hKey, "FRIENDOPTIONWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&friendOptionWndInfo.y, 4);
-	RegSetValueExA(hKey, "FRIENDOPTIONWNDINFO.W", 0, REG_DWORD, (LPBYTE)&friendOptionWndInfo.w, 4);
-	RegSetValueExA(hKey, "FRIENDOPTIONWNDINFO.H", 0, REG_DWORD, (LPBYTE)&friendOptionWndInfo.h, 4);
+	bf_setting_set(hKey, "FRIENDOPTIONWNDINFO.X", friendOptionWndInfo.x);
+	bf_setting_set(hKey, "FRIENDOPTIONWNDINFO.Y", friendOptionWndInfo.y);
+	bf_setting_set(hKey, "FRIENDOPTIONWNDINFO.W", friendOptionWndInfo.w);
+	bf_setting_set(hKey, "FRIENDOPTIONWNDINFO.H", friendOptionWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemCompositionWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemCompositionWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemCompositionWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMCOMPOSITIONWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemCompositionWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMCOMPOSITIONWNDINFO.X", itemCompositionWndInfo.x);
+	bf_setting_set(hKey, "ITEMCOMPOSITIONWNDINFO.Y", itemCompositionWndInfo.y);
+	bf_setting_set(hKey, "ITEMCOMPOSITIONWNDINFO.W", itemCompositionWndInfo.w);
+	bf_setting_set(hKey, "ITEMCOMPOSITIONWNDINFO.H", itemCompositionWndInfo.h);
 
-	RegSetValueExA(hKey, "ITEMIDENTIFYWNDINFO.X", 0, REG_DWORD, (LPBYTE)&itemIdentifyWndInfo.x, 4);
-	RegSetValueExA(hKey, "ITEMIDENTIFYWNDINFO.Y", 0, REG_DWORD, (LPBYTE)&itemIdentifyWndInfo.y, 4);
-	RegSetValueExA(hKey, "ITEMIDENTIFYWNDINFO.W", 0, REG_DWORD, (LPBYTE)&itemIdentifyWndInfo.w, 4);
-	RegSetValueExA(hKey, "ITEMIDENTIFYWNDINFO.H", 0, REG_DWORD, (LPBYTE)&itemIdentifyWndInfo.h, 4);
+	bf_setting_set(hKey, "ITEMIDENTIFYWNDINFO.X", itemIdentifyWndInfo.x);
+	bf_setting_set(hKey, "ITEMIDENTIFYWNDINFO.Y", itemIdentifyWndInfo.y);
+	bf_setting_set(hKey, "ITEMIDENTIFYWNDINFO.W", itemIdentifyWndInfo.w);
+	bf_setting_set(hKey, "ITEMIDENTIFYWNDINFO.H", itemIdentifyWndInfo.h);
 
-	RegSetValueExA(hKey, "SUBCHATWNDST.X", 0, REG_DWORD, (LPBYTE)&subChatWndStInfo.x, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDST.Y", 0, REG_DWORD, (LPBYTE)&subChatWndStInfo.y, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDST.W", 0, REG_DWORD, (LPBYTE)&subChatWndStInfo.w, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDST.H", 0, REG_DWORD, (LPBYTE)&subChatWndStInfo.h, 4);
+	bf_setting_set(hKey, "SUBCHATWNDST.X", subChatWndStInfo.x);
+	bf_setting_set(hKey, "SUBCHATWNDST.Y", subChatWndStInfo.y);
+	bf_setting_set(hKey, "SUBCHATWNDST.W", subChatWndStInfo.w);
+	bf_setting_set(hKey, "SUBCHATWNDST.H", subChatWndStInfo.h);
 
-	RegSetValueExA(hKey, "SUBCHATWNDBT.X", 0, REG_DWORD, (LPBYTE)&subChatWndBtInfo.x, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDBT.Y", 0, REG_DWORD, (LPBYTE)&subChatWndBtInfo.y, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDBT.W", 0, REG_DWORD, (LPBYTE)&subChatWndBtInfo.w, 4);
-	RegSetValueExA(hKey, "SUBCHATWNDBT.H", 0, REG_DWORD, (LPBYTE)&subChatWndBtInfo.h, 4);
+	bf_setting_set(hKey, "SUBCHATWNDBT.X", subChatWndBtInfo.x);
+	bf_setting_set(hKey, "SUBCHATWNDBT.Y", subChatWndBtInfo.y);
+	bf_setting_set(hKey, "SUBCHATWNDBT.W", subChatWndBtInfo.w);
+	bf_setting_set(hKey, "SUBCHATWNDBT.H", subChatWndBtInfo.h);
 
-	RegSetValueExA(hKey, "CHATWNDSTICKON", 0, REG_DWORD, (LPBYTE)&m_chatWndStickOn, 4);
-	RegSetValueExA(hKey, "ONSTSUBCHAT", 0, REG_DWORD, (LPBYTE)&m_onStSubChat, 4);
-	RegSetValueExA(hKey, "ONBTSUBCHAT", 0, REG_DWORD, (LPBYTE)&m_onBtSubChat, 4);
-	RegSetValueExA(hKey, "MEMORIALDUNWND.X", 0, REG_DWORD, (LPBYTE)&g_session.dunInfoWndX, 4);
-	RegSetValueExA(hKey, "MEMORIALDUNWND.Y", 0, REG_DWORD, (LPBYTE)&g_session.dunInfoWndY, 4);
+	bf_setting_write(hKey, "CHATWNDSTICKON", BF_SETTING_INT, &m_chatWndStickOn, 4);
+	bf_setting_write(hKey, "ONSTSUBCHAT", BF_SETTING_INT, &m_onStSubChat, 4);
+	bf_setting_write(hKey, "ONBTSUBCHAT", BF_SETTING_INT, &m_onBtSubChat, 4);
+	bf_setting_set(hKey, "MEMORIALDUNWND.X", g_session.dunInfoWndX);
+	bf_setting_set(hKey, "MEMORIALDUNWND.Y", g_session.dunInfoWndY);
 
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }
 
 void UIWindowMgr::InitSkillUseLevelInfoFromReg()
 {
-	DWORD REG_TYPE;
-	DWORD DATALENGTH;
 	int skillUseLevel;
-	HKEY hKey;
-	HKEY hResultKey;
+	bf_setting_key hKey;
+	bf_setting_key hResultKey;
 	char sItemRegName[24];
 	char UIPath[512];
 
 	strcpy(UIPath, g_regPath);
 	strcat(UIPath, g_suPath);
 
-	LRESULT lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	if (lResult != ERROR_SUCCESS)
+	bool lResult = bf_setting_open(hResultKey, UIPath);
+	if (!lResult)
 		return;
-	RegCloseKey(hResultKey);
-	lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, KEY_QUERY_VALUE, &hKey);
-	if (lResult != ERROR_SUCCESS)
+	bf_setting_close(hResultKey);
+	lResult = bf_setting_open(hKey, UIPath);
+	if (!lResult)
 		return;
 
 	int i;
 	for (i = 1; i < 0x40f; ++i)
 	{
-		REG_TYPE = 4;
-		DATALENGTH = 4;
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		lResult = RegQueryValueExA(hKey, sItemRegName, 0, &REG_TYPE, (LPBYTE)&skillUseLevel, &DATALENGTH);
-		if (lResult == ERROR_SUCCESS) {
+		lResult = bf_setting_get(hKey, sItemRegName, skillUseLevel);
+		if (lResult) {
 			if (SKILL_INFO::IsLevelUseSkill(i))
 				g_session.SetSkillUseLevel(i, skillUseLevel);
 			else
@@ -726,11 +714,9 @@ void UIWindowMgr::InitSkillUseLevelInfoFromReg()
 	}
 	for (i = 0x1f40; i < 0x1f51; ++i)
 	{
-		REG_TYPE = 4;
-		DATALENGTH = 4;
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		lResult = RegQueryValueExA(hKey, sItemRegName, 0, &REG_TYPE, (LPBYTE)&skillUseLevel, &DATALENGTH);
-		if (lResult == ERROR_SUCCESS) {
+		lResult = bf_setting_get(hKey, sItemRegName, skillUseLevel);
+		if (lResult) {
 			if (SKILL_INFO::IsLevelUseSkill(i))
 				g_session.SetHomunSkillUseLevel(i, skillUseLevel);
 			else
@@ -740,11 +726,9 @@ void UIWindowMgr::InitSkillUseLevelInfoFromReg()
 	}
 	for (i = 0x2008; i < 0x202e; ++i)
 	{
-		REG_TYPE = 4;
-		DATALENGTH = 4;
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		lResult = RegQueryValueExA(hKey, sItemRegName, 0, &REG_TYPE, (LPBYTE)&skillUseLevel, &DATALENGTH);
-		if (lResult == ERROR_SUCCESS) {
+		lResult = bf_setting_get(hKey, sItemRegName, skillUseLevel);
+		if (lResult) {
 			if (SKILL_INFO::IsLevelUseSkill(i))
 				g_session.SetMerSkillUseLevel(i, skillUseLevel);
 			else
@@ -752,13 +736,12 @@ void UIWindowMgr::InitSkillUseLevelInfoFromReg()
 		} else
 			g_session.SetMerSkillUseLevel(i, 0);
 	}
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }
 
 void UIWindowMgr::WriteSkillUseLevelInfoToReg()
 {
-	HKEY hKey;
-	DWORD dwDisposition;
+	bf_setting_key hKey;
 	char UIPath[512];
 	char sItemRegName[24];
 	int skillUseLevel;
@@ -766,34 +749,33 @@ void UIWindowMgr::WriteSkillUseLevelInfoToReg()
 
 	strcpy(UIPath, g_regPath);
 	strcat(UIPath, g_suPath);
-	dwDisposition = 0;
 
-	LRESULT lResult = RegCreateKeyExA(HKEY_LOCAL_MACHINE, UIPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
-	if (lResult != ERROR_SUCCESS)
+	bool lResult = bf_setting_create(hKey, UIPath);
+	if (!lResult)
 		return;
 
 	for (i = 1; i < 0x40f; ++i)
 	{
 		skillUseLevel = g_session.GetSkillUseLevel(i);
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		RegSetValueExA(hKey, sItemRegName, 0, REG_DWORD, (LPBYTE)&skillUseLevel, 4);
+		bf_setting_set(hKey, sItemRegName, skillUseLevel);
 	}
 
 	for (i = 0x1f40; i < 0x1f51; ++i)
 	{
 		skillUseLevel = g_session.GetHomunSkillUseLevel(i);
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		RegSetValueExA(hKey, sItemRegName, 0, REG_DWORD, (LPBYTE)&skillUseLevel, 4);
+		bf_setting_set(hKey, sItemRegName, skillUseLevel);
 	}
 
 	for (i = 0x2008; i < 0x202e; ++i)
 	{
 		skillUseLevel = g_session.GetMerSkillUseLevel(i);
 		sprintf(sItemRegName, "%s%d", SKILL_INFO::GetSkillIdNameBySkillId(i), g_session.m_charSlot);
-		RegSetValueExA(hKey, sItemRegName, 0, REG_DWORD, (LPBYTE)&skillUseLevel, 4);
+		bf_setting_set(hKey, sItemRegName, skillUseLevel);
 	}
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }
 
 void UIWindowMgr::GetDeltaSnap(UIWindow *snapWindow, int &rdx, int &rdy, int mode)
@@ -5848,8 +5830,7 @@ bool UIWindowMgr::IsAniAccessory(int accessory)
 
 void UIWindowMgr::ReadToReg()
 {
-	DWORD REG_TYPE;
-	HKEY hKey;
+	bf_setting_key hKey;
 	char OptionPath[512];
 	DWORD DATALENGTH;
 	char buf[10];
@@ -5857,17 +5838,16 @@ void UIWindowMgr::ReadToReg()
 	strcpy(OptionPath, g_regPath);
 	strcat(OptionPath, "\\ChatOption");
 
-	REG_TYPE = REG_DWORD;
 	DATALENGTH = sizeof(DWORD);
-	RegOpenKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, KEY_QUERY_VALUE, &hKey);
+	bf_setting_open(hKey, OptionPath);
 
 	for (int i = 0; i < 13; ++i)
 	{
 		itoa(i, buf, 10);
 		BYTE* option = &g_session.m_battleMsgOnOffSet[i];
-		if (RegQueryValueExA(hKey, buf, 0, &REG_TYPE, option, &DATALENGTH) != ERROR_SUCCESS)
+		if (!bf_setting_read(hKey, buf, option, &DATALENGTH))
 			*option = 1;
 	}
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }

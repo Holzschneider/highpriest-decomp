@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "../MsgStrings.h"
 #include <windows.h>
 #include "UIEmotionWnd.h"
@@ -94,10 +95,9 @@ void UIEmotionWnd::StoreInfo()
 
 void UIEmotionWnd::InitFromReg()
 {
-	HKEY hResultKey;
-	HKEY hKey;
+	bf_setting_key hResultKey;
+	bf_setting_key hKey;
 	DWORD DATALENGTH;
-	DWORD REG_TYPE;
 	char EmotionPath[512];
 	char Text[256];
 	char KeyNumber[5];
@@ -106,29 +106,27 @@ void UIEmotionWnd::InitFromReg()
 	strcat(EmotionPath, g_emotionPath);
 	strcat(EmotionPath, "\\");
 
-	LONG openResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, EmotionPath, 0, KEY_QUERY_VALUE, &hResultKey);
+	bool openResult = bf_setting_open(hResultKey, EmotionPath);
 	DATALENGTH = 50;
-	if (openResult == ERROR_SUCCESS) {
-		RegCloseKey(hResultKey);
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, EmotionPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) {
+	if (openResult) {
+		bf_setting_close(hResultKey);
+		if (bf_setting_open(hKey, EmotionPath)) {
 			for (int a = 0; a < 10; a++) {
-				REG_TYPE = REG_SZ;
 				itoa(a, KeyNumber, 10);
 				memset(Text, 0, sizeof(Text));
 				DATALENGTH = 53;
-				RegQueryValueEx(hKey, KeyNumber, 0, &REG_TYPE, (LPBYTE)Text, &DATALENGTH);
+				bf_setting_read(hKey, KeyNumber, Text, &DATALENGTH);
 				if (strcmp(Text, "") != 0)
 					m_UserDefineText[a]->SetText(Text);
 			}
-			RegCloseKey(hKey);
+			bf_setting_close(hKey);
 		}
 	}
 }
 
 void UIEmotionWnd::WriteToReg()
 {
-	HKEY hKey;
-	DWORD dwDisposition = 0;
+	bf_setting_key hKey;
 	char EmotionPath[512];
 	char KeyNumber[5];
 
@@ -136,16 +134,15 @@ void UIEmotionWnd::WriteToReg()
 	strcat(EmotionPath, g_emotionPath);
 	strcat(EmotionPath, "\\");
 
-	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, EmotionPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey,
-					   &dwDisposition) == ERROR_SUCCESS) {
+	if (bf_setting_create(hKey, EmotionPath)) {
 		for (int a = 0; a < 10; a++) {
 			itoa(a, KeyNumber, 10);
 			const char* text = m_UserDefineText[a]->GetText();
-			RegSetValueEx(hKey, KeyNumber, 0, REG_SZ, (const BYTE*)text, strlen(text) + 1);
+			bf_setting_set_string(hKey, KeyNumber, text, strlen(text) + 1);
 			if (strcmp(text, "") != 0)
 				g_session.m_shortcutText[a] = text;
 		}
-		RegCloseKey(hKey);
+		bf_setting_close(hKey);
 	}
 }
 

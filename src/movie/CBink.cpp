@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 
 
 
@@ -163,33 +164,26 @@ void CBink::Pause(int flag)
 
 int CBink::ReadBinkModeRegistry()
 {
-    LONG  lResult;
-    HKEY  hKey;
-    DWORD reg_Type;
-    DWORD Datalength;
+    bool  lResult;
+    bf_setting_key  hKey;
 
-    lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hKey);
-    if (lResult == ERROR_SUCCESS) {
-        reg_Type   = REG_DWORD;
-        Datalength = sizeof(DWORD);
-        RegQueryValueEx(hKey, "BINKMODE", NULL, &reg_Type, (LPBYTE)&m_BinkMode, &Datalength);
-        RegCloseKey(hKey);
+    lResult = bf_setting_open(hKey, g_regPath);
+    if (lResult) {
+        bf_setting_get(hKey, "BINKMODE", m_BinkMode);
+        bf_setting_close(hKey);
     }
     return 1;
 }
 
 int CBink::WriteBinkModeRegistry()
 {
-    HKEY  hKey;
-    LONG  lResult;
-    DWORD dwDisposition = 0;
+    bf_setting_key  hKey;
+    bool  lResult;
 
-    lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, g_regPath, 0, NULL,
-                             REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL,
-                             &hKey, &dwDisposition);
-    if (lResult == ERROR_SUCCESS) {
-        RegSetValueEx(hKey, "BINKMODE", NULL, REG_DWORD, (LPBYTE)&m_BinkMode, sizeof(DWORD));
-        RegCloseKey(hKey);
+    lResult = bf_setting_create(hKey, g_regPath);
+    if (lResult) {
+        bf_setting_set(hKey, "BINKMODE", m_BinkMode);
+        bf_setting_close(hKey);
     }
     return 1;
 }

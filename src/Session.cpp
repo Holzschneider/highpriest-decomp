@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "MsgStrings.h"
 #include "framework/Locale.h"
 #include "device/Sound.h"
@@ -257,39 +258,37 @@ void	CSession :: InitOptionWithRegistry()
 	strcpy(OptionPath, g_regPath);
 	strcat(OptionPath, g_optionPath);
 
-	HKEY hResultKey;
-	LRESULT lResult;
-	DWORD REG_TYPE;
+	bf_setting_key hResultKey;
+	bool lResult;
 	DWORD DATALENGTH;
 
-	lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, KEY_QUERY_VALUE, &hResultKey);
+	lResult = bf_setting_open(hResultKey, OptionPath);
 
 
 
 
-	if (lResult == ERROR_SUCCESS) {
-		RegCloseKey(hResultKey);
-		HKEY hKey;
-		LRESULT lResult1;
+	if (lResult) {
+		bf_setting_close(hResultKey);
+		bf_setting_key hKey;
+		bool lResult1;
 
-		lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, KEY_QUERY_VALUE, &hKey);
-		if (lResult1 == ERROR_SUCCESS) {
+		lResult1 = bf_setting_open(hKey, OptionPath);
+		if (lResult1) {
 			int streamVolume;
 			int soundVolume;
 			char skinName[129];
-			REG_TYPE = REG_DWORD;
 			DATALENGTH = 4;
-			if (RegQueryValueExA(hKey, "isEffectOn", 0, &REG_TYPE, (LPBYTE)&m_isEffectOn, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "isEffectOn", m_isEffectOn))
 				m_isEffectOn = 1;
-			if (RegQueryValueExA(hKey, "bgmIsPaused", 0, &REG_TYPE, (LPBYTE)&m_bgmIsPaused, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "bgmIsPaused", m_bgmIsPaused))
 				m_bgmIsPaused = 0;
-			if (RegQueryValueExA(hKey, "isSoundOn", 0, &REG_TYPE, (LPBYTE)&g_isSoundOn, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "isSoundOn", g_isSoundOn))
 				g_isSoundOn = 1;
-			if (RegQueryValueExA(hKey, "streamVolume", 0, &REG_TYPE, (LPBYTE)&streamVolume, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "streamVolume", streamVolume))
 				streamVolume = 100;
-			if (RegQueryValueExA(hKey, "soundVolume", 0, &REG_TYPE, (LPBYTE)&soundVolume, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "soundVolume", soundVolume))
 				soundVolume = 100;
-			if (RegQueryValueExA(hKey, "m_bAutoOpenDetailWindowIfLowMemory", 0, &REG_TYPE, (LPBYTE)&m_bAutoOpenDetailWindowIfLowMemory, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_bAutoOpenDetailWindowIfLowMemory", m_bAutoOpenDetailWindowIfLowMemory))
 				m_bAutoOpenDetailWindowIfLowMemory = 1;
 
 			m_isEffectOn = m_isEffectOn != 0;
@@ -300,27 +299,27 @@ void	CSession :: InitOptionWithRegistry()
 			Set2DVolume(soundVolume);
 			Set3DVolume(soundVolume);
 
-			if (RegQueryValueExA(hKey, "m_monsterSnapOn_Skill", 0, &REG_TYPE, (LPBYTE)&m_monsterSnapOn_Skill, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_monsterSnapOn_Skill", m_monsterSnapOn_Skill))
 				m_monsterSnapOn_Skill = 1;
 			if (m_monsterSnapOn_Skill)
 				m_monsterSnapOn_Skill = 1;
-			if (RegQueryValueExA(hKey, "m_monsterSnapOn_NoSkill", 0, &REG_TYPE, (LPBYTE)&m_monsterSnapOn_NoSkill, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_monsterSnapOn_NoSkill", m_monsterSnapOn_NoSkill))
 				m_monsterSnapOn_NoSkill = 0;
 			if (m_monsterSnapOn_NoSkill)
 				m_monsterSnapOn_NoSkill = 1;
-			if (RegQueryValueExA(hKey, "m_isItemSnap", 0, &REG_TYPE, (LPBYTE)&m_isItemSnap, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_isItemSnap", m_isItemSnap))
 				m_isItemSnap = 0;
 			if (m_isItemSnap)
 				m_isItemSnap = 1;
-			if (RegQueryValueExA(hKey, "m_isShowWhisperWnd", 0, &REG_TYPE, (LPBYTE)&m_isShowWhisperWnd, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_isShowWhisperWnd", m_isShowWhisperWnd))
 				m_isShowWhisperWnd = 1;
 			if (m_isShowWhisperWnd)
 				m_isShowWhisperWnd = 1;
-			if (RegQueryValueExA(hKey, "m_isShowWhisperWnd_Friend", 0, &REG_TYPE, (LPBYTE)&m_isShowWhisperWnd_Friend, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_isShowWhisperWnd_Friend", m_isShowWhisperWnd_Friend))
 				m_isShowWhisperWnd_Friend = 1;
 			if (m_isShowWhisperWnd_Friend)
 				m_isShowWhisperWnd = 1;
-			if (RegQueryValueExA(hKey, "m_isPlayWhisperOpenSound", 0, &REG_TYPE, (LPBYTE)&m_isPlayWhisperOpenSound, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_isPlayWhisperOpenSound", m_isPlayWhisperOpenSound))
 				m_isPlayWhisperOpenSound = 1;
 			if (m_isPlayWhisperOpenSound)
 				m_isPlayWhisperOpenSound = 1;
@@ -328,22 +327,22 @@ void	CSession :: InitOptionWithRegistry()
 			m_isMonsterSnap = 0;
 			if (m_monsterSnapOn_NoSkill) m_isMonsterSnap = 1;
 
-			if (RegQueryValueExA(hKey, "m_bMakeMissEffect", 0, &REG_TYPE, (LPBYTE)&m_bMakeMissEffect, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "m_bMakeMissEffect", m_bMakeMissEffect))
 				m_bMakeMissEffect = 1;
 			else
 				m_bMakeMissEffect = m_bMakeMissEffect != 0;
 
-			if (RegQueryValueExA(hKey, "g_isFixedCamera", 0, &REG_TYPE, (LPBYTE)&g_isFixedCamera, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "g_isFixedCamera", g_isFixedCamera))
 				g_isFixedCamera = 0;
 			else
 				g_isFixedCamera = g_isFixedCamera != 0;
 
 
 			if (false) {
-				RegQueryValueExA(hKey, "g_outdoorViewLatitude", 0, &REG_TYPE, (LPBYTE)&g_outdoorViewLatitude, &DATALENGTH);
-				RegQueryValueExA(hKey, "g_outdoorViewDistance", 0, &REG_TYPE, (LPBYTE)&g_outdoorViewDistance, &DATALENGTH);
-				RegQueryValueExA(hKey, "g_indoorViewLatitude", 0, &REG_TYPE, (LPBYTE)&g_indoorViewLatitude, &DATALENGTH);
-				RegQueryValueExA(hKey, "g_indoorViewDistance", 0, &REG_TYPE, (LPBYTE)&g_indoorViewDistance, &DATALENGTH);
+				bf_setting_get(hKey, "g_outdoorViewLatitude", g_outdoorViewLatitude);
+				bf_setting_get(hKey, "g_outdoorViewDistance", g_outdoorViewDistance);
+				bf_setting_get(hKey, "g_indoorViewLatitude", g_indoorViewLatitude);
+				bf_setting_get(hKey, "g_indoorViewDistance", g_indoorViewDistance);
 			} else {
 				g_outdoorViewLatitude = -45.0f;
 				g_outdoorViewDistance = 500.0f;
@@ -351,23 +350,22 @@ void	CSession :: InitOptionWithRegistry()
 				g_indoorViewDistance = 500.0f;
 			}
 
-			REG_TYPE = REG_SZ;
 			DATALENGTH = 128;
-			if (RegQueryValueExA(hKey, "SKINNAME", 0, &REG_TYPE, (LPBYTE)skinName, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_read(hKey, "SKINNAME", skinName, &DATALENGTH))
 				strcpy(skinName, "<Basic Skin>");
 			g_skinMgr.m_savedSkinName = skinName;
 
-			if (RegQueryValueExA(hKey, "m_isNoCtrl", 0, &REG_TYPE, (LPBYTE)&m_isNoCtrl, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_read(hKey, "m_isNoCtrl", &m_isNoCtrl, &DATALENGTH))
 				m_isNoCtrl = 0;
 			if (m_isNoCtrl)
 				m_isNoCtrl = 1;
 			DWORD isGravityID = 0;
 			DATALENGTH = 4;
-			if (RegQueryValueExA(hKey, "g_isGravityID", 0, &REG_TYPE, (LPBYTE)&isGravityID, &DATALENGTH) != ERROR_SUCCESS)
+			if (!bf_setting_get(hKey, "g_isGravityID", isGravityID))
 				g_isGravityID = 0;
 			else
 				g_isGravityID = (char)isGravityID;
-			RegCloseKey(hKey);
+			bf_setting_close(hKey);
 		}
 	} else {
 		m_fogOn = 1;
@@ -425,51 +423,50 @@ void	CSession :: Create()
 #if 1
 void	CSession :: WriteOptionToRegistry()
 {
-	HKEY hKey;
-	DWORD dwDisposition = 0;
+	bf_setting_key hKey;
 	int numExName;
 	char currentSkinName[129];
 	int soundVolume;
 	char OptionPath[512];
 
-	if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
-		RegSetValueExA(hKey, "SPRITEMODE", 0, REG_DWORD, (LPBYTE)&g_registry.m_spriteMode, 4);
-		RegSetValueExA(hKey, "TEXTUREMODE", 0, REG_DWORD, (LPBYTE)&g_registry.m_textureMode, 4);
-		RegSetValueExA(hKey, "TRILINEARFILTER", 0, REG_DWORD, (LPBYTE)&g_registry.m_trilinearFilter, 4);
-		RegSetValueExA(hKey, "FOG", 0, REG_DWORD, (LPBYTE)&m_fogOn, 4);
-		RegCloseKey(hKey);
+	if (bf_setting_create(hKey, g_regPath)) {
+		bf_setting_set(hKey, "SPRITEMODE", g_registry.m_spriteMode);
+		bf_setting_set(hKey, "TEXTUREMODE", g_registry.m_textureMode);
+		bf_setting_set(hKey, "TRILINEARFILTER", g_registry.m_trilinearFilter);
+		bf_setting_set(hKey, "FOG", m_fogOn);
+		bf_setting_close(hKey);
 	}
 
 	strcpy(OptionPath, g_regPath);
 	strcat(OptionPath, g_optionPath);
-	if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
+	if (bf_setting_create(hKey, OptionPath)) {
 		soundVolume = g_mssVar.digital2DVolume;
-		RegSetValueExA(hKey, "isEffectOn", 0, REG_DWORD, (LPBYTE)&m_isEffectOn, 4);
-		RegSetValueExA(hKey, "bgmIsPaused", 0, REG_DWORD, (LPBYTE)&m_bgmIsPaused, 4);
-		RegSetValueExA(hKey, "isSoundOn", 0, REG_DWORD, (LPBYTE)&g_isSoundOn, 4);
-		RegSetValueExA(hKey, "streamVolume", 0, REG_DWORD, (LPBYTE)&g_session.m_BgmVolume, 4);
-		RegSetValueExA(hKey, "soundVolume", 0, REG_DWORD, (LPBYTE)&soundVolume, 4);
-		RegSetValueExA(hKey, "m_monsterSnapOn_Skill", 0, REG_DWORD, (LPBYTE)&m_monsterSnapOn_Skill, 4);
-		RegSetValueExA(hKey, "m_monsterSnapOn_NoSkill", 0, REG_DWORD, (LPBYTE)&m_monsterSnapOn_NoSkill, 4);
-		RegSetValueExA(hKey, "m_isItemSnap", 0, REG_DWORD, (LPBYTE)&m_isItemSnap, 4);
-		RegSetValueExA(hKey, "m_isShowWhisperWnd", 0, REG_DWORD, (LPBYTE)&m_isShowWhisperWnd, 4);
-		RegSetValueExA(hKey, "m_isShowWhisperWnd_Friend", 0, REG_DWORD, (LPBYTE)&m_isShowWhisperWnd_Friend, 4);
-		RegSetValueExA(hKey, "m_isPlayWhisperOpenSound", 0, REG_DWORD, (LPBYTE)&m_isPlayWhisperOpenSound, 4);
-		RegSetValueExA(hKey, "g_outdoorViewLatitude", 0, REG_DWORD, (LPBYTE)&g_outdoorViewLatitude, 4);
-		RegSetValueExA(hKey, "g_outdoorViewDistance", 0, REG_DWORD, (LPBYTE)&g_outdoorViewDistance, 4);
-		RegSetValueExA(hKey, "g_indoorViewLatitude", 0, REG_DWORD, (LPBYTE)&g_indoorViewLatitude, 4);
-		RegSetValueExA(hKey, "g_indoorViewDistance", 0, REG_DWORD, (LPBYTE)&g_indoorViewDistance, 4);
-		RegSetValueExA(hKey, "m_bMakeMissEffect", 0, REG_DWORD, (LPBYTE)&m_bMakeMissEffect, 4);
-		RegSetValueExA(hKey, "g_isFixedCamera", 0, REG_DWORD, (LPBYTE)&g_isFixedCamera, 4);
-		RegSetValueExA(hKey, "m_bAutoOpenDetailWindowIfLowMemory", 0, REG_DWORD, (LPBYTE)&m_bAutoOpenDetailWindowIfLowMemory, 4);
+		bf_setting_set(hKey, "isEffectOn", m_isEffectOn);
+		bf_setting_set(hKey, "bgmIsPaused", m_bgmIsPaused);
+		bf_setting_set(hKey, "isSoundOn", g_isSoundOn);
+		bf_setting_set(hKey, "streamVolume", g_session.m_BgmVolume);
+		bf_setting_set(hKey, "soundVolume", soundVolume);
+		bf_setting_set(hKey, "m_monsterSnapOn_Skill", m_monsterSnapOn_Skill);
+		bf_setting_set(hKey, "m_monsterSnapOn_NoSkill", m_monsterSnapOn_NoSkill);
+		bf_setting_set(hKey, "m_isItemSnap", m_isItemSnap);
+		bf_setting_set(hKey, "m_isShowWhisperWnd", m_isShowWhisperWnd);
+		bf_setting_set(hKey, "m_isShowWhisperWnd_Friend", m_isShowWhisperWnd_Friend);
+		bf_setting_set(hKey, "m_isPlayWhisperOpenSound", m_isPlayWhisperOpenSound);
+		bf_setting_set(hKey, "g_outdoorViewLatitude", g_outdoorViewLatitude);
+		bf_setting_set(hKey, "g_outdoorViewDistance", g_outdoorViewDistance);
+		bf_setting_set(hKey, "g_indoorViewLatitude", g_indoorViewLatitude);
+		bf_setting_set(hKey, "g_indoorViewDistance", g_indoorViewDistance);
+		bf_setting_set(hKey, "m_bMakeMissEffect", m_bMakeMissEffect);
+		bf_setting_set(hKey, "g_isFixedCamera", g_isFixedCamera);
+		bf_setting_set(hKey, "m_bAutoOpenDetailWindowIfLowMemory", m_bAutoOpenDetailWindowIfLowMemory);
 
 		sprintf(currentSkinName, "%s", g_skinMgr.GetCurrentSkinName());
-		RegSetValueExA(hKey, "SKINNAME", 0, REG_SZ, (LPBYTE)currentSkinName, 128);
+		bf_setting_set_string(hKey, "SKINNAME", currentSkinName, 128);
 
 		numExName = g_session.m_exNameList.size();
 		if (numExName > 20)
 			numExName = 20;
-		RegSetValueExA(hKey, "NUMEXNAME", 0, REG_DWORD, (LPBYTE)&numExName, 4);
+		bf_setting_set(hKey, "NUMEXNAME", numExName);
 		{
 			int i = 0;
 			std::list<std::string>::iterator it = m_exNameList.begin();
@@ -478,7 +475,7 @@ void	CSession :: WriteOptionToRegistry()
 				char name[65];
 				sprintf(keyName, "EXNAME%d", i);
 				sprintf(name, "%s", it->c_str());
-				RegSetValueExA(hKey, keyName, 0, REG_SZ, (LPBYTE)name, 64);
+				bf_setting_set_string(hKey, keyName, name, 64);
 				++i;
 				++it;
 			}
@@ -486,7 +483,7 @@ void	CSession :: WriteOptionToRegistry()
 
 		int numExAid = g_session.m_exAidList.size();
 		if (numExAid > 20) numExAid = 20;
-		RegSetValueExA(hKey, "NUMEXAID", 0, REG_DWORD, (LPBYTE)&numExAid, 4);
+		bf_setting_set(hKey, "NUMEXAID", numExAid);
 		{
 			int i = 0;
 			std::list<DWORD>::iterator aidIt = m_exAidList.begin();
@@ -495,23 +492,23 @@ void	CSession :: WriteOptionToRegistry()
 				DWORD aid;
 				sprintf(keyName, "EXAID%d", i);
 				aid = *aidIt;
-				RegSetValueExA(hKey, keyName, 0, REG_DWORD, (LPBYTE)&aid, 4);
+				bf_setting_set(hKey, keyName, aid);
 				++i;
 				++aidIt;
 			}
 		}
 
-		RegSetValueExA(hKey, "onHoUserAI", 0, REG_DWORD, (LPBYTE)&m_onHoUserAI, 4);
-		RegSetValueExA(hKey, "onMerUserAI", 0, REG_DWORD, (LPBYTE)&m_onMerUserAI, 4);
-		RegSetValueExA(hKey, "m_isNoCtrl", 0, REG_DWORD, (LPBYTE)&m_isNoCtrl, 4);
+		bf_setting_set(hKey, "onHoUserAI", m_onHoUserAI);
+		bf_setting_set(hKey, "onMerUserAI", m_onMerUserAI);
+		bf_setting_set(hKey, "m_isNoCtrl", m_isNoCtrl);
 		DWORD isGravityID = g_isGravityID;
-		RegSetValueExA(hKey, "g_isGravityID", 0, REG_DWORD, (LPBYTE)&isGravityID, 4);
+		bf_setting_set(hKey, "g_isGravityID", isGravityID);
 
 		RECT windowRect;
 		GetWindowRect(g_hMainWnd, &windowRect);
-		RegSetValueExA(hKey, "window_left", 0, REG_DWORD, (LPBYTE)&windowRect.left, 4);
-		RegSetValueExA(hKey, "window_top", 0, REG_DWORD, (LPBYTE)&windowRect.top, 4);
-		RegCloseKey(hKey);
+		bf_setting_set(hKey, "window_left", windowRect.left);
+		bf_setting_set(hKey, "window_top", windowRect.top);
+		bf_setting_close(hKey);
 	}
 }
 #endif

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "window/UIFrameWnd.h"
 #include "Session.h"
 #include "device/Control.h"
@@ -2127,22 +2128,21 @@ int UIBattleMsgOptionWnd::GetCurItem(int x, int y)
 
 void UIBattleMsgOptionWnd::WriteToReg()
 {
-	HKEY hKey;
+	bf_setting_key hKey;
 	char OptionPath[512];
-	DWORD dwDisposition = 0;
 	char buf[10];
 
 	strcpy(OptionPath, g_regPath);
 	strcat(OptionPath, "\\ChatOption");
 
-	RegCreateKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition);
+	bf_setting_create(hKey, OptionPath);
 
 	for (int i = 0; i < 13; ++i) {
 		itoa(i, buf, 10);
-		RegSetValueExA(hKey, buf, 0, REG_DWORD, (LPBYTE)&g_session.m_battleMsgOnOffSet[i], 4);
+		bf_setting_write(hKey, buf, BF_SETTING_INT, &g_session.m_battleMsgOnOffSet[i], 4);
 	}
 
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 }
 
 UIShortCutWnd::UIShortCutWnd()

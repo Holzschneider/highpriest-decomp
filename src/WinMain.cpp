@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "MsgStrings.h"
 #include "framework/Locale.h"
 #include "device/Sound.h"
@@ -462,32 +463,31 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 	strcpy(OptionPath, g_regPath);
 	strcat(OptionPath, g_optionPath);
 
-	DWORD REG_TYPE = REG_DWORD;
 	DWORD DATALENGTH = sizeof(DWORD);
 	short win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 	short win_top = 0;
 
-	HKEY hKey;
-	LONG lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, OptionPath, 0, KEY_QUERY_VALUE, &hKey);
-	if (lResult == ERROR_SUCCESS)
+	bf_setting_key hKey;
+	bool lResult = bf_setting_open(hKey, OptionPath);
+	if (lResult)
 	{
 #if defined(BF_PORT)
 		// the value is a DWORD; win_left and win_top are shorts (a 4-byte read overruns them)
 		DWORD stored;
 		DATALENGTH = sizeof(stored);
-		if (RegQueryValueExA(hKey, "window_left", 0, &REG_TYPE, (LPBYTE)&stored, &DATALENGTH) != ERROR_SUCCESS)
+		if (!bf_setting_read(hKey, "window_left", &stored, &DATALENGTH))
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
 		else
 			win_left = (short)stored;
 		DATALENGTH = sizeof(stored);
-		if (RegQueryValueExA(hKey, "window_top", 0, &REG_TYPE, (LPBYTE)&stored, &DATALENGTH) != ERROR_SUCCESS)
+		if (!bf_setting_read(hKey, "window_top", &stored, &DATALENGTH))
 			win_top = 0;
 		else
 			win_top = (short)stored;
 #else
-		if (RegQueryValueExA(hKey, "window_left", 0, &REG_TYPE, (LPBYTE)&win_left, &DATALENGTH) != ERROR_SUCCESS)
+		if (!bf_setting_read(hKey, "window_left", &win_left, &DATALENGTH))
 			win_left = (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2;
-		if (RegQueryValueExA(hKey, "window_top", 0, &REG_TYPE, (LPBYTE)&win_top, &DATALENGTH) != ERROR_SUCCESS)
+		if (!bf_setting_read(hKey, "window_top", &win_top, &DATALENGTH))
 			win_top = 0;
 #endif
 		if ((short)win_left > GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH)
@@ -499,7 +499,7 @@ int InitApp(HINSTANCE hInstance, int nCmdShow)
 		if ((short)win_top < 0)
 			win_top = 0;
 	}
-	RegCloseKey(hKey);
+	bf_setting_close(hKey);
 
 	g_hMainWnd = CreateWindowExA(0, wc.lpszClassName, WINDOW_NAME, 0x02CA0000,
 								 (short)win_left, (short)win_top,
@@ -594,14 +594,13 @@ extern int g_showTipsAtStartup, g_isLightMap, g_isVoodoo;
 extern int g_isXHalfSpr, g_isYHalfSpr, g_texLenDivFactor;
 int ReadRegistry()
 {
-	HKEY hKey;
-	DWORD reg_Type;
-	HKEY hResultKey;
+	bf_setting_key hKey;
+	bf_setting_key hResultKey;
 	DWORD Datalength;
 
-	LONG lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hResultKey);
-	RegCloseKey(hResultKey);
-	if (lResult != ERROR_SUCCESS) {
+	bool lResult = bf_setting_open(hResultKey, g_regPath);
+	bf_setting_close(hResultKey);
+	if (!lResult) {
 		// No settings written yet: built-in defaults instead of a setup program.
 		g_registry.m_isFullScreenMode = 0;
 		g_registry.m_width = WINDOW_WIDTH = 1024;
@@ -615,34 +614,33 @@ int ReadRegistry()
 		return 0;
 	}
 
-	LONG lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hKey);
-	if (lResult1 == ERROR_SUCCESS)
+	bool lResult1 = bf_setting_open(hKey, g_regPath);
+	if (lResult1)
 	{
-		reg_Type = REG_DWORD;
 		Datalength = sizeof(DWORD);
-		RegQueryValueExA(hKey, "ISFULLSCREENMODE", 0, &reg_Type, (LPBYTE)&g_registry.m_isFullScreenMode, &Datalength);
-		RegQueryValueExA(hKey, "WIDTH",            0, &reg_Type, (LPBYTE)&g_registry.m_width,            &Datalength);
-		RegQueryValueExA(hKey, "HEIGHT",           0, &reg_Type, (LPBYTE)&g_registry.m_height,           &Datalength);
+		bf_setting_get(hKey, "ISFULLSCREENMODE", g_registry.m_isFullScreenMode);
+		bf_setting_get(hKey, "WIDTH", g_registry.m_width);
+		bf_setting_get(hKey, "HEIGHT", g_registry.m_height);
 		if (!g_registry.m_isFullScreenMode) {
 			WINDOW_WIDTH = g_registry.m_width;
 			WINDOW_HEIGHT = g_registry.m_height;
 		}
-		RegQueryValueExA(hKey, "BITPERPIXEL",      0, &reg_Type, (LPBYTE)&g_registry.m_bitPerPixel,      &Datalength);
-		RegQueryValueExA(hKey, "DEVICECNT",        0, &reg_Type, (LPBYTE)&g_registry.m_deviceCnt,        &Datalength);
-		RegQueryValueExA(hKey, "MODECNT",          0, &reg_Type, (LPBYTE)&g_registry.m_modeCnt,          &Datalength);
-		RegQueryValueExA(hKey, "ISVOODOO",         0, &reg_Type, (LPBYTE)&g_registry.m_isVoodoo,         &Datalength);
-		RegQueryValueExA(hKey, "SHOWTIPSATSTARTUP",0, &reg_Type, (LPBYTE)&g_showTipsAtStartup,           &Datalength);
-		if (RegQueryValueExA(hKey, "ISLIGHTMAP", 0, &reg_Type, (LPBYTE)&g_isLightMap, &Datalength) != ERROR_SUCCESS)
+		bf_setting_get(hKey, "BITPERPIXEL", g_registry.m_bitPerPixel);
+		bf_setting_get(hKey, "DEVICECNT", g_registry.m_deviceCnt);
+		bf_setting_get(hKey, "MODECNT", g_registry.m_modeCnt);
+		bf_setting_get(hKey, "ISVOODOO", g_registry.m_isVoodoo);
+		bf_setting_get(hKey, "SHOWTIPSATSTARTUP", g_showTipsAtStartup);
+		if (!bf_setting_get(hKey, "ISLIGHTMAP", g_isLightMap))
 			g_isLightMap = 1;
 		if (g_isLightMap == 1)
 			g_Weather.SetObjLight(true);
 		else
 			g_Weather.SetObjLight(false);
 
-		if (RegQueryValueExA(hKey, "TRILINEARFILTER", 0, &reg_Type, (LPBYTE)&g_registry.m_trilinearFilter, &Datalength) != ERROR_SUCCESS)
+		if (!bf_setting_get(hKey, "TRILINEARFILTER", g_registry.m_trilinearFilter))
 			g_registry.m_trilinearFilter = 0;
 
-		if (RegQueryValueExA(hKey, "SPRITEMODE", 0, &reg_Type, (LPBYTE)&g_registry.m_spriteMode, &Datalength) != ERROR_SUCCESS)
+		if (!bf_setting_get(hKey, "SPRITEMODE", g_registry.m_spriteMode))
 			g_registry.m_spriteMode = 2;
 		switch (g_registry.m_spriteMode)
 		{
@@ -657,7 +655,7 @@ int ReadRegistry()
 				break;
 		}
 
-		if (RegQueryValueExA(hKey, "TEXTUREMODE", 0, &reg_Type, (LPBYTE)&g_registry.m_textureMode, &Datalength) != ERROR_SUCCESS)
+		if (!bf_setting_get(hKey, "TEXTUREMODE", g_registry.m_textureMode))
 			g_registry.m_textureMode = 2;
 		switch (g_registry.m_textureMode)
 		{
@@ -675,34 +673,29 @@ int ReadRegistry()
 		if (g_showTipsAtStartup != 1 && g_showTipsAtStartup != 0)
 			g_showTipsAtStartup = 1;
 
-		reg_Type = REG_SZ;
 		Datalength = 40;
-		RegQueryValueExA(hKey, "DEVICENAME", 0, &reg_Type, (LPBYTE)g_registry.m_deviceName, &Datalength);
-		reg_Type = REG_BINARY;
+		bf_setting_read(hKey, "DEVICENAME", g_registry.m_deviceName, &Datalength);
 		Datalength = 16;
-		RegQueryValueExA(hKey, "GUIDDEVICE", 0, &reg_Type, (LPBYTE)&g_registry.m_guidDevice, &Datalength);
-		reg_Type = REG_BINARY;
+		bf_setting_read(hKey, "GUIDDEVICE", &g_registry.m_guidDevice, &Datalength);
 		Datalength = 16;
-		RegQueryValueExA(hKey, "GUIDDRIVER", 0, &reg_Type, (LPBYTE)&g_registry.m_guidDriver, &Datalength);
-		RegCloseKey(hKey);
+		bf_setting_read(hKey, "GUIDDRIVER", &g_registry.m_guidDriver, &Datalength);
+		bf_setting_close(hKey);
 	}
 
 	g_isVoodoo = g_registry.m_isVoodoo;
-	lResult1 = RegOpenKeyExA(HKEY_LOCAL_MACHINE, g_regPath, 0, KEY_QUERY_VALUE, &hKey);
-	if (lResult1 == ERROR_SUCCESS)
+	lResult1 = bf_setting_open(hKey, g_regPath);
+	if (lResult1)
 	{
-		reg_Type = REG_DWORD;
 		Datalength = sizeof(DWORD);
-		RegQueryValueExA(hKey, "SOUNDMODE",       0, &reg_Type, (LPBYTE)&g_registry.m_soundMode,       &Datalength);
-		RegQueryValueExA(hKey, "SPEAKERTYPE",     0, &reg_Type, (LPBYTE)&g_registry.m_speakerType,     &Datalength);
-		RegQueryValueExA(hKey, "DIGITALRATETYPE", 0, &reg_Type, (LPBYTE)&g_registry.m_digitalrateType, &Datalength);
-		RegQueryValueExA(hKey, "DIGITALBITSTYPE", 0, &reg_Type, (LPBYTE)&g_registry.m_digitalbitsType, &Datalength);
-		if (RegQueryValueExA(hKey, "NUMSAMPLETYPE", 0, &reg_Type, (LPBYTE)&g_registry.m_numSampleType, &Datalength) != ERROR_SUCCESS)
+		bf_setting_get(hKey, "SOUNDMODE", g_registry.m_soundMode);
+		bf_setting_get(hKey, "SPEAKERTYPE", g_registry.m_speakerType);
+		bf_setting_get(hKey, "DIGITALRATETYPE", g_registry.m_digitalrateType);
+		bf_setting_get(hKey, "DIGITALBITSTYPE", g_registry.m_digitalbitsType);
+		if (!bf_setting_get(hKey, "NUMSAMPLETYPE", g_registry.m_numSampleType))
 			g_registry.m_numSampleType = 2;
-		reg_Type = REG_SZ;
 		Datalength = 0x400;
-		RegQueryValueExA(hKey, "PROVIDERNAME", 0, &reg_Type, (LPBYTE)g_registry.m_providerName, &Datalength);
-		RegCloseKey(hKey);
+		bf_setting_read(hKey, "PROVIDERNAME", g_registry.m_providerName, &Datalength);
+		bf_setting_close(hKey);
 	}
 
 	g_soundMode = g_registry.m_soundMode;

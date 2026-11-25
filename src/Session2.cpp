@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bf_setting_key.h"
 #include "Session.h"
 #include "window/UIFrameWnd.h"
 #include "window/UIEmotionWnd.h"
@@ -3369,39 +3370,37 @@ void	CSession :: InitShortCutTextFromReg()
 
 #if (_PACKET_VER >= 4)
 	char text[256];
-	LRESULT lResult;
-	HKEY	hResultKey;
+	bool lResult;
+	bf_setting_key	hResultKey;
 
 	char	EmotionPath[512];
 	strcpy(EmotionPath, g_regPath);
 	strcat(EmotionPath, g_emotionPath);
 	strcat(EmotionPath, "\\");
 
-	lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, EmotionPath, 0, KEY_QUERY_VALUE, &hResultKey);
+	lResult = bf_setting_open(hResultKey, EmotionPath);
 
-	DWORD	REG_TYPE;
 	DWORD	DATALENGTH;
 
-	if (lResult == ERROR_SUCCESS) {
-		RegCloseKey(hResultKey);
-		HKEY	hKey;
-		LRESULT lResult1;
-		lResult1 = RegOpenKeyEx(HKEY_LOCAL_MACHINE, EmotionPath, 0, KEY_ALL_ACCESS, &hKey);
-		if (lResult1 == ERROR_SUCCESS) {
-			REG_TYPE = REG_SZ;
+	if (lResult) {
+		bf_setting_close(hResultKey);
+		bf_setting_key	hKey;
+		bool lResult1;
+		lResult1 = bf_setting_open(hKey, EmotionPath);
+		if (lResult1) {
 
 			char KeyNumber[5];
 			for(int a = 0; a < MAX_EMOTION_TEXT; a++) {
 				DATALENGTH = 50;
 				itoa(a, KeyNumber, 10);
 				memset(text, 0, 256);
-				RegQueryValueEx(hKey, KeyNumber, NULL, &REG_TYPE, (LPBYTE)text, &DATALENGTH);
+				bf_setting_read(hKey, KeyNumber, text, &DATALENGTH);
 				if (strcmp(text, "") != 0) {
 					m_shortcutText[a] =  text;
 					strcpy(text, m_shortcutText[a].c_str());
 				}
 			}
-			RegCloseKey(hKey);
+			bf_setting_close(hKey);
 		}
 	}
 
