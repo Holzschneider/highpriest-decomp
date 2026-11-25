@@ -14,6 +14,8 @@ Reads the game's `.gr2` files (guild flag, Emperium, guardians, treasure box and
 - animations: track groups with one transform track per bone, each with position, orientation and scale/shear curves (degree, knots, controls);
 - posing, the parts of Granny's runtime the client calls: `bf_granny_evaluate_curve`, `bf_granny_bind_animation` (an animation, from any file, bound to a model's bones by name), `bf_granny_sample_local` (`GrannySampleModelAnimations`), `bf_granny_build_world` (`GrannyBuildWorldPose` and the skinning composites), `bf_granny_sample` (both), `bf_granny_deform` (`GrannyDeformVertices` into `granny_pnt332_vertex`).
 
+- the client's runtime (M11.10, moved from the port's Granny adapter when M11 deleted it): model instances with a clock and controls (`bf_granny_new_instance`, `bf_granny_play`, loop counts, active, `bf_granny_time_left`, `bf_granny_sample_instance`: the most recently started active control, looped and held at its end, the rest pose without one, no blending), world poses (`bf_granny_new_world_pose`, `bf_granny_build_world_pose`, `bf_granny_world_pose_composite`), mesh bindings to another model's skeleton by bone name (`bf_granny_bind_mesh`: exact, then ignoring case, else bone 0), and the copies the client's buffers take (`bf_granny_copy_vertices` to PNT332, `bf_granny_copy_indices16`). The client (`src/resource/Model.cpp`, `src/GameActor3d.cpp`, `src/Pc.cpp`) calls these and the reader directly. Counters: `granny.files`, `granny.file_refused`, `granny.bone_unbound`, `granny.animation_unbound`, `granny.animation_no_tracks`, `granny.index_truncated`.
+
 Matrices are row-major for row vectors, as the client reads Granny's. The world pose applies no model placement unless given one, as Granny did when the client called it; the client's own draw matrix allows for that (FORMAT.md, "Animations").
 
 What the format is, how Oodle0 and the texture coder work, how the curve convention was established, which public sources were read, and what the client calls is in [FORMAT.md](FORMAT.md).
@@ -25,6 +27,8 @@ cmake -S port/native/formats/granny -B build/native/granny -G Ninja
 cmake --build build/native/granny
 build/native/granny/bifrost-granny-test            # all files; a name filter may follow
 ```
+
+It also replays the client's load, animate and skin sequences through the runtime (`test/runtime_checks.cpp`, from the deleted adapter's test): every file loads and every mesh fits the client's buffers (16-bit indices, `GetMeshIndexCount * 3` vertices for the deformed copy); the Emperium's texture decodes, its stand animation (read from its file a second time) moves it, loops after its duration, leaves the rest pose when inactive; a loop count of 1 ends after one pass and holds its end pose; a control outlives its freed instance; the guild flag's own animation sways it; the knight guardian walks with `7_move` from another file. Without data only the NULL handles and the new world pose are checked.
 
 Without game data it checks a small file built in memory (fix-ups, type tree, variant arrays, out-of-range access), six broken variants, a hand-made curve and the transform convention. With `data.grf` in `BF_CLIENT_DIR` (default `~/Games/Bifrost`) it reads all 21 `.gr2` files straight from the archive and:
 
@@ -40,7 +44,7 @@ The pictures go to `BF_CLIENT_DIR/test/granny/`; they show game artwork and stay
 - Only what the 21 RO files use is implemented: format 6, little-endian, 32-bit pointers, Oodle0 or stored sections, texture encoding 3 (and raw), curve degrees 0 and 2 (1 is evaluated linearly, 3 and up as quadratic; neither occurs). Oodle1, BitKnit, big-endian files and format 7 are refused with a reason.
 - No byte-for-byte reference exists for the Oodle0 output, the texture pixels or the poses (the RAD library is not run). The evidence for each, from the files themselves, is in FORMAT.md.
 - The meaning of a texture's 4-byte head word is not known; the decoder does not need it.
-- Clocks, looping, loop counts and blending between animations (Granny's controls) are the caller's.
+- Blending between controls is not done (the client never needs it). The clock is the caller's (the client's `bf_clock_us`).
 
 ## For port/README.md
 

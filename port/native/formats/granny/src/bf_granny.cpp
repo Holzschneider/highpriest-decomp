@@ -537,6 +537,7 @@ extern "C" bf_granny_file *bf_granny_open(const void *data, size_t size, char *e
 	if (!g->file.Open((const uint8_t *)data, size, why)) {
 		BF_TRACE(BFT_ERR, "granny: cannot open: %s", why.c_str());
 		SetError(error, error_size, why);
+		bf_count("granny.file_refused", 1);
 		return nullptr;
 	}
 	const File &f = g->file;
@@ -569,11 +570,13 @@ extern "C" bf_granny_file *bf_granny_open(const void *data, size_t size, char *e
 	if (!f.TypeAt(f.rootType)) {
 		BF_TRACE(BFT_ERR, "granny: no root type");
 		SetError(error, error_size, "no root type");
+		bf_count("granny.file_refused", 1);
 		return nullptr;
 	}
 	Extract(g.get());
 	if (f.Bad())
 		BF_TRACE(BFT_ERR, "granny: %s: some references pointed outside their section", info.from_file_name);
+	bf_count("granny.files", 1);
 	return g.release();
 }
 

@@ -9,7 +9,9 @@
  * calls: texture decoding, curve evaluation, posing and CPU skinning. What
  * it hands out is plain data: meshes with their vertices in the rest pose,
  * skeletons, materials, textures (stored and decoded), animation curves,
- * and matrices. Clocks, looping and blending animations are the caller's.
+ * and matrices. The reader's posing functions leave clocks, looping and
+ * blending to the caller; "The client's runtime" at the end (M11.10) adds
+ * model instances and controls as the client uses them (no blending).
  *
  * Everything returned points into the file object and stays valid until
  * bf_granny_close(). Strings are the bytes stored in the file (ASCII in the
@@ -38,6 +40,7 @@ typedef struct bf_granny_file bf_granny_file;
  * Reads a .gr2 file from memory. The bytes are not kept: the caller may free
  * them on return. Returns NULL on failure, with a trace line (BFT_ERR) and,
  * if error is not NULL, the reason in error (at most error_size bytes).
+ * Counted in the trace: granny.files read, granny.file_refused.
  */
 bf_granny_file *bf_granny_open(const void *data, size_t size, char *error, size_t error_size);
 void bf_granny_close(bf_granny_file *file);
@@ -332,6 +335,112 @@ typedef struct bf_granny_pnt332 {
  */
 int bf_granny_deform(const bf_granny_file *file, int mesh, const int *bones, const float *composite,
 	bf_granny_pnt332 *out);
+
+/* --- The client's runtime (M11.10) ---------------------------------------- */
+
+/*
+ * What the client did with granny2.dll beyond reading files: model
+ * instances with a clock, controls (one animation each, a start time, a loop
+ * count, active or not), local and world poses, mesh bindings to another
+ * model's skeleton, and the vertex and index copies its buffers take. The
+ * rules are those the port's Granny adapter of M12.3a found and the client's
+ * scenes were checked with (guild flags, Emperium, guardians, corpses):
+ *
+ * - A control starts with loop count 1 and active. Loop count 0 plays for
+ *   ever. Its time is the instance's clock less its start; within its loops
+ *   the pose is that time modulo the animation's duration, after the last
+ *   loop the end pose is held.
+ * - Sampling an instance takes its most recently started active control; no
+ *   blending (the client frees all controls before starting another, and an
+ *   attack's control has ended when the stand control starts). Without an
+ *   active control the instance is in its rest pose.
+ * - Controls are freed by the caller only (granny2.dll's
+ *   GrannyFreeCompletedModelControls frees only controls marked for
+ *   completion, which the client never does: it asks a finished attack
+ *   control for its time left afterwards). Freeing an instance detaches its
+ *   controls, which stay valid until freed and no longer move anything.
+ *
+ * Counters (in the trace at quit): granny.files and granny.file_refused
+ * (bf_granny_open), granny.bone_unbound, granny.animation_unbound,
+ * granny.animation_no_tracks, granny.index_truncated.
+ *
+ * Instances, controls and poses are used by one thread at a time.
+ */
+typedef struct bf_granny_instance bf_granny_instance;
+typedef struct bf_granny_control bf_granny_control;
+typedef struct bf_granny_world_pose bf_granny_world_pose;
+
+/* An instance of a model of file (GrannyInstantiateModel), clock 0, no
+ * controls. NULL when the model or its skeleton is not there. The file must
+ * outlive it. */
+bf_granny_instance *bf_granny_new_instance(const bf_granny_file *file, int model);
+void bf_granny_free_instance(bf_granny_instance *instance);
+/* The model's skeleton (GrannyGetSourceSkeleton). */
+const bf_granny_skeleton *bf_granny_instance_skeleton(const bf_granny_instance *instance);
+/* The clock of the instance and of every control on it (GrannySetModelClock). */
+void bf_granny_set_clock(bf_granny_instance *instance, float clock);
+
+/*
+ * Starts animation of anim_file (any file: the 3dmob_bone files) on the
+ * instance at start seconds of its clock (GrannyPlayControlledAnimation):
+ * loop count 1, active. NULL, with a trace line and granny.animation_unbound,
+ * when it does not bind; an animation that moves none of the model's bones
+ * is counted as granny.animation_no_tracks and still played. anim_file must
+ * outlive the control.
+ */
+bf_granny_control *bf_granny_play(bf_granny_instance *instance, float start, const bf_granny_file *anim_file,
+	int animation);
+void bf_granny_set_loop_count(bf_granny_control *control, int loops);   /* 0: for ever; negative as 0 */
+void bf_granny_set_active(bf_granny_control *control, int active);
+/* loops * duration - (clock - start); 1e30 for loop count 0; 0 for NULL
+ * (GrannyGetControlDurationLeft). */
+float bf_granny_time_left(const bf_granny_control *control);
+/* Removes the control from its instance and frees it; NULL is ignored. */
+void bf_granny_free_control(bf_granny_control *control);
+
+/*
+ * The instance's local pose at its clock (GrannySampleModelAnimations), by
+ * the rules above, into local, which holds count transforms (the first count
+ * bones are written if the skeleton has more). Returns the skeleton's bone
+ * count, 0 for a NULL argument.
+ */
+int bf_granny_sample_instance(bf_granny_instance *instance, bf_granny_transform *local, int count);
+
+/* A world pose of bone_count bones, identity until built (GrannyNewWorldPose). */
+bf_granny_world_pose *bf_granny_new_world_pose(int bone_count);
+void bf_granny_free_world_pose(bf_granny_world_pose *pose);
+/*
+ * bf_granny_build_world without offset into the pose (GrannyBuildWorldPose),
+ * which grows to the skeleton's bone count if it is smaller. local holds
+ * count transforms; nothing is done (0) when that is fewer than the
+ * skeleton's bones. Returns the bone count.
+ */
+int bf_granny_build_world_pose(const bf_granny_skeleton *skeleton, const bf_granny_transform *local, int count,
+	bf_granny_world_pose *pose);
+/* The composite matrix of bone (16 floats, the following bones' after it:
+ * bone 0 gives the whole array, GrannyGetWorldPoseComposite4x4Array); NULL
+ * when bone is not in the pose. */
+float *bf_granny_world_pose_composite(bf_granny_world_pose *pose, int bone);
+
+/*
+ * The mesh's bone bindings matched by name to the bones of skeleton, which
+ * may be another file's (GrannyNewMeshBinding, GrannyGetMeshBindingToBoneIndices):
+ * the exact name, else the name ignoring case; a bone not found is bound to
+ * bone 0, traced and counted as granny.bone_unbound. Returns
+ * mesh->bone_binding_count indices for bf_granny_deform's bones, to be freed
+ * with bf_granny_free_mesh_binding; NULL when the mesh has no bindings or an
+ * argument is NULL.
+ */
+int *bf_granny_bind_mesh(const bf_granny_mesh *mesh, const bf_granny_skeleton *skeleton);
+void bf_granny_free_mesh_binding(int *bones);
+
+/* The rest-pose vertices as granny_pnt332_vertex (GrannyCopyMeshVertices):
+ * out holds vertex_count. Returns vertex_count. */
+int bf_granny_copy_vertices(const bf_granny_mesh *mesh, bf_granny_pnt332 *out);
+/* The indices as 16 bits (GrannyCopyMeshIndices with 2 bytes): out holds
+ * index_count; an index above 65535 is cut and counted as
+ * granny.index_truncated. Returns index_count. */
+int bf_granny_copy_indices16(const bf_granny_mesh *mesh, uint16_t *out);
 
 #ifdef __cplusplus
 }

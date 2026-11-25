@@ -1046,6 +1046,9 @@ void PosedChecks(std::vector<LoadedFile> &files, const std::string &outDir)
 
 } // namespace
 
+// runtime_checks.cpp: the client's runtime (M11.10).
+int RuntimeChecks(const std::vector<Grf *> &archives);
+
 int main(int argc, char **argv)
 {
 	const char *filter = nullptr;
@@ -1070,6 +1073,7 @@ int main(int argc, char **argv)
 		else
 			delete grf;
 	}
+	g_failed += RuntimeChecks(archives);
 	if (archives.empty()) {
 		printf("skipped game files: no data.grf or rdata.grf in %s\n", dir.c_str());
 		return g_failed;
