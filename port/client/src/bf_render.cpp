@@ -29,10 +29,12 @@ struct Render {
 	long long locks = 0, readbacks = 0, writebacks = 0, deferred = 0;
 };
 
+// Never destroyed: the client's statics (CTexMgr, the renderer's caches)
+// release their textures in any order at exit.
 Render &R()
 {
-	static Render r;
-	return r;
+	static Render *r = new Render;
+	return *r;
 }
 
 void changed() { ++R().serial; }
