@@ -176,9 +176,13 @@ On an unlocked screen those two checks run for real.
   - **Num Lock** as the keypad's Clear key (0x47), mapped to
     `BF_KEY_NUMLOCK`.
 - **Apple keyboards** have no Insert key. Choosing its substitute is the
-  adapter's job (spec §4).
+  client side's job (spec §4): Cmd+I, in `port/client/src/bf_input.cpp`.
 
-## What the Win32 adapter (M5.1, M5.2) must translate
+## What the client side must translate
+
+The Win32 adapter of M5.1 and M5.2 did this until M11.7; the rules now live
+in `port/client/src/bf_input.cpp` (`port/client/include/bf_input.h`; its
+README section "bf_input"), which the client calls directly.
 
 - `PeekMessage`: `bf_app_pump(0)`, then one `bf_app_poll_event` per
   message.

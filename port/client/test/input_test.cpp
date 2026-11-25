@@ -1,31 +1,26 @@
-// bifrost-compat-input-test: the input adapter through the Win32 names, called
-// as WinMain.cpp, CMouse and CLanguage call them. It opens a window (its own
-// single-instance slot) and injects every event through bf_app_post_event, as
-// the control socket does, so it runs on the locked screen of the unattended
-// Mac. One line per check; exit status 1 on any failure.
+// bifrost-input-test: the client's window, pump, keys, mouse and clipboard
+// (port/client/include/bf_input.h, M11.7), called as WinMain.cpp, CMouse,
+// CLanguage and CBink call them, with the checks of the input adapter's test
+// it replaces (port/compat/input, deleted in M11.7). It opens a window in its
+// own single-instance slot and injects every event through
+// bf_app_post_event, as the control socket does, so it runs on the locked
+// screen of the unattended Mac. It also calls the user32 names that other
+// client files still reach in port/compat/win32 (bf_win32_window.cpp). One
+// line per check; exit status 1 on any failure.
 #include <windows.h>
-#define DIRECTINPUT_VERSION 0x0700
-#include <dinput.h>
-#include <imm.h>
 
 #include <math.h>
-#include <spawn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <string>
 #include <vector>
 
 #include "bf_app.h"
-#include "bf_compat_input.h"
+#include "bf_input.h"
 #include "bf_view.h"
-
-extern char **environ;
-extern int g_fake_global_live;
-HINSTANCE GetModuleHandleA_stub();
 
 namespace {
 
@@ -53,57 +48,64 @@ std::string Fmt(const char *f, ...)
 	return b;
 }
 
+bool Held(int vk)
+{
+	return HIBYTE(bf_input_key_state(vk)) != 0;
+}
+
 // ------------------------------------------------------------ the window procedure
 
 struct Rec {
 	UINT msg;
 	WPARAM w;
 	LPARAM l;
-	bool ctrl, shift, alt;   // GetKeyState high bits while it was handled
-	bool async;              // GetAsyncKeyState(wParam) for key messages
+	bool ctrl, shift, alt;   // key state high bits while it was handled
+	bool async;              // bf_input_async_key_state(wParam) for key messages
 };
 std::vector<Rec> g_recs;
 HWND g_hwnd = nullptr;
 bool g_created = false;
+int g_destroyed = 0;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	Rec r = {message, wparam, lparam, false, false, false, false};
-	r.ctrl = HIBYTE(GetKeyState(VK_CONTROL)) != 0;
-	r.shift = HIBYTE(GetKeyState(VK_SHIFT)) != 0;
-	r.alt = HIBYTE(GetAsyncKeyState(VK_MENU)) != 0;
+	r.ctrl = Held(VK_CONTROL);
+	r.shift = Held(VK_SHIFT);
+	r.alt = HIBYTE(bf_input_async_key_state(VK_MENU)) != 0;
 	if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN || message == WM_KEYUP || message == WM_SYSKEYUP)
-		r.async = HIBYTE(GetAsyncKeyState((int)wparam)) != 0;
+		r.async = HIBYTE(bf_input_async_key_state((int)wparam)) != 0;
 	if (message != WM_SETCURSOR && message != WM_MOUSEMOVE)
 		g_recs.push_back(r);
 	switch (message) {
 	case WM_CREATE:
 		g_created = true;
 		return 0;
+	case WM_DESTROY:
+		g_destroyed++;
+		return 0;
 	case WM_SETCURSOR:
-		SetCursor(NULL);   // as the client does outside fullscreen
+		bf_input_hide_cursor();   // as the client does outside fullscreen
 		return 0;
 	case WM_MOUSEMOVE:
 		g_recs.push_back(r);
 		return 0;
 	case WM_CLOSE:
-		return 0;          // the client sets g_sysQuit and returns
+		return 0;   // the client sets g_sysQuit and returns
 	case WM_CHAR:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		return 0;
 	}
-	return DefWindowProcA(hwnd, message, wparam, lparam);
+	return bf_input_default_proc(hwnd, message, wparam, lparam);
 }
 
 // CheckSystemMessage of WinMain.cpp.
 void Pump()
 {
-	MSG msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+	bf_input_msg msg;
+	while (bf_input_peek(&msg))
+		bf_input_dispatch(&msg);
 }
 
 // ------------------------------------------------------------ injection
@@ -148,7 +150,7 @@ void Value(int type, int value)
 	bf_app_post_event(&e);
 }
 
-// Injects, pumps, and returns what the window procedure saw.
+// Pumps, and returns what the window procedure saw.
 std::vector<Rec> Run()
 {
 	g_recs.clear();
@@ -205,15 +207,15 @@ void Keyboard()
 	uint64_t s = Down(BF_KEY_A);
 	Text("a", s);
 	v = Run();
-	Check(Is(Find(v, WM_KEYDOWN), 'A', 0x1e0001) && Find(v, WM_KEYDOWN)->async, "key A: WM_KEYDOWN 'A' lParam 0x1e0001, GetAsyncKeyState down", Describe(v));
+	Check(Is(Find(v, WM_KEYDOWN), 'A', 0x1e0001) && Find(v, WM_KEYDOWN)->async, "key A: WM_KEYDOWN 'A' lParam 0x1e0001, async key state down", Describe(v));
 	Check(Chars(v) == "a" && Find(v, WM_CHAR) > Find(v, WM_KEYDOWN), "key A: WM_CHAR 'a' after it", Describe(v));
 	Down(BF_KEY_A, 1);
 	v = Run();
 	Check(Is(Find(v, WM_KEYDOWN), 'A', 0x401e0001), "key A repeat: bit 30 set (ProcessPushButton's newKeydown 0)", Describe(v));
 	Up(BF_KEY_A);
 	v = Run();
-	Check(Is(Find(v, WM_KEYUP), 'A', 0xc01e0001) && !Find(v, WM_KEYUP)->async && !HIBYTE(GetAsyncKeyState('A')),
-	      "key A up: WM_KEYUP lParam 0xc01e0001, GetAsyncKeyState up", Describe(v));
+	Check(Is(Find(v, WM_KEYUP), 'A', 0xc01e0001) && !Find(v, WM_KEYUP)->async && !HIBYTE(bf_input_async_key_state('A')),
+	      "key A up: WM_KEYUP lParam 0xc01e0001, async key state up", Describe(v));
 	const int keys[3] = {BF_KEY_D, BF_KEY_W, BF_KEY_X};
 	const uint32_t lps[3] = {0x200001, 0x110001, 0x2d0001};
 	for (int i = 0; i < 3; i++) {
@@ -256,8 +258,8 @@ void Keyboard()
 		if (r.msg == WM_KEYDOWN && r.w == 'A')
 			a = &r;
 	Check(Is(Find(v, WM_KEYDOWN, 0), VK_SHIFT, 0x2a0001) && a && a->shift && Chars(v) == "A",
-	      "Shift+A: WM_KEYDOWN VK_SHIFT scan 0x2a, GetKeyState(VK_SHIFT) down during 'A', WM_CHAR 'A'", Describe(v));
-	Check(!HIBYTE(GetKeyState(VK_SHIFT)) && !HIBYTE(GetAsyncKeyState(VK_LSHIFT)), "Shift released: GetKeyState up");
+	      "Shift+A: WM_KEYDOWN VK_SHIFT scan 0x2a, VK_SHIFT held during 'A', WM_CHAR 'A'", Describe(v));
+	Check(!Held(VK_SHIFT) && !HIBYTE(bf_input_async_key_state(VK_LSHIFT)), "Shift released: key state up");
 
 	// Option is Alt: WM_SYSKEYDOWN, no character for a game shortcut.
 	Down(BF_KEY_LALT);
@@ -266,7 +268,7 @@ void Keyboard()
 	Up(BF_KEY_A);
 	v = Run();
 	Check(Is(Find(v, WM_SYSKEYDOWN, 0), VK_MENU, 0x20380001) && Find(v, WM_SYSKEYDOWN, 0)->alt,
-	      "Option: WM_SYSKEYDOWN VK_MENU, GetAsyncKeyState(VK_MENU) down", Describe(v));
+	      "Option: WM_SYSKEYDOWN VK_MENU, VK_MENU down", Describe(v));
 	Check(Is(Find(v, WM_SYSKEYDOWN, 1), 'A', 0x201e0001), "Option+A: WM_SYSKEYDOWN 'A', bit 29 set", Describe(v));
 	Check(Count(v, WM_CHAR) == 0, "Option+A (Alt+A opens a window): no WM_CHAR", Describe(v));
 	s = Down(BF_KEY_L);
@@ -280,7 +282,7 @@ void Keyboard()
 	Check(Find(v, WM_SYSKEYDOWN, 0) && Find(v, WM_SYSKEYDOWN, 0)->w == 'L' && Find(v, WM_SYSKEYDOWN, 1) &&
 	      Find(v, WM_SYSKEYDOWN, 1)->w == 'F' && Chars(v) == "\x83",
 	      "Option+L (Alt+L, emotion list): WM_SYSKEYDOWN 'L', no '@'; Option+F (no game shortcut): WM_CHAR", Describe(v));
-	Check(Find(v, WM_SYSKEYUP, 2) && Find(v, WM_SYSKEYUP, 2)->w == VK_MENU && !HIBYTE(GetAsyncKeyState(VK_MENU)),
+	Check(Find(v, WM_SYSKEYUP, 2) && Find(v, WM_SYSKEYUP, 2)->w == VK_MENU && !HIBYTE(bf_input_async_key_state(VK_MENU)),
 	      "Option up: WM_SYSKEYUP VK_MENU, Alt reads up", Describe(v));
 
 	// Ctrl: no text.
@@ -304,6 +306,12 @@ void Keyboard()
 	      "Backspace, Tab, Return, Escape: WM_KEYDOWN then WM_CHAR 8, 9, 13, 27", Describe(v));
 	Check(Find(v, WM_KEYDOWN) && Find(v, WM_CHAR) && Find(v, WM_KEYDOWN) < Find(v, WM_CHAR) && Find(v, WM_CHAR) < Find(v, WM_KEYUP),
 	      "WM_CHAR 8 comes between its WM_KEYDOWN and WM_KEYUP", Describe(v));
+	Down(BF_KEY_LCTRL);
+	Down(BF_KEY_BACKSPACE);
+	Up(BF_KEY_BACKSPACE);
+	Up(BF_KEY_LCTRL);
+	v = Run();
+	Check(Count(v, WM_CHAR) == 0, "Ctrl+Backspace: no WM_CHAR 8", Describe(v));
 
 	// Insert and its substitute.
 	Down(BF_KEY_INSERT);   // kVK_Help: the Insert of a PC keyboard
@@ -315,7 +323,7 @@ void Keyboard()
 	Text("i", s);          // AppKit types nothing with Cmd; injected text is dropped too
 	v = Run();
 	Check(Is(Find(v, WM_KEYDOWN), VK_INSERT, 0x1520001) && Find(v, WM_KEYDOWN)->async && Count(v, WM_CHAR) == 0 && v.size() == 1,
-	      "Cmd+I (the Insert substitute): WM_KEYDOWN VK_INSERT only, GetAsyncKeyState(VK_INSERT) down", Describe(v));
+	      "Cmd+I (the Insert substitute): WM_KEYDOWN VK_INSERT only, VK_INSERT reads down", Describe(v));
 	Up(BF_KEY_I);
 	Down(BF_KEY_LALT);
 	Down(BF_KEY_I);
@@ -325,7 +333,7 @@ void Keyboard()
 	v = Run();
 	Check(Find(v, WM_KEYUP) && Find(v, WM_KEYUP)->w == VK_INSERT && Find(v, WM_SYSKEYDOWN, 1) && Find(v, WM_SYSKEYDOWN, 1)->w == VK_INSERT,
 	      "Cmd+I up: WM_KEYUP VK_INSERT; Cmd+Option+I: WM_SYSKEYDOWN VK_INSERT (Alt+Insert)", Describe(v));
-	Check(!HIBYTE(GetAsyncKeyState(VK_INSERT)) && !HIBYTE(GetAsyncKeyState(VK_LWIN)), "after Cmd+I: VK_INSERT and Cmd read up");
+	Check(!HIBYTE(bf_input_async_key_state(VK_INSERT)) && !HIBYTE(bf_input_async_key_state(VK_LWIN)), "after Cmd+I: VK_INSERT and Cmd read up");
 
 	// Cmd+Shift+S: the Print Screen substitute, WM_KEYUP VK_SNAPSHOT only;
 	// Cmd+S without Shift sends nothing.
@@ -359,6 +367,9 @@ void Keyboard()
 	Value(BF_APP_EVENT_QUIT, BF_APP_QUIT_CLOSE_BUTTON);
 	v = Run();
 	Check(Count(v, WM_CLOSE) == 1, "QUIT event (close button, Quit menu): WM_CLOSE", Describe(v));
+	bf_input_post(WM_CLOSE, 0, 0);   // the control socket's quit
+	v = Run();
+	Check(Count(v, WM_CLOSE) == 1 && v.size() == 1, "bf_input_post(WM_CLOSE) (the control socket's quit): WM_CLOSE", Describe(v));
 
 	// Cmd+H and other Mac commands do not reach the client.
 	Down(BF_KEY_LCMD);
@@ -367,6 +378,10 @@ void Keyboard()
 	Up(BF_KEY_LCMD);
 	v = Run();
 	Check(v.empty(), "Cmd+H: nothing reaches the client", Describe(v));
+
+	// Caps Lock's latch and Num Lock.
+	Check((bf_input_key_state(VK_NUMLOCK) & 1) && !(bf_input_async_key_state(VK_NUMLOCK) & 1),
+	      "VK_NUMLOCK: toggled (a Mac keypad types digits); the async state has no bit 0");
 }
 
 void Clipboard()
@@ -392,46 +407,35 @@ void Clipboard()
 	Up(BF_KEY_C);
 	v = Run();
 	Check(Find(v, WM_KEYDOWN) && Find(v, WM_KEYDOWN)->w == 'C' && Find(v, WM_KEYDOWN)->ctrl && (uint32_t)Find(v, WM_KEYDOWN)->l == 0x2e0001,
-	      "Cmd+C: WM_KEYDOWN 'C' with GetKeyState(VK_CONTROL) down", Describe(v));
-	Check(!HIBYTE(GetKeyState(VK_CONTROL)), "Cmd+C released: Ctrl reads up again");
+	      "Cmd+C: WM_KEYDOWN 'C' with VK_CONTROL down", Describe(v));
+	Check(!Held(VK_CONTROL), "Cmd+C released: Ctrl reads up again");
 	Down(BF_KEY_X);
 	v = Run();
 	Check(Find(v, WM_KEYDOWN) && Find(v, WM_KEYDOWN)->w == 'X' && Find(v, WM_KEYDOWN)->ctrl, "Cmd+X: WM_KEYDOWN 'X' with Ctrl down", Describe(v));
 	Up(BF_KEY_LCMD);   // Cmd let go before X
 	v = Run();
-	Check(!HIBYTE(GetKeyState(VK_CONTROL)), "Cmd released while X held: Ctrl reads up");
+	Check(!Held(VK_CONTROL), "Cmd released while X held: Ctrl reads up");
 	Up(BF_KEY_X);
 	Run();
 
-	// The clipboard API as CLanguage::CopyTextToClipBoard uses it.
-	int live = g_fake_global_live;
-	const char *text = "Gr\xfc\xdf" "e";   // CP1252
-	BOOL ok = OpenClipboard(g_hwnd);
-	HANDLE h = GlobalAlloc(GMEM_DDESHARE, strlen(text) + 1);
-	char *p = (char *)GlobalLock(h);
-	memcpy(p, text, strlen(text) + 1);
-	GlobalUnlock(h);
-	ok = ok && EmptyClipboard();
-	ok = ok && SetClipboardData(CF_TEXT, h) != NULL;
-	ok = ok && CloseClipboard();
+	// CLanguage::CopyTextToClipBoard ...
+	const char *text = "Gr\xfc\xdf" "e\r\nx";   // CP1252
+	int ok = bf_input_clipboard_set_text(text, strlen(text));
 	char got[64] = {};
 	bf_app_clipboard_get_text(got, sizeof got);
-	Check(ok && strcmp(got, "Gr\xc3\xbc\xc3\x9f" "e") == 0, "SetClipboardData(CF_TEXT): the Mac clipboard holds the text as UTF-8", got);
+	Check(ok && strcmp(got, "Gr\xc3\xbc\xc3\x9f" "e\nx") == 0, "clipboard set: the Mac clipboard holds the text as UTF-8, CR LF as LF", got);
+	ok = bf_input_clipboard_set_text("abc\0def", 7);
+	bf_app_clipboard_get_text(got, sizeof got);
+	Check(ok && strcmp(got, "abc") == 0, "clipboard set: up to the first NUL within the length", got);
 	// ... and CopyTextFromClipBoard.
 	bf_app_clipboard_set_text("caf\xc3\xa9\nok");
-	ok = OpenClipboard(g_hwnd);
-	h = GetClipboardData(CF_TEXT);
-	p = h ? (char *)GlobalLock(h) : nullptr;
-	std::string read = p ? p : "";
-	if (h)
-		GlobalUnlock(h);
-	CloseClipboard();
-	Check(ok && read == "caf\xe9\r\nok", "GetClipboardData(CF_TEXT): CP1252, lines ending CR LF", read);
-	Check(OpenClipboard(g_hwnd) && !OpenClipboard(g_hwnd) && CloseClipboard() && !CloseClipboard(), "OpenClipboard twice fails, CloseClipboard twice fails");
-	OpenClipboard(g_hwnd);
-	EmptyClipboard();      // frees GetClipboardData's block
-	CloseClipboard();
-	Check(g_fake_global_live == live, "clipboard memory: nothing leaked", Fmt("%d blocks before, %d after", live, g_fake_global_live));
+	char *read = bf_input_clipboard_text();
+	Check(read && strcmp(read, "caf\xe9\r\nok") == 0, "clipboard text: CP1252, lines ending CR LF", read ? read : "(null)");
+	free(read);
+	bf_app_clipboard_set_text("\xe4\xb8\x80");
+	read = bf_input_clipboard_text();
+	Check(!read, "clipboard text: NULL when nothing converts (CLanguage then adds nothing)");
+	free(read);
 
 	if (restore)
 		bf_app_clipboard_set_text(saved);
@@ -441,15 +445,14 @@ void Clipboard()
 
 // CMouse::ReadState's integration, as the client does it.
 struct ClientMouse {
-	IDirectInputDeviceA *dev;
 	int x = 320, y = 240, wheel = 0;
-	DIMOUSESTATE s = {};
-	HRESULT Read()
+	bf_input_mouse_state s = {};
+	int Read()
 	{
 		bf_view_metrics m;
 		bf_view_get(&m);
-		HRESULT hr = dev->GetDeviceState(sizeof s, &s);
-		if (SUCCEEDED(hr)) {
+		int hr = bf_input_mouse_read(x, y, &s);
+		if (hr == 0) {
 			x += s.lX;
 			y += s.lY;
 			wheel = s.lZ;
@@ -464,30 +467,13 @@ struct ClientMouse {
 
 void Mouse()
 {
-	IDirectInputA *di = nullptr;
-	IDirectInputDeviceA *dev = nullptr;
-	HRESULT hr = DirectInputCreateA(GetModuleHandleA_stub(), DIRECTINPUT_VERSION, &di, NULL);
-	Check(SUCCEEDED(hr) && di, "DirectInputCreateA");
-	if (!di)
-		return;
-	hr = di->CreateDevice(GUID_SysMouse, &dev, NULL);
-	Check(SUCCEEDED(hr) && dev, "IDirectInput::CreateDevice(GUID_SysMouse)");
-	IDirectInputDeviceA *kbd = nullptr;
-	Check(FAILED(di->CreateDevice(GUID_SysKeyboard, &kbd, NULL)) && !kbd, "CreateDevice(GUID_SysKeyboard) fails: the keyboard comes as messages");
-	if (!dev)
-		return;
-	dev->SetDataFormat(&c_dfDIMouse);
-	Check(SUCCEEDED(dev->SetCooperativeLevel(g_hwnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND)), "SetCooperativeLevel(exclusive, foreground) accepted");
-	Check(SUCCEEDED(dev->Acquire()), "Acquire");
+	bf_input_mouse_acquire(1);
 	ClientMouse cm;
-	cm.dev = dev;
 	Run();
 	cm.Read();
 
-	bf_app_size size;
-	bf_app_window_get_size(&size);
 	for (int s = 1; s <= 3; s++) {
-		bf_compat_input_set_scale_setting(s);
+		bf_input_set_scale_setting(s);
 		Run();
 		bf_view_metrics m;
 		bf_view_get(&m);
@@ -511,7 +497,7 @@ void Mouse()
 			if (cm.x != ex || cm.y != ey || cm.s.lX != ex - ox || cm.s.lY != ey - oy) {
 				all = false;
 				bad += Fmt("(%.1f,%.1f) px -> client (%d,%d) lX %d lY %d, want (%d,%d) ", pt[0], pt[1], cm.x, cm.y,
-				           (int)cm.s.lX, (int)cm.s.lY, ex, ey);
+				           cm.s.lX, cm.s.lY, ex, ey);
 			}
 		}
 		Check(all, Fmt("UI scale %d (logical %dx%d): lX/lY bring CMouse to the pointer's logical pixel, clamped outside", s, m.logical_w, m.logical_h).c_str(), bad);
@@ -553,7 +539,7 @@ void Mouse()
 	Pointer(BF_APP_EVENT_BUTTON_DOWN, 100, 100, BF_APP_BUTTON_LEFT);
 	Run();
 	cm.Read();
-	bool l = cm.s.rgbButtons[0] == 0x80 && HIBYTE(GetAsyncKeyState(VK_LBUTTON));
+	bool l = cm.s.rgbButtons[0] == 0x80 && HIBYTE(bf_input_async_key_state(VK_LBUTTON));
 	Pointer(BF_APP_EVENT_BUTTON_UP, 100, 100, BF_APP_BUTTON_LEFT);
 	Pointer(BF_APP_EVENT_BUTTON_DOWN, 100, 100, BF_APP_BUTTON_MIDDLE);
 	Run();
@@ -562,79 +548,81 @@ void Mouse()
 	Pointer(BF_APP_EVENT_BUTTON_UP, 100, 100, BF_APP_BUTTON_MIDDLE);
 	Run();
 	cm.Read();
-	Check(l && mid && cm.s.rgbButtons[2] == 0, "buttons: left and middle as rgbButtons[0], [2]; GetAsyncKeyState(VK_LBUTTON)");
-	Check(GetSystemMetrics(SM_SWAPBUTTON) == 0, "GetSystemMetrics(SM_SWAPBUTTON) = 0");
+	Check(l && mid && cm.s.rgbButtons[2] == 0, "buttons: left and middle as rgbButtons[0], [2]; VK_LBUTTON reads down");
 
 	// Focus: WM_NCACTIVATE drives the client's SetAcquire.
 	Value(BF_APP_EVENT_FOCUS, 0);
 	std::vector<Rec> v = Run();
 	Check(Find(v, WM_NCACTIVATE) && Find(v, WM_NCACTIVATE)->w == FALSE && Find(v, WM_ACTIVATE) && LOWORD(Find(v, WM_ACTIVATE)->w) == WA_INACTIVE && Find(v, WM_KILLFOCUS),
 	      "focus lost: WM_NCACTIVATE(0), WM_ACTIVATE(WA_INACTIVE), WM_KILLFOCUS", Describe(v));
-	Check(GetActiveWindow() == NULL, "focus lost: GetActiveWindow() is NULL");
-	dev->Unacquire();
+	bf_input_mouse_acquire(0);
 	Pointer(BF_APP_EVENT_POINTER_MOVE, 61, 43);
 	v = Run();
-	Check(cm.Read() == DIERR_NOTACQUIRED, "unacquired: GetDeviceState fails, as the client expects while inactive");
+	Check(cm.Read() == BF_INPUT_NOT_ACQUIRED && FAILED(BF_INPUT_NOT_ACQUIRED), "unacquired: the read fails, as the client expects while inactive");
 	bf_view_metrics m;
 	bf_view_get(&m);
 	int ex = (int)floor(61.0 / m.ui_scale), ey = (int)floor(43.0 / m.ui_scale);
 	const Rec *mm = Find(v, WM_MOUSEMOVE);
-	POINT pt;
-	GetCursorPos(&pt);
-	ScreenToClient(g_hwnd, &pt);
-	cm.x = pt.x;   // the client's WM_MOUSEMOVE handler: SetXPos, SetYPos
-	cm.y = pt.y;
-	Check(mm && LOWORD(mm->l) == ex && HIWORD(mm->l) == ey && pt.x == ex && pt.y == ey,
-	      "inactive: WM_MOUSEMOVE and GetCursorPos/ScreenToClient give the logical position", Fmt("(%ld,%ld) want (%d,%d)", (long)pt.x, (long)pt.y, ex, ey));
+	int px = -1, py = -1;
+	bf_input_cursor_pos(&px, &py);
+	cm.x = px;   // the client's WM_MOUSEMOVE handler: SetXPos, SetYPos
+	cm.y = py;
+	Check(mm && LOWORD(mm->l) == ex && HIWORD(mm->l) == ey && px == ex && py == ey,
+	      "inactive: WM_MOUSEMOVE and bf_input_cursor_pos give the logical position", Fmt("(%d,%d) want (%d,%d)", px, py, ex, ey));
 	Value(BF_APP_EVENT_FOCUS, 1);
 	v = Run();
 	Check(Find(v, WM_NCACTIVATE) && Find(v, WM_NCACTIVATE)->w == TRUE && Find(v, WM_ACTIVATE) && LOWORD(Find(v, WM_ACTIVATE)->w) == WA_ACTIVE && Find(v, WM_SETFOCUS),
 	      "focus gained: WM_NCACTIVATE(1), WM_ACTIVATE(WA_ACTIVE), WM_SETFOCUS", Describe(v));
-	dev->Acquire();
+	Check(Find(v, WM_NCACTIVATE) && bf_input_default_proc(g_hwnd, WM_NCACTIVATE, 1, 0) == TRUE, "default procedure: WM_NCACTIVATE is TRUE");
+	bf_input_mouse_acquire(1);
 	Pointer(BF_APP_EVENT_POINTER_MOVE, 61 + 10.0f * m.ui_scale, 43);
 	Run();
 	cm.Read();
 	Check(cm.x == ex + 10 && cm.y == ey, "after reactivation CMouse follows the pointer from where WM_MOUSEMOVE left it", Fmt("(%d,%d)", cm.x, cm.y));
-
-	// SetCursorPos records, never warps.
-	SetCursorPos(5, 6);
-	GetCursorPos(&pt);
-	bool rec = pt.x == 5 && pt.y == 6;
-	Pointer(BF_APP_EVENT_POINTER_MOVE, 61, 43);
-	Run();
-	GetCursorPos(&pt);
-	Check(rec && pt.x == ex && pt.y == ey, "SetCursorPos: GetCursorPos reports it until the pointer moves; the pointer is not warped");
-	bf_compat_input_mouse_set_client_pos(cm.x, cm.y);
-
-	dev->Unacquire();
-	dev->Release();
-	di->Release();
+	bf_input_mouse_acquire(0);
 }
 
 void Resize()
 {
-	bf_compat_input_set_scale_setting(0);
+	bf_input_set_scale_setting(0);
 	Run();
 	bf_app_window_set_content_size(1280, 800);
 	bf_app_pump(50);
 	std::vector<Rec> v = Run();
 	bf_view_metrics m;
 	bf_view_get(&m);
-	RECT rc;
-	GetClientRect(g_hwnd, &rc);
+	int w = 0, h = 0;
+	bf_input_client_size(&w, &h);
+	RECT rc = {};
+	BOOL got = GetClientRect(g_hwnd, &rc);   // 3dlib/Device.cpp's, in port/compat/win32
 	const Rec *sz = nullptr;
 	for (const Rec &r : v)
 		if (r.msg == WM_SIZE)
 			sz = &r;
-	Check(sz && LOWORD(sz->l) == m.logical_w && HIWORD(sz->l) == m.logical_h && rc.right == m.logical_w && rc.bottom == m.logical_h,
-	      "resize to 1280x800 pt: WM_SIZE and GetClientRect give the new logical size", Fmt("logical %dx%d at scale %d", m.logical_w, m.logical_h, m.ui_scale));
+	Check(sz && LOWORD(sz->l) == m.logical_w && HIWORD(sz->l) == m.logical_h && w == m.logical_w && h == m.logical_h
+	      && got && rc.right == w && rc.bottom == h,
+	      "resize to 1280x800 pt: WM_SIZE, bf_input_client_size and GetClientRect give the new logical size",
+	      Fmt("logical %dx%d at scale %d", m.logical_w, m.logical_h, m.ui_scale));
 	bf_app_window_set_content_size(1024, 768);
 	bf_app_pump(50);
 	Run();
 }
 
-void Misc()
+// What client files outside M11.7 still call in port/compat/win32.
+void Remaining()
 {
+	POINT pt = {5, 6};
+	Check(ClientToScreen(g_hwnd, &pt) && pt.x == 5 && pt.y == 6 && !ClientToScreen(NULL, &pt),
+	      "ClientToScreen: the identity on the window, FALSE for another");
+	Check(ShowWindow(g_hwnd, SW_MAXIMIZE) && SetWindowLongA(g_hwnd, GWL_STYLE, WS_POPUP) == 0x02CA0000
+	      && DrawMenuBar(g_hwnd) && RedrawWindow(g_hwnd, NULL, NULL, RDW_FRAME),
+	      "ShowWindow, SetWindowLong(GWL_STYLE), DrawMenuBar, RedrawWindow: accepted, nothing changes");
+	Down(BF_KEY_RSHIFT);
+	Run();
+	bool shift = HIBYTE(GetKeyState(VK_SHIFT)) && HIBYTE(GetKeyState(VK_RSHIFT)) && !HIBYTE(GetKeyState(VK_LSHIFT));
+	Up(BF_KEY_RSHIFT);
+	Run();
+	Check(shift && !HIBYTE(GetKeyState(VK_SHIFT)), "GetKeyState: bf_input_key_state (right Shift as VK_SHIFT and VK_RSHIFT)");
 	char buf[64];
 	int n = wsprintfA(buf, "%d.%d.%d.%d", 127, 0, 0, 1);
 	DWORD code = 7;
@@ -647,113 +635,69 @@ void Misc()
 	      "CharNextExA(1252)");
 	Check(CharNextExA(949, k + 1, 0) == k + 3 && CharPrevExA(949, k, k + 3, 0) == k + 1 && CharPrevExA(949, k, k, 0) == k,
 	      "CharNextExA / CharPrevExA (949): a lead byte and its trail are one character");
-	Check(ImmGetContext(g_hwnd) == NULL, "ImmGetContext: no input method context");
-	Check(MapVirtualKeyA('A', MAPVK_VK_TO_VSC) == 0x1e && MapVirtualKeyA(0x1e, MAPVK_VSC_TO_VK) == 'A', "MapVirtualKeyA");
-	Check(GetDC(NULL) != NULL && ReleaseDC(NULL, GetDC(NULL)) == 1, "GetDC(NULL): the gdi area's screen DC");
-	BYTE ks[256];
-	bool none = GetKeyboardState(ks);
-	for (int i = 0; i < 256 && none; i++)
-		if (ks[i] & 0x80)
-			none = false;
-	Check(none, "GetKeyboardState: nothing held after the tests");
 	unsigned scan = 0;
 	int ext = 0;
-	Check(bf_compat_input_vk_for_key(BF_KEY_KP_ENTER, &scan, &ext) == VK_RETURN && scan == 0x1c && ext == 1, "keypad Enter: VK_RETURN, extended");
-}
-
-int g_user_events = 0;
-int Hook(const bf_app_event *e, void *)
-{
-	if (e->type == BF_APP_EVENT_USER) {
-		g_user_events++;
-		return 1;
-	}
-	return 0;
-}
-
-int SecondInstance(const char *id)
-{
-	bf_compat_input_configure(id, 1);
-	FindWindowA("Bifrost test", "Bifrost test");   // exits when the slot is taken
-	return 3;
+	Check(bf_input_vk_for_key(BF_KEY_KP_ENTER, &scan, &ext) == VK_RETURN && scan == 0x1c && ext == 1, "keypad Enter: VK_RETURN, extended");
+	Check(bf_input_is_alt_shortcut('A') && !bf_input_is_alt_shortcut('F') && bf_input_is_alt_shortcut(VK_INSERT),
+	      "Alt shortcuts: A and Insert are the game's, F is not");
+	bool none = true;
+	for (int vk = 1; vk < 256 && none; vk++)
+		if (vk != VK_NUMLOCK && (bf_input_key_state(vk) & 0x8000))
+			none = false;
+	Check(none, "nothing held after the tests");
 }
 
 }  // namespace
 
-// The win32 area owns GetModuleHandle; the client passes g_hInstance, which
-// DirectInputCreateA ignores.
-HINSTANCE GetModuleHandleA_stub() { return nullptr; }
-
 int main(int argc, char **argv)
 {
-	if (argc == 3 && strcmp(argv[1], "--second") == 0)
-		return SecondInstance(argv[2]);
 	setvbuf(stdout, nullptr, _IOLBF, 0);
 	char id[64];
-	snprintf(id, sizeof id, "compat-input-test-%d", (int)getpid());
-	bf_compat_input_configure(id, 1);
+	snprintf(id, sizeof id, "input-test-%d", (int)getpid());
+	bf_app_config c = {id, 1};
+	if (bf_app_init(&c) != BF_APP_OK) {
+		printf("FAIL bf_app_init\n");
+		return 1;
+	}
 
 	// InitApp's sequence.
-	Check(FindWindowA("Bifrost test", "Bifrost test") == NULL, "FindWindowA: no other instance");
-	WNDCLASSA wc = {0, WindowProc, 0, 0, NULL, LoadIconA(NULL, MAKEINTRESOURCEA(0x77)), LoadCursorA(NULL, IDC_ARROW),
-	                NULL, NULL, "Bifrost test"};
-	Check(RegisterClassA(&wc) != 0, "RegisterClassA");
-	RECT r = {0, 0, 1024, 768};
-	AdjustWindowRect(&r, 0x02CA0000, FALSE);
-	g_hwnd = CreateWindowExA(0, wc.lpszClassName, "Bifrost test", 0x02CA0000, 0, 0, r.right - r.left, r.bottom - r.top,
-	                         NULL, NULL, NULL, NULL);
-	Check(g_hwnd != NULL && g_created && bf_compat_input_main_window() == g_hwnd, "CreateWindowExA: window made, WM_CREATE sent");
+	Check(bf_input_window() == NULL, "no window before InitApp");
+	g_hwnd = bf_input_window_create(1024, 768, "Bifrost test \xe9", WindowProc);
+	Check(g_hwnd != NULL && g_created && bf_input_window() == g_hwnd, "bf_input_window_create: window made, WM_CREATE sent");
 	if (!g_hwnd)
 		return 1;
-	ShowWindow(g_hwnd, SW_SHOW);
-	UpdateWindow(g_hwnd);
-	SetFocus(g_hwnd);
-	Check(FindWindowA("Bifrost test", "Bifrost test") == g_hwnd, "FindWindowA finds the window in its own process");
+	Check(Find(g_recs, WM_NCCREATE) && Find(g_recs, WM_NCCREATE) < Find(g_recs, WM_CREATE), "WM_NCCREATE before WM_CREATE");
+	Check(bf_input_window_create(640, 480, "second", WindowProc) == NULL, "a second window is not made");
 	bf_view_metrics m;
 	bf_view_get(&m);
-	RECT rc;
-	GetClientRect(g_hwnd, &rc);
-	Check(rc.right == m.logical_w && rc.bottom == m.logical_h && m.logical_w > 0,
-	      "GetClientRect: the logical size", Fmt("%dx%d, UI scale %d, backing %.0f", (int)rc.right, (int)rc.bottom, m.ui_scale, m.backing_scale));
-	bf_compat_input_set_event_hook(Hook, nullptr);
+	int w = 0, h = 0;
+	bf_input_client_size(&w, &h);
+	Check(w == m.logical_w && h == m.logical_h && m.logical_w > 0,
+	      "bf_input_client_size: the logical size", Fmt("%dx%d, UI scale %d, backing %.0f", w, h, m.ui_scale, m.backing_scale));
 	Run();
 
 	Keyboard();
 	Clipboard();
 	Mouse();
 	Resize();
+	Remaining();
 
 	bf_app_event u = {};
 	u.type = BF_APP_EVENT_USER;
 	bf_app_post_event(&u);
 	std::vector<Rec> v = Run();
-	Check(g_user_events == 1 && v.empty(), "event hook: consumes a USER event");
-	bf_compat_input_set_event_hook(nullptr, nullptr);
+	Check(v.empty(), "a USER event makes no message");
 
-	Misc();
-
-	// A second launch with the same slot: bf_app_init brings this one to
-	// the front and FindWindowA ends the second process.
-	pid_t pid;
-	char *args[] = {argv[0], (char *)"--second", id, nullptr};
-	time_t t0 = time(nullptr);
-	int st = -1;
-	if (posix_spawn(&pid, argv[0], nullptr, nullptr, args, environ) == 0) {
-		while (waitpid(pid, &st, WNOHANG) == 0 && time(nullptr) - t0 < 20)
-			bf_app_pump(50);
-	}
-	Check(WIFEXITED(st) && WEXITSTATUS(st) == 0, "second instance: FindWindowA exits it (status 0)", Fmt("status %d", st));
-	Run();
-
-	PostMessageA(g_hwnd, WM_USER + 1, 1, 2);
+	bf_input_post(WM_USER + 1, 1, 2);
 	v = Run();
-	Check(v.size() == 1 && v[0].msg == WM_USER + 1 && v[0].w == 1 && v[0].l == 2, "PostMessageA reaches the window procedure");
-	Check(SendMessageA(g_hwnd, WM_USER + 2, 0, 0) == 0 && g_recs.back().msg == WM_USER + 2, "SendMessageA calls it directly");
-	PostQuitMessage(0);
-	MSG msg;
-	Check(GetMessageA(&msg, NULL, 0, 0) == FALSE && msg.message == WM_QUIT, "PostQuitMessage: GetMessageA returns FALSE with WM_QUIT");
+	Check(v.size() == 1 && v[0].msg == WM_USER + 1 && v[0].w == 1 && v[0].l == 2, "bf_input_post reaches the window procedure");
+	bf_input_msg msg = {WM_USER + 2, 3, 4};
+	g_recs.clear();
+	bf_input_dispatch(&msg);
+	Check(g_recs.size() == 1 && g_recs[0].msg == WM_USER + 2, "bf_input_dispatch calls it directly");
 
-	Check(DestroyWindow(g_hwnd) && !IsWindow(g_hwnd) && !DestroyWindow(g_hwnd), "DestroyWindow");
+	bf_input_window_destroy();
+	Check(g_destroyed == 1 && bf_input_window() == NULL && !ClientToScreen(g_hwnd, nullptr), "bf_input_window_destroy: WM_DESTROY sent, window gone");
 	bf_app_shutdown();
 	printf("%s: %d failed\n", g_failures ? "FAIL" : "PASS", g_failures);
 	return g_failures ? 1 : 0;

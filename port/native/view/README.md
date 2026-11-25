@@ -119,7 +119,7 @@ To compare a new run:
 cd build/native/view/test-out && shasum -a 256 -c ../../../../port/native/view/test/reference/SHA256SUMS
 ```
 
-## For the client's resize path (M4.3a) and the input adapters
+## For the client's resize path (M4.3a) and the client's input (bf_input, M11.7)
 
 **Start-up.** `bf_app_window_create`, then `bf_view_init(setting)`. Then
 `bf_view_get(&m)` and `bf_gfx_create({layer, m.logical_w, m.logical_h,
@@ -140,8 +140,9 @@ may be drawn at the old size afterwards.
 `bf_view_toggle_fullscreen()`.
 
 **Pointer.**
-- The DirectInput adapter uses `bf_view_px_to_logical_pixel(&m, x_px,
-  y_px, &lx, &ly)` (clamped).
+- The client's mouse (`bf_input_mouse_read`, the DirectInput adapter's
+  until M11.7) uses `bf_view_px_to_logical_pixel(&m, x_px, y_px, &lx,
+  &ly)` (clamped).
 - The control socket aims at a logical pixel with
   `bf_view_logical_pixel_center_px` and posts that as `x_px`/`y_px`.
 - `bf_view_get` may be called from any thread.

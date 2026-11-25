@@ -62,7 +62,16 @@ ole32 and netapi32 (`src/bf_win32_misc.cpp`, M3.2):
 | `CoInitialize`, `CoUninitialize` | `S_OK`, nothing: the client makes no COM object through ole32 (DirectX comes from the adapters' entry points) | `WinMain` |
 | `Netbios` | `NRC_SYSTEM` (`BF_STUB`): no machine identifier is handed out; the login code then sends `111111111111` | `CLoginMode` (Korean and PC-bang login packets) |
 
-`wsprintfA` is the input area's.
+The user32 names the input adapter (deleted in M11.7) left to callers outside its package, in `src/bf_win32_window.cpp`, on `port/client`'s `bf_input` (each goes with its last caller):
+
+| Name | Returns | Caller |
+|---|---|---|
+| `GetClientRect`, `ClientToScreen` | the logical client area at 0, 0; the identity ("screen" coordinates are the client's) | `3dlib/Device.cpp` |
+| `ShowWindow`, `SetWindowLongA` (`GWL_STYLE`), `DrawMenuBar`, `RedrawWindow` | accepted, nothing changes: macOS owns the window's state | `3dlib/Device.cpp` (fullscreen path) |
+| `GetKeyState` | `bf_input_key_state` | `UIControl.cpp` |
+| `CharNextExA`, `CharPrevExA` | `bf_text_char_length`, `bf_text_char_prev`; code pages 0–3 are 1252 | `UIControl.cpp` |
+| `GetDC` | the gdi area's `bf_compat_gdi_screen_dc()` (a weak stand-in returns NULL without that area) | `3dlib/DrawUtil.cpp` (`EnumFontFamiliesEx`) |
+| `wsprintfA`, `wvsprintfA` | `vsnprintf` with wsprintf's 1024-character limit; its `%l` is 32 bits, `%hs` is `%s` | `window/UIFrameWnd.cpp`, `GameMode2.cpp`, `LoginMode.cpp` |
 
 ## The registry
 
