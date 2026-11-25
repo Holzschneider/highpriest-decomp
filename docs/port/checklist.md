@@ -168,7 +168,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step | Track | Needs |
 |---|---|---|---|
-| [ ] | M12.1 `.app` bundle, ad-hoc signed | build | M11 exit |
+| [x] 01ec9bd | M12.1 `.app` bundle, ad-hoc signed | build | M11 exit |
 | [x] 37667cf | M12.2 Game-folder chooser and settings window | native | M4.1, M3.4 |
 | [x] 18c1f99 | M12.3 Granny reader: format study on the game's `.gr2` files, loader, test program that dumps a model | formats | M3.8 |
 | [x] 888c4ff | M12.3b Granny textures (RAD's Bink texture encoding) decoded and animation curves evaluated, with the test program drawing textured, posed models | formats | M12.3 |
