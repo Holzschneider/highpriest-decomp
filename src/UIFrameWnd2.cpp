@@ -844,6 +844,23 @@ INT_PTR UIBasicInfoWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT
 			if (m_h - oldHeight) g_snapMgr.MoveConnectedObject(this, 0, m_h - oldHeight, 3);
 			break;
 		}
+		// Restored from the reference (UIBasicInfoWnd::SendMsg 0x472EA0, case
+		// 0x99 at 0x473085): on an outdoor map (CGameMode +0x270, the
+		// m_canRotateView that SetCamera 0x57C5C0 sets) the map button and
+		// Ctrl+Tab cycle the minimap: opaque -> translucent -> closed -> opaque.
+		case ID_MAP:
+			if (g_modeMgr.GetGameMode()->CanRotateView()) {
+				if (g_windowMgr.m_miniMapArgb == 0xffffffff) {
+					g_windowMgr.m_miniMapArgb = 0xaaffffff;
+					return 0;
+				}
+				if (!g_windowMgr.DeleteWindow(WID_MINIMAPZOOMWND)) {
+					g_windowMgr.MakeWindow(WID_MINIMAPZOOMWND);
+					g_windowMgr.m_miniMapArgb = 0xffffffff;
+					return 0;
+				}
+			}
+			break;
 		}
 		break;
 

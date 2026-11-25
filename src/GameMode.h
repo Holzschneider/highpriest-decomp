@@ -279,7 +279,7 @@ public:
 	const char* GetDragItemName();
 	DRAG_INFO* GetDragInfo() { return &m_dragInfo; }
 	ENUM_DRAGTYPE GetDragType() { return m_dragInfo.m_dragType; }
-	int CanRotateView();
+	int CanRotateView() { return m_canRotateView; }
 	int GetNumDragItem() { return m_dragInfo.m_numDragItem; }
 	int GetDragItemIndex() { return m_dragInfo.m_dragItemIndex; }
 	ChatRoomInfo* GetLastChatroomInfo() { return &m_lastChatroomInfo; }

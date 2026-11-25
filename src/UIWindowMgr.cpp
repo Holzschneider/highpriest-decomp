@@ -2998,9 +2998,11 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 			MakeWindow(WID_SKILLLISTWND);
 		if (questWndInfo.show)
 			DeleteWindow(WID_QUESTWND);
-		g_modeMgr.GetGameMode();
-		RAG_BUDGET_FILL(255)
-		RAG_BUDGET_FILL(96)
+		// Restored from the reference (MakeWindow 0x4EFB20, at 0x4EFC74): on an
+		// outdoor map (CGameMode +0x270, m_canRotateView) the minimap opens
+		// with the basic info window.
+		if (g_modeMgr.GetGameMode()->CanRotateView())
+			MakeWindow(WID_MINIMAPZOOMWND);
 		ShowWindow(WID_CHATWND, m_chatWndShow);
 		ShowWindow(WID_SHORTCUTWND, shortCutWndInfo.show);
 		ShowWindow(WID_ITEMDROPCNTWND, 0);
