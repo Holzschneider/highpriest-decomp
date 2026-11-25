@@ -25,7 +25,7 @@ command line, completely; it writes every 30th frame as PNG and each audio
 track as WAV into `test/bink/<name>/` (game artwork, outside git). `--yuv`
 adds all frames as raw yuv420p for comparison with another decoder.
 
-## For the client adapter (M12.4a)
+## For the client adapter (M12.4a; since M11.10 the movie player `port/client/src/bf_movie.cpp`)
 
 How the Bink SDK calls in `CBink.cpp` map:
 
@@ -42,7 +42,8 @@ How the Bink SDK calls in `CBink.cpp` map:
 | sound (`BinkSoundUseDirectSound`) | feed `bf_bink_audio_read` into one audio voice per track |
 | `BinkClose` | `bf_bink_close` |
 
-The adapter (`port/compat/bink`) reads a movie's sound ahead with a second
+The client's movie player (`port/client/src/bf_movie.cpp`, the Bink adapter
+`port/compat/bink` until M11.10) reads a movie's sound ahead with a second
 handle and `bf_bink_set_video_enabled(b, 0)`, which decodes only the sound
 (the test checks that it yields the same samples).
 
