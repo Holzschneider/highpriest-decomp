@@ -1407,7 +1407,7 @@ int UIWindowMgr::ProcessInput()
 			m_captureWindow->OnMouseHover(x - gx, y - gy);
 
 		if (g_mouse.GetWheel())
-			GetCapture()->OnWheel(g_mouse.GetWheel());
+			this->GetCapture()->OnWheel(g_mouse.GetWheel());
 
 		if (g_mouse.GetLBtn() == BTN_UP)
 			m_captureWindow->OnLBtnUp(x - gx, y - gy);
@@ -2195,7 +2195,7 @@ int UIWindowMgr::ErrorMsg(char const *msg, int type, int isDefYes, int changeMsg
 	UIMessageBox *messageBox = new UIMessageBox;
 	messageBox->Create(msg, type, isDefYes, autoReturnTime);
 	AddWindow(messageBox);
-	ReleaseCapture();
+	this->ReleaseCapture();
 	SetFocusEdit(NULL);
 	m_modalWindow = messageBox;
 	int result = DoModal(messageBox);
@@ -2213,7 +2213,7 @@ int UIWindowMgr::ErrorMsgAutoreturn(char const *msg, unsigned int autoReturnTime
 	UIMessageBoxAutoreturn *messageBox = new UIMessageBoxAutoreturn;
 	messageBox->Create(msg, autoReturnTime);
 	AddWindow(messageBox);
-	ReleaseCapture();
+	this->ReleaseCapture();
 	SetFocusEdit(NULL);
 	m_modalWindow = messageBox;
 	int result = DoModal(messageBox);
@@ -2987,9 +2987,9 @@ UIFrameWnd * UIWindowMgr::MakeWindow(WINDOWID windowId)
 		// with the basic info window.
 		if (g_modeMgr.GetGameMode()->CanRotateView())
 			MakeWindow(WID_MINIMAPZOOMWND);
-		ShowWindow(WID_CHATWND, m_chatWndShow);
-		ShowWindow(WID_SHORTCUTWND, shortCutWndInfo.show);
-		ShowWindow(WID_ITEMDROPCNTWND, 0);
+		this->ShowWindow(WID_CHATWND, m_chatWndShow);
+		this->ShowWindow(WID_SHORTCUTWND, shortCutWndInfo.show);
+		this->ShowWindow(WID_ITEMDROPCNTWND, 0);
 		if (messengerGroupWndInfo.show)
 			MakeWindow(WID_MESSENGERWND);
 		if (g_session.m_isLowSystemMemory && g_session.m_bAutoOpenDetailWindowIfLowMemory) {
@@ -5512,17 +5512,17 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 	case VK_F10:
 		if (m_basicInfoWnd) {
 			if (CheckKeyPressed(VK_MENU)) {
-				ShowWindow(WID_CHATWND, 1 - m_chatWndShow);
+				this->ShowWindow(WID_CHATWND, 1 - m_chatWndShow);
 				return true;
 			}
 			if (m_chatWnd) {
 				if (m_chatWnd->m_show) {
 					m_chatWnd->SendMsg(NULL, UM_TOGGLEPUSH, 0, 0, 0, 0);
 					if (!m_chatWnd->m_state)
-						ShowWindow(WID_CHATWND, 0);
+						this->ShowWindow(WID_CHATWND, 0);
 				}
 				else
-					ShowWindow(WID_CHATWND, 1);
+					this->ShowWindow(WID_CHATWND, 1);
 			}
 		}
 		break;
@@ -5540,8 +5540,8 @@ bool UIWindowMgr::ProcessPushButton(unsigned int virtualKey, int newKeydown, int
 		if (m_basicInfoWnd) {
 			if (++g_session.m_shortcutSlotCnt > 2)
 				g_session.m_shortcutSlotCnt = 0;
-			ShowWindow(WID_SHORTCUTWND, 0);
-			ShowWindow(WID_SHORTCUTWND, 1);
+			this->ShowWindow(WID_SHORTCUTWND, 0);
+			this->ShowWindow(WID_SHORTCUTWND, 1);
 		}
 		break;
 #else
@@ -5663,7 +5663,7 @@ INT_PTR UIWindowMgr::SendMsg(int message, INT_PTR val1, INT_PTR val2, INT_PTR va
 		break;
 
 	case UIM_OPENCHATWND:
-		ShowWindow(WID_CHATWND, 1);
+		this->ShowWindow(WID_CHATWND, 1);
 		if (m_chatWnd)
 			m_chatWnd->SendMsg(NULL, UM_OPENCHATWND, 0, 0, 0, 0);
 		break;
