@@ -11,15 +11,9 @@ add_library(bf_compat_d3d STATIC
 bf_compat_flags(bf_compat_d3d)
 target_include_directories(bf_compat_d3d PUBLIC include)
 target_compile_options(bf_compat_d3d PRIVATE -Wall -Wextra)
-target_link_libraries(bf_compat_d3d PUBLIC bf_gfx bf_instrument)
-# Surface DCs come from the gdi adapter; its header is checked against our
-# declarations when it is in the tree (the client links it).
-if(EXISTS ${BF_ROOT}/port/compat/gdi/include/bf_compat_gdi.h)
-	target_include_directories(bf_compat_d3d PRIVATE ${BF_ROOT}/port/compat/gdi/include)
-endif()
+# A surface DC is a bf_text_canvas (port/native/text).
+target_link_libraries(bf_compat_d3d PUBLIC bf_gfx bf_text bf_instrument)
 
-# The test fakes the few gdi32 names a surface DC needs, so that it does not
-# depend on the gdi adapter.
 add_executable(${BF_EXE}-compat-d3d-test test/d3d_test.cpp)
 bf_compat_flags(${BF_EXE}-compat-d3d-test)
 target_compile_options(${BF_EXE}-compat-d3d-test PRIVATE -Wall -Wextra -Wno-missing-field-initializers)

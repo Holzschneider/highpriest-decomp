@@ -15,5 +15,5 @@ BF_APP_NAME=$(sed -n 's/^set(BF_APP_NAME "\(.*\)")/\1/p' "$ROOT/port/name.cmake"
 BF_DEFINES="-DBF_PORT -DBF_APP_NAME=\"$BF_APP_NAME\" -DWIN32 -D_WINDOWS -DNDEBUG -D_MBCS -DWEDDING_PATCH -DMOB_SKILL_PATCH -D_UPDATE2005A \
   -D_UPDATE2005C -D_UPDATE2004B -DBALANCE_PATCH -DMOB_SKILL -DSECONDJOB_SKILL2 -D_HOMUN -D_MER -D_MER_R2 \
   -D_PACKET_VER=7 -DKILLER_SYSTEM_V2 -D_HUNTING_TIME_LIST -D__PARTY_INVITE -DBIND_ON_EQUIP"
-BF_INCLUDES="-include $ROOT/port/client/include/bf_prefix.h -I$ROOT/port/client/include -I$ROOT/port/native/sys/include -I$ROOT/port/native/audio/include -I$ROOT/port/native/formats/granny/include -I$ROOT/port/compat/include -I$ROOT/port/instrument"
+BF_INCLUDES="-include $ROOT/port/client/include/bf_prefix.h -I$ROOT/port/client/include -I$ROOT/port/native/sys/include -I$ROOT/port/native/audio/include -I$ROOT/port/native/text/include -I$ROOT/port/native/strings/include -I$ROOT/port/native/app/include -I$ROOT/port/native/formats/granny/include -I$ROOT/port/compat/include -I$ROOT/port/instrument"
 BF_TARGET="-target arm64-apple-macos14 -fdeclspec -fshort-wchar -Wno-everything"

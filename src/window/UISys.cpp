@@ -413,24 +413,21 @@ void	UIWindow :: ClearDCRect(DWORD color, RECT &rect)
 
 void	UIWindow :: DrawTriangleDC(int x1, int y1, int x2, int y2, int x3, int y3, COLORREF color)
 {
-	POINT point[3];
-	point[0].x = x1;
-	point[0].y = y1;
-	point[1].x = x2;
-	point[1].y = y2;
-	point[2].x = x3;
-	point[2].y = y3;
+	int point[6];
+	point[0] = x1;
+	point[1] = y1;
+	point[2] = x2;
+	point[3] = y2;
+	point[4] = x3;
+	point[5] = y3;
 
 	sAssert(m_dc);
 
-	HDC dc;
+	bf_text_canvas* dc;
 
 	if(m_dc->GetDC(&dc)) {
-		HRGN aRgn = CreatePolygonRgn(point, 3, WINDING);
-		HBRUSH colorBrush = CreateSolidBrush(color);
-		FillRgn(dc, aRgn, colorBrush);
-		DeleteObject(aRgn);
-		DeleteObject(colorBrush);
+		// The polygon region (WINDING) filled with a solid brush.
+		bf_text_canvas_fill_polygon(dc, point, 3, bf_text_color_from_colorref(color), 1);
 		m_dc->ReleaseDC(dc);
 	}
 }

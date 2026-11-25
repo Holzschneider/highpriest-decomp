@@ -27,34 +27,18 @@
 #include "bf_compat_d3d.h"
 #include "bf_gfx.h"
 
-// ---- fakes of the gdi adapter's surface-DC functions -----------------------------------
-
-struct FakeDC { uint32_t *bits; int w, h, pitch; bool dirty; RECT r; };
-extern "C" HDC bf_compat_gdi_dc_for_bitmap(void *bits, int w, int h, int pitch, int bottom_up)
-{
-	if (!bits || w <= 0 || h <= 0 || bottom_up) return nullptr;
-	return (HDC)new FakeDC{(uint32_t *)bits, w, h, pitch, false, {0, 0, 0, 0}};
-}
-extern "C" BOOL bf_compat_gdi_dc_take_dirty(HDC hdc, RECT *out)
-{
-	FakeDC *d = (FakeDC *)hdc;
-	BOOL any = d->dirty;
-	*out = any ? d->r : RECT{0, 0, 0, 0};
-	d->dirty = false;
-	return any;
-}
-extern "C" BOOL WINAPI DeleteDC(HDC hdc) { delete (FakeDC *)hdc; return TRUE; }
-// "Text": what the gdi adapter promises, 0x00RRGGBB pixels and a dirty rectangle.
+// "Text": what the client's DrawDC does on a surface DC (a bf_text_canvas,
+// M11.8): 0x00RRGGBB pixels and the drawn rectangle.
+#include "bf_text.h"
 static void fake_text(HDC hdc, int x, int y, COLORREF c)
 {
-	FakeDC *d = (FakeDC *)hdc;
+	bf_text_canvas *d = (bf_text_canvas *)hdc;
 	static const char *glyph[7] = {"#####", "#....", "#....", "####.", "#....", "#....", "#...."};
-	uint32_t px = uint32_t(GetRValue(c)) << 16 | uint32_t(GetGValue(c)) << 8 | GetBValue(c);
+	uint32_t px = bf_text_color_from_colorref(c);
 	for (int j = 0; j < 7; ++j)
 		for (int i = 0; i < 5; ++i)
-			if (glyph[j][i] == '#') d->bits[size_t(y + j) * size_t(d->pitch / 4) + size_t(x + i)] = px;
-	d->dirty = true;
-	d->r = RECT{x, y, x + 5, y + 7};
+			if (glyph[j][i] == '#') ((uint32_t *)d->bitmap.pixels)[size_t(y + j) * size_t(d->bitmap.stride / 4) + size_t(x + i)] = px;
+	bf_text_canvas_mark(d, x, y, x + 5, y + 7);
 }
 
 // ---- checks -----------------------------------------------------------------------------
@@ -859,7 +843,7 @@ int main(int argc, char **argv)
 		if (cs) cs->Release();
 	}
 
-	// CRenderer::TextOutScreen: a DC on the render target, text through the gdi adapter.
+	// CRenderer::TextOutScreen: a DC on the render target, text drawn on its canvas.
 	{
 		long long rb0, rb1;
 		bf_gfx_get_stats(g_gfx, nullptr, nullptr, &rb0, nullptr);

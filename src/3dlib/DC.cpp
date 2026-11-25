@@ -35,20 +35,22 @@ CDCSurface :: ~CDCSurface()
 {
 }
 
-bool	CDCSurface :: GetDC(HDC__** hdc)
+bool	CDCSurface :: GetDC(bf_text_canvas** canvas)
 {
 	IDirectDrawSurface7 * pddsSurface = m_surface.GetDDSurface();
 
+	// A surface's DC is a canvas over a staging bitmap of the surface
+	// (port/compat/d3d's GetDC, until M11.9).
 	if(pddsSurface)
-		return SUCCEEDED(pddsSurface->GetDC(hdc)) ? true : false;
+		return SUCCEEDED(pddsSurface->GetDC((HDC*)canvas)) ? true : false;
 	else
 		return false;
 }
 
-void	CDCSurface :: ReleaseDC(HDC__* hdc)
+void	CDCSurface :: ReleaseDC(bf_text_canvas* canvas)
 {
 	if (m_surface.GetDDSurface())
-		m_surface.GetDDSurface()->ReleaseDC(hdc);
+		m_surface.GetDDSurface()->ReleaseDC((HDC)canvas);
 }
 
 void	CDCSurface :: ClearSurface(tagRECT* rect, DWORD color)
@@ -164,9 +166,8 @@ void	CDCSurface :: DrawSurface(int x, int y, int width, int height, DWORD color)
 
 CDCBitmap :: CDCBitmap(DWORD w, DWORD h)
 {
-	m_dc = CreateCompatibleDC(NULL);
-
-	sAssert(m_dc != NULL);
+	memset(&m_canvas, 0, sizeof(m_canvas));
+	m_image = NULL;
 
 	CreateDCSurface(w, h);
 }
@@ -175,23 +176,21 @@ CDCBitmap :: ~CDCBitmap()
 {
 	for(texListIter iter = m_textureList.begin(); iter != m_textureList.end(); ++iter) delete (*iter);
 	m_textureList.clear();
-	SelectObject(m_dc, m_bitmapOld);
-	DeleteObject(m_bitmap);
-	DeleteDC(m_dc);
+	free(m_image);
 }
 
-bool	CDCBitmap :: GetDC(HDC__** hdc)
+bool	CDCBitmap :: GetDC(bf_text_canvas** canvas)
 {
 	m_dirty = true;
 
-	*hdc =  m_dc;
+	*canvas =  &m_canvas;
 
 	return true;
 }
 
-void	CDCBitmap :: ReleaseDC(HDC__* hdc)
+void	CDCBitmap :: ReleaseDC(bf_text_canvas* canvas)
 {
-	sAssert(m_dc == hdc);
+	sAssert(&m_canvas == canvas);
 }
 
 void	CDCBitmap :: ClearSurface(tagRECT* rect, DWORD color)
@@ -607,8 +606,8 @@ void	CDCBitmap :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, i
 void	CDCBitmap :: Resize(int w, int h)
 {
 	if((DWORD)w > m_w || (DWORD)h > m_h) {
-		SelectObject(m_dc, m_bitmapOld);
-		DeleteObject(m_bitmap);
+		free(m_image);
+		m_image = NULL;
 		CreateDCSurface(w, h);
 	}
 }
@@ -666,25 +665,19 @@ void	CDCBitmap :: CreateDCSurface(DWORD w, DWORD h)
 	for(texListIter iter = m_textureList.begin(); iter != m_textureList.end(); ++iter) delete (*iter);
 	m_textureList.clear();
 
-	BITMAPINFO bitmapinfo;
+	// The pixels of a 32-bit top-down DIB section, zeroed as one starts;
+	// none for an empty size or one over 1 GB, where CreateDIBSection failed.
+	// The canvas keeps its text colour, as the memory DC did.
+	m_image = NULL;
+	if(m_w > 0 && m_h > 0 && (unsigned long long)m_w * m_h * 4 <= (1ULL << 30))
+		m_image = (unsigned int*)calloc((size_t)m_w * m_h, 4);
 
-	bitmapinfo.bmiHeader.biSize				= sizeof(bitmapinfo.bmiHeader);
-	bitmapinfo.bmiHeader.biWidth			= m_w;
-	bitmapinfo.bmiHeader.biHeight			= -(int)m_h;
-	bitmapinfo.bmiHeader.biPlanes			= 1;
-	bitmapinfo.bmiHeader.biBitCount			= 32;
-	bitmapinfo.bmiHeader.biCompression		= BI_RGB;
-	bitmapinfo.bmiHeader.biSizeImage		= 0;
-	bitmapinfo.bmiHeader.biXPelsPerMeter	= 100;
-	bitmapinfo.bmiHeader.biYPelsPerMeter	= 100;
-	bitmapinfo.bmiHeader.biClrUsed			= 0;
-	bitmapinfo.bmiHeader.biClrImportant		= 0;
-
-	m_bitmap = CreateDIBSection(NULL, &bitmapinfo, DIB_RGB_COLORS, (PVOID*)&m_image, NULL, 0);
-
-	if(m_bitmap == NULL) m_image = NULL;
-
-	m_bitmapOld = (HBITMAP)SelectObject(m_dc, m_bitmap);
+	m_canvas.bitmap.pixels		= m_image;
+	m_canvas.bitmap.width		= m_w;
+	m_canvas.bitmap.height		= m_h;
+	m_canvas.bitmap.stride		= m_w * 4;
+	m_canvas.bitmap.bottom_up	= 0;
+	m_canvas.dirty				= 0;
 }
 
 

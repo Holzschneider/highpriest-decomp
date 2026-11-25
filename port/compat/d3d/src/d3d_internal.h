@@ -14,16 +14,8 @@
 
 #include "bf_compat_d3d.h"
 #include "bf_gfx.h"
+#include "bf_text.h"
 #include "bf_trace.h"
-
-// The gdi adapter's surface-DC functions (port/compat/gdi). Its header is
-// used when that adapter is in the tree; the declarations below are the same.
-#if __has_include("bf_compat_gdi.h")
-#include "bf_compat_gdi.h"
-#else
-extern "C" HDC bf_compat_gdi_dc_for_bitmap(void *bits, int width, int height, int pitch, int bottom_up);
-extern "C" BOOL bf_compat_gdi_dc_take_dirty(HDC hdc, RECT *out);
-#endif
 
 namespace bfd3d {
 
@@ -128,7 +120,8 @@ struct Surface final : public IDirectDrawSurface7 {
 	DWORD lock_flags = 0;
 
 	// GetDC
-	HDC dc = nullptr;                // from bf_compat_gdi_dc_for_bitmap
+	bool dc = false;                 // a DC is out: dc_canvas, handed out as the HDC
+	bf_text_canvas dc_canvas{};      // over dc_bits; the client draws on it (DrawDC)
 	std::vector<uint32_t> dc_bits;   // its staging bitmap
 
 	Surface *root() { return owner ? owner->root() : this; }

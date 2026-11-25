@@ -4,6 +4,7 @@
 #include "Prim.h"
 #include "Device.h"
 #include "Texture.h"
+#include "bf_text.h"
 #include <list>
 
 class CBitmapRes;
@@ -153,8 +154,8 @@ class CDC {
 public:
 	virtual ~CDC() {}
 	virtual void Resize(int, int) = 0;
-	virtual bool GetDC(HDC__**) = 0;
-	virtual void ReleaseDC(HDC__*) = 0;
+	virtual bool GetDC(bf_text_canvas**) = 0;
+	virtual void ReleaseDC(bf_text_canvas*) = 0;
 	virtual void Update(int, int, int, int, unsigned int*, bool) = 0;
 	virtual void CopyRect(int, int, int, int, CDC*) = 0;
 	virtual void BltSprite(int, int, CSprRes*, CMotion*, unsigned int*) = 0;
@@ -169,8 +170,8 @@ public:
 	CDCSurface(unsigned int w, unsigned int h);
 	virtual ~CDCSurface();
 	virtual void Resize(int w, int h);
-	virtual bool GetDC(HDC__** hdc);
-	virtual void ReleaseDC(HDC__* hdc);
+	virtual bool GetDC(bf_text_canvas** canvas);
+	virtual void ReleaseDC(bf_text_canvas* canvas);
 	virtual void Update(int x, int y, int width, int height, unsigned int* image, bool SkipColorKey);
 	virtual void CopyRect(int x, int y, int width, int height, CDC* surface);
 	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned int* palette) {}
@@ -186,8 +187,8 @@ public:
 	CDCBitmap(unsigned int w, unsigned int h);
 	virtual ~CDCBitmap();
 	virtual void Resize(int w, int h);
-	virtual bool GetDC(HDC__** hdc);
-	virtual void ReleaseDC(HDC__* hdc);
+	virtual bool GetDC(bf_text_canvas** canvas);
+	virtual void ReleaseDC(bf_text_canvas* canvas);
 	virtual void Update(int x, int y, int width, int height, unsigned int* imgData, bool SkipColorKey);
 	virtual void CopyRect(int x, int y, int width, int height, CDC* surface);
 	virtual void BltSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion, unsigned int* palette);
@@ -200,9 +201,7 @@ protected:
 protected:
 	unsigned int m_w;
 	unsigned int m_h;
-	HDC__* m_dc;
-	HBITMAP__* m_bitmap;
-	HBITMAP__* m_bitmapOld;
+	bf_text_canvas m_canvas;
 	unsigned int* m_image;
 	unsigned char m_dirty;
 	std::list<CTexture *> m_textureList;

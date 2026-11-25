@@ -288,7 +288,6 @@ Surface::~Surface()
 	Global &G = g();
 	if (G.backup_holder == this) G.backup_holder = nullptr;
 	if (locked && is_target()) target_unlock();
-	if (dc) DeleteDC(dc);
 	if (zbuffer) zbuffer->Release();
 	if (clipper) clipper->Release();
 	delete back;
@@ -571,12 +570,13 @@ HRESULT Surface::Unlock(LPRECT)
 }
 
 // ---- surfaces: GetDC ----------------------------------------------------------------------
-// A DC of the gdi adapter over a 32-bit staging bitmap. The bitmap is
-// pre-filled with opaque pixels (alpha 255); GDI writes its pixels as
-// 0x00RRGGBB and touches nothing else, so the pixels with alpha 0 inside the
-// dirty rectangle are exactly what was drawn, and only they are written into
-// the surface. Nothing is read back, not even for the render target
-// (CRenderer::TextOutScreen, GetTextSize).
+// The DC is a bf_text_canvas (port/native/text) over a 32-bit staging bitmap,
+// handed out as the HDC; the client's CDCSurface draws on it with DrawDC
+// (M11.8). The bitmap is pre-filled with opaque pixels (alpha 255); text is
+// written as 0x00RRGGBB and touches nothing else, so the pixels with alpha 0
+// inside the canvas's drawn rectangle are exactly what was drawn, and only
+// they are written into the surface. Nothing is read back, not even for the
+// render target (CRenderer::TextOutScreen, GetTextSize).
 
 HRESULT Surface::GetDC(HDC *out)
 {
@@ -586,23 +586,18 @@ HRESULT Surface::GetDC(HDC *out)
 	if (kind == K_ZBUFFER || kind == K_MIP) return DDERR_CANTCREATEDC;
 	if (lost || (!g().gfx && kind != K_PLAIN)) return DDERR_SURFACELOST;
 	dc_bits.assign(size_t(width) * size_t(height), 0xFF000000u);
-	HDC h = bf_compat_gdi_dc_for_bitmap(dc_bits.data(), int(width), int(height), int(width) * 4, 0);
-	if (!h) {
-		dc_bits.clear();
-		return DDERR_CANTCREATEDC;
-	}
-	RECT ignore;
-	bf_compat_gdi_dc_take_dirty(h, &ignore);
-	dc = h;
-	*out = h;
+	dc_canvas = bf_text_canvas{};   // a fresh DC: black text, nothing drawn
+	dc_canvas.bitmap = bf_text_bitmap{dc_bits.data(), int(width), int(height), int(width) * 4, 0};
+	dc = true;
+	*out = reinterpret_cast<HDC>(&dc_canvas);
 	return DD_OK;
 }
 
 HRESULT Surface::ReleaseDC(HDC h)
 {
-	if (!dc || h != dc) return DDERR_NODC;
-	RECT d;
-	if (bf_compat_gdi_dc_take_dirty(dc, &d) && d.right > d.left && d.bottom > d.top) {
+	if (!dc || h != reinterpret_cast<HDC>(&dc_canvas)) return DDERR_NODC;
+	RECT d = {dc_canvas.left, dc_canvas.top, dc_canvas.right, dc_canvas.bottom};
+	if (dc_canvas.dirty && d.right > d.left && d.bottom > d.top) {
 		d.left = (std::max<LONG>)(d.left, 0);
 		d.top = (std::max<LONG>)(d.top, 0);
 		d.right = (std::min<LONG>)(d.right, LONG(width));
@@ -621,8 +616,8 @@ HRESULT Surface::ReleaseDC(HDC h)
 			write_argb(d, px.data(), skip.data());
 		}
 	}
-	DeleteDC(dc);
-	dc = nullptr;
+	dc = false;
+	dc_canvas = bf_text_canvas{};
 	dc_bits.clear();
 	return DD_OK;
 }

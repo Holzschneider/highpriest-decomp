@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "../framework/Language.h"
 #include "../window/UISys.h"
+#include "bf_coverage.h"
 
 #include <windows.h>
 #include <algorithm>
@@ -205,9 +206,18 @@ FontInfo :: FontInfo(int type, int height, int charset, bool bold)
 
 void	FontInfo :: Create()
 {
-	hFont = ::CreateFont(	fontHeight, 0, 0, 0, fontBold ? FW_BOLD : FW_NORMAL, 0, 0, 0,
-							fontCharset, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-							NONANTIALIASED_QUALITY, DEFAULT_PITCH, GetFontFace());
+	// The font CreateFont made of (fontHeight, 0, 0, 0, bold ? FW_BOLD :
+	// FW_NORMAL, 0, 0, 0, fontCharset, ..., NONANTIALIASED_QUALITY, ..., face):
+	// a cell height, never smoothed; the face name is in the code page of the
+	// character set (the 9x names), and no face lets bf_text pick one by it.
+	const char* face = GetFontFace();
+	char faceUtf8[128] = { 0 };
+	if(face && face[0]) {
+		if(bf_text_to_utf8(bf_text_codepage_for_charset(fontCharset), face, -1, faceUtf8, sizeof(faceUtf8) - 1) < 0)
+			bf_text_to_utf8(BF_TEXT_CP_WESTERN, face, -1, faceUtf8, sizeof(faceUtf8) - 1);
+	}
+	bf_text_font_desc desc = { faceUtf8[0] ? faceUtf8 : NULL, fontHeight, fontBold ? FW_BOLD : FW_NORMAL, 0, 0, 0, fontCharset };
+	hFont = bf_text_font_create(&desc);
 }
 
 void	FontInfo :: Create_Eot(short FT_style)
@@ -215,86 +225,36 @@ void	FontInfo :: Create_Eot(short FT_style)
 	hFont = CreateEotFont(12,FT_style);
 }
 
-HFONT FontInfo::CreateEotFont(int fontSize,short FT_style)
+bf_text_font* FontInfo::CreateEotFont(int fontSize,short FT_style)
 {
-	HFONT retFont;
-
-
-
-	LOGFONT lgFnt;
-	ZeroMemory(&lgFnt,sizeof(lgFnt));
-	lgFnt.lfWidth = 0;
-	lgFnt.lfWeight = FW_NORMAL;
-	lgFnt.lfItalic=FALSE;
-	lgFnt.lfUnderline=FALSE;
-	lgFnt.lfStrikeOut=0;
-	lgFnt.lfCharSet = DEFAULT_CHARSET;
-	lgFnt.lfOutPrecision = OUT_RASTER_PRECIS;
-	lgFnt.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-	lgFnt.lfQuality = PROOF_QUALITY;
-	lgFnt.lfPitchAndFamily = DEFAULT_PITCH|FF_DONTCARE;
+	const char* face;
 
 	if (FT_style == FT_SQUIRREL)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixSquirrel_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixSquirrel_10.eot";
 	else if (FT_style == FT_LOVEANGEL)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixLoveangel_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixLoveangel_10.eot";
 	else if (FT_style == FT_GOGO)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixNHCgogo_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
-
+		face = "RixNHCgogo_10.eot";
 	else if (FT_style == FT_DIARY)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixDiary_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixDiary_10.eot";
 	else if (FT_style == FT_MINIHEART)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixMiniHeart_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixMiniHeart_10.eot";
 	else if (FT_style == FT_FRESHMAN)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixFreshman_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixFreshman_10.eot";
 	else if (FT_style == FT_KID)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixKid_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixKid_10.eot";
 	else if (FT_style == FT_MAGIC)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixMagic_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixMagic_10.eot";
 	else if (FT_style == FT_JJANGU)
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixJJangu_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
-
+		face = "RixJJangu_10.eot";
 	else
-	{
-		strcpy(lgFnt.lfFaceName,LPCTSTR("RixNHCgogo_10.eot"));
-		lgFnt.lfHeight =  -MulDiv(13, 72, 72);
-	}
+		face = "RixNHCgogo_10.eot";
 
+	// CreateFontIndirect's LOGFONT: height -MulDiv(13, 72, 72), FW_NORMAL,
+	// DEFAULT_CHARSET. No .eot face is installed: bf_text falls back.
+	bf_text_font_desc desc = { face, -13, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET };
 
-
-
-
-
-	retFont = CreateFontIndirect(&lgFnt);
-
-	return retFont;
+	return bf_text_font_create(&desc);
 }
 
 bool FontInfo :: operator < (const FontInfo& fontInfo) const {
@@ -315,25 +275,20 @@ bool FontInfo :: operator == (const FontInfo& fontInfo) const {
 			;
 }
 
-int CALLBACK EnumFontFamExProc(CONST LOGFONT* plogFont, CONST TEXTMETRIC* textMetric, DWORD dwWord, LPARAM lParam)
-{
-	return stricmp((const char*)lParam, plogFont->lfFaceName);
-}
-
 const char*	FontInfo :: GetFontFace()
 {
-	LOGFONT logFont;
+	// The 9x name if Windows lists it under the character set, else the NT
+	// name, else none (EnumFontFamiliesEx with a callback that matched the
+	// name). The font types past the tables (FT_SQUIRREL...) have no face.
+	if(fontType < 0 || fontType >= (int)(sizeof(fontFaceNT) / sizeof(fontFaceNT[0])))
+		return NULL;
 
-	memset(&logFont, 0, sizeof(logFont));
-
-	logFont.lfCharSet = fontCharset;
-
-	if(!EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)fontFace9x[fontType], 0))
+	if(bf_text_face_listed(fontFace9x[fontType], fontCharset))
 	{
 		return fontFace9x[fontType];
 	}
 
-	if(EnumFontFamiliesEx(GetDC(NULL), &logFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)fontFaceNT[fontType], 0) == 0)
+	if(bf_text_face_listed(fontFaceNT[fontType], fontCharset))
 	{
 		return fontFaceNT[fontType];
 	}
@@ -346,12 +301,12 @@ FontMgr :: ~FontMgr()
 {
 	std::vector<FontInfo>::iterator iter = m_fontInfoList.begin();
 
-	for(; iter != m_fontInfoList.end(); ++iter) DeleteObject(iter->hFont);
+	for(; iter != m_fontInfoList.end(); ++iter) bf_text_font_destroy(iter->hFont);
 
 	m_fontInfoList.clear();
 }
 
-HFONT	FontMgr :: GetFont(int fontType, int fontHeight, int charset, bool bold)
+bf_text_font*	FontMgr :: GetFont(int fontType, int fontHeight, int charset, bool bold)
 {
 	FontInfo fontInfo(fontType, fontHeight, charset, bold);
 
@@ -373,24 +328,19 @@ HFONT	FontMgr :: GetFont(int fontType, int fontHeight, int charset, bool bold)
 }
 
 DrawDC :: DrawDC(CDC* surface)
-:	m_hdc(NULL)
+:	m_canvas(NULL)
 ,	m_surface(surface)
 {
-	if(m_surface->GetDC(&m_hdc)) {
-		m_oldFont = (HFONT)GetCurrentObject(m_hdc, OBJ_FONT);
-
-		::SetBkMode(m_hdc, TRANSPARENT);
-	}
+	if(!m_surface->GetDC(&m_canvas))
+		m_canvas = NULL;
 }
 
 DrawDC :: ~DrawDC()
 {
 	if(m_surface) {
 
-		if(m_hdc) {
-			SelectObject(m_hdc, m_oldFont);
-
-			m_surface->ReleaseDC(m_hdc);
+		if(m_canvas) {
+			m_surface->ReleaseDC(m_canvas);
 		}
 	}
 }
@@ -419,7 +369,7 @@ void	DrawDC :: SetFont(int fontType, int fontHeight, bool bold)
 				{
 					switch(g_language->m_scriptLangId)
 					{
-					case LANG_TURKISH:
+					case 0x1f:	// LANG_TURKISH
 						fontType = 6;
 						break;
 					}
@@ -474,7 +424,8 @@ void	DrawDC :: SetFont(int fontType, int fontHeight, bool bold)
 
 void	DrawDC :: SetTextColor(DWORD colorRef)
 {
-	::SetTextColor(m_hdc, colorRef);
+	if(m_canvas)
+		m_canvas->color = bf_text_color_from_colorref(colorRef);
 }
 
 void	DrawDC :: SingleLangTextOut(int x, int y, const char* buf, int bufLen)
@@ -555,16 +506,32 @@ void	DrawDC :: GetTextExtentPoint32A(const char* buf, int bufLen, LPSIZE size)
 
 
 std::vector<unsigned short> DrawDC::s_wideBuffer;
+// The text as UTF-16 in s_wideBuffer, as MultiByteToWideChar converted it:
+// 0 units for no text, an unknown code page or a result over bufLen units.
+static int WideText(std::vector<unsigned short>& wide, int codePage, const char* buf, int bufLen)
+{
+	if(!buf || bufLen <= 0) return 0;
+	int n = bf_text_to_utf16(codePage, buf, bufLen, NULL, 0);
+	if(n <= 0 || n > (int)wide.size()) return 0;
+	return bf_text_to_utf16(codePage, buf, bufLen, wide.data(), wide.size());
+}
+
 inline void	DrawDC :: _textout(int x, int y, const char* buf, int bufLen, int charset)
 {
 
 	s_wideBuffer.resize(bufLen);
 
-	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, (LPWSTR)s_wideBuffer.data(), s_wideBuffer.size());
+	int wideBufferLen = WideText(s_wideBuffer, GetCodePageFromCharset(charset), buf, bufLen);
 
-	::SelectObject(m_hdc, (HGDIOBJ)g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold));
+	bf_text_font* font = g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold);
 
-	::TextOutW(m_hdc, x, y, (LPCWSTR)s_wideBuffer.data(), wideBufferLen);
+	if(!m_canvas || !font || wideBufferLen <= 0) return;
+
+	// The coverage report (M9.5): Korean or other non-Windows-1252 text drawn.
+	if(m_canvas->bitmap.pixels)
+		bf_coverage_drawn(BF_COVERAGE_UTF16, s_wideBuffer.data(), wideBufferLen);
+
+	bf_text_canvas_draw(m_canvas, font, x, y, BF_TEXT_CP_UTF16, s_wideBuffer.data(), wideBufferLen);
 }
 
 inline void	DrawDC :: _gettextsize(const char* buf, int bufLen, LPSIZE size, int charset)
@@ -573,9 +540,14 @@ inline void	DrawDC :: _gettextsize(const char* buf, int bufLen, LPSIZE size, int
 
 	s_wideBuffer.resize(bufLen);
 
-	int wideBufferLen = MultiByteToWideChar(GetCodePageFromCharset(charset), 0, buf, bufLen, (LPWSTR)s_wideBuffer.data(), s_wideBuffer.size());
+	int wideBufferLen = WideText(s_wideBuffer, GetCodePageFromCharset(charset), buf, bufLen);
 
-	::SelectObject(m_hdc, (HGDIOBJ)g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold));
+	bf_text_font* font = g_fontMgr.GetFont(m_fontType, m_fontHeight, charset, m_bold);
 
-	::GetTextExtentPoint32W(m_hdc, (LPCWSTR)s_wideBuffer.data(), wideBufferLen, size);
+	if(!m_canvas || !font) return;
+
+	int cx = 0, cy = 0;
+	if(bf_text_extent(font, BF_TEXT_CP_UTF16, wideBufferLen ? (const void*)s_wideBuffer.data() : (const void*)"", wideBufferLen, &cx, &cy) < 0) return;
+	size->cx = cx;
+	size->cy = cy;
 }
