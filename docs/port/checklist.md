@@ -161,7 +161,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] 653faf8 | M11.8 Text | src | M8 exit, M11.0c, M11.0d |
 | [x] 83f0068 | M11.9 Graphics | src | M8 exit, M11.0c, M11.0d |
 | [x] 10ad432 | M11.10 Granny and Bink: the client calls the native readers; `port/compat/granny` and `port/compat/bink` deleted | src | M8 exit, M11.0c, M11.0d |
-| [ ] | M11.11 No Windows header in the build: `common.h` and every include line, the CRT stand-ins, the Wine headers and `port/compat` removed; source files the port never builds deleted; `nowin` and the link check in the fast check | build | M11.0a, M11.0b, M11.1–M11.10 |
+| [x] 4c0877f | M11.11 No Windows header in the build: `common.h` and every include line, the CRT stand-ins, the Wine headers and `port/compat` removed; source files the port never builds deleted; `nowin` and the link check in the fast check | build | M11.0a, M11.0b, M11.1–M11.10 |
 | [ ] | M11 exit (verifier) | | M10 exit, M11.0a–M11.11 |
 
 ## M12. Application
