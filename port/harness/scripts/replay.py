@@ -27,7 +27,7 @@ Steps:
     port/harness/run.py replay --param zone=1 --param fixture=<log>
 
 The packet log format: port/instrument/bf_trace.h; the replay rules:
-port/compat/include/bf_replay.h.
+port/client/include/bf_replay.h.
 """
 
 import os

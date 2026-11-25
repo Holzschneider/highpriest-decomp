@@ -1,5 +1,5 @@
 // Compiled with the client's flags (see CMakeLists.txt): the C library's
-// file calls here are the client's, through bf_win32_crt.h. The patterns are
+// file calls here are the client's, through bf_crt.h. The patterns are
 // those of the client's call sites (named in each function), not its code.
 // The standard headers are included after the prefix to show that the
 // renaming macros leave them usable (std::remove, std::list::remove, <fstream>).

@@ -16,7 +16,7 @@ target_link_libraries(bf_compat_win32 PUBLIC bf_sys bf_text bf_instrument)
 # The test calls the names as the client does. client_calls.cpp is compiled
 # with the client's own flags (bf_client_flags: gnu++14, the prefix header
 # without BF_COMPAT_ADAPTER), so its fopen, access, _mkdir, remove, ... are
-# the client's, redirected by bf_win32_crt.h.
+# the client's, redirected by bf_crt.h.
 add_library(bf_compat_win32_client_calls OBJECT test/client_calls.cpp)
 bf_client_flags(bf_compat_win32_client_calls ${CMAKE_CURRENT_SOURCE_DIR}/test)
 

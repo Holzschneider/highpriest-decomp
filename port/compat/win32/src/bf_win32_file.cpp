@@ -1,5 +1,5 @@
 // kernel32's files, folder listings and file mappings on bf_file, and the
-// C library's file functions on client paths (bf_win32_crt.h).
+// C library's file functions on client paths (bf_crt.h).
 //
 // Every path goes through bf_file: reads find the file in the game folder
 // (backslashes, any case, CP949) or in a write location first; writes go to
@@ -426,7 +426,7 @@ BOOL WINAPI UnmapViewOfFile(LPCVOID view)
 	return FALSE;
 }
 
-// ---- The C library on client paths (bf_win32_crt.h) ----------------------------------
+// ---- The C library on client paths (bf_crt.h) ----------------------------------
 
 extern "C" FILE *bf_crt_fopen(const char *path, const char *mode)
 {

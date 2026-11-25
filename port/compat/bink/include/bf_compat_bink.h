@@ -1,7 +1,7 @@
 /*
  * bf_compat_bink.h: the port's side of the Bink adapter (the SDK names the
  * client calls are in port/compat/include/bf_bink_sdk.h). What the control
- * socket's `movie` part and event report (port/compat/stubs/bf_control_movie.cpp).
+ * socket's `movie` part and event report (port/client/src/bf_control_movie.cpp).
  */
 #ifndef BF_COMPAT_BINK_H
 #define BF_COMPAT_BINK_H

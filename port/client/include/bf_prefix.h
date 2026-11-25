@@ -15,7 +15,7 @@
 #include <strings.h>
 
 /* The Windows headers must not pull in their own Winsock declarations: the
-   game's socket calls go to BSD sockets through compat/include/winsock.h. */
+   game's socket calls go to BSD sockets through port/compat/include/winsock.h. */
 #define _WINSOCKAPI_
 #define _WINSOCK2API_
 #define __WINE_WINSOCKAPI_STDLIB_H
@@ -65,7 +65,7 @@ unsigned int _controlfp(unsigned int value, unsigned int mask);
 
 /* The C library's file names on client paths: game folder, write locations
    (port/compat/win32). */
-#include "bf_win32_crt.h"
+#include "bf_crt.h"
 
 #ifdef __cplusplus
 /* time_t is 32 bits in Visual C++ 6.0 and 64 bits here. The structure fields

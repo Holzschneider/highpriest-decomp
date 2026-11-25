@@ -1,4 +1,4 @@
-// Packet replay: BF_PKT_REPLAY=<log> (port/compat/include/bf_replay.h).
+// Packet replay: BF_PKT_REPLAY=<log> (port/client/include/bf_replay.h).
 //
 // Compiled with the client's flags into the client and with the probes'
 // into bifrost-netprobe and bifrost-bot, which share device/Connection.cpp.
@@ -14,7 +14,7 @@
 #include <vector>
 
 // The log path is the user's, not a game-folder path: the C library's fopen,
-// not the client's translation (bf_win32_crt.h).
+// not the client's translation (bf_crt.h).
 #undef fopen
 
 namespace {

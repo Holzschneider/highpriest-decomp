@@ -15,7 +15,7 @@ if [ ! -d "$SRC" ]; then echo "no source tree at $SRC" >&2; exit 1; fi
 OUT=$ROOT/build/port; mkdir -p "$OUT/bin" "$OUT/obj"
 
 # The probes open no game files, so they keep the C library's own file
-# names (port/compat/include/bf_win32_crt.h) and link no adapter.
+# names (port/client/include/bf_crt.h) and link no adapter.
 CXX="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_COMPAT_ADAPTER $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
 
 "$ROOT/port/tools/gen_packet_names.py" "$SRC/packet.h" > "$OUT/obj/bf_packet_names.cpp"
@@ -24,7 +24,7 @@ compile() { $CXX -c "$1" -o "$OUT/obj/$(basename "${1%.*}").o"; }
 compile "$SRC/packet.cpp"
 compile "$SRC/device/PacketQueue.cpp"
 compile "$SRC/device/Connection.cpp"
-compile "$ROOT/port/compat/stubs/bf_replay.cpp"
+compile "$ROOT/port/client/src/bf_replay.cpp"
 compile "$ROOT/port/instrument/bf_trace.cpp"
 compile "$OUT/obj/bf_packet_names.cpp"
 compile "$ROOT/port/probe/probe_support.cpp"

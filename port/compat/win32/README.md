@@ -14,7 +14,7 @@ The test writes only below `$BF_TEST_OUT/compat-win32-test` (`BF_HOME` points th
 Every path the client passes is translated by `bf_file` (backslashes, any letter case, CP949, relative to the game folder or below `g_baseDir3`): reads find the file in the game folder or in a write location first; writes go to the write locations (Documents, Pictures, Application Support, by the first path component) and are refused in the game folder (`ERROR_ACCESS_DENIED`, `errno` `EACCES`).
 
 - **Win32 file functions** (`CreateFile`, `FindFirstFile`, ...) call `bf_file` directly.
-- **The C library's file functions** in game units go through `port/compat/include/bf_win32_crt.h`, which `bf_prefix.h` includes: `fopen`, `access`, `remove`, `rename`, `unlink`, `rmdir` are object-like macros for `bf_crt_*` here, which resolve the path with `bf_file_resolve` and then call the C library; `_access`, `_unlink`, `_rmdir` map onto them, `_chmod` to `bf_crt_chmod`; `_mkdir` and `_getcwd` are real functions here. Lua's `io.open`, `os.remove`, `os.rename` and `luaL_loadfile` are covered the same way.
+- **The C library's file functions** in game units go through `port/client/include/bf_crt.h`, which `bf_prefix.h` includes: `fopen`, `access`, `remove`, `rename`, `unlink`, `rmdir` are object-like macros for `bf_crt_*` here, which resolve the path with `bf_file_resolve` and then call the C library; `_access`, `_unlink`, `_rmdir` map onto them, `_chmod` to `bf_crt_chmod`; `_mkdir` and `_getcwd` are real functions here. Lua's `io.open`, `os.remove`, `os.rename` and `luaL_loadfile` are covered the same way.
 - **Port code** keeps the C library's names: `bf_compat_flags` (root `CMakeLists.txt`) defines `BF_COMPAT_ADAPTER`, which turns the macros off; native modules do not see the prefix at all.
 - `GetCurrentDirectory` (the client's `g_baseDir3`) and `_getcwd` return the game folder's POSIX path; the process's working folder is not changed and nothing depends on it.
 
@@ -103,5 +103,5 @@ Key names are decoded from `CP_ACP` to UTF-8 (a server name in a `BookMark` or `
 ## Changes outside this folder
 
 - `port/native/sys`: `bf_file_user_codepage()` (the code page last set, for `CP_ACP`) and `bf_file_remove_folder()` (for `rmdir`), with checks in `bifrost-sys-test`.
-- `port/compat/include/bf_win32_crt.h` (new) and its `#include` in `bf_prefix.h`.
+- `port/client/include/bf_crt.h` (new) and its `#include` in `bf_prefix.h`.
 - Root `CMakeLists.txt`: `bf_compat_flags` defines `BF_COMPAT_ADAPTER`.

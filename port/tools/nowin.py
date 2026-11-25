@@ -20,7 +20,8 @@ included; `-MM` would hide the Wine tree, which the build passes with
 
   wine    under port/compat/winheaders (the vendored Wine tree);
   compat  anywhere else under port/compat (the adapters, the CRT stand-ins
-          in port/compat/include, the prefix header bf_prefix.h);
+          in port/compat/include; the prefix header and the rest of the
+          port's own code, port/client, are not compat since M11.0d);
   name    elsewhere, but named like a Windows or DirectX header: its path
           ends in the path of a header of the Wine tree (windows.h, ddraw.h,
           ddk/ntddk.h, ...; the Wine tree's msvcrt/ directory, which holds

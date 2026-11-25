@@ -3,7 +3,7 @@
  * BF_PKT_REPLAY=<log> the client's connections open no socket and take what
  * they receive from a log that BF_PKT_LOG recorded (port/instrument/bf_trace.h
  * gives the line format). device/Connection.cpp calls these under BF_PORT;
- * the implementation is port/compat/stubs/bf_replay.cpp. C library only.
+ * the implementation is port/client/src/bf_replay.cpp. C library only.
  *
  * The log is cut into connections by its seventh field ("account/1",
  * "char/2", "zone/3"); a log without it is cut where the role of a sent

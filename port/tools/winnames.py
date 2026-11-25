@@ -30,7 +30,7 @@ What counts as a name, mechanically:
      not count. Counts are occurrences; files are the src/ files that hold
      them (headers included), not only the units.
   3. A function name's group is the adapter that defines it: the
-     port/compat source file with a definition of the name at column 0
+     port/compat or port/client/src source file with a definition of the name at column 0
      (ADAPTER_STEP below). Names the adapters do not define (types,
      constants, macros, functions defined inline by a header) take the
      group of their header (HEADER_STEP).
@@ -48,7 +48,7 @@ Groups: M11.1 time and threads, M11.2 network, M11.3 files, M11.4 settings,
 M11.5 shell, M11.6 sound, M11.7 input and window, M11.8 text, M11.9
 graphics, M11.10 Granny and Bink; `keep`: types, structs, macros and
 constants that stay as the port's own (bf_types.h); `crt`: the C runtime
-names of the prefix and bf_crt.cpp, which move to port/client (M11.0d);
+names of the prefix and bf_crt.cpp, which live in port/client (M11.0d);
 `shared`: names several steps use (handles, last error), removed by the
 last of them; `other`: none of the rules matched (listed by name).
 """
@@ -71,28 +71,35 @@ GROUPS = [
     ('M11.4', 'settings'), ('M11.5', 'shell'), ('M11.6', 'sound'),
     ('M11.7', 'input and window'), ('M11.8', 'text'), ('M11.9', 'graphics'),
     ('M11.10', 'Granny and Bink'), ('keep', 'kept as the port\'s own (bf_types.h)'),
-    ('crt', 'CRT helpers and port code (move to port/client)'),
+    ('crt', 'CRT helpers and port code (port/client)'),
     ('shared', 'used by several steps'), ('other', 'not classified'),
 ]
 
-# Adapter source (relative to port/compat) -> group. None: decided by name.
+# Adapter source or port source (relative to port/) -> group. None: decided by name.
 ADAPTER_STEP = [
-    ('win32/src/bf_win32_thread.cpp', 'M11.1'),
-    ('win32/src/bf_win32_file.cpp', 'M11.3'),
-    ('win32/src/bf_win32_registry.cpp', 'M11.4'),
-    ('win32/src/bf_win32_shell.cpp', 'M11.5'),
-    ('win32/src/bf_win32_base.cpp', None),
-    ('win32/src/bf_win32_misc.cpp', 'M11.5'),
-    ('miles/', 'M11.6'),
-    ('input/src/', 'M11.7'),
-    ('stubs/bf_main.cpp', 'M11.7'),
-    ('gdi/src/', 'M11.8'),
-    ('d3d/src/', 'M11.9'),
-    ('granny/bf_compat_granny.cpp', 'M11.10'),
-    ('bink/bf_compat_bink.cpp', 'M11.10'),
-    ('stubs/bf_crt.cpp', 'crt'),
-    ('stubs/bf_zlib.cpp', 'other'),
+    ('compat/win32/src/bf_win32_thread.cpp', 'M11.1'),
+    ('compat/win32/src/bf_win32_file.cpp', 'M11.3'),
+    ('compat/win32/src/bf_win32_registry.cpp', 'M11.4'),
+    ('compat/win32/src/bf_win32_shell.cpp', 'M11.5'),
+    ('compat/win32/src/bf_win32_base.cpp', None),
+    ('compat/win32/src/bf_win32_misc.cpp', 'M11.5'),
+    ('compat/miles/', 'M11.6'),
+    ('compat/input/src/', 'M11.7'),
+    ('client/src/bf_main.cpp', 'M11.7'),
+    ('compat/gdi/src/', 'M11.8'),
+    ('compat/d3d/src/', 'M11.9'),
+    ('compat/granny/bf_compat_granny.cpp', 'M11.10'),
+    ('compat/bink/bf_compat_bink.cpp', 'M11.10'),
+    ('client/src/bf_crt.cpp', 'crt'),
+    ('client/src/bf_zlib.cpp', 'other'),
 ]
+
+# The port's own headers that declare CRT and Windows-shaped names (they moved
+# from port/compat/include to port/client/include in M11.0d, so nowin.py no
+# longer calls them compat): still read for names, group `crt` (or M11.3 for
+# the file calls bf_crt.h declares and port/compat/win32 defines).
+PORT_HEADERS = tuple(os.path.join(nowin.ROOT, 'port', 'client', 'include', h)
+                     for h in ('bf_prefix.h', 'bf_crt.h', 'bf_port.h', 'bf_replay.h'))
 
 # Header basename (lower case) -> group, for names no adapter defines.
 HEADER_STEP = {
@@ -114,7 +121,7 @@ HEADER_STEP = {
     'windef.h': 'keep', 'minwindef.h': 'keep', 'winnt.h': 'keep', 'basetsd.h': 'keep',
     'wtypes.h': 'keep', 'wtypesbase.h': 'keep', 'winerror.h': 'keep',
     'minmax.h': 'keep', 'minwinbase.h': 'keep', 'windows.h': 'keep', 'sal.h': 'keep',
-    'bf_prefix.h': 'crt', 'bf_win32_crt.h': 'crt', 'conio.h': 'crt',
+    'bf_prefix.h': 'crt', 'bf_crt.h': 'crt', 'conio.h': 'crt',
     'bf_port.h': 'other', 'bf_replay.h': 'other',
 }
 
@@ -169,7 +176,7 @@ NAME_RULES = [(re.compile(p), g) for p, g in [
      r'GetExitCodeThread|SwitchToThread|LPTHREAD_START_ROUTINE|CRITICAL_SECTION|'
      r'LPCRITICAL_SECTION|INFINITE|WAIT_\w+|THREAD_PRIORITY_\w+|TIMECAPS|TIME_\w+|'
      r'TIMERR_\w+|LPTIMECALLBACK|timeSetEvent|timeKillEvent)$', 'M11.1'),
-    # the port's own code in port/compat (M11.0d moves it to port/client)
+    # the port's own code (port/client; the bf_ names of the C runtime helpers and the glue)
     (r'^bf_', 'crt'),
     # files and memory
     (r'^(\w*File(A|W|Ex|ExA|ExW|Size|SizeEx|Pointer|PointerEx|Time|Attributes\w*|Mapping\w*)?|'
@@ -537,7 +544,7 @@ def main():
     for h in headers:
         if h.startswith('<'):
             continue
-        if nowin.classify(h, *names_dirs):
+        if nowin.classify(h, *names_dirs) or os.path.realpath(h) in PORT_HEADERS:
             wanted[os.path.realpath(h)] = nowin.rel(h)
 
     # 1. the names, from a synthetic unit that includes every such header
@@ -581,15 +588,17 @@ def main():
 
     # 3. which adapter defines a function
     adapters = {}
-    compat = os.path.join(ROOT, 'port', 'compat')
-    for top, dirs, files in os.walk(compat):
+    port = os.path.join(ROOT, 'port')
+    walks = [os.walk(os.path.join(port, 'compat')),
+             os.walk(os.path.join(port, 'client', 'src'))]
+    for top, dirs, files in (w for walk in walks for w in walk):
         if 'winheaders' in top or '/test' in top:
             continue
         for fn in sorted(files):
             if not fn.endswith('.cpp') or fn.startswith('bifrost-'):
                 continue
             path = os.path.join(top, fn)
-            relp = os.path.relpath(path, compat)
+            relp = os.path.relpath(path, port)
             for l in open(path, encoding='latin-1'):
                 if not l[:1].isalpha() or l.rstrip().endswith(';') or l.startswith('#'):
                     continue

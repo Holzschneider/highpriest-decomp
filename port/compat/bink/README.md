@@ -21,7 +21,7 @@ Stage A adapter (M12.4a; M11 deletes it). `src/movie/CBink.cpp` plays the intro 
 
 **Sound.** At `BinkOpen` the first sound track is decoded completely from a second reader handle with the picture turned off (`bf_bink_set_video_enabled`, added to the reader for this), cut to the picture's length, and played as one sound-module voice (volume 1, under the effects volume) started with frame 1 and tagged with the movie's name, so it shows in the control socket's `sound` part. Pause and `BinkGoto` stop it and start the rest from the movie's position. When the engine has not been started yet (the intro plays before `InitMSS`), the adapter starts it (`bf_audio_start`, device); Miles adopts it later.
 
-**State.** `bf_compat_bink_get_state` ([include/bf_compat_bink.h](include/bf_compat_bink.h)): the open movie, its frame, sound and counts of movies opened and closed, for the control socket's `movie` part and event (`port/compat/stubs/bf_control_movie.cpp`, PROTOCOL.md).
+**State.** `bf_compat_bink_get_state` ([include/bf_compat_bink.h](include/bf_compat_bink.h)): the open movie, its frame, sound and counts of movies opened and closed, for the control socket's `movie` part and event (`port/client/src/bf_control_movie.cpp`, PROTOCOL.md).
 
 ## The client's side (src/movie/CBink.cpp under BF_PORT)
 

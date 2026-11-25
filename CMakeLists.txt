@@ -297,7 +297,7 @@ set(BF_CLIENT_EXCLUDE
 	# its Telex and VNI input modes, not needed by this client (M2.5).
 	LanguageKeyProcess telexInputMode VietnamLanguage VniInputMode
 	# The crash dialog and minidump writer: replaced by the signal handler in
-	# port/compat/stubs/bf_crash.cpp, which writes a backtrace through the
+	# port/client/src/bf_crash.cpp, which writes a backtrace through the
 	# trace and defines ExceptionFilter, the one name WinMain uses (3.3,
 	# "Protection").
 	ExceptionHandler
@@ -329,23 +329,23 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/client-units.txt "${bf_units}\n")
 
 # The executable is the application name in lower case. The .app bundle is M12.
 # Port code compiled into the client with the client's flags: what replaces
-# an excluded unit (port/compat/stubs/README.md).
+# an excluded unit (port/client/src/README.md).
 set(BF_CLIENT_PORT_SOURCES
-	port/compat/stubs/bf_crash.cpp
-	port/compat/stubs/bf_client_state.cpp
-	port/compat/stubs/bf_client_game.cpp
-	port/compat/stubs/bf_replay.cpp)
+	port/client/src/bf_crash.cpp
+	port/client/src/bf_client_state.cpp
+	port/client/src/bf_client_game.cpp
+	port/client/src/bf_replay.cpp)
 # The entry point and the start-up glue (main, the zlib wrappers, the C
 # runtime names macOS lacks), compiled as port code (bf_compat_flags) with the
 # native modules' headers. main is pulled out of the library by the linker.
 add_library(bf_port_main STATIC
-	port/compat/stubs/bf_main.cpp
-	port/compat/stubs/bf_control_game.cpp
-	port/compat/stubs/bf_control_sound.cpp
-	port/compat/stubs/bf_control_movie.cpp
-	port/compat/stubs/bf_control_coverage.cpp
-	port/compat/stubs/bf_zlib.cpp
-	port/compat/stubs/bf_crt.cpp)
+	port/client/src/bf_main.cpp
+	port/client/src/bf_control_game.cpp
+	port/client/src/bf_control_sound.cpp
+	port/client/src/bf_control_movie.cpp
+	port/client/src/bf_control_coverage.cpp
+	port/client/src/bf_zlib.cpp
+	port/client/src/bf_crt.cpp)
 bf_compat_flags(bf_port_main)
 target_link_libraries(bf_port_main PRIVATE bf_compat_d3d bf_compat_input bf_compat_bink bf_instrument ${BF_NATIVE_LIBS})
 add_executable(${BF_EXE} ${BF_CLIENT_SOURCES} ${BF_CLIENT_PORT_SOURCES})
@@ -385,7 +385,7 @@ add_library(bf_probe_game STATIC
 	${bf_probe_tree}/packet.cpp
 	${bf_probe_tree}/device/PacketQueue.cpp
 	${bf_probe_tree}/device/Connection.cpp
-	port/compat/stubs/bf_replay.cpp)
+	port/client/src/bf_replay.cpp)
 bf_client_flags(bf_probe_game ${bf_probe_tree})
 add_executable(${BF_EXE}-packetlen port/probe/packetlen.cpp)
 bf_client_flags(${BF_EXE}-packetlen ${bf_probe_tree})

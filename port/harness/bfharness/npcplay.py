@@ -5,7 +5,7 @@ and the NPC windows driven through the client: talk to an NPC, Next, a menu
 choice, a number typed into the input window, the shop and storage windows.
 
 The NPC windows of the 2008 client and the control ids the scripts use
-(PROTOCOL.md `controls`, reported by port/compat/stubs/bf_client_state.cpp):
+(PROTOCOL.md `controls`, reported by port/client/src/bf_client_state.cpp):
 
 | Window | Opened by | Controls |
 |---|---|---|

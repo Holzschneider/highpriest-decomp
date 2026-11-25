@@ -8,7 +8,7 @@ The client is compiled against Wine's Windows headers, for their declarations on
 
 **Licence.** LGPL 2.1 or later (`LICENSE`, `COPYING.LIB`); the row in `THIRD-PARTY.md` lists it. The files are unchanged copies.
 
-**arm64.** No file is edited. Wine's `minwindef.h` defines `__stdcall`, `__cdecl`, `__fastcall` and `__thiscall` as nothing on every target except i386 and x86-64, so `WINAPI`, `CALLBACK`, `PASCAL`, `STDMETHODCALLTYPE` and the rest expand to nothing on arm64; no header uses `ms_abi` or another calling-convention attribute directly. `port/compat/include/bf_prefix.h` defines the VC6 spellings (`__stdcall`, `_cdecl`, ...) as nothing for code read before `windows.h`. (The Game Porting Toolkit headers defined `__stdcall` as `__attribute__((ms_abi))` on arm64, which clang turned into "previously declared without calling convention" errors; those are gone.)
+**arm64.** No file is edited. Wine's `minwindef.h` defines `__stdcall`, `__cdecl`, `__fastcall` and `__thiscall` as nothing on every target except i386 and x86-64, so `WINAPI`, `CALLBACK`, `PASCAL`, `STDMETHODCALLTYPE` and the rest expand to nothing on arm64; no header uses `ms_abi` or another calling-convention attribute directly. `port/client/include/bf_prefix.h` defines the VC6 spellings (`__stdcall`, `_cdecl`, ...) as nothing for code read before `windows.h`. (The Game Porting Toolkit headers defined `__stdcall` as `__attribute__((ms_abi))` on arm64, which clang turned into "previously declared without calling convention" errors; those are gone.)
 
 ## Regenerating
 

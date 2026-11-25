@@ -80,7 +80,7 @@ printf '%s\n' "Wine $TAG, commit $COMMIT, from $URL" > "$DEST/WINE-VERSION.txt"
 # 5. arm64 adjustments: none to the files. Wine's minwindef.h already defines
 #    __stdcall, __cdecl, __fastcall and __thiscall as nothing on any target
 #    other than i386 and x86-64, so WINAPI, CALLBACK, STDMETHODCALLTYPE and
-#    the rest expand to nothing on arm64; port/compat/include/bf_prefix.h
+#    the rest expand to nothing on arm64; port/client/include/bf_prefix.h
 #    covers the VC6 spellings the client uses before windows.h is read.
 
 echo "regenerate.sh: $(find "$DEST" -type f -name '*.h' | wc -l | tr -d ' ') headers," \

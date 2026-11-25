@@ -1,7 +1,7 @@
 /*
  * bf_port.h: what the client's own sources call under BF_PORT (M3.2).
  *
- * The start-up glue in port/compat/stubs (bf_main.cpp, bf_zlib.cpp) defines
+ * The start-up glue in port/client/src (bf_main.cpp, bf_zlib.cpp) defines
  * the bf_port_* and bf_zlib_* functions; the native headers below are
  * included by relative path so that the census, which knows only the
  * client's include paths, compiles the same units.

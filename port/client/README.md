@@ -1,9 +1,19 @@
 # port/client
 
-The port's own code that stays in the client after M11: neither a native module (those know no client headers and no Windows types) nor an adapter (`port/compat`, which M11 deletes). M11.0d moves the prefix header, the entry point, the control bindings and the CRT helpers here.
+The port's own code that stays in the client after M11: neither a native module (those know no client headers and no Windows types) nor an adapter (`port/compat`, which M11 deletes). M11.0d moved here the prefix header, the entry point, the control bindings, the packet replay, the crash handler and the CRT helpers, which lived in `port/compat/stubs` and `port/compat/include` (history is kept: `git log --follow`).
 
-    include/bf_types.h   the Windows-shaped vocabulary the client keeps (M11.0b)
+    include/             what the client's sources and the build include (-I, in flags.sh)
+      bf_prefix.h        force-included in every client unit (VC6 spellings, the CRT names macOS lacks)
+      bf_crt.h           the C library's file calls on client paths (was bf_win32_crt.h); included by bf_prefix.h
+      bf_port.h          what `src/` calls under BF_PORT (graphics start, per-frame hook, zlib wrappers, ...)
+      bf_replay.h        packet replay contract (BF_PKT_REPLAY)
+      bf_types.h         the Windows-shaped vocabulary the client keeps (M11.0b)
+    src/                 the entry point, the control bindings, the client state for the control socket,
+                         the crash handler, the zlib wrappers, the CRT helpers, packet replay;
+                         README.md lists the files (headers used only by these sources sit beside them)
     test/                bifrost-types-test: bf_types.h against the Wine headers
+
+`include/` holds the headers that a `src/` unit or another program includes by name (`bf_port.h` and `bf_replay.h` from `src/`, `bf_prefix.h` through `-include`); `flags.sh` puts it on the include path ahead of `port/compat/include`. The `bf_client_*.h` and `bf_control_*.h` headers are contracts between files of `src/` only and stay there. `bf_crt.h` still redirects `fopen` and the other file calls to `bf_crt_*`, which `port/compat/win32` implements until M11.3 replaces them.
 
 ## bf_types.h
 

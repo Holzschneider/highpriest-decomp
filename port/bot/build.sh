@@ -16,7 +16,7 @@ SRC=${BF_SRC:-$ROOT/build/port/shadow/src}
 OUT=$ROOT/build/port; OBJ=$OUT/obj/bot; mkdir -p "$OUT/bin" "$OBJ"
 
 # The bot opens no game files, so it keeps the C library's own file names
-# (port/compat/include/bf_win32_crt.h) and links no adapter.
+# (port/client/include/bf_crt.h) and links no adapter.
 GAME="clang++ -std=gnu++14 -O1 -g $BF_TARGET $BF_DEFINES -DBF_COMPAT_ADAPTER $BF_INCLUDES -I$SRC -isystem $WIN_HEADERS"
 # The command channel uses the POSIX socket headers and none of the game's.
 PLAIN="clang++ -std=c++14 -O1 -g -target arm64-apple-macos14 -Wall -Wextra -Wno-unused-parameter"
@@ -27,7 +27,7 @@ compile() { $GAME -c "$1" -o "$OBJ/$(basename "${1%.*}").o"; }
 compile "$SRC/packet.cpp" &
 compile "$SRC/device/PacketQueue.cpp" &
 compile "$SRC/device/Connection.cpp" &
-compile "$ROOT/port/compat/stubs/bf_replay.cpp" &
+compile "$ROOT/port/client/src/bf_replay.cpp" &
 compile "$ROOT/port/instrument/bf_trace.cpp" &
 compile "$OBJ/bf_packet_names.cpp" &
 compile "$ROOT/port/probe/probe_support.cpp" &

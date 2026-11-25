@@ -88,7 +88,7 @@ The client also receives `BF_TRACE_FILE`, `BF_PKT_LOG` (both in the run director
 
 ## For the client's control module
 
-The scripts use only what PROTOCOL.md specifies. Where they click a control they use these `controls` ids, which the control module has to report (or the scripts change with it): `LOGINWND` `id_edit`, `pw_edit`, `ok`; `SELECTCHARWND` `slot:<n>` (text = character name), `ok`, `make`; `MAKECHARWND` `name_edit`, `ok`; `CHOOSESELLBUYWND` `buy`, `sell`; `ITEMSHOPWND` and `ITEMSELLWND` `item:<item id>`, `ok`; `CHOOSEWND` `choice:<label>`; `RESTARTWND` `charselect`, `exit`. Login, character selection and creation go by keyboard only (Tab, Enter, arrows), so the M5 scripts work even while `controls` is empty. The real client reports these and more (all controls of a window, named after their control ids; the list is in [compat/stubs/README.md](../compat/stubs/README.md), `bf_client_state.cpp`).
+The scripts use only what PROTOCOL.md specifies. Where they click a control they use these `controls` ids, which the control module has to report (or the scripts change with it): `LOGINWND` `id_edit`, `pw_edit`, `ok`; `SELECTCHARWND` `slot:<n>` (text = character name), `ok`, `make`; `MAKECHARWND` `name_edit`, `ok`; `CHOOSESELLBUYWND` `buy`, `sell`; `ITEMSHOPWND` and `ITEMSELLWND` `item:<item id>`, `ok`; `CHOOSEWND` `choice:<label>`; `RESTARTWND` `charselect`, `exit`. Login, character selection and creation go by keyboard only (Tab, Enter, arrows), so the M5 scripts work even while `controls` is empty. The real client reports these and more (all controls of a window, named after their control ids; the list is in [client/src/README.md](../client/src/README.md), `bf_client_state.cpp`).
 
 ## Open
 
