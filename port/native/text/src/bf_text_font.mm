@@ -26,6 +26,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <strings.h>
 
 #include <algorithm>
 #include <map>
@@ -686,4 +687,86 @@ extern "C" int bf_text_face_mapping(int index, const char **gdi_face, const char
 	if (gdi_face) *gdi_face = kFaces[index].gdi;
 	if (mapped) *mapped = g_resolved[index].empty() ? NULL : g_resolved[index].c_str();
 	return 0;
+}
+
+// The character sets an English Windows XP with the East Asian fonts lists
+// a face under (what EnumFontFamiliesEx enumerated; port/compat/gdi until
+// M11.8). The first is the face's own.
+static bool FaceListedUnder(const char *gdi, int charset)
+{
+	if (charset == BF_TEXT_CHARSET_DEFAULT) return true;
+	static const struct { const char *face; int charset; } own[] = {
+		{ "Gulim", BF_TEXT_CHARSET_HANGUL }, { "Dotum", BF_TEXT_CHARSET_HANGUL }, { "Batang", BF_TEXT_CHARSET_HANGUL },
+		{ "MS Gothic", BF_TEXT_CHARSET_SHIFTJIS }, { "SimSun", BF_TEXT_CHARSET_GB2312 },
+		{ "MingLiU", BF_TEXT_CHARSET_CHINESEBIG5 },
+	};
+	for (const auto &e : own)
+		if (!strcasecmp(gdi, e.face)) return charset == e.charset || charset == BF_TEXT_CHARSET_ANSI;
+	if (!strcasecmp(gdi, "MS Sans Serif")) return charset == BF_TEXT_CHARSET_ANSI;
+	static const int latin[] = { BF_TEXT_CHARSET_ANSI, BF_TEXT_CHARSET_TURKISH, BF_TEXT_CHARSET_RUSSIAN,
+	                             BF_TEXT_CHARSET_VIETNAMESE, BF_TEXT_CHARSET_GREEK, BF_TEXT_CHARSET_BALTIC,
+	                             BF_TEXT_CHARSET_EASTEUROPE };
+	for (int cs : latin)
+		if (charset == cs) return true;
+	return !strcasecmp(gdi, "Tahoma") && charset == BF_TEXT_CHARSET_THAI;
+}
+
+extern "C" int bf_text_face_listed(const char *name, int charset)
+{
+	if (!name) return 0;
+	const char *gdi = nullptr, *mapped = nullptr;
+	for (int i = 0; bf_text_face_mapping(i, &gdi, &mapped) == 0; ++i)
+		if (mapped && !strcasecmp(name, gdi) && FaceListedUnder(gdi, charset)) return 1;
+	return 0;
+}
+
+// ---- Canvases ------------------------------------------------------------
+
+extern "C" uint32_t bf_text_color_from_colorref(uint32_t c)
+{
+	return ((c & 0xFF) << 16) | (c & 0xFF00) | ((c >> 16) & 0xFF);
+}
+
+extern "C" void bf_text_canvas_mark(bf_text_canvas *canvas, int left, int top, int right, int bottom)
+{
+	if (!canvas) return;
+	const bf_text_bitmap &bm = canvas->bitmap;
+	left = std::max(left, 0); top = std::max(top, 0);
+	right = std::min(right, bm.width); bottom = std::min(bottom, bm.height);
+	if (left >= right || top >= bottom) return;
+	if (!canvas->dirty) {
+		canvas->left = left; canvas->top = top; canvas->right = right; canvas->bottom = bottom;
+		canvas->dirty = 1;
+	} else {
+		canvas->left = std::min(canvas->left, left); canvas->top = std::min(canvas->top, top);
+		canvas->right = std::max(canvas->right, right); canvas->bottom = std::max(canvas->bottom, bottom);
+	}
+}
+
+extern "C" int bf_text_canvas_draw(bf_text_canvas *canvas, bf_text_font *font, int x, int y,
+                                   int codepage, const void *text, int len)
+{
+	if (!canvas || !font || len < -1 || (len != 0 && !text)) return -1;
+	if (len == 0 || !canvas->bitmap.pixels) return 0;
+	int cx = bf_text_draw(font, &canvas->bitmap, x, y, codepage, text, len, canvas->color,
+	                      BF_TEXT_TRANSPARENT, 0);
+	if (cx < 0) return -1;
+	bf_text_canvas_mark(canvas, x, y, x + cx, y + font->m.height);
+	return cx;
+}
+
+extern "C" int bf_text_canvas_fill_polygon(bf_text_canvas *canvas, const int *xy, int count,
+                                           uint32_t color, int winding)
+{
+	if (!canvas || count < 0 || (count > 0 && !xy)) return -1;
+	if (count < 3 || !canvas->bitmap.pixels) return 0;
+	int set = bf_text_fill_polygon(&canvas->bitmap, xy, count, color, winding);
+	if (set < 0) return -1;
+	int l = INT32_MAX, t = INT32_MAX, r = INT32_MIN, b = INT32_MIN;
+	for (int i = 0; i < count; ++i) {
+		l = std::min(l, xy[2 * i]); r = std::max(r, xy[2 * i]);
+		t = std::min(t, xy[2 * i + 1]); b = std::max(b, xy[2 * i + 1]);
+	}
+	bf_text_canvas_mark(canvas, l, t, r + 1, b + 1);
+	return set;
 }

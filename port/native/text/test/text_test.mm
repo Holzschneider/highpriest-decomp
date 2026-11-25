@@ -518,6 +518,76 @@ static void CompareReference(const char *sheet)
 	       a == b ? "equals" : "differs from", b.empty() ? " (none committed)" : "");
 }
 
+// The canvas functions and the face listing the client calls since M11.8
+// (what port/compat/gdi's DC, TextOutW and EnumFontFamiliesEx did).
+static void CheckCanvas()
+{
+	Check(bf_text_color_from_colorref(0x00332211) == 0x00112233 && bf_text_color_from_colorref(0x02FFFFFF) == 0x00FFFFFF,
+	      "COLORREF 0x00BBGGRR becomes the pixel 0x00RRGGBB");
+
+	bf_text_font *f = Font("Arial", 15);
+	bf_text_metrics m;
+	bf_text_font_metrics(f, &m);
+	const uint32_t key = 0xFFFF00FF;
+	Canvas c(200, 40, key);
+	bf_text_canvas cv = {};
+	cv.bitmap = c.bitmap();
+	Check(!cv.dirty && cv.color == 0, "a zeroed canvas is fresh: black text, nothing drawn");
+	cv.color = bf_text_color_from_colorref(0x00FF8040);
+	int cx = bf_text_canvas_draw(&cv, f, 10, 5, 1252, "Status", -1);
+	int ecx = 0, ecy = 0;
+	bf_text_extent(f, 1252, "Status", -1, &ecx, &ecy);
+	int ink = 0, other = 0;
+	for (uint32_t p : c.px) { if (p == 0x004080FF) ++ink; else if (p != key) ++other; }
+	Check(cx == ecx && ink > 0 && other == 0, "canvas text: its colour exactly, alpha 0, the rest untouched",
+	      Fmt("extent %d/%d, %d ink, %d other", cx, ecx, ink, other).c_str());
+	Check(cv.dirty && cv.left == 10 && cv.top == 5 && cv.right == 10 + cx && cv.bottom == 5 + m.height,
+	      "the drawn rectangle is the text's cell", Fmt("%d,%d-%d,%d", cv.left, cv.top, cv.right, cv.bottom).c_str());
+	bf_text_canvas_draw(&cv, f, 190, 30, 1252, "Clipped", -1);
+	Check(cv.left == 10 && cv.top == 5 && cv.right == 200 && cv.bottom == 40, "cells add up, clipped to the bitmap");
+	bf_text_canvas_mark(&cv, 300, 300, 400, 400);
+	Check(cv.right == 200 && cv.bottom == 40, "a rectangle outside the bitmap changes nothing");
+
+	// Two pieces at the first piece's extent equal the whole.
+	Canvas a(200, 30, key), b(200, 30, key);
+	bf_text_canvas ca = {}, cb = {};
+	ca.bitmap = a.bitmap(); cb.bitmap = b.bitmap();
+	bf_text_canvas_draw(&ca, f, 0, 0, 1252, "Base Level", -1);
+	int first = bf_text_canvas_draw(&cb, f, 0, 0, 1252, "Base ", -1);
+	bf_text_canvas_draw(&cb, f, first, 0, 1252, "Level", -1);
+	Check(a.px == b.px, "text drawn in two pieces at the first's extent equals it drawn whole");
+
+	// No pixels: nothing drawn, nothing marked.
+	bf_text_canvas none = {};
+	Check(bf_text_canvas_draw(&none, f, 0, 0, 1252, "x", 1) == 0 && !none.dirty, "a canvas without pixels draws nothing");
+	Check(bf_text_canvas_draw(&cv, f, 0, 0, 1252, "", 0) == 0, "an empty string draws nothing");
+
+	// The triangle of UIWindow::DrawTriangleDC.
+	Canvas t(20, 20, key);
+	bf_text_canvas ct = {};
+	ct.bitmap = t.bitmap();
+	const int tri[6] = { 2, 3, 12, 3, 7, 9 };
+	int set = bf_text_canvas_fill_polygon(&ct, tri, 3, 0x00102030, 1);
+	Check(set > 0 && ct.dirty && ct.left == 2 && ct.top == 3 && ct.right == 13 && ct.bottom == 10,
+	      "polygon: filled, its box (right and bottom + 1) marked", Fmt("%d set", set).c_str());
+	Check(bf_text_canvas_fill_polygon(&ct, tri, 2, 0, 1) == 0, "fewer than 3 points fill nothing");
+	bf_text_font_destroy(f);
+
+	// The faces EnumFontFamiliesEx listed (an English XP with the East Asian fonts).
+	Check(bf_text_face_listed("Arial", BF_TEXT_CHARSET_ANSI) && bf_text_face_listed("arial", BF_TEXT_CHARSET_RUSSIAN) &&
+	      !bf_text_face_listed("Arial", BF_TEXT_CHARSET_HANGUL) && bf_text_face_listed("Arial", BF_TEXT_CHARSET_DEFAULT),
+	      "Arial: the Latin sets, not Hangul");
+	Check(!bf_text_face_listed("\xB1\xBC\xB8\xB2", BF_TEXT_CHARSET_HANGUL) && !bf_text_face_listed("Nowhere", 0) &&
+	      !bf_text_face_listed(NULL, 0), "the CP949 9x name and unknown faces are not listed");
+	Check(bf_text_face_listed("Tahoma", BF_TEXT_CHARSET_THAI) == !!bf_text_face_listed("Tahoma", 0) &&
+	      !bf_text_face_listed("Verdana", BF_TEXT_CHARSET_THAI), "Thai: Tahoma only");
+	const char *g = nullptr, *mapped = nullptr;
+	for (int i = 0; bf_text_face_mapping(i, &g, &mapped) == 0; ++i)
+		if (!strcmp(g, "Gulim"))
+			Check(bf_text_face_listed("Gulim", BF_TEXT_CHARSET_HANGUL) == (mapped != nullptr) &&
+			      !bf_text_face_listed("Gulim", BF_TEXT_CHARSET_RUSSIAN), "Gulim: Hangul and ANSI when installed");
+}
+
 int main(int argc, char **argv)
 {
 	@autoreleasepool {
@@ -528,6 +598,7 @@ int main(int argc, char **argv)
 		CheckGlyphInk();
 		CheckModes();
 		CheckPolygon();
+		CheckCanvas();
 		PrintWidths();
 		SampleSheet(sheet.c_str());
 		CompareReference(sheet.c_str());

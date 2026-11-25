@@ -3,7 +3,8 @@
  * bitmaps the caller owns. It replaces the GDI text calls of the client
  * (CreateFont, TextOutW, GetTextExtentPoint32W, GetTextMetrics) and the
  * code-page functions around them (MultiByteToWideChar, CharNextExA).
- * The GDI adapter (port/compat) puts the Windows-shaped calls on top.
+ * The client calls it directly (src/3dlib/DrawUtil.cpp, DC.cpp, M11.8);
+ * a canvas stands for the device context it drew on.
  *
  * Text crosses as bytes in a named Windows code page (949 Korean, 1252
  * Western, any other the system knows), or as UTF-16 with the code page
@@ -210,6 +211,62 @@ int bf_text_fill_polygon(const bf_text_bitmap *bitmap, const int *xy, int count,
  * its candidates is installed. Returns 0, or -1 past the end.
  */
 int bf_text_face_mapping(int index, const char **gdi_face, const char **mapped);
+
+/*
+ * 1 when Windows would list the GDI face `name` (compared without regard to
+ * ASCII case, as bytes) under the character set `charset`
+ * (BF_TEXT_CHARSET_DEFAULT: under any), else 0: the face is in the face
+ * mapping, installed here (bf_text_face_mapping's mapped is not NULL), and
+ * an English Windows XP with the East Asian fonts lists it under that set:
+ * Gulim, Dotum, Batang under HANGUL and ANSI; MS Gothic under SHIFTJIS and
+ * ANSI, SimSun under GB2312 and ANSI, MingLiU under CHINESEBIG5 and ANSI;
+ * MS Sans Serif under ANSI; the other faces under ANSI, TURKISH, RUSSIAN,
+ * VIETNAMESE, GREEK, BALTIC, EASTEUROPE, Tahoma also THAI. Names in another
+ * code page (the Korean "9x" names) never match. What EnumFontFamiliesEx
+ * answered the client's FontInfo::GetFontFace (M11.8).
+ */
+int bf_text_face_listed(const char *name, int charset);
+
+/* ---- Canvases --------------------------------------------------------- */
+
+/*
+ * A bitmap being drawn on, with the colour text is drawn in and the
+ * rectangle drawn so far: what a GDI device context over a DIB section was
+ * to the client (M11.8). The caller owns the struct and the pixels. A
+ * zeroed struct with its bitmap set is a fresh canvas: black text, nothing
+ * drawn. bitmap.pixels may be NULL (a window of size 0): drawing on it then
+ * does nothing and returns 0.
+ */
+typedef struct bf_text_canvas {
+	bf_text_bitmap bitmap;
+	uint32_t color;                  /* text colour, 0x00RRGGBB (alpha 0, as GDI writes) */
+	int dirty;                       /* non-zero once something was drawn */
+	int left, top, right, bottom;    /* the drawn rectangle, clipped to the bitmap */
+} bf_text_canvas;
+
+/* A Windows COLORREF (0x00BBGGRR) as the pixel GDI writes into a 32-bit
+   DIB: 0x00RRGGBB. The high byte (palette flags) is dropped. */
+uint32_t bf_text_color_from_colorref(uint32_t colorref);
+
+/* Adds the rectangle [left, right) x [top, bottom), clipped to the bitmap,
+   to the canvas's drawn rectangle; an empty one changes nothing. */
+void bf_text_canvas_mark(bf_text_canvas *canvas, int left, int top, int right, int bottom);
+
+/*
+ * bf_text_draw in canvas->color with a transparent background, then marks
+ * the text's cell (x, y, x + extent, y + height). Returns the extent; 0
+ * when len is 0 or the canvas has no pixels; -1 on failure.
+ */
+int bf_text_canvas_draw(bf_text_canvas *canvas, bf_text_font *font, int x, int y,
+                        int codepage, const void *text, int len);
+
+/*
+ * bf_text_fill_polygon in `color` (0x00RRGGBB), then marks the polygon's
+ * bounding box including its right and bottom points. Fewer than 3 points
+ * or no pixels: nothing, returns 0. Returns the pixels set, or -1.
+ */
+int bf_text_canvas_fill_polygon(bf_text_canvas *canvas, const int *xy, int count,
+                                uint32_t color, int winding);
 
 #ifdef __cplusplus
 }

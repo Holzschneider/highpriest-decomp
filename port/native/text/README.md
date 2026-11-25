@@ -4,9 +4,13 @@ Replaces the client's GDI text: fonts by GDI face name, height and
 character set; drawing bytes in a Windows code page (949, 1252, any other
 the system knows) or UTF-16 into a 32-bit bitmap the caller owns; extents,
 advances and `TEXTMETRIC` values; code-page conversion; the polygon fill of
-`DrawTriangleDC`. The contract is `include/bf_text.h`. What the client asks
-of GDI, and so what the adapter (M4.5a) has to provide, is in
-[GDI-USAGE.md](GDI-USAGE.md).
+`DrawTriangleDC`; canvases, which stand for the device context the client
+drew on (a colour, the rectangle drawn so far); which GDI faces Windows
+lists under a character set. The contract is `include/bf_text.h`. What the
+client asked of GDI is in [GDI-USAGE.md](GDI-USAGE.md); since M11.8 the
+client calls this module directly (`src/3dlib/DrawUtil.cpp`, `DC.cpp`,
+`src/window/UISys.cpp`), and `port/compat/gdi`'s README lists what moved
+where.
 
 ## Build and test
 
@@ -25,7 +29,10 @@ advances = prefix pen positions, drawn pixels are only background or text
 colour and lie inside the extent box, every ASCII glyph and the Hangul
 sample leave ink at 11–15 px; top-down and bottom-up bitmaps, UTF-16 equals
 CP949, opaque background, clipping, underline, italic, font fallback for
-characters a face lacks, polygon fill. It writes
+characters a face lacks, polygon fill; canvases (text exactly its colour
+with alpha 0, the drawn rectangle is the text's cell and clipped, pieces
+drawn at the first's extent equal the whole, no pixels draws nothing, the
+triangle's box) and the face listing per character set. It writes
 `build/native/text/text-sample-sheet.png` and compares it with
 `test/reference/text-sample-sheet.png` (a difference is a note, not a
 failure, because CoreText's rasteriser may change with macOS).
@@ -88,8 +95,8 @@ lowest row and accented capitals the top of the accent. Hangul fits.
   uneven where the hinted width (`hdmx`) differs from the outline.
 - Vertical text (`@` faces) is drawn horizontally; the client does not use
   it.
-- The render-target path of the client (`CDCSurface::GetDC`) needs a
-  staging bitmap in the adapter.
+- The render-target path of the client (`CDCSurface::GetDC`) draws on a
+  canvas over a staging bitmap that the d3d adapter keeps (until M11.9).
 
 ## For port/README.md
 

@@ -1,7 +1,9 @@
 # What the client asks of GDI for text
 
 The specification of the GDI adapter (M4.5a), read from `src/` at the
-start of the port. The adapter puts these calls on top of `bf_text.h`.
+start of the port. The adapter put these calls on top of `bf_text.h`; since
+M11.8 the call sites call `bf_text.h` themselves (port/compat/gdi/README.md
+lists what moved where). Kept as the record of what the 2008 client did.
 
 ## Where GDI is called
 
