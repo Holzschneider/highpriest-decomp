@@ -83,26 +83,26 @@ void	CDCSurface :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, 
 	if(!pddsSurface) return;
 
 	int						i, j;
-	IDirectDrawSurface7 *	srcSurface;
+	bf_gfx_texture *		srcSurface;
 	WORD					*lpSrcSurfacePtr;
 	int						lSrcPitch;
 	int						r, g, b;
 	DWORD					color;
 	WORD					*lpDestSurfacePtr;
 	int						lDestPitch;
+	bf_gfx_rect				none = { 0, 0, 0, 0 };
 
-	srcSurface = src->GetDDSurface();
-	if(!srcSurface) return;
+	// The texture's CPU copy (port/native/gfx), read only.
+	srcSurface = src->GetGfxTexture();
+	if(!bf_render_texture_valid(srcSurface)) return;
 
-	DDSURFACEDESC2	srcDesc = { sizeof(DDSURFACEDESC2), 0 };
-	if(FAILED(srcSurface->Lock(NULL, &srcDesc, DDLOCK_WAIT, NULL))) return;
-
-	lpSrcSurfacePtr = (WORD*)srcDesc.lpSurface;
-	lSrcPitch = srcDesc.lPitch / 2;
+	lpSrcSurfacePtr = (WORD*)bf_gfx_texture_lock(srcSurface, &lSrcPitch);
+	if(!lpSrcSurfacePtr) return;
+	lSrcPitch = lSrcPitch / 2;
 
 	DDSURFACEDESC2	destDesc = { sizeof(DDSURFACEDESC2), 0 };
 	if(FAILED(pddsSurface->Lock(NULL, &destDesc, DDLOCK_WAIT, NULL))) {
-		srcSurface->Unlock(NULL);
+		bf_gfx_texture_unlock(srcSurface, &none);
 		return;
 	}
 
@@ -150,7 +150,7 @@ void	CDCSurface :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, 
 	}
 
 	pddsSurface->Unlock(NULL);
-	srcSurface->Unlock(NULL);
+	bf_gfx_texture_unlock(srcSurface, &none);
 }
 
 void	CDCSurface :: Update(int x, int y, int width, int height, DWORD *image, bool SkipColorKey)
@@ -547,21 +547,20 @@ void	CDCBitmap :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, i
 	m_dirty = true;
 
 	int						i, j;
-	IDirectDrawSurface7 *	srcSurface;
+	bf_gfx_texture *		srcSurface;
 	WORD					*lpSrcSurfacePtr;
 	int						lSrcPitch;
 	int						r, g, b;
 	DWORD					color;
 	int						lDestPitch = m_w;
 
-	srcSurface = src->GetDDSurface();
-	if(!srcSurface) return;
+	// The texture's CPU copy (port/native/gfx), read only.
+	srcSurface = src->GetGfxTexture();
+	if(!bf_render_texture_valid(srcSurface)) return;
 
-	DDSURFACEDESC2	srcDesc = { sizeof(DDSURFACEDESC2), 0 };
-	if(FAILED(srcSurface->Lock(NULL, &srcDesc, DDLOCK_WAIT, NULL))) return;
-
-	lpSrcSurfacePtr = (WORD*)srcDesc.lpSurface;
-	lSrcPitch = srcDesc.lPitch / 2;
+	lpSrcSurfacePtr = (WORD*)bf_gfx_texture_lock(srcSurface, &lSrcPitch);
+	if(!lpSrcSurfacePtr) return;
+	lSrcPitch = lSrcPitch / 2;
 
 	if(src->GetPixelFormat() == PF_A1R5G5B5) {
 		if(xflip) {
@@ -599,7 +598,8 @@ void	CDCBitmap :: BltTexture2(int x, int y, CTexture *src, int srcx, int srcy, i
 			}
 		}
 	}
-	srcSurface->Unlock(NULL);
+	bf_gfx_rect none = { 0, 0, 0, 0 };
+	bf_gfx_texture_unlock(srcSurface, &none);
 }
 #endif
 

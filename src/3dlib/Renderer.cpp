@@ -101,28 +101,18 @@ inline bool CRenderer::RPRawTexPrtLess::operator()(const RPRaw *left, const RPRa
 
 
 
-void	RPRaw :: DrawPri(IDirect3DDevice7* device)
+// The world matrix was set as the device's transform (SetTransform), which
+// pre-transformed vertices ignore; the gfx module has none (M11.9).
+void	RPRaw :: DrawPri(C3dDevice* device)
 {
 	if (numVerts) {
-		D3DMATRIX d3dWorld; const float d3dWorldInit[16] = {world.v11, world.v12, world.v13, 0,
-						   world.v21, world.v22, world.v23, 0,
-						   world.v31, world.v32, world.v33, 0,
-						   world.v41, world.v42, world.v43, 1}; memcpy(&d3dWorld, d3dWorldInit, sizeof(d3dWorld));
-
-		device->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dWorld);
-		device->DrawPrimitiveVB(D3DPT_TRIANGLELIST, vb->GetInterface(), vertStart, numVerts, 0);
+		device->DrawPrimitiveVB(D3DPT_TRIANGLELIST, vb, vertStart, numVerts, 0);
 	}
 }
-void	RPRaw :: DrawPriIndexed(IDirect3DDevice7* device)
+void	RPRaw :: DrawPriIndexed(C3dDevice* device)
 {
 	if (numIndices) {
-		D3DMATRIX d3dWorld; const float d3dWorldInit[16] = {world.v11, world.v12, world.v13, 0,
-						   world.v21, world.v22, world.v23, 0,
-						   world.v31, world.v32, world.v33, 0,
-						   world.v41, world.v42, world.v43, 1}; memcpy(&d3dWorld, d3dWorldInit, sizeof(d3dWorld));
-
-		device->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dWorld);
-		device->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, vb->GetInterface(), 0, numVerts, indices, numIndices, 0);
+		device->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, vb, 0, numVerts, indices, numIndices, 0);
 	}
 }
 RPFace :: RPFace(tlvertex3d* vert, int numVert)
@@ -163,7 +153,7 @@ void	RPFace :: InitSpecular()
 	}
 }
 
-void	RPFace :: DrawPri(IDirect3DDevice7* device)
+void	RPFace :: DrawPri(C3dDevice* device)
 {
 	if (numVerts)
 	{
@@ -208,7 +198,7 @@ void	RPLmFace :: InitSpecular()
 	}
 }
 
-void	RPLmFace :: DrawPri(IDirect3DDevice7* device)
+void	RPLmFace :: DrawPri(C3dDevice* device)
 {
 	if (numVerts)
 	{
@@ -279,7 +269,7 @@ CTexMgr :: ~CTexMgr()
 	DestroyAllTexture();
 }
 
-CTexture *	CTexMgr :: CreateTexture(DWORD w, DWORD h, PixelFormat pf, IDirectDrawSurface7* surface)
+CTexture *	CTexMgr :: CreateTexture(DWORD w, DWORD h, PixelFormat pf, bf_gfx_texture* surface)
 {
 	if (surface)
 		return new CTexture(w, h, pf, surface);
@@ -410,9 +400,9 @@ void	CTexMgr :: UnloadRarelyUsedTexture()
 
 #if !defined(BF_PORT)	// the C library's heap is not compacted by hand
 	HeapCompact(GetProcessHeap(), 0);
-#endif
 	if (g_3dDevice.GetDirect3D())
 		g_3dDevice.GetDirect3D()->EvictManagedTextures();
+#endif
 
 }
 
@@ -853,22 +843,9 @@ void	CRenderer :: SetLookAt(vector3d& from, vector3d& at, vector3d& up)
 
 void	CRenderer :: SetLight(vector3d& lightDir, vector3d& diffuseCol, vector3d& ambientCol)
 {
-	D3DLIGHT7 light;
-	memset(&light, 0, sizeof(light));
-	light.dltType = D3DLIGHT_DIRECTIONAL;
-	light.dvDirection.x = -lightDir.x;
-	light.dvDirection.y = -lightDir.y;
-	light.dvDirection.z = -lightDir.z;
-	light.dcvDiffuse.a = 255;
-	light.dcvDiffuse.r = diffuseCol.x;
-	light.dcvDiffuse.g = diffuseCol.y;
-	light.dcvDiffuse.b = diffuseCol.z;
-	light.dcvAmbient.a = 255;
-	light.dcvAmbient.r = ambientCol.x;
-	light.dcvAmbient.g = ambientCol.y;
-	light.dcvAmbient.b = ambientCol.z;
-	m_device->SetLight(0, &light);
-	m_device->LightEnable(0, TRUE);
+	// The device's directional light 0 (SetLight, LightEnable): it lit no
+	// pre-transformed vertex, and the gfx module has no lights (M11.9). The
+	// client lights its vertices itself.
 }
 
 void CRenderer::FlushRenderList()
@@ -1302,10 +1279,7 @@ tagSIZE * CRenderer::GetTextSize(char const *text, int textLen, int fontType, in
 
 void	CRenderer :: FogSwitch(int sw)
 {
-	if (g_3dDevice.GetDeviceDesc().dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGVERTEX)
-		m_isVertexFog = TRUE;
-	else
-		m_isVertexFog = FALSE;
+	m_isVertexFog = TRUE;   // the device fogs per vertex (D3DPRASTERCAPS_FOGVERTEX)
 
 	m_isFoggy = sw;
 	m_device->SetRenderState(D3DRENDERSTATE_FOGENABLE, sw);
@@ -1326,14 +1300,13 @@ void	CRenderer :: DoFog()
 
 		fogstart = ((FARPLANE - NEARPLANE) * g_fogPara.start) + NEARPLANE;
 		fogend = ((FARPLANE - NEARPLANE) * g_fogPara.end) + NEARPLANE;
-		int vertexFog = (g_3dDevice.GetDeviceDesc().dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGVERTEX) != 0;
+		int vertexFog = TRUE;   // D3DPRASTERCAPS_FOGVERTEX
 
+		// The world, view and projection transforms were set here; they
+		// change no pre-transformed vertex and the gfx module has none.
 		D3DUtil_SetIdentityMatrix(matWorld);
 
 		D3DUtil_SetProjectionMatrix(matProj, VFOV * (3.141592f / 180.0f), m_aspectRatio, NEARPLANE, FARPLANE);
-		m_device->SetTransform(D3DTRANSFORMSTATE_WORLD, &matWorld);
-		m_device->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &matProj);
-		m_device->SetTransform(D3DTRANSFORMSTATE_VIEW, &matWorld);
 		m_device->SetRenderState(D3DRENDERSTATE_FOGCOLOR, g_fogPara.color);
 
 		if ((D3DFOGMODE)g_fogPara.mode == D3DFOG_LINEAR) {
@@ -2332,7 +2305,7 @@ void	CRenderer :: SetTexture(CTexture *tex)
 	if (tex == NULL)
 		m_device->SetTexture(0, NULL);
 	else
-		m_device->SetTexture(0, tex->m_pddsSurface);
+		m_device->SetTexture(0, tex->m_gfxTex);
 	m_oldTexture = tex;
 }
 
@@ -2344,7 +2317,7 @@ void	CRenderer :: SetLmapTexture(CTexture *tex)
 	if (tex == NULL)
 		m_device->SetTexture(1, NULL);
 	else
-		m_device->SetTexture(1, tex->m_pddsSurface);
+		m_device->SetTexture(1, tex->m_gfxTex);
 	m_oldLmapTexture = tex;
 }
 

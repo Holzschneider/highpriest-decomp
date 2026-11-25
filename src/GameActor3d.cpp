@@ -482,7 +482,7 @@ void C3dGrannyGameActor::RenderGuildMark(matrix& view)
 
 CTexture* C3dGrannyGameActor::GetEmblemTexture() {
 	if (!m_emblemTex) {
-		m_emblemTex = g_texMgr.CreateTexture(24UL, 24UL, (PixelFormat)0, (IDirectDrawSurface7*)0);
+		m_emblemTex = g_texMgr.CreateTexture(24UL, 24UL, (PixelFormat)0, (bf_gfx_texture*)0);
 		char strEbm[260];
 		g_session.GetEmblemFileName(strEbm, GetGdid(), GetEmblemVersion());
 		unsigned int dwEmblem[24 * 24];

@@ -26,14 +26,14 @@
 
 
 extern bool    g_isSupportLMTex;
-extern DWORD   g_ddsdFlagMipmap;
-extern DWORD   g_ddsCapsMipmap;
+extern int     g_isMipmap;
 extern Registry2 g_registry;
 
 bool g_isSupportLMTex = true;
 C3dDevice g_3dDevice;
-DWORD g_ddsdFlagMipmap = 0;
-DWORD g_ddsCapsMipmap = 0;
+// Textures get mip levels (the trilinear option; DDSD_MIPMAPCOUNT and
+// DDSCAPS_MIPMAP of the 2008 client's texture descriptions).
+int g_isMipmap = 0;
 
 
 extern int WINDOW_HEIGHT;
@@ -43,8 +43,6 @@ extern int WINDOW_Y_OFFSET;
 
 
 void D3DUtil_InitSurfaceDesc(DDSURFACEDESC2& ddsd, DWORD dwFlags, DWORD dwCaps);
-void D3DUtil_InitViewport(D3DVIEWPORT7& vp, DWORD dwWidth, DWORD dwHeight);
-static HRESULT WINAPI EnumZBufferFormatsCallback(LPDDPIXELFORMAT pddpf, LPVOID pContext);
 
 void GDIFlip()
 {
@@ -63,11 +61,9 @@ C3dDevice :: C3dDevice()
 	m_pddsFrontBuffer  = NULL;
 	m_pddsBackBuffer   = NULL;
 	m_pddsRenderTarget = NULL;
-	m_pddsZBuffer      = NULL;
-	m_pd3dDevice       = NULL;
 	m_pDD              = NULL;
-	m_pD3D             = NULL;
-	m_dwDeviceMemType  = NULL;
+	m_bInitialized     = FALSE;
+	bf_gfx_state_init(&m_state);
 	m_bIsFullscreen    = FALSE;
 	m_bIsGDIObject     = FALSE;
 	m_pfRShiftR = 0, m_pfRShiftL = 8;
@@ -90,21 +86,18 @@ HRESULT C3dDevice :: DestroyObjects()
 {
 	int nD3D = 0, nDD = 0;
 
-	if (m_pd3dDevice) {
-		if ((nD3D = m_pd3dDevice->Release()) > 0) {
-			char tmp[80];
-			sprintf(tmp, " : D3D object is still referenced %d times", nD3D);
-			MessageBox(g_hMainWnd, tmp, "Error", 0);
-		}
+	// The renderer's device holds no object of its own: its textures are
+	// the client's, bound stages are let go here.
+	if (m_bInitialized) {
+		bf_render_bind_texture(0, NULL);
+		bf_render_bind_texture(1, NULL);
 	}
-	m_pd3dDevice = NULL;
+	m_bInitialized = FALSE;
 	if (!m_bIsFullscreen)
 		SAFE_RELEASE(m_pddsBackBuffer);
 
-	SAFE_RELEASE(m_pddsZBuffer);
 	SAFE_RELEASE(m_pddsRenderTarget);
 	SAFE_RELEASE(m_pddsFrontBuffer);
-	SAFE_RELEASE(m_pD3D);
 	SAFE_RELEASE(m_pddsRenderBackup);
 
 	if (m_pDD) {
@@ -144,42 +137,42 @@ HRESULT C3dDevice :: Init(HWND hwnd, GUID* pDriverGUID, GUID* pDeviceGUID,
 			return D3DFWERR_INITIALIZATIONFAILED;
 	}
 
-	if (m_pd3dDevice == NULL)
+	if (!m_bInitialized)
 		return hr;
 
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)22, 1);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)23, 4);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)4, TRUE);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)25, 7);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)24, 0xf0);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)41, TRUE);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)7, TRUE);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)14, TRUE);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)19, 5);
-	m_pd3dDevice->SetRenderState((D3DRENDERSTATETYPE)20, 6);
+	SetRenderState((D3DRENDERSTATETYPE)22, 1);
+	SetRenderState((D3DRENDERSTATETYPE)23, 4);
+	SetRenderState((D3DRENDERSTATETYPE)4, TRUE);
+	SetRenderState((D3DRENDERSTATETYPE)25, 7);
+	SetRenderState((D3DRENDERSTATETYPE)24, 0xf0);
+	SetRenderState((D3DRENDERSTATETYPE)41, TRUE);
+	SetRenderState((D3DRENDERSTATETYPE)7, TRUE);
+	SetRenderState((D3DRENDERSTATETYPE)14, TRUE);
+	SetRenderState((D3DRENDERSTATETYPE)19, 5);
+	SetRenderState((D3DRENDERSTATETYPE)20, 6);
 
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)11, 0);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)1, 4);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)2, 2);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)3, 0);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)4, 4);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)5, 2);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)6, 0);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)11, 1);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)2, 2);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)1, 18);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)3, 1);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)4, 1);
-	m_pd3dDevice->SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)1, 1);
-	m_pd3dDevice->SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)4, 1);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)14, 1);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)17, 2);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)16, 2);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)17, 2);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)16, 2);
-	m_pd3dDevice->SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)12, 3);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)12, 4);
-	m_pd3dDevice->SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)15, 0xff000000);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)11, 0);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)1, 4);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)2, 2);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)3, 0);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)4, 4);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)5, 2);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)6, 0);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)11, 1);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)2, 2);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)1, 18);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)3, 1);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)4, 1);
+	SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)1, 1);
+	SetTextureStageState(2, (D3DTEXTURESTAGESTATETYPE)4, 1);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)14, 1);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)17, 2);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)16, 2);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)17, 2);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)16, 2);
+	SetTextureStageState(0, (D3DTEXTURESTAGESTATETYPE)12, 3);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)12, 4);
+	SetTextureStageState(1, (D3DTEXTURESTAGESTATETYPE)15, 0xff000000);
 
 	return hr;
 }
@@ -204,13 +197,6 @@ HRESULT C3dDevice :: CreateEnvironment(GUID* pDriverGUID, GUID* pDeviceGUID,
 {
 	HRESULT hr;
 
-	if (IsEqualIID(*pDeviceGUID, IID_IDirect3DHALDevice))
-		m_dwDeviceMemType = DDSCAPS_VIDEOMEMORY;
-	else if (IsEqualIID(*pDeviceGUID, IID_IDirect3DTnLHalDevice))
-		m_dwDeviceMemType = DDSCAPS_VIDEOMEMORY;
-	else
-		m_dwDeviceMemType = DDSCAPS_SYSTEMMEMORY;
-
 	hr = CreateDirectDraw(pDriverGUID, dwFlags);
 	if (FAILED(hr))
 		return hr;
@@ -218,15 +204,18 @@ HRESULT C3dDevice :: CreateEnvironment(GUID* pDriverGUID, GUID* pDeviceGUID,
 	if (FAILED(hr = CreateBuffers(pMode, dwFlags)))
 		return hr;
 
-	if (pDeviceGUID)
-		if (FAILED(hr = CreateDirect3D(pDeviceGUID, dwFlags)))
-			return hr;
-
 	if (!pDeviceGUID)
 		return S_OK;
 
-	if (FAILED(hr = CreateZBuffer()))
-		return hr;
+	// The 3D device (any device GUID: the one gfx device), with the Direct3D 7
+	// defaults; its depth buffer is the gfx target's (32-bit float), so the
+	// z-buffer surface and the viewport of the whole target are not made.
+	if (!bf_render_device())
+		return D3DFWERR_NO3DDEVICE;
+	bf_gfx_state_init(&m_state);
+	bf_render_bind_texture(0, NULL);
+	bf_render_bind_texture(1, NULL);
+	m_bInitialized = TRUE;
 
 	return S_OK;
 }
@@ -255,49 +244,6 @@ HRESULT C3dDevice :: CreateDirectDraw(GUID* pDriverGUID, DWORD dwFlags)
 	if (FAILED(m_pDD->SetCooperativeLevel(m_hWnd, dwCoopFlags)))
 		return D3DFWERR_COULDNTSETCOOPLEVEL;
 	return S_OK;
-}
-
-HRESULT C3dDevice::CreateDirect3D(GUID* pDeviceGUID, DWORD dwFlags)
-{
-	D3DVIEWPORT7 vdData;
-
-	if (FAILED(m_pDD->QueryInterface(IID_IDirect3D7, (VOID**)&m_pD3D)))
-		return D3DFWERR_NODIRECT3D;
-
-	if (FAILED(m_pD3D->CreateDevice(*pDeviceGUID, m_pddsRenderTarget,
-									&m_pd3dDevice)))
-		return D3DFWERR_NO3DDEVICE;
-
-	D3DUtil_InitViewport(vdData, m_dwRenderWidth, m_dwRenderHeight);
-	if (FAILED(m_pd3dDevice->SetViewport(&vdData)))
-		return D3DFWERR_NOVIEWPORT;
-
-	ZeroMemory(&m_ddpfZBuffer, sizeof(m_ddpfZBuffer));
-	if (dwFlags & D3DFW_STENCILBUFFER)
-		m_ddpfZBuffer.dwFlags = DDPF_ZBUFFER | DDPF_STENCILBUFFER;
-	else
-		m_ddpfZBuffer.dwFlags = DDPF_ZBUFFER;
-
-	m_pD3D->EnumZBufferFormats(*pDeviceGUID, EnumZBufferFormatsCallback,
-							   &m_ddpfZBuffer);
-	if (m_ddpfZBuffer.dwSize != sizeof(m_ddpfZBuffer))
-		return D3DFWERR_NOZBUFFER;
-	return S_OK;
-}
-
-
-static HRESULT WINAPI EnumZBufferFormatsCallback(LPDDPIXELFORMAT pddpf, LPVOID pddpfDesired)
-{
-	LPDDPIXELFORMAT pTarget = (LPDDPIXELFORMAT)pddpfDesired;
-	if (!pddpf || !pTarget)
-		return D3DENUMRET_CANCEL;
-
-	if (pddpf->dwFlags == pTarget->dwFlags) {
-		*pTarget = *pddpf;
-		if (pddpf->dwRGBBitCount == 16)
-			return D3DENUMRET_CANCEL;
-	}
-	return D3DENUMRET_OK;
 }
 
 HRESULT C3dDevice :: CreateBuffers(DDSURFACEDESC2* pddsd, DWORD dwFlags)
@@ -441,33 +387,6 @@ HRESULT C3dDevice :: CreateBuffers(DDSURFACEDESC2* pddsd, DWORD dwFlags)
 	return S_OK;
 }
 
-HRESULT C3dDevice :: CreateZBuffer()
-{
-	DDSURFACEDESC2 ddsd;
-
-	m_pd3dDevice->GetCaps(&m_ddDeviceDesc);
-	if (m_ddDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ZBUFFERLESSHSR)
-		return S_OK;
-
-	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT, 0);
-	ddsd.ddsCaps.dwCaps = m_dwDeviceMemType | DDSCAPS_ZBUFFER;
-	ddsd.dwWidth = m_dwRenderWidth;
-	ddsd.dwHeight = m_dwRenderHeight;
-	ddsd.ddpfPixelFormat = m_ddpfZBuffer;
-
-	HRESULT hr = m_pDD->CreateSurface(&ddsd, &m_pddsZBuffer, NULL);
-	if (FAILED(hr)) {
-		if (hr == DDERR_OUTOFVIDEOMEMORY)
-			return DDERR_OUTOFVIDEOMEMORY;
-		return D3DFWERR_NOZBUFFER;
-	}
-
-	if (FAILED(m_pddsRenderTarget->AddAttachedSurface(m_pddsZBuffer)))
-		return D3DFWERR_NOZBUFFER;
-
-	return m_pd3dDevice->SetRenderTarget(m_pddsRenderTarget, 0) < 0 ? D3DFWERR_NOZBUFFER : S_OK;
-}
-
 void	C3dDevice :: DestroyRenderer(CRenderer *rc)
 {
 	delete	rc;
@@ -529,30 +448,30 @@ HRESULT C3dDevice :: ShowFrame(bool vertSync)
 								  &m_rcViewportRect, DDBLT_WAIT, NULL);
 }
 
+// A clear of the render size, clipped to the target (Direct3D 7 clipped it
+// to the viewport, which is the render size); the whole target is cleared
+// as such, which also clears the native pixels past the last logical one.
+static HRESULT ClearRender(unsigned flags, DWORD color, DWORD w, DWORD h)
+{
+	int tw, th;
+	bf_render_size(&tw, &th);
+	int x1 = (int)w < tw ? (int)w : tw;
+	int y1 = (int)h < th ? (int)h : th;
+	if (x1 <= 0 || y1 <= 0)
+		return S_OK;
+	bf_gfx_rect r = { 0, 0, x1, y1 };
+	bf_render_clear(flags, color, 1.0f, (x1 == tw && y1 == th) ? NULL : &r);
+	return S_OK;
+}
+
 HRESULT	C3dDevice :: Clear(DWORD color)
 {
-	D3DRECT		d;
-
-	d.x1 = 0;
-	d.x2 = m_dwRenderWidth;
-	d.y1 = 0;
-	d.y2 = m_dwRenderHeight;
-
-	return	m_pd3dDevice->Clear(1UL, &d, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,
-		color, 1.0f, 0L);
+	return	ClearRender(BF_GFX_CLEAR_COLOR|BF_GFX_CLEAR_DEPTH, color, m_dwRenderWidth, m_dwRenderHeight);
 }
 
 HRESULT	C3dDevice :: ClearZBuffer()
 {
-	D3DRECT		d;
-
-	d.x1 = 0;
-	d.x2 = m_dwRenderWidth;
-	d.y1 = 0;
-	d.y2 = m_dwRenderHeight;
-
-	return	m_pd3dDevice->Clear(1UL, &d, D3DCLEAR_ZBUFFER,
-		0, 1.0f, 0L);
+	return	ClearRender(BF_GFX_CLEAR_DEPTH, 0, m_dwRenderWidth, m_dwRenderHeight);
 }
 
 HRESULT C3dDevice :: RestoreSurfaces()
@@ -564,18 +483,18 @@ HRESULT C3dDevice :: RestoreSurfaces()
 #if defined(BF_PORT)
 // The port's resize path (M4.3a): the window's logical size has changed and
 // the graphics device has been resized to it (port/native/view). The back
-// buffer, its z-buffer and the backup surface are made anew at the new size
-// and the viewport follows, as CreateBuffers, CreateZBuffer and
-// CreateDirect3D do at start-up. The original fixed the size at start-up.
+// buffer and the backup surface are made anew at the new size, as
+// CreateBuffers does at start-up; the depth buffer is the gfx target's. The
+// original fixed the size at start-up.
 HRESULT C3dDevice :: BfResize(DWORD w, DWORD h)
 {
-	if (!m_pDD || !m_pd3dDevice || !m_pddsBackBuffer || m_bIsFullscreen)
+	if (!m_pDD || !m_bInitialized || !m_pddsBackBuffer || m_bIsFullscreen)
 		return D3DFWERR_NOTINITIALIZED;
 	if (w == m_dwRenderWidth && h == m_dwRenderHeight)
 		return S_OK;
 
 	DDSURFACEDESC2 ddsd;
-	IDirectDrawSurface7 *back = NULL, *zbuffer = NULL, *backup = NULL;
+	IDirectDrawSurface7 *back = NULL, *backup = NULL;
 	HRESULT hr;
 
 	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
@@ -585,44 +504,21 @@ HRESULT C3dDevice :: BfResize(DWORD w, DWORD h)
 	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &back, NULL)))
 		return hr;
 
-	if (m_pddsZBuffer) {
-		D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT, 0);
-		ddsd.ddsCaps.dwCaps = m_dwDeviceMemType | DDSCAPS_ZBUFFER;
-		ddsd.dwWidth = w;
-		ddsd.dwHeight = h;
-		ddsd.ddpfPixelFormat = m_ddpfZBuffer;
-		if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &zbuffer, NULL)) || FAILED(hr = back->AddAttachedSurface(zbuffer))) {
-			SAFE_RELEASE(zbuffer);
-			SAFE_RELEASE(back);
-			return hr;
-		}
-	}
-
 	D3DUtil_InitSurfaceDesc(ddsd, DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH, 0);
 	ddsd.dwWidth = w;
 	ddsd.dwHeight = h;
 	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
 	if (FAILED(hr = m_pDD->CreateSurface(&ddsd, &backup, NULL))) {
-		SAFE_RELEASE(zbuffer);
 		SAFE_RELEASE(back);
 		return hr;
 	}
 
-	if (FAILED(hr = m_pd3dDevice->SetRenderTarget(back, 0))) {
-		SAFE_RELEASE(backup);
-		SAFE_RELEASE(zbuffer);
-		SAFE_RELEASE(back);
-		return hr;
-	}
-
-	SAFE_RELEASE(m_pddsZBuffer);
 	SAFE_RELEASE(m_pddsRenderTarget);
 	SAFE_RELEASE(m_pddsBackBuffer);
 	SAFE_RELEASE(m_pddsRenderBackup);
 	m_pddsBackBuffer = back;
 	m_pddsRenderTarget = back;
 	m_pddsRenderTarget->AddRef();
-	m_pddsZBuffer = zbuffer;
 	m_pddsRenderBackup = backup;
 
 	SetRect(&m_rcViewportRect, 0, 0, w, h);
@@ -631,10 +527,7 @@ HRESULT C3dDevice :: BfResize(DWORD w, DWORD h)
 	ClientToScreen(m_hWnd, (POINT*)&m_rcScreenRect.right);
 	m_dwRenderWidth = w;
 	m_dwRenderHeight = h;
-
-	D3DVIEWPORT7 vdData;
-	D3DUtil_InitViewport(vdData, m_dwRenderWidth, m_dwRenderHeight);
-	return m_pd3dDevice->SetViewport(&vdData);
+	return S_OK;
 }
 #endif
 
@@ -708,30 +601,26 @@ CRenderer *	C3dDevice :: CreateRenderer()
 	if (m_pDD->GetCaps(&ddCaps, NULL) == D3D_OK)
 		m_bSupportBltStretch = (ddCaps.dwCaps & DDCAPS_BLTSTRETCH) ? TRUE : FALSE;
 
-	if (m_pd3dDevice->GetCaps(&m_ddDeviceDesc) == D3D_OK)
+	// The device's caps (port/native/gfx): textures of 1 to its largest
+	// edge without an aspect limit; two texture stages with
+	// MODULATEALPHA_ADDCOLOR, so the single-pass lightmap path; trilinear
+	// filtering (LINEARMIPLINEAR) when the option asks for it.
+	if (m_bInitialized)
 	{
-		m_dwMinTextureWidth			=	m_ddDeviceDesc.dwMinTextureWidth;
-		m_dwMinTextureHeight		=	m_ddDeviceDesc.dwMinTextureHeight;
-		m_dwMaxTextureWidth			=	m_ddDeviceDesc.dwMaxTextureWidth;
-		m_dwMaxTextureHeight		=	m_ddDeviceDesc.dwMaxTextureHeight;
-		m_dwMaxTextureAspectRatio	=	m_ddDeviceDesc.dwMaxTextureAspectRatio;
-		g_isSupportLMTex = (m_ddDeviceDesc.wMaxTextureBlendStages >= 2) &&
-			(m_ddDeviceDesc.dwTextureOpCaps & D3DTEXOPCAPS_MODULATEALPHA_ADDCOLOR);
+		m_dwMinTextureWidth			=	1;
+		m_dwMinTextureHeight		=	1;
+		m_dwMaxTextureWidth			=	bf_gfx_max_texture_size(bf_render_device());
+		m_dwMaxTextureHeight		=	bf_gfx_max_texture_size(bf_render_device());
+		m_dwMaxTextureAspectRatio	=	0;
+		g_isSupportLMTex = true;
 
-		if (g_registry.m_trilinearFilter &&
-			(m_ddDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR)) {
-			g_ddsdFlagMipmap = DDSD_MIPMAPCOUNT;
-			g_ddsCapsMipmap = DDSCAPS_COMPLEX | DDSCAPS_MIPMAP;
-		} else {
-			g_ddsdFlagMipmap = 0;
-			g_ddsCapsMipmap = 0;
-		}
+		g_isMipmap = g_registry.m_trilinearFilter ? 1 : 0;
 	}
 	m_bSupportTextureSurface = (1024 <= m_dwMaxTextureWidth) && (1024 <= m_dwMaxTextureHeight);
 
 	CRenderer *	newRenderer = new CRenderer;
 	newRenderer->SetPixelFormat(pixelFormat);
-	newRenderer->m_device = m_pd3dDevice;
+	newRenderer->m_device = this;
 	newRenderer->SetSize(m_dwRenderWidth, m_dwRenderHeight);
 
 
@@ -741,10 +630,10 @@ CRenderer *	C3dDevice :: CreateRenderer()
 		newRenderer->m_guardBandTop		=	-480;
 		newRenderer->m_guardBandBottom	=	newRenderer->m_height+480;
 	} else {
-		newRenderer->m_guardBandLeft	=	m_ddDeviceDesc.dvGuardBandLeft;
-		newRenderer->m_guardBandRight	=	m_ddDeviceDesc.dvGuardBandRight;
-		newRenderer->m_guardBandTop		=	m_ddDeviceDesc.dvGuardBandTop;
-		newRenderer->m_guardBandBottom	=	m_ddDeviceDesc.dvGuardBandBottom;
+		newRenderer->m_guardBandLeft	=	-16384.0f;   // the gfx module clips at any position
+		newRenderer->m_guardBandRight	=	16384.0f;
+		newRenderer->m_guardBandTop		=	-16384.0f;
+		newRenderer->m_guardBandBottom	=	16384.0f;
 	}
 
 #if !defined(BF_PORT)
@@ -782,6 +671,12 @@ void	C3dDevice :: AdjustTextureSize(DWORD* w, DWORD* h)
 
 bool C3dDevice :: TestScreen()
 {
+#if defined(BF_PORT)
+	// The calibration picks a texel offset of 0.5 on any 32-bit target; the
+	// gfx module's half-pixel offset is fixed and that is CTexture's default
+	// (technical plan 3.3). Not called (CreateRenderer).
+	return true;
+#else
 	DWORD dwBuffer[16] = { 0, 0, 0xffffffff, 0xffffffff,
 		0, 0, 0xffffffff, 0xffffffff,
 		0xffffffff, 0xffffffff, 0, 0,
@@ -794,8 +689,8 @@ bool C3dDevice :: TestScreen()
 	m_pd3dDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
 	m_pd3dDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, FALSE);
 	m_pd3dDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
-	m_pd3dDevice->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-	m_pd3dDevice->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+	SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+	SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 	m_pd3dDevice->SetTexture(0, test.m_pddsSurface);
 
 	DWORD i = 0, width = m_dwRenderWidth >> 2;
@@ -885,9 +780,10 @@ bool C3dDevice :: TestScreen()
 
 	CTexture::m_uOffset = float(difOff % 256) * 0.00390625f;
 	CTexture::m_vOffset = float(difOff / 256) * 0.00390625f;
-	m_pd3dDevice->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-	m_pd3dDevice->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+	SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+	SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 	return true;
+#endif
 }
 
 int C3dDevice :: DecodePixelR(WORD color) const
@@ -923,20 +819,15 @@ void C3dDevice :: RestoreFrame()
 
 void C3dDevice :: EnableMipmap()
 {
-	if (g_registry.m_trilinearFilter &&
-		(m_ddDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR)) {
-		g_ddsdFlagMipmap = DDSD_MIPMAPCOUNT;
-		g_ddsCapsMipmap = DDSCAPS_COMPLEX | DDSCAPS_MIPMAP;
-	} else {
-		g_ddsdFlagMipmap = 0;
-		g_ddsCapsMipmap = 0;
-	}
+	g_isMipmap = g_registry.m_trilinearFilter ? 1 : 0;   // the device filters LINEARMIPLINEAR
 }
 
 CDynamicVB :: CDynamicVB()
 {
 	m_vertCount = 0;
 	m_vertOffset = 0;
+	m_vertSize = 0;
+	m_fvf = 0;
 	m_pVB = 0;
 }
 
@@ -947,26 +838,20 @@ CDynamicVB :: ~CDynamicVB()
 
 void	CDynamicVB :: Release()
 {
-	if (m_pVB) m_pVB->Unlock();
-	SAFE_RELEASE(m_pVB);
+	SAFE_DELETE_ARRAY(m_pVB);
 }
 
 bool CDynamicVB::Init(const DWORD theFVF, DWORD theVertexCount, DWORD theVertexSize)
 {
 	Release();
 
-	D3DVERTEXBUFFERDESC aDesc;
-	IDirect3D7* d3d = g_3dDevice.GetDirect3D();
 	m_vertCount = theVertexCount;
 	m_vertSize = theVertexSize;
 	m_vertOffset = 0;
-	ZeroMemory(&aDesc, sizeof(aDesc));
-	aDesc.dwSize = sizeof(aDesc);
-	aDesc.dwCaps = 0x10000;
-	aDesc.dwFVF = theFVF;
-	aDesc.dwNumVertices = theVertexCount;
-
-	return d3d->CreateVertexBuffer(&aDesc, &m_pVB, 0) == D3D_OK;
+	m_fvf = theFVF;
+	m_pVB = new unsigned char[theVertexCount * theVertexSize];
+	memset(m_pVB, 0, theVertexCount * theVertexSize);
+	return true;
 }
 bool CDynamicVB::Lock(DWORD vertCount, void** ppLockedData)
 {
@@ -977,14 +862,11 @@ bool CDynamicVB::Lock(DWORD vertCount, void** ppLockedData)
 		return false;
 
 	if (m_vertOffset + vertCount <= m_vertCount) {
-		if (m_pVB->Lock(0x2820, ppLockedData, NULL) != D3D_OK)
-			return false;
-		*ppLockedData = (BYTE*)*ppLockedData + m_vertSize * m_vertOffset;
+		*ppLockedData = m_pVB + m_vertSize * m_vertOffset;
 		m_vertOffset += vertCount;
 		return true;
 	} else {
-		if (m_pVB->Lock(0x2820, ppLockedData, NULL) != D3D_OK)
-			return false;
+		*ppLockedData = m_pVB;
 		m_vertOffset = vertCount;
 		return true;
 	}
@@ -992,11 +874,150 @@ bool CDynamicVB::Lock(DWORD vertCount, void** ppLockedData)
 
 void	CDynamicVB :: Unlock()
 {
-	if (m_pVB)
-		m_pVB->Unlock();
 }
 
-void CDynamicVB :: DrawPri(IDirect3DDevice7* device, DWORD vertCount)
+void CDynamicVB :: DrawPri(C3dDevice* device, DWORD vertCount)
 {
-	device->DrawPrimitiveVB(D3DPT_TRIANGLELIST, m_pVB, m_vertOffset - vertCount, vertCount, 0);
+	device->DrawPrimitiveVB(D3DPT_TRIANGLELIST, this, m_vertOffset - vertCount, vertCount, 0);
+}
+
+// ---- the device (M11.9) ---------------------------------------------------
+// What the Direct3D 7 device of stage A (port/compat/d3d) did with the
+// client's calls: render and stage states translated into one bf_gfx_state
+// by their numbers, which the gfx enumerations share (bf_gfx.h); states with
+// no effect on pre-transformed vertices (lighting, fog table, perspective,
+// colour keys of textures, whose key colours CTexture::Update writes as
+// alpha 0) and stages 2-7 change nothing. Each draw hands the state and the
+// bound textures to gfx (bf_render_draw).
+
+int C3dDevice :: BeginScene()
+{
+	// Always succeeds: a scene left open by a failed frame must not stop
+	// every later frame (the client brackets each flush with Begin/EndScene).
+	bf_render_begin_scene();
+	return S_OK;
+}
+
+int C3dDevice :: EndScene()
+{
+	bf_render_end_scene();
+	return S_OK;
+}
+
+static unsigned char StateValue(DWORD v, DWORD lo, DWORD hi, unsigned char keep)
+{
+	return v >= lo && v <= hi ? (unsigned char)v : keep;
+}
+
+void C3dDevice :: SetRenderState(D3DRENDERSTATETYPE type, DWORD v)
+{
+	bf_gfx_state &st = m_state;
+	switch (type) {
+	case D3DRENDERSTATE_ZENABLE: st.depth_enable = v != D3DZB_FALSE; break;
+	case D3DRENDERSTATE_ZWRITEENABLE: st.depth_write = v != 0; break;
+	case D3DRENDERSTATE_ALPHATESTENABLE: st.alpha_test_enable = v != 0; break;
+	case D3DRENDERSTATE_SRCBLEND: st.src_blend = StateValue(v, 1, 13, st.src_blend); break;
+	case D3DRENDERSTATE_DESTBLEND: st.dst_blend = StateValue(v, 1, 13, st.dst_blend); break;
+	case D3DRENDERSTATE_CULLMODE: st.cull = StateValue(v, 1, 3, st.cull); break;
+	case D3DRENDERSTATE_ZFUNC: st.depth_func = StateValue(v, 1, 8, st.depth_func); break;
+	case D3DRENDERSTATE_ALPHAREF: st.alpha_ref = (unsigned char)(v & 0xFF); break;
+	case D3DRENDERSTATE_ALPHAFUNC: st.alpha_func = StateValue(v, 1, 8, st.alpha_func); break;
+	case D3DRENDERSTATE_ALPHABLENDENABLE: st.blend_enable = v != 0; break;
+	case D3DRENDERSTATE_FOGENABLE: st.fog_enable = v != 0; break;
+	case D3DRENDERSTATE_SPECULARENABLE: st.specular_enable = v != 0; break;
+	case D3DRENDERSTATE_FOGCOLOR: st.fog_color = v; break;
+	case D3DRENDERSTATE_TEXTUREFACTOR: st.texture_factor = v; break;
+	default: break;   // no effect on pre-transformed vertices (port/native/gfx/D3D-USAGE.md 3)
+	}
+}
+
+void C3dDevice :: SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD v)
+{
+	if (stage >= 2) {
+		if (type == D3DTSS_COLOROP && v != D3DTOP_DISABLE) {
+			static bool once;
+			if (!once) {
+				once = true;
+				BF_TRACE(BFT_GFX, "device: texture stage %u enabled; the gfx module has two", (unsigned)stage);
+			}
+		}
+		return;
+	}
+	bf_gfx_stage_state &s = m_state.stage[stage];
+	switch (type) {
+	case D3DTSS_COLOROP: s.color_op = StateValue(v, 1, 24, BF_GFX_OP_DISABLE); break;
+	case D3DTSS_ALPHAOP: s.alpha_op = StateValue(v, 1, 24, BF_GFX_OP_DISABLE); break;
+	case D3DTSS_COLORARG1: s.color_arg1 = (unsigned char)(v & 0x3F); break;
+	case D3DTSS_COLORARG2: s.color_arg2 = (unsigned char)(v & 0x3F); break;
+	case D3DTSS_ALPHAARG1: s.alpha_arg1 = (unsigned char)(v & 0x3F); break;
+	case D3DTSS_ALPHAARG2: s.alpha_arg2 = (unsigned char)(v & 0x3F); break;
+	case D3DTSS_TEXCOORDINDEX: s.texcoord_index = (v & 0xFFFF) ? 1 : 0; break;
+	case D3DTSS_ADDRESS: s.address_u = s.address_v = StateValue(v, 1, 4, s.address_u); break;
+	case D3DTSS_ADDRESSU: s.address_u = StateValue(v, 1, 4, s.address_u); break;
+	case D3DTSS_ADDRESSV: s.address_v = StateValue(v, 1, 4, s.address_v); break;
+	case D3DTSS_BORDERCOLOR: s.border_color = v; break;
+	case D3DTSS_MAGFILTER: s.mag_filter = v == D3DTFG_POINT ? BF_GFX_FILTER_NEAREST : BF_GFX_FILTER_LINEAR; break;
+	case D3DTSS_MINFILTER: s.min_filter = v == D3DTFN_POINT ? BF_GFX_FILTER_NEAREST : BF_GFX_FILTER_LINEAR; break;
+	case D3DTSS_MIPFILTER: s.mip_filter = StateValue(v, 1, 3, s.mip_filter); break;
+	default: break;   // bump-mapping and texture-transform states: unused
+	}
+}
+
+void C3dDevice :: SetTexture(DWORD stage, bf_gfx_texture* tex)
+{
+	if (stage < 2)
+		bf_render_bind_texture((int)stage, tex);   // stages 2-7 draw nothing
+}
+
+int C3dDevice :: Draw(D3DPRIMITIVETYPE type, DWORD fvf, const void* verts, DWORD numVerts, const WORD* indices, DWORD numIndices)
+{
+	if (!m_bInitialized)
+		return E_FAIL;
+	if (!verts)
+		return E_INVALIDARG;
+	// The two layouts the gfx module draws: tlvertex3d and lmtlvertex3d.
+	bf_gfx_vertex_format format;
+	if (fvf == (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1))
+		format = BF_GFX_VERTEX_TL1;
+	else if (fvf == (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX2))
+		format = BF_GFX_VERTEX_TL2;
+	else {
+		static bool once;
+		if (!once) {
+			once = true;
+			BF_TRACE(BFT_GFX, "device: draw with FVF 0x%x skipped: only pre-transformed tlvertex3d/lmtlvertex3d are drawn", (unsigned)fvf);
+		}
+		return S_OK;
+	}
+	if ((DWORD)type < D3DPT_POINTLIST || (DWORD)type > D3DPT_TRIANGLEFAN)
+		return E_INVALIDARG;
+	if (numVerts > 0xFFFF && indices)
+		return E_INVALIDARG;
+	return bf_render_draw(&m_state, (bf_gfx_prim)type, format, verts, (int)numVerts, indices, (int)numIndices) == BF_GFX_OK ? S_OK : E_FAIL;
+}
+
+int C3dDevice :: DrawPrimitive(D3DPRIMITIVETYPE type, DWORD fvf, void* verts, DWORD numVerts, DWORD flags)
+{
+	return Draw(type, fvf, verts, numVerts, NULL, 0);
+}
+
+int C3dDevice :: DrawIndexedPrimitive(D3DPRIMITIVETYPE type, DWORD fvf, void* verts, DWORD numVerts, WORD* indices, DWORD numIndices, DWORD flags)
+{
+	if (!indices)
+		return E_INVALIDARG;
+	return Draw(type, fvf, verts, numVerts, indices, numIndices);
+}
+
+int C3dDevice :: DrawPrimitiveVB(D3DPRIMITIVETYPE type, CDynamicVB* vb, DWORD startVert, DWORD numVerts, DWORD flags)
+{
+	if (!vb || !vb->GetVertices() || startVert + numVerts > vb->GetSize())
+		return E_INVALIDARG;
+	return Draw(type, vb->GetFVF(), vb->GetVertices() + startVert * vb->GetVertexSize(), numVerts, NULL, 0);
+}
+
+int C3dDevice :: DrawIndexedPrimitiveVB(D3DPRIMITIVETYPE type, CDynamicVB* vb, DWORD startVert, DWORD numVerts, WORD* indices, DWORD numIndices, DWORD flags)
+{
+	if (!vb || !vb->GetVertices() || !indices || startVert + numVerts > vb->GetSize())
+		return E_INVALIDARG;
+	return Draw(type, vb->GetFVF(), vb->GetVertices() + startVert * vb->GetVertexSize(), numVerts, indices, numIndices);
 }

@@ -59,8 +59,8 @@ class CSprRes;
 
 struct RPRaw {
 public:
-	void DrawPri(IDirect3DDevice7* device);
-	void DrawPriIndexed(IDirect3DDevice7* device);
+	void DrawPri(C3dDevice* device);
+	void DrawPriIndexed(C3dDevice* device);
 	matrix world;
 	CDynamicVB* vb;
 	int vertStart;
@@ -77,7 +77,7 @@ public:
 	void SetGeomInfo(int vertId, const vector4d& src);
 	void SetGeomInfo(int vertId, const tlvertex3d& src);
 	void InitSpecular();
-	void DrawPri(IDirect3DDevice7* device);
+	void DrawPri(C3dDevice* device);
 	tlvertex3d* verts;
 	int numVerts;
 	CTexture* tex;
@@ -86,7 +86,7 @@ public:
 	unsigned int srcAlphaMode;
 	unsigned int destAlphaMode;
 	unsigned int mtPreset;
-	_D3DPRIMITIVETYPE primType;
+	D3DPRIMITIVETYPE primType;
 };
 
 struct RPTriFace {
@@ -115,14 +115,14 @@ public:
 struct RPLmFace {
 public:
 	void InitSpecular();
-	void DrawPri(IDirect3DDevice7* device);
+	void DrawPri(C3dDevice* device);
 	lmtlvertex3d* lmverts;
 	int numVerts;
 	unsigned short* indices;
 	unsigned int numIndices;
 	CTexture* tex;
 	CTexture* tex2;
-	_D3DPRIMITIVETYPE primType;
+	D3DPRIMITIVETYPE primType;
 };
 
 struct RPLmQuadFace : public RPLmFace {
@@ -214,7 +214,7 @@ public:
 	CTexMgr();
 	~CTexMgr();
 	CTexture* CreateTexture(int w, int h, unsigned int* pf, PixelFormat surface, bool blackkey);
-	CTexture* CreateTexture(unsigned int w, unsigned int h, PixelFormat pf, IDirectDrawSurface7* surface);
+	CTexture* CreateTexture(unsigned int w, unsigned int h, PixelFormat pf, bf_gfx_texture* surface);
 	void ReCreateTexture(CTexture* tex, int w, int h, unsigned int* imgData);
 	CTexture* GetTexture(const char* fName, bool blackkey);
 	void DestroyTexture(CTexture* t);
@@ -364,7 +364,7 @@ public:
 	unsigned int m_nClearColor;
 private:
 	friend class C3dDevice;
-	IDirect3DDevice7* m_device;
+	C3dDevice* m_device;
 	IDirectDrawSurface7* m_lpSurface;
 	unsigned int m_dwScreenWidth;
 	unsigned int m_dwScreenHeight;

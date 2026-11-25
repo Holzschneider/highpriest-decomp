@@ -44,6 +44,7 @@
 #include "bf_app.h"
 #include "bf_clock.h"
 #include "bf_compat_d3d.h"
+#include "bf_render.h"
 #include "bf_coverage.h"
 #include "bf_control.h"
 #include "bf_file.h"
@@ -547,6 +548,7 @@ extern "C" int bf_port_start_graphics(void)
 	}
 	bf_view_attach_gfx(g_gfx);
 	bf_compat_d3d_set_device(g_gfx);
+	bf_render_set_device(g_gfx);
 	BF_TRACE(BFT_GFX, "gfx: device on the window layer, logical %dx%d, UI scale %d, drawable %dx%d", m.logical_w,
 	         m.logical_h, m.ui_scale, m.drawable_w, m.drawable_h);
 	return 1;
@@ -660,6 +662,7 @@ int main(int argc, char **argv)
 	bf_control_close("quit");
 	if (g_gfx) {
 		bf_compat_d3d_set_device(NULL);
+		bf_render_set_device(NULL);
 		bf_view_attach_gfx(NULL);
 		bf_gfx_destroy(g_gfx);
 		g_gfx = nullptr;

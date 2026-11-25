@@ -2,6 +2,7 @@
 #define HIGHPRIEST_3DLIB_DEVICE_H
 
 #include "../common.h"
+#include "bf_render.h"
 
 class CDC;
 class CRenderer;
@@ -39,6 +40,9 @@ const	DWORD COLORKEY_R = 10;
 const	DWORD COLORKEY_G = 10;
 const	DWORD COLORKEY_B = 10;
 
+class C3dDevice;
+
+// A vertex buffer in CPU memory (M11.9: the gfx module draws from caller memory).
 class CDynamicVB {
 public:
 	CDynamicVB();
@@ -47,14 +51,17 @@ public:
 	void Release();
 	bool Lock(unsigned int vertCount, void** ppLockedData);
 	void Unlock();
-	IDirect3DVertexBuffer7* GetInterface() const { return m_pVB; }
+	unsigned char* GetVertices() const { return m_pVB; }
+	unsigned int GetFVF() const { return m_fvf; }
+	unsigned int GetVertexSize() const { return m_vertSize; }
 	unsigned int GetSize() { return m_vertCount; }
-	void DrawPri(IDirect3DDevice7* device, unsigned int vertCount);
+	void DrawPri(C3dDevice* device, unsigned int vertCount);
 private:
 	unsigned int m_vertCount;
 	unsigned int m_vertSize;
 	unsigned int m_vertOffset;
-	IDirect3DVertexBuffer7* m_pVB;
+	unsigned int m_fvf;
+	unsigned char* m_pVB;
 };
 
 class C3dDevice {
@@ -87,12 +94,9 @@ public:
 	void EnableMipmap();
 	void AdjustTextureSize(unsigned int* w, unsigned int* h);
 	IDirectDraw7* GetDirectDraw() { return m_pDD; }
-	IDirect3D7* GetDirect3D() { return m_pD3D; }
-	IDirect3DDevice7* GetD3DDevice() { return m_pd3dDevice; }
 	IDirectDrawSurface7* GetFrontBuffer() { return m_pddsFrontBuffer; }
 	IDirectDrawSurface7* GetBackBuffer() { return m_pddsBackBuffer; }
 	IDirectDrawSurface7* GetRenderSurface() { return m_pddsRenderTarget; }
-	_D3DDeviceDesc7 GetDeviceDesc() { return m_ddDeviceDesc; }
 	_DDSURFACEDESC2* GetFrameBufferDesc() { return &m_ddsdFrameBuffer; }
 	unsigned char GetBltStretchState() { return m_bSupportBltStretch; }
 	unsigned int GetRBitMask() { return m_pfRBitMask; }
@@ -109,15 +113,25 @@ public:
 #if defined(BF_PORT)
 	int BfResize(unsigned int w, unsigned int h);
 #endif
+	// The device the renderer draws with (M11.9: port/native/gfx through
+	// bf_render.h). States are set by their Direct3D 7 numbers, which the
+	// renderer and the game data keep, and translated into one bf_gfx_state.
+	int BeginScene();
+	int EndScene();
+	void SetRenderState(D3DRENDERSTATETYPE type, unsigned int value);
+	void SetTextureStageState(unsigned int stage, D3DTEXTURESTAGESTATETYPE type, unsigned int value);
+	void SetTexture(unsigned int stage, bf_gfx_texture* tex);
+	int DrawPrimitive(D3DPRIMITIVETYPE type, unsigned int fvf, void* verts, unsigned int numVerts, unsigned int flags);
+	int DrawIndexedPrimitive(D3DPRIMITIVETYPE type, unsigned int fvf, void* verts, unsigned int numVerts, unsigned short* indices, unsigned int numIndices, unsigned int flags);
+	int DrawPrimitiveVB(D3DPRIMITIVETYPE type, CDynamicVB* vb, unsigned int startVert, unsigned int numVerts, unsigned int flags);
+	int DrawIndexedPrimitiveVB(D3DPRIMITIVETYPE type, CDynamicVB* vb, unsigned int startVert, unsigned int numVerts, unsigned short* indices, unsigned int numIndices, unsigned int flags);
 	void SetMaterialDiffuse( float r, float g, float b ) { m_fMaterialDiffuseR = r, m_fMaterialDiffuseG = g, m_fMaterialDiffuseB = b; }
 	void SetMaterialAmbient( float r, float g, float b ) { m_fMaterialAmbientR = r, m_fMaterialAmbientG = g, m_fMaterialAmbientB = b; }
 	void GetMaterialDiffuse( float* r, float* g, float* b ) { *r = m_fMaterialDiffuseR, *g = m_fMaterialDiffuseG, *b = m_fMaterialDiffuseB; }
 	void GetMaterialAmbient( float* r, float* g, float* b ) { *r = m_fMaterialAmbientR, *g = m_fMaterialAmbientG, *b = m_fMaterialAmbientB; }
 private:
-	int CreateZBuffer();
 	int CreateBuffers(_DDSURFACEDESC2* pddsd, unsigned int dwFlags);
 	int CreateDirectDraw(_GUID* pDriverGUID, unsigned int dwFlags);
-	int CreateDirect3D(_GUID* pDriverGUID, unsigned int dwFlags);
 	int CreateEnvironment(_GUID* pDriverGUID, _GUID* pDeviceGUID, _DDSURFACEDESC2* pMode, unsigned int dwFlags);
 	int FlipToGDISurface(int bDrawFrame);
 	HWND__* m_hWnd;
@@ -128,13 +142,10 @@ private:
 	IDirectDrawSurface7* m_pddsFrontBuffer;
 	IDirectDrawSurface7* m_pddsBackBuffer;
 	IDirectDrawSurface7* m_pddsRenderTarget;
-	IDirectDrawSurface7* m_pddsZBuffer;
-	IDirect3DDevice7* m_pd3dDevice;
 	IDirectDraw7* m_pDD;
-	IDirect3D7* m_pD3D;
-	_D3DDeviceDesc7 m_ddDeviceDesc;
-	unsigned int m_dwDeviceMemType;
-	_DDPIXELFORMAT m_ddpfZBuffer;
+	bf_gfx_state m_state;
+	int m_bInitialized;
+	int Draw(D3DPRIMITIVETYPE type, unsigned int fvf, const void* verts, unsigned int numVerts, const unsigned short* indices, unsigned int numIndices);
 	_DDSURFACEDESC2 m_ddsdFrameBuffer;
 	int m_bIsFullscreen;
 	int m_bIsGDIObject;

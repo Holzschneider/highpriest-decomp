@@ -10,7 +10,7 @@ class CTexture;
 class CSurface {
 	friend class CDCSurface;
 public:
-	CSurface() : m_pddsSurface(0) {}
+	CSurface() : m_pddsSurface(0), m_gfxTex(0) {}
 	CSurface(unsigned int w, unsigned int h, IDirectDrawSurface7* surface);
 	CSurface(unsigned int w, unsigned int h);
 	virtual ~CSurface();
@@ -19,6 +19,7 @@ public:
 	virtual void DrawSurface(int x, int y, int width, int height, unsigned int color);
 	virtual void DrawSurfaceStretch(int x, int y, int width, int height);
 	IDirectDrawSurface7* GetDDSurface() const { return m_pddsSurface; }
+	bf_gfx_texture* GetGfxTexture() const { return m_gfxTex; }   // a texture's (CTexture), else NULL
 	bool Create(unsigned int w, unsigned int h);
 #if defined(BF_PORT)
 	unsigned int GetSurfaceWidth() const { return m_w; }    // the UI pass's texel test (Renderer.cpp)
@@ -28,6 +29,7 @@ protected:
 	unsigned int m_w;
 	unsigned int m_h;
 	IDirectDrawSurface7* m_pddsSurface;
+	bf_gfx_texture* m_gfxTex;
 };
 
 class CSurfaceWallpaper : public CSurface {
@@ -55,10 +57,10 @@ public:
 	void SetName(const char* texName){ strcpy(m_texName, texName); }
 	bool CopyTexture(CTexture* srcTex, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
 protected:
-	CTexture(unsigned int w, unsigned int h, PixelFormat pf, IDirectDrawSurface7* surface);
+	CTexture(unsigned int w, unsigned int h, PixelFormat pf, bf_gfx_texture* surface);
 	CTexture(unsigned int w, unsigned int h, PixelFormat pf);
 	bool Create(unsigned int w, unsigned int h, PixelFormat pf);
-	bool CreateBump(unsigned int w, unsigned int iDv, IDirectDrawSurface7* h);
+	bool CreateBump(unsigned int w, unsigned int iDv, bf_gfx_texture* h);
 	bool CreateBump(unsigned int w, unsigned int iDv);
 	void SetUVAdjust(unsigned int width, unsigned int height);
 	void UpdateMipmap(tagRECT& src);
