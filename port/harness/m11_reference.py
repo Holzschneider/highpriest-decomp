@@ -15,10 +15,11 @@ BF_CLIENT must be built from it):
    pixels that differ among them; framecmp.py's docstring is the definition
    of "match") into <out>: the frames of run 1, a mask per frame, and
    reference.json naming the commit.
-4. Writes the frames' checksums of run 1 to port/harness/manifests/m11-frames.sha256.
-5. Runs the capture --check more times (default 1), under <out>/checks/check<n>/,
+4. Runs the capture --check more times (default 1), under <out>/checks/check<n>/,
    each compared with the new reference by the script's last step; the
    command fails unless every check matches (the reproducibility proof).
+5. Writes the checksums of run 1's frames to port/harness/manifests/m11-frames.sha256
+   (a comparison run of the script leaves that file alone).
 
 After an M11 step the comparison alone is:
 
@@ -106,7 +107,6 @@ def main():
             return 1
         runs.append(root / "m11")
     framecmp.build_reference(runs, out, commit)
-    write_manifest(runs[0], commit)
     ok = True
     for n in range(1, a.check + 1):
         code, report = capture(out / "checks" / ("check%d" % n), ["reference=%s" % out])
@@ -119,6 +119,7 @@ def main():
                             for line in e["lines"]:
                                 print("  " + line)
         ok = ok and code == 0
+    write_manifest(runs[0], commit)
     print("%s: reference at %s for %s%s" % ("PASS" if ok else "FAIL", out, commit,
                                           "" if a.check == 0 else ", %d check(s) %s" % (a.check, "match" if ok else "do not all match")))
     return 0 if ok else 1

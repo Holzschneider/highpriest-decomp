@@ -225,6 +225,10 @@ def run(t):
     global MANIFEST
     record = t.param("record") == "1"
     replay = not t.mock and not record
+    if replay and t.param("compare", "1") != "0":
+        # a comparison run: the repository's manifest stays the reference's
+        # (m11_reference.py writes it); the checksums are in the report
+        MANIFEST = None
 
     with t.step("session", "the recorded session (replay) or a fresh one (record, mock)") as s:
         if replay:
