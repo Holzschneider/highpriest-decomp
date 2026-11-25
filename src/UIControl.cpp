@@ -17,7 +17,7 @@
 #include "resource/Action.h"
 #include "resource/Emblem.h"
 #include "3dlib/Renderer.h"
-#include "bf_app.h"
+#include "bf_input.h"
 #include "resource/Ground.h"
 
 extern CRenderer* g_renderer;
@@ -1592,7 +1592,7 @@ INT_PTR UIEditCtrl3::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PT
 		}
 
 	case UM_DEFPUSH:
-		if (m_onShiftEnter && (bf_app_modifiers() & BF_APP_MOD_SHIFT) || !m_onShiftEnter) {
+		if (m_onShiftEnter && HIBYTE(bf_input_key_state(VK_SHIFT)) || !m_onShiftEnter) {
 			char tmp[3];
 			tmp[0] = '\r';
 			tmp[1] = '\n';
