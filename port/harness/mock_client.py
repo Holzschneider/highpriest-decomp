@@ -943,6 +943,71 @@ class OptionPagesMixin:
         return super().button_extra(button, down, x, y)
 
 
+# The minimap (M8, minimap.py): UIBasicInfoWnd::SendMsg 0x472EA0 case 0x99
+# (the basic window's map button, Ctrl+Tab) and MakeWindow 0x4EFB20 for the
+# basic window, both behind CGameMode::m_canRotateView (+0x270), which is
+# set on maps outside data\indoorrswtable.txt. The minimap opens with the
+# basic window on such a map, translucent by default (UIWindowMgr's
+# m_miniMapArgb); the command cycles translucent -> closed -> opaque ->
+# translucent; indoors it does nothing.
+WID["MINIMAPZOOMWND"] = 14
+INDOOR_MAPS = {"prt_in"}
+
+
+class MinimapMixin:
+    def minimap_opacity(self):
+        return getattr(self, "minimap_argb", "translucent")
+
+    def minimap_window(self):
+        L = self.logical()
+        w = Window("MINIMAPZOOMWND", [L[0] - 29, 17, 12, 24], [
+            ctl("minimap", "text", L[0] - 144, 16, 128, 128, self.minimap_opacity())])
+        w.focus_control = None
+        self.close_window("MINIMAPZOOMWND")
+        self.open_window(w)
+        self.windows.remove(w)        # it takes no keyboard (the mock's focus is the front window)
+        self.windows.append(w)
+
+    def minimap_entry(self):
+        self.close_window("MINIMAPZOOMWND")
+        if self.map not in INDOOR_MAPS:
+            self.minimap_window()
+
+    def minimap_command(self):
+        if self.map in INDOOR_MAPS:
+            return
+        if self.minimap_opacity() == "opaque":
+            self.minimap_argb = "translucent"
+            self.window("MINIMAPZOOMWND").control("minimap")["text"] = "translucent"
+            return
+        if not self.close_window("MINIMAPZOOMWND"):
+            self.minimap_argb = "opaque"
+            self.minimap_window()
+
+    def refresh_windows(self):
+        super().refresh_windows()
+        w = self.window("BASICINFOWND")
+        if w and not w.control("map"):
+            w.controls.append(ctl("map", "button", w.rect[0] + 150, w.rect[1] + 100, 20, 14))
+            w.focus_control = None
+
+    def key_extra(self, key, down, mods):
+        if down and key == "tab" and "ctrl" in mods and self.mode == "game" and self.window("BASICINFOWND"):
+            self.minimap_command()
+            return True
+        return super().key_extra(key, down, mods)
+
+    def button_extra(self, button, down, x, y):
+        w = self.window("BASICINFOWND")
+        if w and button == "left" and self.mode == "game":
+            c = w.hit(x, y)
+            if c and c["id"] == "map":
+                if not down:
+                    self.minimap_command()
+                return True
+        return super().button_extra(button, down, x, y)
+
+
 class Conn:
     def __init__(self, sock):
         self.sock = sock
@@ -955,7 +1020,7 @@ class Conn:
         self.out = b""
 
 
-class Mock(AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOptionsMixin):
+class Mock(MinimapMixin, AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOptionsMixin):
     def __init__(self, path, db, trace):
         self.path = path
         self.db = db
@@ -1121,6 +1186,7 @@ class Mock(AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOptionsMixin):
                                      ctl("whisper_edit", "edit", 4, L[1] - 40, 90, 16)]))
             self.window("CHATWND").focus_control = "chat_edit"
             self.tip_of_the_day()
+            self.minimap_entry()
 
     def open_window(self, w):
         self.windows.insert(0, w)
@@ -1760,6 +1826,8 @@ class Mock(AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOptionsMixin):
         self.play_stream(MUSIC.get(name, "bgm\\01.mp3"))
         self.trace("game", "enter %s %d %d" % (name, x, y))
         self.emit("map", map=name, x=x, y=y)
+        if self.mode == "game" and self.window("BASICINFOWND"):
+            self.minimap_entry()     # a map change remakes the windows
 
     def add_actor(self, type_, name, job, x, y, **extra):
         self.next_actor += 1

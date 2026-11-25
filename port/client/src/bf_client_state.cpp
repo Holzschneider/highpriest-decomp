@@ -11,6 +11,7 @@
 #include "Session.h"
 #include "SkillInfo.h"
 #include "UIMessengerWnd.h"
+#include "3dlib/Renderer.h"
 
 #include <cxxabi.h>
 #include <ctype.h>
@@ -906,6 +907,22 @@ struct BfUiProbe {
 			Rename(w, o->m_noCtrlCheckBox, "noctrl");
 			Scroll(w, o->m_bgmVolumescrBar, "bgm_volume");
 			Scroll(w, o->m_soundVolumescrBar, "sound_volume");
+		} else if (dynamic_cast<UIMinimapZoomWnd *>(w.wnd)) {
+			// The minimap CGameMode::DrawMiniMap draws while this window is
+			// open: 128x128 at 16 from the top right, its opacity the
+			// window manager's m_miniMapArgb (0xffffffff opaque, 0xaaffffff
+			// translucent; Ctrl+Tab and the map button cycle it).
+			Control k;
+			k.wnd = nullptr;
+			k.id = "minimap";
+			k.kind = "text";
+			k.x = g_renderer->m_width - 144;
+			k.y = 16;
+			k.w = 128;
+			k.h = 128;
+			k.text = g_windowMgr.m_miniMapArgb == 0xffffffff ? "opaque" : "translucent";
+			k.focus = 0;
+			w.controls.push_back(k);
 		}
 	}
 
