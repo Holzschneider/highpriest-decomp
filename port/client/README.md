@@ -7,11 +7,13 @@ The port's own code that stays in the client after M11: neither a native module 
       bf_crt.h           the C library's file calls on client paths (was bf_win32_crt.h); included by bf_prefix.h
       bf_port.h          what `src/` calls under BF_PORT (graphics start, per-frame hook, zlib wrappers, ...)
       bf_replay.h        packet replay contract (BF_PKT_REPLAY)
+      bf_setting_key.h   the client's settings keys on bf_settings (M11.4; C++): the registry paths it names
       bf_types.h         the Windows-shaped vocabulary the client keeps (M11.0b)
     src/                 the entry point, the control bindings, the client state for the control socket,
                          the crash handler, the zlib wrappers, the CRT helpers, packet replay;
                          README.md lists the files (headers used only by these sources sit beside them)
     test/                bifrost-types-test: bf_types.h against the Wine headers
+                         bifrost-setting-key-test: bf_setting_key.h and the Settings.plist it leaves (root CMakeLists.txt)
 
 `include/` holds the headers that a `src/` unit or another program includes by name (`bf_port.h` and `bf_replay.h` from `src/`, `bf_prefix.h` through `-include`); `flags.sh` puts it on the include path ahead of `port/compat/include`. The `bf_client_*.h` and `bf_control_*.h` headers are contracts between files of `src/` only and stay there. `bf_crt.h` still redirects `fopen` and the other file calls to `bf_crt_*`, which `src/bf_crt.cpp` implements on `bf_file.h` since M11.3; it is transitional: a call site that leaves the Windows names calls `bf_file.h` itself (M11.3 did so in `base/File.cpp`, `base/GPak.cpp`, `base/Util.cpp`, `skin.cpp`), and the macros go with the last of them.
 

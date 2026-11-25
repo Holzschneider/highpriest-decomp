@@ -33,16 +33,17 @@
  * string (REG_SZ, UTF-8) and data (REG_BINARY).
  *
  * Addressing. A value is named by a group path and a value name. The group
- * path separates groups with "/" (the registry adapter turns "\" into "/");
+ * path separates groups with "/" (the client's keys, port/client's
+ * bf_setting_key.h, turn "\" into "/");
  * "" is the top level. The value name is used as it is. Both are UTF-8;
  * names are compared without regard to case, as in the registry, and keep
- * the case they were first written with. The registry adapter converts the
- * client's code-page bytes in names and REG_SZ data to UTF-8 and back.
+ * the case they were first written with. bf_setting_key converts the
+ * client's code-page bytes in names and string data to UTF-8 and back.
  *
  * The object. bf_settings_shared() is the one object of the process. It is
  * loaded on first use. Writes mark it changed; bf_settings_save writes the
- * file atomically when something changed (the registry adapter calls it on
- * RegCloseKey, the client at exit). A later profile switch gets its own
+ * file atomically when something changed (bf_setting_close calls it, the
+ * client at exit). A later profile switch gets its own
  * object from bf_settings_open.
  *
  * Every function may be called from any thread; the object locks itself.
