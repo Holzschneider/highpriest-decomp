@@ -50,7 +50,7 @@ import re
 import time
 
 from bfharness.bot import Bot
-from bfharness.field import walk_into_portal
+from bfharness.field import near_portal, walk_into_portal
 from bfharness.play import enter_game, login, own_home
 
 NAME = "sound"
@@ -206,7 +206,12 @@ def attack(t, ctl, bot):
         mons = sorted([a for a in ctl.state("actors")["actors"] if a["type"] == "monster" and a["job"] == PORING
                        and a["screen"]], key=near)
         s.state("Porings on screen, nearest first", mons[:6])
-        ok(s, mons, "a Poring on screen")
+        # the client walks beside a Poring out of reach before attacking it;
+        # one in the corridor north of the arrival has its neighbour cells in
+        # the warp prtf004, which would carry the character back to prontera
+        # (as field.own_monster passes such a monster over)
+        mons = [a for a in mons if not near_portal(ctl, a)]
+        ok(s, mons, "a Poring on screen, not within 3 cells of a portal")
         target = mons[0]
         after = ctl.last_seq
         before = sound(ctl)["voices_started"]
