@@ -634,11 +634,12 @@ int main(int argc, char **argv)
 			         strcmp(a.key, "password") == 0 ? "(given)" : a.value.c_str());
 
 	if (g_headless) {
-		// No chooser to ask: a game folder whose path is over the limit
-		// stops the start here (bf_file traced the refusal), and no other
+		// No chooser to ask: a folder the chooser would refuse (over the
+		// length limit, relative, missing, without the archives or the files
+		// the start needs; bf_prefs.h) stops the start here, and no other
 		// folder is used in its place.
-		char why[256];
-		if (!bf_file_game_folder_fits(bf_file_location(BF_LOCATION_GAME), why, sizeof why)) {
+		char why[1024];
+		if (!bf_prefs_game_folder_valid(bf_file_location(BF_LOCATION_GAME), why, sizeof why)) {
 			bf_tracef(BFT_ERR, "start: game folder not usable: %s", why);
 			return RefuseStart(1, "game folder");
 		}

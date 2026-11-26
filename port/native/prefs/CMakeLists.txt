@@ -39,7 +39,7 @@ set_target_properties(bf_prefs PROPERTIES
 target_compile_options(bf_prefs PRIVATE
 	$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>
 	-Wall -Wextra -Wno-unused-parameter)
-target_link_libraries(bf_prefs PUBLIC bf_sys bf_app "-framework AppKit")
+target_link_libraries(bf_prefs PUBLIC bf_sys bf_app z "-framework AppKit")
 
 # The test program; bf_trace.cpp is compiled into it as it is.
 add_executable(bifrost-prefs-test

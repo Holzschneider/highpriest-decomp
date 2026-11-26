@@ -23,6 +23,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <zlib.h>
 
 #include <string>
 #include <vector>
@@ -86,13 +87,75 @@ void WriteFile(const std::string &path, const void *data, size_t size)
 	fclose(f);
 }
 
-void WriteGrf(const std::string &path)
+// The names a game folder must hold (bf_prefs.h), as a GRF stores them (CP949).
+const char *const kNeeded[] = {
+	"data\\sclientinfo.xml",
+	"data\\msgstringtable.txt",
+	"data\\sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.spr",
+	"data\\sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.act",
+};
+// And loose, below the folder (UTF-8; "몬스터").
+const char *const kNeededLoose[] = {
+	"data/sclientinfo.xml",
+	"data/msgstringtable.txt",
+	"data/sprite/\xeb\xaa\xac\xec\x8a\xa4\xed\x84\xb0/poring.spr",
+	"data/sprite/\xeb\xaa\xac\xec\x8a\xa4\xed\x84\xb0/poring.act",
+};
+
+void Put32(std::vector<unsigned char> &v, size_t at, uint32_t x)
 {
-	// A GRF 0x200 header: signature, 14 key bytes, table offset, seeds, count, version.
-	unsigned char head[46] = {};
-	memcpy(head, "Master of Magic", 15);
-	head[42] = 0x00; head[43] = 0x02;
-	WriteFile(path, head, sizeof head);
+	for (int i = 0; i < 4; ++i)
+		v[at + i] = (unsigned char)(x >> (8 * i));
+}
+
+// A GRF of `version` whose file table names `names` (each a file of no
+// bytes). Version 0x200: the table is written and packed as CGPak reads it.
+// Version 0x1xx: the header only (its names are not read by the check).
+// damage: the table offset points past the end of the file.
+void WriteGrf(const std::string &path, const std::vector<std::string> &names = {}, uint32_t version = 0x200,
+              bool damage = false)
+{
+	std::vector<unsigned char> table;
+	for (const std::string &n : names) {
+		table.insert(table.end(), n.begin(), n.end());
+		table.push_back(0);
+		unsigned char entry[17] = {};
+		entry[12] = 1;   // a file
+		table.insert(table.end(), entry, entry + 17);
+	}
+	uLongf packed = compressBound(table.size());
+	std::vector<unsigned char> z(packed);
+	compress(z.data(), &packed, table.data(), table.size());
+	std::vector<unsigned char> out(46, 0);
+	memcpy(out.data(), "Master of Magic", 15);
+	Put32(out, 30, damage ? 0x10000000 : 0);           // table offset after the header
+	Put32(out, 34, 0);
+	Put32(out, 38, (uint32_t)names.size() + 7);
+	Put32(out, 42, version);
+	if ((version & 0xFF00) == 0x0200) {
+		std::vector<unsigned char> info(8);
+		Put32(info, 0, (uint32_t)packed);
+		Put32(info, 4, (uint32_t)table.size());
+		out.insert(out.end(), info.begin(), info.end());
+		out.insert(out.end(), z.begin(), z.begin() + packed);
+	}
+	WriteFile(path, out.data(), out.size());
+}
+
+std::vector<std::string> Needed(size_t skip = (size_t)-1)
+{
+	std::vector<std::string> v;
+	for (size_t i = 0; i < sizeof kNeeded / sizeof kNeeded[0]; ++i)
+		if (i != skip)
+			v.push_back(kNeeded[i]);
+	return v;
+}
+
+// A usable game folder: data.grf holding the files the check asks for.
+void MakeGameFolder(const std::string &path, const char *archive = "data.grf")
+{
+	MakeFolder(path);
+	WriteGrf(path + "/" + archive, Needed());
 }
 
 // A folder path of exactly `length` bytes below base (components of at most 200 bytes).
@@ -191,7 +254,10 @@ void CheckValidation()
 	MakeFolder(empty);
 	WriteFile(empty + "/readme.txt", "x", 1);
 	r = bf_prefs_game_folder_valid(empty.c_str(), why, sizeof why);
-	CHECK(r == 0 && strstr(why, "holds no .grf archive"), "valid-empty", "%d, \"%s\"", r, why);
+	CHECK(r == 0 && strstr(why, "holds no data.grf"), "valid-empty", "%d, \"%s\"", r, why);
+
+	r = bf_prefs_game_folder_valid("relative/folder", why, sizeof why);
+	CHECK(r == 0 && strstr(why, "full path"), "valid-relative", "%d, \"%s\"", r, why);
 
 	std::string bad = base + "/bad";
 	MakeFolder(bad);
@@ -202,13 +268,85 @@ void CheckValidation()
 
 	std::string good = base + "/good";
 	MakeFolder(good);
-	WriteGrf(good + "/DATA.GRF");   // other letter case on purpose
+	WriteGrf(good + "/DATA.GRF", Needed());   // other letter case on purpose
 	why[0] = 0;
 	r = bf_prefs_game_folder_valid(good.c_str(), why, sizeof why);
-	CHECK(r == 1, "valid-dummy", "%d (DATA.GRF with a GRF header)", r);
+	CHECK(r == 1, "valid-archive-holds-all", "%d (DATA.GRF holding the four files)%s%s", r, r ? "" : ": ", why);
 
 	r = bf_prefs_game_folder_valid(NULL, why, sizeof why);
 	CHECK(r == 0, "valid-null", "%d, \"%s\"", r, why);
+
+	// The verifier's cases (M12, third run): only rdata.grf, which the client
+	// does not open without a DATA.INI naming it; an empty valid GRF.
+	std::string rdata = base + "/rdata-only";
+	MakeGameFolder(rdata, "rdata.grf");
+	r = bf_prefs_game_folder_valid(rdata.c_str(), why, sizeof why);
+	CHECK(r == 0 && strstr(why, "holds no data.grf") && strstr(why, "DATA.INI"), "valid-rdata-only", "%d, \"%s\"", r, why);
+	WriteFile(rdata + "/data.ini", "[Data]\r\n2=data.grf\r\n1=rdata.grf\r\n", 32);   // the client's order: by number
+	r = bf_prefs_game_folder_valid(rdata.c_str(), why, sizeof why);
+	CHECK(r == 1, "valid-data-ini", "%d with data.ini naming rdata.grf and data.grf%s%s", r, r ? "" : ": ", r ? "" : why);
+	WriteFile(rdata + "/data.ini", "[Data]\n1=other.grf\n", 19);
+	r = bf_prefs_game_folder_valid(rdata.c_str(), why, sizeof why);
+	CHECK(r == 0 && strstr(why, "DATA.INI names (other.grf)"), "valid-data-ini-absent", "%d, \"%s\"", r, why);
+
+	std::string emptyGrf = base + "/empty-grf";
+	MakeFolder(emptyGrf);
+	WriteGrf(emptyGrf + "/data.grf");
+	r = bf_prefs_game_folder_valid(emptyGrf.c_str(), why, sizeof why);
+	CHECK(r == 0 && strstr(why, "data/sclientinfo.xml") && strstr(why, "poring.act") && strstr(why, "holds no files"),
+	      "valid-empty-grf", "%d, \"%s\"", r, why);
+
+	// Each file missing on its own is named.
+	for (size_t i = 0; i < sizeof kNeeded / sizeof kNeeded[0]; ++i) {
+		std::string lacking = base + "/lacking";
+		MakeFolder(lacking);
+		WriteGrf(lacking + "/data.grf", Needed(i));
+		r = bf_prefs_game_folder_valid(lacking.c_str(), why, sizeof why);
+		char name[64];
+		snprintf(name, sizeof name, "valid-lacks-%zu", i);
+		CHECK(r == 0 && strstr(why, kNeededLoose[i]) && strstr(why, "a file the client needs"), name, "%d, \"%s\"", r, why);
+	}
+
+	// The same files loose, in another letter case, below an empty valid
+	// GRF: usable (missing data then gets placeholders); "몬스터" in NFD.
+	std::string loose = base + "/loose";
+	MakeFolder(loose + "/Data/Sprite/\xe1\x84\x86\xe1\x85\xa9\xe1\x86\xab\xe1\x84\x89\xe1\x85\xb3\xe1\x84\x90\xe1\x85\xa5");
+	WriteGrf(loose + "/data.grf");
+	WriteFile(loose + "/Data/SClientInfo.xml", "<clientinfo/>", 13);
+	WriteFile(loose + "/Data/msgStringTable.txt", "x#\n", 3);
+	WriteFile(loose + "/Data/Sprite/\xe1\x84\x86\xe1\x85\xa9\xe1\x86\xab\xe1\x84\x89\xe1\x85\xb3\xe1\x84\x90\xe1\x85\xa5/Poring.spr", "x", 1);
+	WriteFile(loose + "/Data/Sprite/\xe1\x84\x86\xe1\x85\xa9\xe1\x86\xab\xe1\x84\x89\xe1\x85\xb3\xe1\x84\x90\xe1\x85\xa5/poring.ACT", "x", 1);
+	why[0] = 0;
+	r = bf_prefs_game_folder_valid(loose.c_str(), why, sizeof why);
+	CHECK(r == 1, "valid-loose", "%d (the four files loose, other case, NFD)%s%s", r, r ? "" : ": ", why);
+
+	// Through a link to the folder and with each entry a link (the harness's links folder).
+	std::string links = base + "/links";
+	MakeFolder(links);
+	symlink((good + "/DATA.GRF").c_str(), (links + "/data.grf").c_str());
+	symlink(good.c_str(), (base + "/good-link").c_str());
+	r = bf_prefs_game_folder_valid(links.c_str(), why, sizeof why);
+	int r2 = bf_prefs_game_folder_valid((base + "/good-link").c_str(), why, sizeof why);
+	CHECK(r == 1 && r2 == 1, "valid-links", "folder of links %d, link to the folder %d", r, r2);
+
+	// A 0x103 archive opens, but its names are encrypted: not looked at.
+	std::string old = base + "/v103";
+	MakeFolder(old);
+	WriteGrf(old + "/data.grf", {}, 0x103);
+	r = bf_prefs_game_folder_valid(old.c_str(), why, sizeof why);
+	CHECK(r == 1, "valid-0x103", "%d%s%s", r, r ? "" : ": ", r ? "" : why);
+
+	std::string damaged = base + "/damaged";
+	MakeFolder(damaged);
+	WriteGrf(damaged + "/data.grf", Needed(), 0x200, true);
+	r = bf_prefs_game_folder_valid(damaged.c_str(), why, sizeof why);
+	CHECK(r == 0 && strstr(why, "cannot be read") && strstr(why, "file table"), "valid-damaged-table", "%d, \"%s\"", r, why);
+
+	std::string v3 = base + "/v300";
+	MakeFolder(v3);
+	WriteGrf(v3 + "/data.grf", Needed(), 0x300);
+	r = bf_prefs_game_folder_valid(v3.c_str(), why, sizeof why);
+	CHECK(r == 0 && strstr(why, "version 0x300"), "valid-version", "%d, \"%s\"", r, why);
 
 	const char *rdataOnly[] = { "rdata.grf" };
 	bf_prefs_set_archives(rdataOnly, 1);
@@ -225,15 +363,13 @@ void CheckValidation()
 	// folder with an archive is usable, one byte more is refused with a
 	// reason that names the length and the limit.
 	std::string atLimit = LongFolder(base + "/limit", BF_FILE_FOLDER_MAX);
-	MakeFolder(atLimit);
-	WriteGrf(atLimit + "/data.grf");
+	MakeGameFolder(atLimit);
 	why[0] = 0;
 	r = bf_prefs_game_folder_valid(atLimit.c_str(), why, sizeof why);
 	CHECK(r == 1 && atLimit.size() == BF_FILE_FOLDER_MAX, "valid-at-limit", "%d for a %zu-byte folder with data.grf%s%s",
 	      r, atLimit.size(), r ? "" : ": ", why);
 	std::string over = LongFolder(base + "/limit", BF_FILE_FOLDER_MAX + 1);
-	MakeFolder(over);
-	WriteGrf(over + "/data.grf");
+	MakeGameFolder(over);
 	why[0] = 0;
 	r = bf_prefs_game_folder_valid(over.c_str(), why, sizeof why);
 	char want[64], wantMax[64];
@@ -245,8 +381,10 @@ void CheckValidation()
 	std::string real = RealHome() + "/Games/" BF_APP_NAME;
 	struct stat st;
 	if (stat((real + "/data.grf").c_str(), &st) == 0) {
+		double t0 = [NSProcessInfo processInfo].systemUptime;
 		r = bf_prefs_game_folder_valid(real.c_str(), why, sizeof why);
-		CHECK(r == 1, "valid-real-game-folder", "%d for %s%s%s", r, real.c_str(), r ? "" : ": ", r ? "" : why);
+		double ms = ([NSProcessInfo processInfo].systemUptime - t0) * 1000;
+		CHECK(r == 1, "valid-real-game-folder", "%d for %s in %.0f ms%s%s", r, real.c_str(), ms, r ? "" : ": ", r ? "" : why);
 	} else {
 		SKIP("valid-real-game-folder", "%s/data.grf absent", real.c_str());
 	}
@@ -258,8 +396,7 @@ void CheckOrder()
 	std::string base = g_dir + "/folders";
 	std::string good = base + "/good";
 	std::string other = base + "/other";
-	MakeFolder(other);
-	WriteGrf(other + "/rdata.grf");
+	MakeGameFolder(other);
 
 	unsetenv("BF_CLIENT_DIR");
 	bf_settings_remove(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER);

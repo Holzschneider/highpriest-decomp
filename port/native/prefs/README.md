@@ -61,11 +61,28 @@ a valid folder never sees the chooser.
   [sys README](../sys/README.md#long-paths)); a longer one is refused with
   "The folder's path is N bytes long; a game folder's path may be at most
   768 bytes. ...", in the panel as in the chooser's start-up message. Then
-  the path must be a readable folder. It must hold one of the archives (`bf_prefs_set_archives`; until
-  the client names its list, any `*.grf`), compared without regard to case,
-  whose first 15 bytes are `Master of Magic`. The reason for a refusal is one
-  English sentence, shown to the user. Only the folder listing and 16 bytes
-  per archive are read.
+  the path must be a full path (the client is started from anywhere; Finder
+  starts it in `/`) to a readable folder. Then the archives the client opens
+  (the numbered `[Data]` entries of the folder's `DATA.INI`, else `data.grf`;
+  `bf_prefs_set_archives` overrides the list): at least one is there, and
+  each one there opens as `CGPak::Open` opens it (GRF header, version 0x1xx
+  or 0x2xx, for 0x2xx a file table that unpacks). A folder with only
+  `rdata.grf` and no `DATA.INI` naming it is refused: the client would open
+  no archive. Last, the files the start cannot do without, loose below the
+  folder or in one of those archives:
+
+  | File | Why |
+  |---|---|
+  | `data/sclientinfo.xml` | the service and the login server; without it the client runs the Korean service against Gravity's address (`port/data/assemble.py` writes it) |
+  | `data/msgstringtable.txt` | every interface text |
+  | `data/sprite/몬스터/poring.spr`, `.act` | the default sprite: `CResMgr::Get` draws it for every missing sprite, so without it a missing sprite has no stand-in |
+
+  Names are compared without regard to case or Unicode normalisation; links
+  count as what they point to. A 0x1xx archive's names are encrypted and not
+  read; it may hold the files. Everything else may be missing (placeholders,
+  counted). The reason for a refusal is one English sentence naming what is
+  missing, shown to the user. Reads the folder listing, `DATA.INI` and each
+  archive's header and file table: about 0.1 s for the 2021 `data.grf`.
 - **The chooser** (`bf_prefs_choose_game_folder`): when the configured folder
   (setter, `BF_CLIENT_DIR`, `Paths/GameFolder`, `~/Games/<name>`) is valid,
   it returns at once. Otherwise it activates the app and runs an

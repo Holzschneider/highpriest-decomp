@@ -56,20 +56,37 @@ extern "C" {
 /* ---- The game folder -------------------------------------------------- */
 
 /*
- * The archives a game folder must hold at least one of (file names,
- * compared without regard to case). The client calls this with its archive
- * list once that list is read from its configuration. Until then, or with
- * names NULL / count 0, any "*.grf" counts. The names are copied.
+ * The archives the check opens in place of the client's own list, in its
+ * search order (file names, compared without regard to case; copied). With
+ * names NULL / count 0 (the default), the check uses the list the client
+ * builds (WinMain.cpp, AddPaksFromDataIni): the numbered entries of [Data]
+ * in the folder's DATA.INI, else data.grf alone.
  */
 void bf_prefs_set_archives(const char *const *names, int count);
 
 /*
- * 1 if path (absolute UTF-8) is a usable game folder: a path of at most
- * BF_FILE_FOLDER_MAX bytes (bf_file.h; checked first, the reason names the
- * length and the limit), a readable folder holding at least one of the
- * archives (see above) whose header is a GRF header ("Master of Magic").
+ * 1 if path (absolute UTF-8) is a usable game folder:
+ *  - a path of at most BF_FILE_FOLDER_MAX bytes (bf_file.h; checked first,
+ *    the reason names the length and the limit), and a full one (the
+ *    client is started from anywhere: Finder starts it in /);
+ *  - a readable folder;
+ *  - at least one of the archives above is there, and each one there opens
+ *    as the client opens it: the GRF header, a version 0x1xx or 0x2xx, and
+ *    for 0x2xx a file table that unpacks;
+ *  - it holds, loose below the folder or in one of those archives, the
+ *    files the start cannot do without: data/sclientinfo.xml (the service
+ *    and the login server; without it the client is Korean and dials
+ *    Gravity's server), data/msgstringtable.txt (every interface text),
+ *    and data/sprite/몬스터/poring.spr and .act (the default sprite, which
+ *    CResMgr::Get draws for every missing one). Names are compared without
+ *    regard to case or Unicode normalisation; a link counts as what it
+ *    points to. The names of a 0x1xx archive are encrypted and not read:
+ *    such an archive may hold them.
+ * Everything else may be missing: the client draws placeholders.
  * 0 if not, with the reason as one English sentence in reason (may be
- * NULL), for showing to the user.
+ * NULL), for showing to the user; it names what is missing. Reads the
+ * folder listing, DATA.INI, and each archive's header and file table
+ * (about 0.1 s for the 2021 data.grf).
  */
 int bf_prefs_game_folder_valid(const char *path, char *reason, size_t reason_size);
 
