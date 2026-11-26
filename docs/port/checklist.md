@@ -190,3 +190,4 @@ Fixes and nitpicks the owner asked for, to be done once the owner's hand test (f
 | | Step | Track | Needs |
 |---|---|---|---|
 | [ ] | F1 German Option+L types "@" again: on a layout where Option with a letter produces a character ("@" on German Option+L, and the like), typing that character in a text field must work; today Option is always Alt there, so Option+L opens the Alt+L emotion list instead (`port/client/src/bf_input.cpp`, Option as Alt). The Alt shortcuts must stay reachable | input | owner's hand test |
+| [ ] | F2 The start screen's background image (the login wallpaper) is drawn by the "cover" rule: scaled uniformly, keeping its aspect ratio, until it fills the whole window, centred, the overflow cropped; no stretching, no bars, at any window size and aspect and every UI scale | render | owner's hand test |
