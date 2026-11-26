@@ -1020,14 +1020,25 @@ void	CRenderer :: FlushLMLightList()
 // block at UI scale 2 and 3; a stretched or zoomed one (effects, the title at
 // other sizes) keeps the linear filter. Sprites are drawn one pixel short of
 // their width (Mode.cpp DrawSprite), hence the tolerance of 1.5 texels.
-static bool BfTexelExact(const RPFace *rp)
+// Returns the logical pixels per texel, 1, or 0 for a filtered face. A full-
+// screen picture (F2: the title and the wallpapers by the cover rule, at least
+// 64 texels each way) enlarged by a whole factor of 2 to 4 is sampled
+// unfiltered as well, each texel a clean k x k block of logical pixels.
+static int BfTexelExact(const RPFace *rp)
 {
 	if (!rp->tex || rp->numVerts != 4 || !rp->tex->GetSurfaceWidth() || !rp->tex->GetSurfaceHeight())
-		return false;
+		return 0;
 	const tlvertex3d &a = rp->verts[0], &b = rp->verts[3];
 	float dx = fabsf(b.x - a.x), dy = fabsf(b.y - a.y);
 	float du = fabsf(b.tu - a.tu) * rp->tex->GetSurfaceWidth(), dv = fabsf(b.tv - a.tv) * rp->tex->GetSurfaceHeight();
-	return fabsf(dx - du) <= 1.5f && fabsf(dy - dv) <= 1.5f;
+	if (fabsf(dx - du) <= 1.5f && fabsf(dy - dv) <= 1.5f)
+		return 1;
+	if (du < 64.0f || dv < 64.0f)
+		return 0;
+	float k = floorf(dx / du + 0.5f);
+	if (k < 2.0f || k > 4.0f || fabsf(dx - k * du) > 1.5f || fabsf(dy - k * dv) > 1.5f)
+		return 0;
+	return (int)k;
 }
 
 // Moves the edges of an axis-aligned quad that is sampled unfiltered onto
@@ -1037,8 +1048,10 @@ static bool BfTexelExact(const RPFace *rp)
 // scale 2 and 3 a sprite's half-pixel edge (DrawSprite's align) would cover
 // half a block, and a quad whose sample points fall on texel borders
 // (DrawTexture) would pick its texels by rounding noise, differently in its
-// two triangles.
-static void BfSnapToLogicalPixels(RPFace *rp)
+// two triangles. A face enlarged zoom times (BfTexelExact) starts at the centre
+// of a texel's first logical pixel, 1/(2 zoom) into the texel, so that its
+// texel borders fall on logical pixel borders.
+static void BfSnapToLogicalPixels(RPFace *rp, int zoom)
 {
 	tlvertex3d *v = rp->verts;
 	float dx = v[3].x - v[0].x, dy = v[3].y - v[0].y;
@@ -1051,7 +1064,7 @@ static void BfSnapToLogicalPixels(RPFace *rp)
 	float w = (float)rp->tex->GetSurfaceWidth(), h = (float)rp->tex->GetSurfaceHeight();
 	float x0 = ceilf(v[0].x < v[3].x ? v[0].x : v[3].x), y0 = ceilf(v[0].y < v[3].y ? v[0].y : v[3].y);
 	float u = (v[0].tu + (x0 - v[0].x) * su) * w, t = (v[0].tv + (y0 - v[0].y) * sv) * h;
-	float shiftU = (0.5f - (u - floorf(u))) / w, shiftV = (0.5f - (t - floorf(t))) / h;
+	float shiftU = (0.5f / zoom - (u - floorf(u))) / w, shiftV = (0.5f / zoom - (t - floorf(t))) / h;
 	for (int k = 0; k < 4; ++k) {
 		float nx = ceilf(v[k].x), ny = ceilf(v[k].y);
 		v[k].tu += (nx - v[k].x) * su + shiftU;
@@ -1073,9 +1086,10 @@ void	CRenderer :: FlushAlphaNoDepthList()
 		RPFace *rp = i->second;
 		SetTexture(rp->tex);
 #if defined(BF_PORT)
-		bool exact = BfTexelExact(rp);
+		int k = BfTexelExact(rp);
+		bool exact = k != 0;
 		if (exact)
-			BfSnapToLogicalPixels(rp);
+			BfSnapToLogicalPixels(rp, k);
 		if (exact != point) {
 			point = !point;
 			m_device->SetTextureStageState(0, D3DTSS_MINFILTER, point ? D3DTFN_POINT : D3DTFN_LINEAR);

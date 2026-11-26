@@ -1552,10 +1552,41 @@ void UIWindowMgr::Render()
 	}
 }
 
+#if defined(BF_PORT)
+// The size of the wallpaper's bitmap (SetWallpaper), for the cover rule.
+static int s_bfWallpaperW;
+static int s_bfWallpaperH;
+
+// The "cover" rule for the full-screen pictures (owner's request F2): a
+// picture of iw x ih is scaled uniformly until it fills w x h, centred, the
+// overflow cropped (it is drawn past the screen's edges). The 2008 client
+// stretched it to the screen instead, which distorts it at any aspect but
+// the picture's own. At a whole factor (1 to 4) the UI pass samples it
+// unfiltered (Renderer.cpp BfTexelExact), each texel a clean block of logical
+// pixels and so of device pixels at UI scale 1, 2 and 3; at any other factor
+// it is filtered (see RenderTitleGraphic for why).
+static void BfCoverRect(int iw, int ih, int w, int h, int* x, int* y, int* cw, int* ch)
+{
+	float s = (float)w / iw > (float)h / ih ? (float)w / iw : (float)h / ih;
+	*cw = (int)ceilf(iw * s - 0.001f);
+	*ch = (int)ceilf(ih * s - 0.001f);
+	*x = (w - *cw) / 2;
+	*y = (h - *ch) / 2;
+}
+#endif
+
 void UIWindowMgr::RenderWallPaper()
 {
 	m_isInvalidatedByForce = 0;
 
+#if defined(BF_PORT)
+	if (m_wallpaperSurface && s_bfWallpaperW > 0 && s_bfWallpaperH > 0) {
+		int x, y, w, h;
+		BfCoverRect(s_bfWallpaperW, s_bfWallpaperH, m_w, m_h, &x, &y, &w, &h);
+		m_wallpaperSurface->DrawSurfaceStretch(((int)g_3dDevice.GetWidth() - m_w) / 2 + x, ((int)g_3dDevice.GetHeight() - m_h) / 2 + y, w, h);
+		return;
+	}
+#endif
 	if (m_wallpaperSurface)
 		m_wallpaperSurface->DrawSurfaceStretch(((int)g_3dDevice.GetWidth() - m_w) / 2, ((int)g_3dDevice.GetHeight() - m_h) / 2, m_w, m_h);
 }
@@ -1568,6 +1599,23 @@ void UIWindowMgr::RenderWallPaper()
 // The file names are CP949: "T_<background><row>-<column>.bmp",
 // "T_<tape><n>.tga", "T_12<years>.tga", "T_<developer>.tga", "T_R<n>.tga"
 // in the interface folder.
+//
+// Under BF_PORT (owner's request F2) nothing is stretched. The background,
+// 4 x 3 tiles of 256 x 256 (a 1024 x 768 picture), follows the "cover" rule:
+// scaled uniformly until it fills the screen, centred, the overflow cropped
+// (see BfCoverRect). The pieces drawn over it (tapes, age rating, developer's
+// mark, logo) are not part of that picture: they keep the 2008 layout of a
+// 1024 x 768 screen at the largest uniform scale at which all of it fits, so
+// none is cropped, and each stays against the edges it sits on there (logo top
+// left, age rating top right, developer's mark bottom right, tapes along the
+// bottom, centred, their black band carried on to both edges). At 1024 x 768
+// every piece is where and as large as the 2008 client draws it, texel for
+// pixel. Filtering is the UI pass's rule (Renderer.cpp BfTexelExact): a piece
+// drawn at a whole factor is sampled unfiltered (clean blocks), at any other
+// factor linearly: the title is a painted, photo-like picture, which a
+// filter scales smoothly, where unfiltered sampling at a factor like 1.17 would
+// double some texel rows and columns and not others and show as a ragged
+// pattern across the faces and the logo's edges.
 void UIWindowMgr::RenderTitleGraphic()
 {
 	extern char title_random;
@@ -1575,6 +1623,19 @@ void UIWindowMgr::RenderTitleGraphic()
 	float oow = 1.0f / NEARPLANE - 0.0001f;
 	short cw = (short)(g_renderer->m_width / 4);   // a tile: a quarter of the width, a third of the height
 	short ch = (short)(g_renderer->m_height / 3);
+#if defined(BF_PORT)
+	float bfW = (float)g_renderer->m_width, bfH = (float)g_renderer->m_height;
+	float bfCover = bfW / 1024.0f > bfH / 768.0f ? bfW / 1024.0f : bfH / 768.0f;
+	float bfFit = bfW / 1024.0f < bfH / 768.0f ? bfW / 1024.0f : bfH / 768.0f;
+	cw = ch = (short)(256.0f * bfFit + 0.5f);   // a tile of the pieces: square, as the art is
+	if (cw < 1)
+		cw = ch = 1;
+	int bfRight = g_renderer->m_width - cw * 4;    // where the pieces against the right edge move
+	int bfBottom = g_renderer->m_height - ch * 3;  // and those against the bottom edge
+	int bfMiddle = bfRight / 2;                    // and the tapes, centred
+#else
+	const int bfRight = 0, bfBottom = 0, bfMiddle = 0;
+#endif
 	float fcw = (float)cw;
 	float fch = (float)ch;
 	char name[256];
@@ -1583,11 +1644,11 @@ void UIWindowMgr::RenderTitleGraphic()
 		int mx = g_mouse.GetXPos();
 		int my = g_mouse.GetYPos();
 		T_CLICK = 0;
-		if (fcw * 3.4f + T_12Age_X < mx && mx < fcw * 3.9f + T_12Age_X
+		if (fcw * 3.4f + T_12Age_X + bfRight < mx && mx < fcw * 3.9f + T_12Age_X + bfRight
 			&& fch * 0.2f + T_12Age_Y < my && my < fch * 0.6f + T_12Age_Y)
 			T_CLICK = 3;
-		if (fcw * 3.3f + T_Grav_X < mx && mx < fcw * 3.9f + T_Grav_X
-			&& fch * 2.4f + T_Grav_Y < my && my < fch * 2.8f + T_Grav_Y)
+		if (fcw * 3.3f + T_Grav_X + bfRight < mx && mx < fcw * 3.9f + T_Grav_X + bfRight
+			&& fch * 2.4f + T_Grav_Y + bfBottom < my && my < fch * 2.8f + T_Grav_Y + bfBottom)
 			T_CLICK = 2;
 		if (fcw * 0.1f + T_Logo_X < mx && mx < fcw * 1.8f + T_Logo_X
 			&& fch * 0.3f + T_Logo_Y < my && my < fch * 1.2f + T_Logo_Y)
@@ -1596,7 +1657,7 @@ void UIWindowMgr::RenderTitleGraphic()
 			&& fcw * 2.2f + T_Char_X < mx && mx < fcw * 3.5f + T_Char_X
 			&& T_Char_Y < my && my < T_Char_Y + ch * 3)
 			T_CLICK = 5;
-		if (fch * 2.7f + T_Tape_Y < my && my < fch * 3.0f + T_Tape_Y)
+		if (fch * 2.7f + T_Tape_Y + bfBottom < my && my < fch * 3.0f + T_Tape_Y + bfBottom)
 			T_CLICK = 4;
 	}
 
@@ -1630,10 +1691,21 @@ void UIWindowMgr::RenderTitleGraphic()
 		char row = 0;
 		for (int y = 0; y < ch * 3; y += ch) {
 			++row;
+#if defined(BF_PORT)
+			{
+				float tile = 256.0f * bfCover;
+				float x0 = (bfW - tile * 4.0f) / 2.0f, y0 = (bfH - tile * 3.0f) / 2.0f;
+				rect.left = (int)floorf(x0 + tile * (col - 1) + 0.5f);
+				rect.top = (int)floorf(y0 + tile * (row - 1) + 0.5f);
+				rect.right = (int)floorf(x0 + tile * col + 0.5f);
+				rect.bottom = (int)floorf(y0 + tile * row + 0.5f);
+			}
+#else
 			rect.left = x;
 			rect.top = y;
 			rect.right = x + cw;
 			rect.bottom = y + ch;
+#endif
 			if (g_serviceType != ServiceKorea && title_random == 0)
 				sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T2_\xb9\xe8\xb0\xe6%d-%d.bmp", row, col);
 			else
@@ -1646,24 +1718,35 @@ void UIWindowMgr::RenderTitleGraphic()
 	char tape = 0;
 	for (int x = 0; x < cw * 4; x += cw) {
 		++tape;
-		rect.left = x;
-		rect.top = (int)(fch * 2.5f + T_Tape_Y);
-		rect.right = x + cw;
-		rect.bottom = (int)(fch * 3.0f + T_Tape_Y);
+		rect.left = x + bfMiddle;
+		rect.top = (int)(fch * 2.5f + T_Tape_Y) + bfBottom;
+		rect.right = x + cw + bfMiddle;
+		rect.bottom = (int)(fch * 3.0f + T_Tape_Y) + bfBottom;
 		sprintf(name, "\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_\xc5\xd7\xc0\xd4%d.tga", tape);
 		mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture(name, false));
+#if defined(BF_PORT)
+		// The band carried on to the screen's edge: the outer tapes' outermost
+		// texel column (black under the text), drawn across the gap.
+		if (bfMiddle > 0 && (tape == 1 || tape == 4)) {
+			CTexture* tex = g_texMgr.GetTexture(name, false);
+			float u = tape == 1 ? 0.5f / 256.0f : 255.5f / 256.0f;
+			rect.left = tape == 1 ? 0 : rect.right;
+			rect.right = tape == 1 ? bfMiddle : g_renderer->m_width;
+			mode->DrawTexture(&rect, 0, oow, 0xffffffff, tex, UVRECT(u, 0.0f, u, 1.0f));
+		}
+#endif
 	}
 
 	// The age rating, top right.
-	rect.left = (int)(T_12Age_X + fcw * 3.0f);
+	rect.left = (int)(T_12Age_X + fcw * 3.0f) + bfRight;
 	rect.top = T_12Age_Y;
 	rect.right = rect.left + cw;
 	rect.bottom = T_12Age_Y + ch;
 	mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_12\xbc\xbc.tga", false));
 
 	// The developer's mark, bottom right, half a tile high.
-	rect.left = (int)(T_Grav_X + fcw * 3.1f);
-	rect.top = (int)(T_Grav_Y + fch * 2.4f);
+	rect.left = (int)(T_Grav_X + fcw * 3.1f) + bfRight;
+	rect.top = (int)(T_Grav_Y + fch * 2.4f) + bfBottom;
 	rect.right = rect.left + cw;
 	rect.bottom = (int)(rect.top + fch * 0.5f);
 	mode->DrawTexture(&rect, 0, oow, 0xffffffff, g_texMgr.GetTexture("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\T_\xc1\xdf\xb7\xc2\xbc\xba\xc0\xce.tga", false));
@@ -1710,6 +1793,10 @@ void UIWindowMgr::SetWallpaper(CBitmapRes* bitmap)
 		m_wallpaperSurface = g_3dDevice.CreateWallPaper(bitmap->m_width, bitmap->m_height);
 	if (m_wallpaperSurface)
 		m_wallpaperSurface->Update(0, 0, bitmap->m_width, bitmap->m_height, bitmap->m_data, 0, 0);
+#if defined(BF_PORT)
+	s_bfWallpaperW = bitmap->m_width;
+	s_bfWallpaperH = bitmap->m_height;
+#endif
 }
 
 void UIWindowMgr::FindFocusEditAndSetFocus()

@@ -23,7 +23,11 @@ Per frame, after `resize` (window content in device pixels, UI scale):
     places it at that size (UILoginWnd: UIX(185), UICY(300), 280 x 120);
   - the cursor (the blocks that change when the pointer moves away) is
     clean blocks;
-  - the wallpaper covers the screen (no black where the title tiles are).
+  - the wallpaper covers the screen (no black where the title tiles are);
+  - no bars: since F2 the title's background is scaled by the "cover" rule
+    (uniformly until it fills the window, centred, the overflow cropped), so
+    the left, right and top edges show the picture at every size, never a
+    black band (the 2008 client's stretch filled them too, by distorting).
 Pacing: frames counted over 3 s against the display's refresh rate.
 """
 
@@ -256,6 +260,14 @@ def run(t):
                     total += 1
                     dark += max(p) < 8
             s.check(dark * 20 < total, "wallpaper covers the screen", black=dark, sampled=total)
+            # No bars (F2, cover rule): each edge above the tapes is mostly picture.
+            # The art has a few dark texels (hair) on its edges; a bar is black throughout.
+            edges = {"left": [(0, gy) for gy in range(lh * 5 // 6)],
+                     "right": [(lw - 1, gy) for gy in range(lh * 5 // 6)],
+                     "top": [(gx, 0) for gx in range(lw)]}
+            for side, pts in edges.items():
+                black = sum(1 for gx, gy in pts if max(img.px(gx * scale, gy * scale)) < 8)
+                s.check(black * 2 < len(pts), "no bar at the %s edge" % side, black=black, sampled=len(pts))
             s.note("login window at (%d, %d) of %dx%d logical; %d sample points, %d black" % (x, y, lw, lh, total, dark))
 
     with t.step("quit", "the client quits on request") as s:
