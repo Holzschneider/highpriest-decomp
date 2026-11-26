@@ -14195,6 +14195,13 @@ void	CGameMode :: Zc_Config(const char *buf)
 #if defined(BF_PORT)
 	int		val;
 	memcpy(&val, buf + 6, sizeof(val));   // offset 6: misaligned on arm64
+	// The 2008 client takes every ZC_CONFIG for the equipment setting; rAthena
+	// also sends type 1 (CONFIG_CALL) after ZC_CONFIG_NOTIFY on each map
+	// entry, which reset the setting and printed "not open to the public".
+	int		config;
+	memcpy(&config, buf + 2, sizeof(config));
+	if (config != PACKET_CZ_CONFIG::CONFIG_OPEN_EQUIPMENT_WINDOW)
+		return;
 #else
 	int		val = *(int *)(buf + 6);
 #endif

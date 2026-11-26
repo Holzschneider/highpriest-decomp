@@ -2102,6 +2102,9 @@ protected:
 	unsigned int m_stateStartTick;
 	int m_barHeight;
 	UICheckBox* m_openEquipWndCheckBox;
+#if defined(BF_PORT)
+	friend struct BfUiProbe;   // port/client/src/bf_client_state.cpp: the control socket's `windows`
+#endif
 };
 
 class UINotifyItemObtainWnd : public UIFrameWnd {

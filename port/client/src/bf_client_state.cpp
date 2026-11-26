@@ -992,6 +992,10 @@ struct BfUiProbe {
 				++drawCount;
 			}
 		} else if (UIEquipWnd *ew = dynamic_cast<UIEquipWnd *>(w.wnd)) {
+			// F4: the "show my equipment to others" check box (CZ_CONFIG)
+			if (ew->m_typeWnd == 0)
+				Rename(w, ew->m_openEquipWndCheckBox, "open_equip");
+
 			if (ew->m_h == 17 || ew->m_typeWnd != 0)
 				return;
 			// slot -> the cell UIEquipWnd::GetItemInfo maps to it

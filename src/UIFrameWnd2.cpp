@@ -934,13 +934,7 @@ INT_PTR UIToolTipWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 
 	return 0;
 }
-UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = bf_clock_ticks(); m_barHeight = 0;
-#if defined(BF_PORT)
-	// OnCreate does not create the check box yet (recovery gap); UM_REFRESH
-	// read the uninitialised pointer when the server sent ZC_CONFIG_NOTIFY.
-	m_openEquipWndCheckBox = NULL;
-#endif
-}
+UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = bf_clock_ticks(); m_barHeight = 0; }
 UIEquipWnd::~UIEquipWnd() {}
 
 void UIEquipWnd::OnCreate(int cx, int cy)
@@ -952,6 +946,26 @@ void UIEquipWnd::OnCreate(int cx, int cy)
 
 	if (cy != m_h + m_barHeight)
 		Resize(m_w, m_h + m_barHeight);
+
+	if (m_typeWnd == 0) {
+		m_openEquipWndCheckBox = new UICheckBox;
+		m_openEquipWndCheckBox->Create(80, 12);
+		m_openEquipWndCheckBox->SetBitmap2(
+			"\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\checkbox_1.bmp",
+			"\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\checkbox_0.bmp",
+			MsgStr(MSI_OPEN_EQUIPED_ITEM));
+		m_openEquipWndCheckBox->Move(10, m_h - 15);
+#if defined(BF_PORT)
+		// The English label ("Show Equipment") is wider than the 80 columns
+		// the Korean one needs and was cut off; widened to the label, short
+		// of the cart and bird buttons at m_w / 2 - 18.
+		int labelW = 11 + GetTextWidth(MsgStr(MSI_OPEN_EQUIPED_ITEM), 0, 0, 12, false) + 2;
+		if (labelW > 80)
+			m_openEquipWndCheckBox->Resize(labelW < m_w / 2 - 28 ? labelW : m_w / 2 - 28, 12);
+#endif
+		m_openEquipWndCheckBox->SetCheck(g_session.m_bOpenEquipedItem);
+		AddChild(m_openEquipWndCheckBox);
+	}
 
 	int ids2[3];
 	int posX[3];
@@ -1240,6 +1254,9 @@ void UIEquipWnd::OnDraw()
 
 	bmp = (CBitmapRes*)g_resMgr().Get(
 		UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\equipwin_bg.bmp"), false);
+	if (m_typeWnd == 0)
+		bmp = (CBitmapRes*)g_resMgr().Get(
+			UIBmp("\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba\\basic_interface\\equipwin_bg2.bmp"), false);
 	if (bmp)
 		DrawBitmap(0, 17, bmp, false);
 
@@ -1539,11 +1556,7 @@ INT_PTR UIEquipWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR
 		break;
 
 	case UM_REFRESH: {
-#if defined(BF_PORT)
-		if (m_typeWnd == 0 && m_openEquipWndCheckBox)
-#else
 		if (m_typeWnd == 0)
-#endif
 			m_openEquipWndCheckBox->SetCheck2(g_session.m_bOpenEquipedItem);
 
 		int pos[2] = { m_w / 2 - 18, m_h - 40 };

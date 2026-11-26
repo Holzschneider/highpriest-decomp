@@ -1,0 +1,8 @@
+# frames under <game folder>/test/frames/equip_open/; regenerate with port/harness/run.py
+00dcb1ce7aeb2726f5b1c5719c58c28e6a5523272b899f5316f3fa2a443f5632  2048x1536  charselect-off.png
+9835bdbcf22a3dede6d29a8c66c99353787c3111ca023da7bf2adc44c5990b1e  2048x1536  charselect-on.png
+fac8ffa6436d39db6b6ae147a4f0ca30206315c79d040ba826233370842f6aed  2048x1536  equip-off.png
+8f0a3008678d1277680d588353cc87a2939fc55e8e2d0fcb6a94bbef9bee4059  2048x1536  equip-off-again.png
+60894e2c2da2638ce789a2e7a6d4d786b1d8ef4387c0cf275164a61ee6d7785a  2048x1536  equip-on.png
+1642c02143cde38650d7db6317bad80e456e741adfc7b90d5c7a545498af05bf  2048x1536  equip-on-again.png
+eb237bcbc906db04c4432a5b07f3489115fc2ce4359bb4483e1891bc95f763dd  2048x1536  login-typed.png
