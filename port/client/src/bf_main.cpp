@@ -8,6 +8,9 @@
 //                         the first frame and returns 0 (bf_port_headless)
 //   --control <path>      the control socket (or --control=<path>, or the
 //                         environment variable BF_CONTROL)
+//   --mute                no sound output (or BF_MUTE=1): the sound module
+//                         runs and counts as usual, the output is silenced
+//                         (bf_audio_set_muted); for instrumented test runs
 //   --server <host[:port]>, --account <name>, --password <text>,
 //   --character <name or slot>
 //                         launch arguments (or --flag=value, or BF_SERVER,
@@ -54,6 +57,7 @@
 #include <vector>
 
 #include "bf_app.h"
+#include "bf_audio.h"
 #include "bf_clock.h"
 #include "bf_render.h"
 #include "bf_coverage.h"
@@ -582,7 +586,7 @@ void LaunchFromEnvironment()
 bool IsPortFlag(const char *arg)
 {
 	const char *unused;
-	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
+	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--mute") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
 	       || strncmp(arg, "-psn_", 5) == 0   // Finder's process serial number
 	       || LaunchFlag(arg, &unused);
 }
@@ -716,6 +720,8 @@ int main(int argc, char **argv)
 	for (int i = 1; i < argc; ++i) {
 		if (strcmp(argv[i], "--headless") == 0)
 			g_headless = true;
+		if (strcmp(argv[i], "--mute") == 0)
+			bf_audio_set_muted(1);
 		if (IsPortFlag(argv[i])) {
 			const char *value = nullptr;
 			if (LaunchArg *a = LaunchFlag(argv[i], &value)) {
@@ -735,6 +741,11 @@ int main(int argc, char **argv)
 	         command_line.c_str(), bf_file_location(BF_LOCATION_GAME));
 	if (rolling)
 		BF_TRACE(BFT_MODE, "start: rolling trace %s (pid %d)", rolling, (int)getpid());
+	if (const char *mute = getenv("BF_MUTE"))
+		if (*mute && strcmp(mute, "0") != 0)
+			bf_audio_set_muted(1);
+	if (bf_audio_muted())
+		BF_TRACE(BFT_MODE, "start: sound output muted");
 	LaunchFromEnvironment();
 	for (const LaunchArg &a : g_launch)
 		if (a.given)

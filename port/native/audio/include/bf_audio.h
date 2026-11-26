@@ -129,6 +129,13 @@ float bf_audio_effects_volume(void);
 void  bf_audio_set_music_volume(float volume);
 float bf_audio_music_volume(void);
 
+/* Mute: in DEVICE mode the output is silenced (the main mixer's output
+ * volume 0) while everything else runs as it would: voices, the stream,
+ * positions and counters are unchanged. May be called before bf_audio_start;
+ * kept across bf_audio_stop/start. For instrumented test runs (--mute). */
+void bf_audio_set_muted(int muted);
+int  bf_audio_muted(void);
+
 /* OFFLINE only: renders the next frames of the mix into dst as interleaved
  * stereo float (2 * frames values). Returns frames rendered, or -1 when the
  * engine is not in OFFLINE mode or rendering failed. Voice completion is

@@ -304,6 +304,10 @@ static void test_offline()
 	if (!check(mode == BF_AUDIO_MODE_OFFLINE && bf_audio_sample_rate() == 44100, "offline engine starts (mode %d, %d Hz)", mode, bf_audio_sample_rate()))
 		return;
 	check(bf_audio_start(&cfg) == -1, "a second start is refused");
+	bf_audio_set_muted(1);
+	check(bf_audio_muted() == 1 && bf_audio_mode() == mode, "mute: the output is muted, the engine keeps its mode");
+	bf_audio_set_muted(0);
+	check(bf_audio_muted() == 0, "mute: and on again");
 	bf_audio_counters c0 = counters();
 
 	Level quiet = rms(render(0.1));

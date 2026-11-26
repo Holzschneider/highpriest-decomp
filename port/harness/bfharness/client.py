@@ -194,6 +194,9 @@ class Client:
         # Open on a Retina screen when there is one (port/native/app/README.md), so
         # frames come out at the same scale wherever the key window happens to be.
         env.setdefault("BF_WINDOW_SCREEN", "retina")
+        # No sound out of the speakers during test runs (the owner works at this Mac);
+        # the sound module still runs and counts. BF_MUTE=0 in the environment to listen.
+        env.setdefault("BF_MUTE", "1")
         env.update(self.extra_env)
         return env
 

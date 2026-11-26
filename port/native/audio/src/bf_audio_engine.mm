@@ -108,6 +108,7 @@ struct State {
 	AVAudioPCMBuffer *render_buf = nil;
 
 	float fx_volume = 1, music_volume = 1;
+	bool muted = false;
 	std::atomic<float> fx_gain{1};   // fx_volume, for the voices' render blocks
 
 	AVAudioPlayerNode *stream_node = nil;
@@ -486,6 +487,7 @@ bool build_graph()
 	[e connect:s.fx to:main fromBus:0 toBus:0 format:stereo];
 	[e connect:s.music to:main fromBus:0 toBus:1 format:stereo];
 	s.music.outputVolume = s.music_volume;
+	main.outputVolume = s.muted ? 0.0f : 1.0f;
 	int ramp = (int)(s.rate / 200);   // 5 ms
 	std::atomic<float> *fxg = &s.fx_gain;   // the effects volume is applied by the voices, like their own
 	for (int i = 0; i < s.max_voices; ++i) {
@@ -668,6 +670,22 @@ float bf_audio_music_volume(void)
 	State &s = S();
 	Guard g(s.lock);
 	return s.music_volume;
+}
+
+void bf_audio_set_muted(int muted)
+{
+	State &s = S();
+	Guard g(s.lock);
+	s.muted = muted != 0;
+	if (s.engine) s.engine.mainMixerNode.outputVolume = s.muted ? 0.0f : 1.0f;
+	BF_TRACE(BFT_SND, "audio: output %s\n", s.muted ? "muted" : "on");
+}
+
+int bf_audio_muted(void)
+{
+	State &s = S();
+	Guard g(s.lock);
+	return s.muted ? 1 : 0;
 }
 
 int64_t bf_audio_render(float *dst, int64_t frames)

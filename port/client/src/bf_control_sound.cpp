@@ -95,6 +95,8 @@ void WriteSound(bf_control_writer *w, void *)
 	Int(w, "decode_failures", c.decode_failures);
 	Num(w, "effects_volume", bf_audio_effects_volume());
 	Num(w, "music_volume", bf_audio_music_volume());
+	Key(w, "muted");
+	bf_control_write_bool(w, bf_audio_muted());
 	Key(w, "stream");
 	bf_control_write_begin_object(w);
 	Key(w, "file");
