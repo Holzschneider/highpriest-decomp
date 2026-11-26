@@ -218,7 +218,7 @@ In the run:
 
 Both readers are the most uncertain work in the plan. Each starts early as its own track with a standalone test program (dump a model, write movie frames), and is parked with its findings if it does not get there.
 
-**Done when** the bundle starts from Finder with a chosen game folder and passes the gate test; a Granny model is drawn in a War of Emperium castle frame; the intro movie plays with sound. Readers that were parked are listed as such.
+**Done when** the bundle starts from Finder with a chosen game folder and passes the gate test; a Granny model is drawn in a War of Emperium castle frame; ~~the intro movie plays with sound~~ (withdrawn by the owner on 2026-11-26). Readers that were parked are listed as such.
 
 Future work, not in the run:
 
