@@ -103,6 +103,14 @@ int bf_sys_keychain_store(const char *account, const char *password);
 int bf_sys_keychain_read(const char *account, char *out, size_t out_size);
 /* 1 if an item was deleted, 0 if there was none, -1 on error. */
 int bf_sys_keychain_delete(const char *account);
+/*
+ * The running code's identity as the Keychain's access lists know it (its
+ * designated requirement, as text): an ad hoc signed build names its own
+ * code hash, so every rebuild is a new identity; a Developer ID signature
+ * keeps one across versions. 1 and the text, or 0 and "" when the code has
+ * no signature to read. Thread: any.
+ */
+int bf_sys_code_identity(char *out, size_t out_size);
 
 /* ---- Shell ----------------------------------------------------------------
  * Alerts are modal NSAlerts on the main thread. They are not shown, but

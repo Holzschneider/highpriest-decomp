@@ -116,4 +116,4 @@ The scripts use only what PROTOCOL.md specifies. Where they click a control they
 - The map server saves a character on logout, map-server change and every `autosave_time` (300 s in `map_athena.conf`); the scripts read positions from `chatlog` while playing and from `char` only after quitting.
 - The mock's picking is a flat grid; it checks the harness, not the client's camera.
 
-The M6 scripts run the client with `BF_HOME` in the run directory (`play.own_home`), so they start from default window positions and leave the user's settings alone; `bfharness/bot.py` runs `bifrost-bot` (build it with `port/bot/build.sh`) as a second player.
+Every client runs with `BF_HOME` in the run directory (`play.own_home`; `Test.launch` sets it when the script and the environment do not), so it starts from default window positions and never reads or rewrites the user's settings (a login stores the account and "keep": `login_edit` once cleared the owner's saved account); `bfharness/bot.py` runs `bifrost-bot` (build it with `port/bot/build.sh`) as a second player.

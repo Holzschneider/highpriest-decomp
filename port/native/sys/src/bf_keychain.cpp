@@ -123,6 +123,33 @@ extern "C" int bf_sys_keychain_delete(const char *account)
 	return 1;
 }
 
+extern "C" int bf_sys_code_identity(char *out, size_t out_size)
+{
+	// The designated requirement of the running code: what a Keychain item's
+	// access list names. Ad hoc signed, it holds the code's hash and changes
+	// with every build; signed with a Developer ID, it stays across versions.
+	if (!out || !out_size)
+		return 0;
+	out[0] = 0;
+	SecCodeRef self = NULL;
+	SecRequirementRef requirement = NULL;
+	CFStringRef text = NULL;
+	OSStatus status = SecCodeCopySelf(kSecCSDefaultFlags, &self);
+	if (status == errSecSuccess)
+		status = SecCodeCopyDesignatedRequirement((SecStaticCodeRef)self, kSecCSDefaultFlags, &requirement);
+	if (status == errSecSuccess)
+		status = SecRequirementCopyString(requirement, kSecCSDefaultFlags, &text);
+	int ok = status == errSecSuccess && text && CFStringGetCString(text, out, (CFIndex)out_size, kCFStringEncodingUTF8);
+	if (text) CFRelease(text);
+	if (requirement) CFRelease(requirement);
+	if (self) CFRelease(self);
+	if (!ok) {
+		out[0] = 0;
+		BF_TRACE(BFT_FILE, "sys: no code identity (status %d)", (int)status);
+	}
+	return ok ? 1 : 0;
+}
+
 extern "C" int bf_sys_keychain_available(void)
 {
 	// BF_NO_KEYCHAIN=1 (the test harness sets it): never touch the Keychain.

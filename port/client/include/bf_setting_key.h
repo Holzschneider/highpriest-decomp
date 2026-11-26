@@ -19,6 +19,13 @@
  *     ID         the login window's remembered account: Account/Name
  *     PASSWORD   the Keychain item of that account (bf_sys_keychain_*)
  *
+ * and CHECKSAVE ("keep") belongs to the build that set it: writing 1 records
+ * the build's identity (bf_sys_code_identity) as Account/SavedBy, writing 0
+ * removes it. Another build (every rebuild of an ad hoc signed client) reads
+ * CHECKSAVE as 0 and PASSWORD as absent without asking the Keychain, and
+ * does not delete the other build's item; the Keychain's access prompt can
+ * then come only from storing the password after "keep" is ticked again.
+ *
  * Values keep the registry's typing: a 4-byte integer write is an integer,
  * a string write a string (the text up to its first NUL within the size),
  * anything else data. A read copies the value into the caller's buffer as

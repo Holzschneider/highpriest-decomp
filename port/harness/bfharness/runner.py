@@ -23,6 +23,7 @@ own. The report goes to build/harness/<NAME>-<time>/report.{json,md} and is
 copied to build/harness/<NAME>[-mock]-latest.{json,md}.
 """
 
+import os
 import datetime
 import importlib.util
 import json
@@ -163,6 +164,12 @@ class Test:
         extra = dict(env or {})
         if self.mock:
             extra["BF_MOCK_DB"] = str(self.mockdb.path)
+        elif "BF_HOME" not in extra and "BF_HOME" not in os.environ:
+            # Never the user's own settings: a login rewrites the saved account
+            # and "keep" (the owner's were cleared by login_edit, 2026-11-26).
+            # The run's home, as play.own_home makes it (tip of the day off).
+            from .play import own_home
+            extra.update(own_home(self))
         self.client = Client(self.run_dir, args=list(args) + self.client_args, env=extra,
                              mock=self.mock, timeout=self.client_timeout)
         self.client.start()

@@ -32,8 +32,9 @@ MANIFEST = "port/harness/manifests/m5-login-edit.sha256"
 NEEDS_SERVER = True
 
 
-def settings_account():
-    p = Path.home() / "Library" / "Application Support" / paths.app_name() / "Settings.plist"
+def settings_account(t):
+    """Account/Name of the run's own home (the harness's default BF_HOME)."""
+    p = t.run_dir / "home" / "Library" / "Application Support" / paths.app_name() / "Settings.plist"
     try:
         with open(p, "rb") as f:
             return plistlib.load(f).get("Account", {}).get("Name")
@@ -119,7 +120,7 @@ def run(t):
     t.stop_client()
 
     with t.step("saved", "M5.3: account name in the settings, password in the Keychain") as s:
-        s.equal(settings_account(), user, "Account/Name in Settings.plist")
+        s.equal(settings_account(t), user, "Account/Name in Settings.plist")
         found, out = keychain_has(user)
         s.note("Keychain item %s/%s: %s" % (paths.app_name(), user, out))
         keychain = found
@@ -157,6 +158,6 @@ def run(t):
         s.equal(controls(ctl)["save"]["text"], "off", "save unchecked")
     t.stop_client()
     with t.step("cleared", "nothing saved any more") as s:
-        s.equal(settings_account() or "", "", "Account/Name in Settings.plist")
+        s.equal(settings_account(t) or "", "", "Account/Name in Settings.plist")
         found, out = keychain_has(user)
         s.check(not found, "no Keychain item %s/%s (%s)" % (paths.app_name(), user, out))

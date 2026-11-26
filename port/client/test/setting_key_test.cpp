@@ -170,6 +170,30 @@ void TestKeys()
 		Check(!bf_setting_read(login, "PASSWORD", password, &size), "PASSWORD without a Keychain: not found (as the client starts)");
 		Skip("PASSWORD Keychain round trip: the Keychain is locked or out of reach in this session");
 	}
+
+	// "Keep" belongs to the build that ticked it (Account/SavedBy): another
+	// build reads it as off and leaves the Keychain alone.
+	int checkBack = -1;
+	char savedBy[1024] = {0};
+	Check(bf_setting_get(login, "CHECKSAVE", checkBack) && checkBack == 1
+	      && bf_settings_get_string(bf_settings_shared(), "Account", "SavedBy", savedBy, sizeof(savedBy), NULL) == 1,
+	      "CHECKSAVE 1: read back by the same build, its identity in Account/SavedBy");
+	bf_settings_set_string(bf_settings_shared(), "Account", "SavedBy", "another build");
+	checkBack = -1;
+	size = 25;
+	Check(bf_setting_get(login, "CHECKSAVE", checkBack) && checkBack == 0
+	      && !bf_setting_read(login, "PASSWORD", password, &size),
+	      "set by another build: CHECKSAVE reads 0, PASSWORD absent (no Keychain access)");
+	checkSave = 1;
+	bf_setting_set(login, "CHECKSAVE", checkSave);
+	checkBack = -1;
+	Check(bf_setting_get(login, "CHECKSAVE", checkBack) && checkBack == 1, "ticked again: this build's");
+	checkSave = 0;
+	bf_setting_set(login, "CHECKSAVE", checkSave);
+	Check(bf_settings_type(bf_settings_shared(), "Account", "SavedBy") == BF_SETTING_NONE,
+	      "CHECKSAVE 0: Account/SavedBy removed");
+	checkSave = 1;
+	bf_setting_set(login, "CHECKSAVE", checkSave);   // as the plist checks below expect
 	bf_setting_close(login);
 
 	// What the plist holds.

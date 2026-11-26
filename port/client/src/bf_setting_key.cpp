@@ -106,6 +106,36 @@ std::string AccountName()
 	return name;
 }
 
+// "Keep" (CHECKSAVE) belongs to the build that set it. The Keychain lets
+// only the code that stored the password read it without asking, and an ad
+// hoc signed build is new code after every rebuild: a new build therefore
+// starts with "keep" off and does not touch the Keychain, and the access
+// prompt can come only when the user ticks "keep" again and logs in (the
+// password is then written). Account/SavedBy holds the identity
+// (bf_sys_code_identity) of the build that ticked it.
+const char *const kSavedBy = "SavedBy";
+
+std::string CodeIdentity()
+{
+	static std::string identity;
+	static bool known = false;
+	if (!known) {
+		char text[1024];
+		bf_sys_code_identity(text, sizeof(text));
+		identity = text;
+		known = true;
+	}
+	return identity;
+}
+
+bool SavedByThisBuild()
+{
+	char saved[1024];
+	if (bf_settings_get_string(Settings(), BF_SETTINGS_ACCOUNT, kSavedBy, saved, sizeof(saved), NULL) != 1)
+		return false;
+	return CodeIdentity() == saved;
+}
+
 // Copies a value out as RegQueryValueEx did.
 bool Deliver(const void *bytes, unsigned int size, void *data, unsigned int *size_io)
 {
@@ -199,12 +229,23 @@ bool bf_setting_read(const bf_setting_key &key, const char *name, void *data, un
 	if (key.root && strcasecmp(value.c_str(), "PASSWORD") == 0) {
 		std::string account = AccountName();
 		char password[256];
-		if (account.empty() || !bf_sys_keychain_available()
+		if (account.empty() || !SavedByThisBuild() || !bf_sys_keychain_available()
 		    || bf_sys_keychain_read(account.c_str(), password, sizeof(password)) != 1)
 			return false;
 		bool ok = DeliverString(password, data, size);
 		memset(password, 0, sizeof(password));
 		return ok;
+	}
+
+	int32_t check = 0;
+	if (key.root && strcasecmp(value.c_str(), "CHECKSAVE") == 0
+	    && bf_settings_get_int(Settings(), key.group.c_str(), value.c_str(), &check) == 1) {
+		int32_t v = check;
+		if (v == 1 && !SavedByThisBuild()) {
+			BF_TRACE(BFT_FILE, "settings: \"keep\" was set by another build; off, the Keychain left alone");
+			v = 0;
+		}
+		return Deliver(&v, sizeof(v), data, size);
 	}
 
 	const char *group = key.group.c_str();
@@ -255,11 +296,22 @@ bool bf_setting_write(const bf_setting_key &key, const char *name, bf_setting_ty
 			BF_TRACE(BFT_FILE, "settings: PASSWORD not stored (no account name or no Keychain)");
 			return true;
 		}
-		if (password.empty())
-			bf_sys_keychain_delete(account.c_str());
-		else if (!bf_sys_keychain_store(account.c_str(), password.c_str()))
+		if (password.empty()) {
+			// Only this build's item: deleting another build's would ask too.
+			if (SavedByThisBuild())
+				bf_sys_keychain_delete(account.c_str());
+		} else if (!bf_sys_keychain_store(account.c_str(), password.c_str()))
 			return false;
 		return true;
+	}
+	if (key.root && strcasecmp(value.c_str(), "CHECKSAVE") == 0 && type == BF_SETTING_INT && size == 4) {
+		int32_t v;
+		memcpy(&v, data, 4);
+		if (v == 1)
+			bf_settings_set_string(Settings(), BF_SETTINGS_ACCOUNT, kSavedBy, CodeIdentity().c_str());
+		else
+			bf_settings_remove(Settings(), BF_SETTINGS_ACCOUNT, kSavedBy);
+		// and stored as usual below
 	}
 
 	const char *group = key.group.c_str();
