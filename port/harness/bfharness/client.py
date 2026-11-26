@@ -52,7 +52,9 @@ APP_ENV_PREFIXES = ("BF_", "ASAN_", "UBSAN_", "TSAN_", "LSAN_")
 # What `open` itself runs with: launchd gives the app the rest, as for Finder.
 FINDER_ENV = ("HOME", "USER", "LOGNAME")
 GONE = "gone without its exit line"   # poll() of a client that ended unexpectedly
-EXIT_LINE = re.compile(r"\] exit: WinMain returned (-?\d+)")
+EXIT_LINE = re.compile(r"\] exit: (?:WinMain returned|start refused, status) (-?\d+)")
+# The client's first mode line names the game folder it uses (bf_main.cpp).
+START_LINE = re.compile(r"\] start: .*, game folder (.*)$", re.M)
 
 
 def running_pids(executable):
@@ -161,6 +163,7 @@ class Client:
                  timeout=600.0):
         self.run_dir = Path(run_dir)
         self.run_dir.mkdir(parents=True, exist_ok=True)
+        self.mock = mock
         self.app = None if (mock or command) else app_bundle()
         self.command = list(command) if command else ([str(self.app)] if self.app else client_command(mock))
         self.args = list(args)
@@ -174,6 +177,7 @@ class Client:
         self.transcript = self.run_dir / "control-transcript.txt"
         self.proc = None
         self.ctl = None
+        self.game_folder = None   # the folder the client must report (check_game_folder)
         self.started = None
         self.exit_code = None
         self.killed = False
@@ -255,7 +259,9 @@ class Client:
             return self.start_app()
         argv = self.command + ["--control", str(self.control_path)] + self.args
         self._out = open(self.stdout_file, "wb")
-        self.proc = subprocess.Popen(argv, env=self.environment(), stdout=self._out,
+        env = self.environment()
+        self.game_folder = None if self.mock else Path(env["BF_CLIENT_DIR"])
+        self.proc = subprocess.Popen(argv, env=env, stdout=self._out,
                                      stderr=subprocess.STDOUT, cwd=str(self.run_dir),
                                      start_new_session=True)
         self.started = time.monotonic()
@@ -293,8 +299,10 @@ class Client:
         deadline = time.monotonic() + timeout
         while not self.control_path.exists():
             if self.proc.poll() is not None:
-                raise ClientError("client exited with %s before opening its socket"
-                                  % self.proc.returncode)
+                self.check_game_folder()
+                refused = self.trace_lines("game folder not usable", "game folder from", "game folder is not usable")
+                raise ClientError("client exited with %s before opening its socket%s"
+                                  % (self.proc.returncode, (": " + refused[-1].split("] ", 1)[-1]) if refused else ""))
             if time.monotonic() >= deadline:
                 raise ClientError("no control socket after %.0fs" % timeout)
             time.sleep(0.05)
@@ -303,7 +311,28 @@ class Client:
         info = self.ctl.hello()
         if isinstance(self.proc, AppProcess) and info.get("pid"):
             self.proc.pid = info["pid"]   # the process that answers is the one launched
+        self.check_game_folder()
         return self.ctl
+
+    def check_game_folder(self):
+        """The game folder in the trace's start line must be the one the
+        harness passed (BF_CLIENT_DIR) or stored (Paths/GameFolder), in every
+        mode: a client that silently used another folder (the default) fails
+        here. Nothing to check for the mock, or when the trace has no start
+        line (BF_TRACE without `mode`, bare binary only). Returns the folder
+        the trace names, or None."""
+        if self.game_folder is None:
+            return None
+        m = START_LINE.search(self.trace())
+        if not m:
+            return None
+        used = m.group(1)
+        want = os.path.expanduser(str(self.game_folder)).rstrip("/") or "/"
+        if used != want:
+            raise ClientError("the client uses the game folder %s, not the one the harness %s: %s"
+                              % (used, "stored" if self.app and "BF_CLIENT_DIR" not in self.extra_env
+                                 else "passed", want))
+        return used
 
     def overdue(self):
         return self.started is not None and time.monotonic() - self.started > self.timeout
