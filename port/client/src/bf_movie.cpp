@@ -12,6 +12,7 @@
 #include "bf_file.h"
 #include "bf_trace.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -182,30 +183,23 @@ bf_movie *bf_movie_open(const char *name)
 		g_error = "no name";
 		return nullptr;
 	}
-	char path[1024];
-	if (name[0] == '/')
-		snprintf(path, sizeof path, "%s", name);
-	else if (bf_file_resolve(name, BF_RESOLVE_READ, path, sizeof path) < 0) {
-		g_error = std::string(name) + " not found in the game folder";
+	// Through bf_file, which takes a client path or an absolute one and
+	// needs no buffer for the resolved path.
+	errno = 0;
+	size_t size = 0;
+	void *data = bf_file_read_all(name, &size);
+	if (!data) {
+		bool absent = errno == ENOENT;
+		g_error = std::string(name) + (absent ? " not found in the game folder" : " cannot be read: ") +
+		          (absent ? "" : strerror(errno ? errno : EIO));
 		BF_TRACE(BFT_GFX, "bink: %s", g_error.c_str());
 		bf_count("bink.missing", 1);
 		return nullptr;
 	}
-	std::vector<uint8_t> bytes;
-	FILE *fp = fopen(path, "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END);
-		long n = ftell(fp);
-		fseek(fp, 0, SEEK_SET);
-		if (n > 0) {
-			bytes.resize((size_t)n);
-			if (fread(bytes.data(), 1, (size_t)n, fp) != (size_t)n)
-				bytes.clear();
-		}
-		fclose(fp);
-	}
+	std::vector<uint8_t> bytes((const uint8_t *)data, (const uint8_t *)data + size);
+	bf_file_free(data);
 	if (bytes.empty()) {
-		g_error = std::string(path) + " cannot be read";
+		g_error = std::string(name) + " cannot be read: empty";
 		BF_TRACE(BFT_GFX, "bink: %s", g_error.c_str());
 		bf_count("bink.missing", 1);
 		return nullptr;

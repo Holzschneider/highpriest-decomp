@@ -623,7 +623,16 @@ int main(int argc, char **argv)
 			BF_TRACE(BFT_MODE, "start: launch argument %s %s", a.key,
 			         strcmp(a.key, "password") == 0 ? "(given)" : a.value.c_str());
 
-	if (!g_headless) {
+	if (g_headless) {
+		// No chooser to ask: a game folder whose path is over the limit
+		// stops the start here (bf_file traced the refusal), and no other
+		// folder is used in its place.
+		char why[256];
+		if (!bf_file_game_folder_fits(bf_file_location(BF_LOCATION_GAME), why, sizeof why)) {
+			bf_tracef(BFT_ERR, "start: game folder not usable: %s", why);
+			return 1;
+		}
+	} else {
 		// The application first: the game-folder chooser and the window need NSApp.
 		bf_app_config app = {};
 		app.single_instance = 1;
@@ -635,7 +644,9 @@ int main(int argc, char **argv)
 			return 1;
 		}
 		bf_app_set_clock(ClockMs);
-		char folder[1024];
+		// The chooser refuses a folder over the limit (and says why), so the
+		// longest it returns fits.
+		char folder[BF_FILE_FOLDER_MAX + 1];
 		switch (bf_prefs_choose_game_folder(folder, sizeof folder)) {
 		case 1:
 			break;
