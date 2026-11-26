@@ -175,7 +175,7 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 | [x] ae8653d | M12.3a Granny models drawn in the client (guild flags, Emperium, guardians) | src | M12.3, M12.3b, M6 exit |
 | [x] c08899a | M12.4 Bink reader: format study on the game's `.bik` files, decoder, test program that writes frames | formats | M3.8 |
 | [x] e496a1d | M12.4a Intro movie played in the client | src | M12.4, M7 exit |
-| [ ] | M12 exit (verifier) | | M11 exit, M12.1–M12.4a |
+| [p] 8647842 | M12 exit (verifier): closed with a parked criterion (the intro's sound with the game's own `openning.bik`, which no data source holds) | | M11 exit, M12.1–M12.4a |
 
 ## Final
 
