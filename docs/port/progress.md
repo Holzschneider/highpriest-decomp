@@ -402,3 +402,9 @@ Checks at `40a1af9`: fastcheck `--client` ok (16 tests, census 138 clean), `--se
 
 To try by hand: German "+" and "-" keys with Cmd; Cmd+A in the chat line and the login fields; the window on each display (60 Hz).
 
+
+### F12 (2026-11-26)
+
+The owner asked why the client asked for the Keychain at start: the password saved with "keep" is a Keychain item whose access list names the code that stored it, and every rebuild of the ad hoc signed debug build is new code. The owner's rule: a new version starts with "keep" off, and the prompt comes only when "keep" is ticked. Done in `c2d4b72` (Account/SavedBy, the build's designated requirement; another build reads CHECKSAVE 0 and no password without touching the Keychain). Also fixed: the login window read the saved password with "keep" off.
+
+**An error of mine while testing it:** `login_edit` launched the client on the owner's own settings (it and nine other scripts never set `BF_HOME`), and its last step ("unsave") cleared the owner's saved account name. Restored by hand (Account/Name "philipp", CHECKSAVE 1, which the new build reads as off, the owner's wish); the Keychain was not touched (`BF_NO_KEYCHAIN`). The harness now gives every client the run's own home unless a script names one; after `login_edit`, `login`, `texttest` and `charselect` the owner's Settings.plist was byte-for-byte unchanged.
