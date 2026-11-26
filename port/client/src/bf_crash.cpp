@@ -11,6 +11,7 @@
 // Compiled with the client's flags (bf_client_flags in CMakeLists.txt).
 #include "bf_types.h"
 #include <execinfo.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,9 +48,21 @@ void bf_crash_handler(int sig, siginfo_t* info, void* context)
 		}
 		bf_trace_dump_counters();
 	}
-	// SA_RESETHAND restored the default action; raise again to end the
-	// process the way the system reports it.
+	// End the process the way the system reports it: the default action,
+	// set here explicitly (SA_RESETHAND reset only this handler's own entry;
+	// a handler installed later, bf_render's lazy-lock handler, chains to
+	// this one and would otherwise catch the raised signal again, forever),
+	// with the signal unblocked so that it is delivered at once.
+	struct sigaction dfl;
+	memset(&dfl, 0, sizeof dfl);
+	dfl.sa_handler = SIG_DFL;
+	sigaction(sig, &dfl, NULL);
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+	pthread_sigmask(SIG_UNBLOCK, &set, NULL);
 	raise(sig);
+	_exit(128 + sig);
 }
 
 struct InstallCrashHandler {

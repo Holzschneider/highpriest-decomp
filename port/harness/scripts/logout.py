@@ -133,12 +133,24 @@ def run(t):
         s.equal(wait_rows(lambda: [1] if online(t, a, b) == {a: 1, b: 0} else [], timeout=10) and online(t, a, b),
                 {a: 1, b: 0}, "char.online")
 
+    with t.step("equipment window open", "owner's hand test: Alt+Q before leaving, so it reopens on the next map entry") as s:
+        ctl.press("q", "alt")
+        ctl.wait({"frames": 4}, timeout=10)
+        s.check(bool(ctl.window("EQUIPWND")), "EQUIPWND open")
+
     with t.step("back to character selection", "M8.1h: Escape, Character select; CZ_RESTART 1, ZC_RESTART_ACK") as s:
         to_charselect(t, ctl, s, a)
         s.equal(wait_rows(lambda: [1] if online(t, a, b)[a] == 0 else [], timeout=15) and online(t, a, b),
                 {a: 0, b: 0}, "char.online after leaving the map server")
 
     enter_slot(t, ctl, 1, b)
+
+    with t.step("the map again with the equipment window", "owner's hand test: ZC_CONFIG_NOTIFY reached the reopened "
+                "UIEquipWnd, whose check box OnCreate does not make, and the client crashed (black screen, hang)") as s:
+        ctl.wait({"frames": 30}, timeout=20)
+        s.check(t.client.proc.poll() is None, "the client still runs")
+        s.check(bool(ctl.window("EQUIPWND")), "EQUIPWND reopened")
+        s.frame("equip-again-" + b)
 
     with t.step("second character online", "M8.1h: char.online") as s:
         s.equal(wait_rows(lambda: [1] if online(t, a, b) == {a: 0, b: 1} else [], timeout=10) and online(t, a, b),

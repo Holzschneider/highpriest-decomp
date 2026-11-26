@@ -934,7 +934,13 @@ INT_PTR UIToolTipWnd::SendMsg(UIWindow* sender, int message, INT_PTR val1, INT_P
 
 	return 0;
 }
-UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = bf_clock_ticks(); m_barHeight = 0; }
+UIEquipWnd::UIEquipWnd() { m_info = NULL; m_stateStartTick = bf_clock_ticks(); m_barHeight = 0;
+#if defined(BF_PORT)
+	// OnCreate does not create the check box yet (recovery gap); UM_REFRESH
+	// read the uninitialised pointer when the server sent ZC_CONFIG_NOTIFY.
+	m_openEquipWndCheckBox = NULL;
+#endif
+}
 UIEquipWnd::~UIEquipWnd() {}
 
 void UIEquipWnd::OnCreate(int cx, int cy)
@@ -1533,7 +1539,11 @@ INT_PTR UIEquipWnd::SendMsg(UIWindow *sender, int message, INT_PTR val1, INT_PTR
 		break;
 
 	case UM_REFRESH: {
+#if defined(BF_PORT)
+		if (m_typeWnd == 0 && m_openEquipWndCheckBox)
+#else
 		if (m_typeWnd == 0)
+#endif
 			m_openEquipWndCheckBox->SetCheck2(g_session.m_bOpenEquipedItem);
 
 		int pos[2] = { m_w / 2 - 18, m_h - 40 };
