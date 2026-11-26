@@ -18,6 +18,14 @@
 // Every other argument is passed on, joined by spaces, as the Windows
 // command line was (WinMain parses it with strstr).
 //
+// Debug instrumentation (F5): built with BF_DEBUG_INSTRUMENTATION=1 (the
+// presets debug, asan and tsan; CMakeLists.txt), every launch keeps a
+// rolling trace file in <support>/Logs and, unless headless, opens the
+// control socket at its default place without being asked (DefaultControl,
+// OpenRollingTrace below; PROTOCOL.md section 1). An explicit --control,
+// BF_CONTROL or BF_TRACE_FILE wins. Built with 0 (release), neither exists
+// unless asked for.
+//
 // The graphics device is created by bf_port_start_graphics, which WinMain
 // calls right after InitApp has made the window (bf_input_window_create
 // creates the window, its Metal layer and the view): one line in WinMain.
@@ -38,6 +46,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/stat.h>
 #include <string>
 #include <vector>
 
@@ -67,6 +79,10 @@ extern "C" int bf_client_modal_frame(void);                  // WinMain.cpp
 extern "C" int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);   // WinMain.cpp, C linkage as common.h declares it
 extern "C" void *objc_autoreleasePoolPush(void);            // libobjc: the frame's autorelease pool
 extern "C" void objc_autoreleasePoolPop(void *pool);
+
+#ifndef BF_DEBUG_INSTRUMENTATION
+#define BF_DEBUG_INSTRUMENTATION 0
+#endif
 
 namespace {
 
@@ -427,10 +443,99 @@ void EndProcess()
 	bf_control_close("quit");
 	bf_control_coverage_write();   // BF_COVERAGE (M9.5)
 	bf_settings_save(bf_settings_shared());
-	if (bf_trace_mask & ~(unsigned)(BFT_ERR | BFT_STUB))   // any category asked for: the counts too
-		bf_trace_dump_counters();
+	bf_trace_dump_counters_at_exit();   // any category asked for: the counts too; and to the rolling file
 	fflush(NULL);
 	_exit(g_exit_status);
+}
+
+// ---- debug instrumentation (F5; PROTOCOL.md section 1)
+
+// The rolling trace's categories: errors and crash lines (err), stubs, the
+// start, exit and mode lines (mode), connections and the control socket
+// (net), windows, prefs and missing strings (ui). Not pkt, file, res, gfx,
+// snd, input, game, w32: those trace per packet, lookup or frame. BF_TRACE's
+// own categories are added.
+const unsigned kRollingCategories = BFT_ERR | BFT_STUB | BFT_MODE | BFT_NET | BFT_UI;
+const int kRollingKeep = 10;                     // files left in Logs
+const long long kRollingMaxBytes = 50LL << 20;   // per file, then the next part
+
+const char *OpenRollingTrace()
+{
+	if (getenv("BF_TRACE_FILE"))
+		return nullptr;   // the trace has its file already
+	const char *support = bf_file_location(BF_LOCATION_SUPPORT);
+	if (!support)
+		return nullptr;   // traced by the file module
+	std::string logs = std::string(support) + "/Logs";
+	if (mkdir(logs.c_str(), 0755) != 0 && errno != EEXIST) {
+		bf_tracef(BFT_ERR, "start: cannot make %s: %s; no rolling trace", logs.c_str(), strerror(errno));
+		return nullptr;
+	}
+	return bf_trace_open_rolling(logs.c_str(), kRollingCategories | bf_trace_mask, kRollingKeep, kRollingMaxBytes);
+}
+
+// Removes control-main-<pid>.sock sockets of processes that have ended
+// (a crash leaves its socket; the fixed control-main.sock is replaced at the
+// next bind instead).
+void SweepStaleSockets(const std::string &folder)
+{
+	DIR *dir = opendir(folder.c_str());
+	if (!dir)
+		return;
+	while (struct dirent *e = readdir(dir)) {
+		int pid = 0;
+		char expect[64];
+		if (sscanf(e->d_name, "control-main-%d.sock", &pid) != 1 || pid <= 0 || pid == (int)getpid())
+			continue;
+		snprintf(expect, sizeof expect, "control-main-%d.sock", pid);
+		if (strcmp(e->d_name, expect) != 0)
+			continue;
+		std::string path = folder + "/" + e->d_name;
+		struct stat st;
+		if (lstat(path.c_str(), &st) == 0 && S_ISSOCK(st.st_mode) && kill(pid, 0) != 0 && errno == ESRCH)
+			unlink(path.c_str());
+	}
+	closedir(dir);
+}
+
+// The default socket: <support>/control-<instance>.sock, the instance being
+// "main" (the client's single-instance slot, bf_app.h) or "main-<pid>" with
+// BF_MULTI_INSTANCE=1. A path over BF_CONTROL_PATH_MAX (a long home or
+// BF_HOME) moves to <user temporary folder>/<name>-<8 hex digits of the
+// support folder's FNV-1a hash>/, which is per user and per home.
+std::string DefaultControl()
+{
+	const char *support = bf_file_location(BF_LOCATION_SUPPORT);
+	if (!support)
+		return std::string();
+	const char *multi = getenv("BF_MULTI_INSTANCE");
+	char name[64];
+	if (multi && strcmp(multi, "1") == 0)
+		snprintf(name, sizeof name, "control-main-%d.sock", (int)getpid());
+	else
+		snprintf(name, sizeof name, "control-main.sock");
+	std::string folder = support;
+	if (folder.size() + 1 + strlen(name) > BF_CONTROL_PATH_MAX) {
+		char temp[1024];
+		size_t n = confstr(_CS_DARWIN_USER_TEMP_DIR, temp, sizeof temp);
+		if (n == 0 || n > sizeof temp)
+			return std::string();
+		uint32_t hash = 2166136261u;
+		for (const char *c = support; *c; ++c)
+			hash = (hash ^ (unsigned char)*c) * 16777619u;
+		char leaf[64];
+		snprintf(leaf, sizeof leaf, "%s-%08x", BF_APP_NAME, hash);
+		folder = temp;
+		if (!folder.empty() && folder.back() == '/')
+			folder.pop_back();
+		folder += std::string("/") + leaf;
+		if (mkdir(folder.c_str(), 0700) != 0 && errno != EEXIST) {
+			bf_tracef(BFT_ERR, "start: cannot make %s: %s", folder.c_str(), strerror(errno));
+			return std::string();
+		}
+	}
+	SweepStaleSockets(folder);
+	return folder + "/" + name;
 }
 
 // ---- launch arguments (spec section 2, option LaunchArguments, default on)
@@ -606,6 +711,7 @@ int main(int argc, char **argv)
 {
 	bf_trace_init();   // BF_TRACE reads the mask before any first use would
 	atexit(EndProcess);
+	const char *rolling = BF_DEBUG_INSTRUMENTATION ? OpenRollingTrace() : nullptr;
 	std::string command_line;
 	for (int i = 1; i < argc; ++i) {
 		if (strcmp(argv[i], "--headless") == 0)
@@ -627,6 +733,8 @@ int main(int argc, char **argv)
 	}
 	BF_TRACE(BFT_MODE, "start: %s%s, command line \"%s\", game folder %s", argv[0], g_headless ? " --headless" : "",
 	         command_line.c_str(), bf_file_location(BF_LOCATION_GAME));
+	if (rolling)
+		BF_TRACE(BFT_MODE, "start: rolling trace %s (pid %d)", rolling, (int)getpid());
 	LaunchFromEnvironment();
 	for (const LaunchArg &a : g_launch)
 		if (a.given)
@@ -673,6 +781,14 @@ int main(int argc, char **argv)
 	}
 
 	const char *control = bf_control_path_from_args(argc, argv);
+	std::string default_control;
+	if (!control && BF_DEBUG_INSTRUMENTATION && !g_headless) {
+		default_control = DefaultControl();
+		if (!default_control.empty()) {
+			BF_TRACE(BFT_MODE, "start: debug build, control socket %s", default_control.c_str());
+			control = default_control.c_str();
+		}
+	}
 	if (control)
 		OpenControl(control);
 

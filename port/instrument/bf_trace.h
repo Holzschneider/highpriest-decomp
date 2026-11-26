@@ -11,6 +11,9 @@
  *   BF_PKT_LOG=path           append every packet as one text line
  *   BF_ASSERT=abort           stop in the debugger on a failed sAssert
  *
+ * A second sink, the rolling trace file, is opened by the program itself
+ * (bf_trace_open_rolling; the client's debug build does, bf_main.cpp).
+ *
  * A disabled BF_TRACE costs one load and one branch.
  */
 #ifndef BF_TRACE_H
@@ -38,6 +41,7 @@ enum {
 	BFT_STUB  = 1 << 12   /* first call of each unimplemented function; on by default */
 };
 
+/* The categories any sink prints: the stream's (BF_TRACE) and the rolling file's. */
 extern unsigned bf_trace_mask;
 
 /* Reads the environment. Called on first use; calling it again re-reads. */
@@ -76,7 +80,27 @@ void bf_trace_set_packet_namer(const char *(*namer)(int header));
 
 /* Counts an event under a name; bf_trace_dump_counters prints the totals. */
 void bf_count(const char *name, long long amount);
+/* The totals, to the stream (stderr or BF_TRACE_FILE) and the rolling file. */
 void bf_trace_dump_counters(void);
+/*
+ * The same at an orderly exit: to the stream only when BF_TRACE asked for a
+ * category beyond err and stub (as before the rolling file existed), and to
+ * the rolling file when one is open.
+ */
+void bf_trace_dump_counters_at_exit(void);
+
+/*
+ * The rolling trace file: a sink beside the stream, with its own categories
+ * (mask; bf_trace_mask becomes the union). Each call opens
+ * <folder>/trace-<YYYYmmdd-HHMMSS>-<pid>.txt (local time); when a file
+ * reaches max_bytes, it is closed and the next part,
+ * trace-<YYYYmmdd-HHMMSS>-<pid>-<n>.txt, opened. After each open only the
+ * newest keep files named trace-*.txt in folder are left (by modification
+ * time, then name); the others are deleted. folder must exist. Returns the
+ * path of the file opened, valid until the next call, or NULL with a BFT_ERR
+ * line on the stream. bf_trace_init leaves it open and keeps its categories.
+ */
+const char *bf_trace_open_rolling(const char *folder, unsigned mask, int keep, long long max_bytes);
 
 /* Reports an unimplemented function once per call site. */
 void bf_stub(const char *function, const char *file, int line);

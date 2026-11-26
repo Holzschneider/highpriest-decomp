@@ -1,14 +1,19 @@
 #include "bf_trace.h"
 
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
+#include <algorithm>
 #include <map>
 #include <mutex>
 #include <set>
 #include <string>
+#include <vector>
 
 // Errors and stub reports are printed even when BF_TRACE is unset.
 unsigned bf_trace_mask = BFT_ERR | BFT_STUB;
@@ -27,6 +32,17 @@ const Category kCategories[] = {
 std::recursive_mutex g_lock;
 bool g_ready = false;
 FILE *g_out = NULL;
+unsigned g_outMask = BFT_ERR | BFT_STUB;   // the stream's categories (BF_TRACE)
+
+// The rolling file (bf_trace_open_rolling).
+struct Rolling {
+	FILE *file = NULL;
+	unsigned mask = 0;
+	std::string folder, base, path;   // base: trace-<date>-<pid>
+	int part = 1, keep = 10;
+	long long bytes = 0, max = 0;
+};
+Rolling g_roll;
 FILE *g_packetLog = NULL;
 bool g_abortOnAssert = false;
 const char *(*g_packetNamer)(int) = NULL;
@@ -53,6 +69,71 @@ void EnsureReady()
 {
 	if (!g_ready)
 		bf_trace_init();
+}
+
+// Leaves the newest g_roll.keep files named trace-*.txt in the folder.
+void PruneRolling()
+{
+	DIR *dir = opendir(g_roll.folder.c_str());
+	if (!dir)
+		return;
+	struct Entry { struct timespec mtime; std::string name; };
+	std::vector<Entry> files;
+	while (struct dirent *e = readdir(dir)) {
+		size_t n = strlen(e->d_name);
+		if (n < 10 || strncmp(e->d_name, "trace-", 6) != 0 || strcmp(e->d_name + n - 4, ".txt") != 0)
+			continue;
+		struct stat st;
+		std::string path = g_roll.folder + "/" + e->d_name;
+		if (stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode))
+			files.push_back(Entry{st.st_mtimespec, e->d_name});
+	}
+	closedir(dir);
+	std::sort(files.begin(), files.end(), [](const Entry &a, const Entry &b) {   // newest first
+		if (a.mtime.tv_sec != b.mtime.tv_sec)
+			return a.mtime.tv_sec > b.mtime.tv_sec;
+		if (a.mtime.tv_nsec != b.mtime.tv_nsec)
+			return a.mtime.tv_nsec > b.mtime.tv_nsec;
+		return a.name > b.name;
+	});
+	for (size_t i = g_roll.keep > 0 ? (size_t)g_roll.keep : 1; i < files.size(); ++i)
+		if (files[i].name != g_roll.path.substr(g_roll.folder.size() + 1))
+			unlink((g_roll.folder + "/" + files[i].name).c_str());
+}
+
+// Opens part g_roll.part of the rolling file; false (on the stream) if it cannot.
+bool OpenRollingPart()
+{
+	char name[64];
+	if (g_roll.part > 1)
+		snprintf(name, sizeof name, "-%d", g_roll.part);
+	else
+		name[0] = 0;
+	std::string path = g_roll.folder + "/" + g_roll.base + name + ".txt";
+	FILE *file = fopen(path.c_str(), "w");
+	if (!file) {
+		fprintf(g_out ? g_out : stderr, "[%8lld err  ] trace: cannot write the rolling trace %s\n", Milliseconds(),
+		        path.c_str());
+		return false;
+	}
+	g_roll.file = file;
+	g_roll.path = path;
+	g_roll.bytes = 0;
+	PruneRolling();
+	return true;
+}
+
+// After a line: the next part once the file is full.
+void RollIfFull()
+{
+	if (!g_roll.file || g_roll.max <= 0 || g_roll.bytes < g_roll.max)
+		return;
+	fprintf(g_roll.file, "[%8lld mode ] trace: %lld bytes, continued in part %d\n", Milliseconds(), g_roll.bytes,
+	        g_roll.part + 1);
+	fclose(g_roll.file);
+	g_roll.file = NULL;
+	++g_roll.part;
+	OpenRollingPart();
 }
 
 } // namespace
@@ -85,7 +166,8 @@ void bf_trace_init(void)
 			begin = end + 1;
 		}
 	}
-	bf_trace_mask = mask;
+	g_outMask = mask;
+	bf_trace_mask = mask | (g_roll.file ? g_roll.mask : 0);
 
 	if (g_out && g_out != stderr)
 		fclose(g_out);
@@ -118,12 +200,31 @@ void bf_tracev(unsigned category, const char *format, va_list args)
 	if (!(bf_trace_mask & category))
 		return;
 
-	fprintf(g_out, "[%8lld %-5s] ", Milliseconds(), CategoryName(category));
-	vfprintf(g_out, format, args);
+	long long ms = Milliseconds();
 	size_t length = strlen(format);
-	if (!length || format[length - 1] != '\n')
-		fputc('\n', g_out);
-	fflush(g_out);
+	bool newline = !length || format[length - 1] != '\n';
+	if (g_outMask & category) {
+		va_list copy;
+		va_copy(copy, args);
+		fprintf(g_out, "[%8lld %-5s] ", ms, CategoryName(category));
+		vfprintf(g_out, format, copy);
+		va_end(copy);
+		if (newline)
+			fputc('\n', g_out);
+		fflush(g_out);
+	}
+	if (g_roll.file && (g_roll.mask & category)) {
+		va_list copy;
+		va_copy(copy, args);
+		int a = fprintf(g_roll.file, "[%8lld %-5s] ", ms, CategoryName(category));
+		int b = vfprintf(g_roll.file, format, copy);
+		va_end(copy);
+		if (newline)
+			fputc('\n', g_roll.file);
+		fflush(g_roll.file);
+		g_roll.bytes += (a > 0 ? a : 0) + (b > 0 ? b : 0) + (newline ? 1 : 0);
+		RollIfFull();
+	}
 }
 
 void bf_tracef(unsigned category, const char *format, ...)
@@ -198,13 +299,66 @@ void bf_count(const char *name, long long amount)
 	g_counters[name] += amount;
 }
 
-void bf_trace_dump_counters(void)
+namespace {
+
+void DumpCounters(bool stream)
 {
 	std::lock_guard<std::recursive_mutex> hold(g_lock);
 	EnsureReady();
-	for (std::map<std::string, long long>::const_iterator it = g_counters.begin(); it != g_counters.end(); ++it)
-		fprintf(g_out, "[counter] %-40s %lld\n", it->first.c_str(), it->second);
-	fflush(g_out);
+	for (std::map<std::string, long long>::const_iterator it = g_counters.begin(); it != g_counters.end(); ++it) {
+		if (stream)
+			fprintf(g_out, "[counter] %-40s %lld\n", it->first.c_str(), it->second);
+		if (g_roll.file) {
+			int n = fprintf(g_roll.file, "[counter] %-40s %lld\n", it->first.c_str(), it->second);
+			g_roll.bytes += n > 0 ? n : 0;
+		}
+	}
+	if (stream)
+		fflush(g_out);
+	if (g_roll.file) {
+		fflush(g_roll.file);
+		RollIfFull();
+	}
+}
+
+} // namespace
+
+void bf_trace_dump_counters(void)
+{
+	DumpCounters(true);
+}
+
+void bf_trace_dump_counters_at_exit(void)
+{
+	DumpCounters((g_outMask & ~(unsigned)(BFT_ERR | BFT_STUB)) != 0);
+}
+
+const char *bf_trace_open_rolling(const char *folder, unsigned mask, int keep, long long max_bytes)
+{
+	std::lock_guard<std::recursive_mutex> hold(g_lock);
+	EnsureReady();
+	if (g_roll.file) {
+		fclose(g_roll.file);
+		g_roll.file = NULL;
+	}
+	time_t now = time(NULL);
+	struct tm local;
+	localtime_r(&now, &local);
+	char base[64];
+	strftime(base, sizeof base, "trace-%Y%m%d-%H%M%S", &local);
+	snprintf(base + strlen(base), sizeof base - strlen(base), "-%d", (int)getpid());
+	g_roll.folder = folder ? folder : "";
+	g_roll.base = base;
+	g_roll.mask = mask;
+	g_roll.keep = keep;
+	g_roll.max = max_bytes;
+	g_roll.part = 1;
+	if (g_roll.folder.empty() || !OpenRollingPart()) {
+		bf_trace_mask = g_outMask;
+		return NULL;
+	}
+	bf_trace_mask = g_outMask | g_roll.mask;
+	return g_roll.path.c_str();
 }
 
 void bf_stub(const char *function, const char *file, int line)

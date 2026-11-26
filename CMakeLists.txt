@@ -85,6 +85,11 @@ endif()
 # (technical plan 3.6). Directory-wide, so the modules and tests get them too.
 option(BF_SANITIZE "Address and undefined-behaviour sanitizers, everywhere" OFF)
 option(BF_PATTERN_INIT "Fill automatic variables with a pattern (-ftrivial-auto-var-init=pattern)" OFF)
+# Debug instrumentation (F5): every launch keeps a rolling trace in the
+# support folder's Logs and opens the control socket at its default place
+# (port/client/src/bf_main.cpp, PROTOCOL.md section 1). The presets debug,
+# asan and tsan turn it on, release leaves it off.
+option(BF_DEBUG_INSTRUMENTATION "Rolling trace and default control socket in every launch" OFF)
 if(BF_SANITIZE)
 	add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
 	add_link_options(-fsanitize=address,undefined)
@@ -281,6 +286,7 @@ add_library(bf_port_main STATIC
 	port/client/src/bf_setting_key.cpp
 	port/client/src/bf_port_shell.cpp)
 bf_port_flags(bf_port_main)
+target_compile_definitions(bf_port_main PRIVATE BF_DEBUG_INSTRUMENTATION=$<IF:$<BOOL:${BF_DEBUG_INSTRUMENTATION}>,1,0>)
 target_link_libraries(bf_port_main PRIVATE bf_instrument ${BF_NATIVE_LIBS})
 # bifrost-movie-test: the movie player (bf_movie.h) through CBink's call
 # sequences, with its own clock and the sound engine offline (headless).

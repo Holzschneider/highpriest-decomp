@@ -19,7 +19,7 @@
       "name": "debug",
       "inherits": "base",
       "displayName": "Debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BF_DEBUG_INSTRUMENTATION": "ON" }
     },
     {
       "name": "asan",
@@ -28,7 +28,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BF_SANITIZE": "ON",
-        "BF_PATTERN_INIT": "ON"
+        "BF_PATTERN_INIT": "ON",
+        "BF_DEBUG_INSTRUMENTATION": "ON"
       }
     },
     {
@@ -37,6 +38,7 @@
       "displayName": "Debug with the thread sanitizer (M8.5); flags through the cache, CMakeLists.txt unchanged",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "BF_DEBUG_INSTRUMENTATION": "ON",
         "CMAKE_C_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
         "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
         "CMAKE_OBJC_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
@@ -49,7 +51,7 @@
       "name": "release",
       "inherits": "base",
       "displayName": "Release",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "BF_DEBUG_INSTRUMENTATION": "OFF" }
     }
   ],
   "buildPresets": [

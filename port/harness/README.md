@@ -40,6 +40,7 @@ A run prints one line per step and writes `build/harness/<script>[-mock]-<time>/
 - **Evidence windows.** `t.logs.mark()` before an action records the database clock and the highest id of every log table; readers take `after=marker` and select by id, which is exact. `loginlog` has no id and is selected by time (one-second granularity).
 - **Set-up versus play.** SQL set-up (`Accounts.create_account`, `Accounts.set_char`) is for the scene before the client logs in: it refuses an online character, because the map server overwrites the row at every save. Once in game, set-up is by atcommand, typed by the client (`t.gm.run(GM.warp(...))`) and so logged in `atcommandlog`; it needs a group-99 account (`bfadmin`, or `create_account(..., group_id=99)`). The action under test is always played through the client.
 - **Socket path.** macOS limits a socket path to 103 bytes; the socket lives in `build/harness/sock/`, or in the system temporary directory when that path is too long.
+- **Debug defaults do not apply.** A debug build opens a control socket and keeps a rolling trace in `<support>/Logs` without being asked (PROTOCOL.md section 1). A harness launch always passes `--control`, `BF_CONTROL` and `BF_TRACE_FILE`, which win, so it gets neither, and its own `BF_HOME` keeps it away from the user's folders. By hand: `open -n <build>/<name>.app` with a debug build gives a socket at `~/Library/Application Support/<name>/control-main.sock` (`--env BF_HOME=<dir>` moves it under that home), and `trace-<date>-<time>-<pid>.txt` beside it in `Logs`.
 
 ## Environment
 
