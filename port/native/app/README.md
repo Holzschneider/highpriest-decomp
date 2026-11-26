@@ -141,6 +141,19 @@ On an unlocked screen those two checks run for real.
   - Only printable characters are reported: no control characters and none
     of AppKit's function-key code points (U+F700–U+F8FF).
   - Cmd combinations type nothing.
+  - A text filter (`bf_app_set_text_filter`) sees each AppKit key-down,
+    already queued with its `seq`, before the text system does, and can
+    keep it out: no text, and no dead key or composition left pending (the
+    client keeps its Option shortcuts out this way).
+- **Keyboard layout.** `bf_app_key_layout_text` is what one press of a key
+  types with Shift, Option and Caps Lock on the layout in effect
+  (UCKeyTranslate on the 'uchr' data of the current keyboard layout, which
+  is also the one under an input method); a dead key gives its accent and
+  says so. `bf_app_key_layout_types_plain` tells whether the layout has a
+  character on a key alone or with Shift. `bf_app_key_layout_use` makes them
+  read another installed layout ("com.apple.keylayout.German") without
+  selecting it in the system, for tests. Links Carbon (HIToolbox) for Text
+  Input Sources.
   - Press-and-hold accent menus are off (`ApplePressAndHoldEnabled` is
     registered as NO, in memory only), so held keys repeat.
 - **The clock.** Event times come from the clock installed with

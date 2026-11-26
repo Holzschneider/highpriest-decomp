@@ -77,7 +77,7 @@ and their parameters are the Windows numbers, which the client keeps
 |---|---|
 | `KEY_DOWN` | `WM_KEYDOWN`, or `WM_SYSKEYDOWN` while Alt (Option) is held without Ctrl, for F10 and for Alt itself; `wParam` the VK (`VK_SHIFT`/`VK_CONTROL`/`VK_MENU` for either side); `lParam` = `1 \| scan << 16 \| extended << 24 \| alt << 29 \| previous << 30`, previous being the repeat flag or the key already held |
 | `KEY_UP` | `WM_KEYUP`/`WM_SYSKEYUP` with `0xC0000000` added; only for keys whose down was sent |
-| `TEXT` | one `WM_CHAR` per character, CP1252; characters CP1252 lacks are dropped; the whole text is dropped when its key-down had Ctrl, Cmd, or Option on a game shortcut |
+| `TEXT` | one `WM_CHAR` per character, CP1252; characters CP1252 lacks are dropped; the whole text is dropped when its key-down had Ctrl, Cmd, or Option on a game shortcut (unless that Option key types, below) |
 | `POINTER_MOVE` | `WM_SETCURSOR` (`HTCLIENT`) when inside, then `WM_MOUSEMOVE` with the logical position |
 | `POINTER_ENTER` | `WM_SETCURSOR` |
 | `BUTTON_*`, `WHEEL` | none: `CMouse` reads them (`bf_input_mouse_read`) |
@@ -104,12 +104,39 @@ procedure (`bf_input_default_proc`) answers `TRUE` to `WM_NCCREATE` and
   `VK_SCROLL`, `VK_PAUSE`, and `VK_SNAPSHOT` comes as `WM_KEYUP` only, as
   Windows sends it (the client takes the picture there); Cmd and Fn send no
   messages (`VK_LWIN`/`VK_RWIN` read Cmd).
-- **Option is Alt.** Its key-down is `WM_SYSKEYDOWN`. The character macOS
-  types for it is dropped when the key is a game shortcut
+- **Option is Alt** (spec section 4). Its key-down is `WM_SYSKEYDOWN`. The
+  character macOS types for it is dropped when the key is a game shortcut
   (`bf_input_is_alt_shortcut`: the letters `UIWindowMgr::ProcessPushButton`
   tests with `VK_MENU` but F, K, N; the digits; Insert, Home, End, F10), and
-  typed otherwise (Option+L still types `@` on a German layout). Ctrl drops
-  the text as well.
+  typed otherwise (Option+F types `ƒ` on a US layout). Ctrl drops the text
+  as well.
+- **Option types what the layout has only with Option** (F1,
+  `bf_input_option_types`). While a text field holds the keyboard
+  (`bf_input_client_text_focus`, `UIWindowMgr::GetFocusEdit`, from
+  `bf_input_focus.cpp`), an Option key-down without Ctrl or Cmd for which
+  the keyboard layout gives one printable ASCII character that it types
+  nowhere without Option is typing, not Alt: German Option+L `@`, Option+5
+  `[`, 6 `]`, 7 `|`, Shift+7 `\`, 8 `{`, 9 `}`, N `~` (French Option+5 `{`,
+  Shift+L `|`). It is a `WM_KEYDOWN` without the Alt bit, `VK_MENU`,
+  `VK_LMENU`, `VK_RMENU` read up until its key-up (so that
+  `ProcessPushButton` takes no shortcut), and its text is typed. The layout
+  is asked through the system (`bf_app_key_layout_text` and
+  `bf_app_key_layout_types_plain`, UCKeyTranslate), so every layout works.
+  Everything else stays Alt: Option characters that are not ASCII (US
+  Option+L `¬`, German Option+E `€`, Option+A `å`), ASCII ones the layout
+  also has on a key of its own (US Option+\` is the \` key's), and every
+  Option key outside a text field. **Ctrl+Option+key is always the Alt
+  shortcut** (ProcessPushButton does not test Ctrl): German Ctrl+Option+L
+  opens the emotion list from the chat line. The decision uses the layout in
+  effect for AppKit's key-downs; an injected key-down (the control socket)
+  follows a layout only when one is named (`bf_app_key_layout_use`, the test
+  program), so scripted tests do not depend on the Mac's layout.
+- **No dead key behind a shortcut.** `bf_input_window_create` installs
+  `bf_input_text_filter` as the app module's text filter: an AppKit
+  key-down whose text the rules above drop as an Option shortcut never
+  reaches the text system, so US Option+E (Alt+E) leaves no `´` pending to
+  accent the next letter. Option keys that type (Option+N, no shortcut, then
+  N: `ñ`) still compose as on any Mac.
 - **Cmd keeps its Mac meaning**: Cmd+Q `WM_CLOSE`; Cmd+F
   `bf_view_toggle_fullscreen`; Cmd+V types the clipboard as `WM_CHAR`s into
   the focused field (CP1252, control characters dropped, no key message);

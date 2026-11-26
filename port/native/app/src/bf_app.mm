@@ -50,6 +50,10 @@ bool g_akKeys[128];
 uint32_t g_akButtons;
 float g_lastPx, g_lastPy, g_lastPtX, g_lastPtY;
 
+// bf_app_set_text_filter.
+bf_app_text_filter g_textFilter = nullptr;
+void *g_textFilterContext = nullptr;
+
 // Single instance.
 int g_lockFd = -1;
 NSString *g_lockPath = nil;
@@ -545,8 +549,21 @@ static uint32_t OtherButton(NSEvent *event)
 	uint32_t mods = ModsFromFlags(event.modifierFlags);
 	_currentKeySeq = PostKey(BF_APP_EVENT_KEY_DOWN, event.keyCode, mods, event.ARepeat);
 	// Cmd combinations are commands, never text. Everything else goes
-	// through the text system, which handles dead keys and input methods.
-	if (!(mods & BF_APP_MOD_CMD))
+	// through the text system, which handles dead keys and input methods,
+	// unless the text filter keeps it out (an Option shortcut).
+	bool text = !(mods & BF_APP_MOD_CMD);
+	if (text && g_textFilter) {
+		bf_app_event e = {};
+		e.type = BF_APP_EVENT_KEY_DOWN;
+		e.source = BF_APP_SOURCE_APPKIT;
+		e.mods = mods;
+		e.seq = _currentKeySeq;
+		e.key.mac_keycode = (uint16_t)event.keyCode;
+		e.key.key = (uint16_t)bf_app_key_from_mac(event.keyCode);
+		e.key.repeat = event.ARepeat ? 1 : 0;
+		text = g_textFilter(&e, g_textFilterContext) != 0;
+	}
+	if (text)
 		[self interpretKeyEvents:@[ event ]];
 	_currentKeySeq = 0;
 }
@@ -664,6 +681,12 @@ static uint32_t OtherButton(NSEvent *event)
 @end
 
 // ---------------------------------------------------------------------- C API
+
+extern "C" void bf_app_set_text_filter(bf_app_text_filter filter, void *context)
+{
+	g_textFilter = filter;
+	g_textFilterContext = context;
+}
 
 extern "C" int bf_app_init(const bf_app_config *config)
 {

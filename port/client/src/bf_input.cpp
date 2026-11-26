@@ -201,6 +201,16 @@ uint32_t g_last_mods = 0;
 uint8_t g_vk[256];                    // held, by the state VK (VK_LSHIFT, ..., 'A')
 uint16_t g_down_as[BF_KEY_COUNT];     // the key whose entry a held key's WM_KEYDOWN used, 0: none sent
 int g_cmd_ctrl_key = 0;               // Cmd+X or Cmd+C held: reads as Ctrl+X, Ctrl+C
+int g_option_typing_key = 0;          // a key typing with Option held (bf_input_option_types): Alt reads up
+
+// What bf_input_option_types decided for an AppKit key-down when the text
+// filter asked (by its seq), so that its messages follow the same decision.
+struct OptionDecision {
+	uint64_t seq;
+	bool types;
+};
+OptionDecision g_option_decisions[16];
+unsigned g_option_decision_next = 0;
 
 // Whether the text a key-down types reaches the client (by the key-down's seq).
 struct TextRule {
@@ -299,7 +309,10 @@ bool VkDown(int vk)
 	case VK_LCONTROL:
 		return StateDown(VK_LCONTROL) || g_cmd_ctrl_key;
 	case VK_MENU:
-		return StateDown(VK_LMENU) || StateDown(VK_RMENU);
+		return (StateDown(VK_LMENU) || StateDown(VK_RMENU)) && !g_option_typing_key;
+	case VK_LMENU:
+	case VK_RMENU:
+		return StateDown(vk) && !g_option_typing_key;
 	default:
 		return vk > 0 && vk < 256 && g_vk[vk];
 	}
@@ -359,6 +372,17 @@ void PasteAsTyped()
 	BF_TRACE(BFT_INPUT, "input: Cmd+V typed %d characters from the clipboard\n", n);
 }
 
+// The Option rule (bf_input_option_types), as the text filter decided it
+// for this key-down, or now.
+bool OptionTypes(const bf_app_event &e)
+{
+	if (e.seq)
+		for (const OptionDecision &d : g_option_decisions)
+			if (d.seq == e.seq)
+				return d.types;
+	return bf_input_option_types(&e) != 0;
+}
+
 void OnKeyDown(const bf_app_event &e)
 {
 	int key = e.key.key;
@@ -367,6 +391,8 @@ void OnKeyDown(const bf_app_event &e)
 	SetTextRule(e.seq, true);
 	if (key == BF_KEY_NONE || key == BF_KEY_FN)
 		return;
+	if (!IsModifierKey(key))
+		g_option_typing_key = 0;   // a key-down of its own: Alt reads as held again
 	if (key == BF_KEY_LCMD || key == BF_KEY_RCMD) {
 		g_vk[KeyFor(key).state_vk] = 1;   // GetKeyState only; no message
 		return;
@@ -413,6 +439,14 @@ void OnKeyDown(const bf_app_event &e)
 		BF_TRACE(BFT_INPUT, "input: key %d (kVK 0x%x) has no virtual key\n", key, e.key.mac_keycode);
 		return;
 	}
+	if (alt && OptionTypes(e)) {
+		// The layout's character for Option+key, which it has nowhere else
+		// ("@" on German Option+L): typed, and the key is no Alt shortcut.
+		g_option_typing_key = key;
+		SendKeyDown(key, key, repeat, false, ctrl);
+		SetTextRule(e.seq, false);
+		return;
+	}
 	SendKeyDown(key, key, repeat, alt, ctrl);
 	// Text reaches the client unless Ctrl is held, or Option is held and the
 	// key is a game shortcut (Option acts as Alt and types nothing then).
@@ -440,6 +474,8 @@ void OnKeyUp(const bf_app_event &e)
 	Post(sys ? WM_SYSKEYUP : WM_KEYUP, k.vk, lp);
 	if (key == g_cmd_ctrl_key)
 		g_cmd_ctrl_key = 0;
+	if (key == g_option_typing_key)
+		g_option_typing_key = 0;   // after its key-up, which is a typed key's
 }
 
 void OnText(const bf_app_event &e)
@@ -456,6 +492,7 @@ void ReleaseAllKeys()
 	memset(g_vk, 0, sizeof g_vk);
 	memset(g_down_as, 0, sizeof g_down_as);
 	g_cmd_ctrl_key = 0;
+	g_option_typing_key = 0;
 }
 
 WPARAM MouseKeyFlags(uint32_t buttons)
@@ -583,6 +620,7 @@ extern "C" HWND bf_input_window_create(int width, int height, const char *title,
 	g_view_running = bf_view_init(g_scale_setting) == BF_VIEW_OK;
 	g_window = true;
 	g_proc = proc;
+	bf_app_set_text_filter(bf_input_text_filter, nullptr);
 	bf_app_set_cursor_hidden_in_window(0);   // the class cursor: the arrow
 	bf_view_metrics m;
 	Metrics(&m);
@@ -602,6 +640,7 @@ extern "C" void bf_input_window_destroy(void)
 	Send(WM_DESTROY, 0, 0);
 	Send(WM_NCDESTROY, 0, 0);
 	g_pending.clear();
+	bf_app_set_text_filter(nullptr, nullptr);
 	if (g_view_running)
 		bf_view_shutdown();
 	g_view_running = false;
@@ -730,6 +769,47 @@ extern "C" int bf_input_is_alt_shortcut(unsigned vk)
 	default:
 		return 0;
 	}
+}
+
+extern "C" int bf_input_option_types(const bf_app_event *e)
+{
+	if (!e || e->type != BF_APP_EVENT_KEY_DOWN)
+		return 0;
+	if ((e->mods & (BF_APP_MOD_ALT | BF_APP_MOD_CTRL | BF_APP_MOD_CMD)) != BF_APP_MOD_ALT)
+		return 0;
+	if (IsModifierKey(e->key.key))
+		return 0;
+	// Scripted key-downs do not depend on the Mac's layout unless a test names one.
+	if (e->source != BF_APP_SOURCE_APPKIT && !bf_app_key_layout_named())
+		return 0;
+	if (!bf_input_client_text_focus())
+		return 0;
+	// AppKit's key code; an injected key-down names its key (the code is derived from it).
+	int mac = e->source == BF_APP_SOURCE_APPKIT || !e->key.key
+	        ? (e->key.mac_keycode == 0xffff ? -1 : (int)e->key.mac_keycode) : bf_app_key_to_mac(e->key.key);
+	if (mac < 0)
+		return 0;
+	char t[16];
+	size_t n = bf_app_key_layout_text((unsigned)mac, e->mods & (BF_APP_MOD_SHIFT | BF_APP_MOD_ALT), t, sizeof t, nullptr);
+	if (n != 1 || t[0] <= 0x20 || t[0] >= 0x7F)
+		return 0;   // nothing, a space, or not ASCII: the Alt shortcut stays (US Option+L, German Option+E)
+	if (bf_app_key_layout_types_plain(t))
+		return 0;   // the layout has it on a key of its own (US Option+`)
+	BF_TRACE(BFT_INPUT, "input: Option+%s types '%s' in the text field (not Alt)\n", bf_app_key_name(e->key.key), t);
+	return 1;
+}
+
+extern "C" int bf_input_text_filter(const bf_app_event *e, void *context)
+{
+	if (!e || e->type != BF_APP_EVENT_KEY_DOWN || !(e->mods & BF_APP_MOD_ALT) || (e->mods & BF_APP_MOD_CTRL))
+		return 1;   // only an Option shortcut is kept from the text system
+	bool types = bf_input_option_types(e) != 0;
+	if (e->seq)
+		g_option_decisions[g_option_decision_next++ % 16] = OptionDecision{e->seq, types};
+	if (types)
+		return 1;
+	unsigned vk = KeyFor(e->key.key).vk;
+	return vk && bf_input_is_alt_shortcut(vk) ? 0 : 1;
 }
 
 // ------------------------------------------------------------------ mouse

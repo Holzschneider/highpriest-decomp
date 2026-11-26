@@ -22,7 +22,8 @@ set(BF_INSTRUMENT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../instrument)
 add_library(bf_app STATIC
 	src/bf_app.mm
 	src/bf_app_queue.cpp
-	src/bf_app_keys.cpp)
+	src/bf_app_keys.cpp
+	src/bf_app_layout.cpp)
 target_include_directories(bf_app
 	PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
 	PRIVATE ${BF_INSTRUMENT_DIR})
@@ -35,7 +36,7 @@ target_compile_options(bf_app PRIVATE
 	$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>
 	-Wall -Wextra -Wno-unused-parameter)
 target_link_libraries(bf_app PUBLIC
-	"-framework AppKit" "-framework QuartzCore" "-framework Metal")
+	"-framework AppKit" "-framework Carbon" "-framework QuartzCore" "-framework Metal")
 
 # The test program; bf_trace.cpp is compiled into it as it is.
 add_executable(bifrost-app-test

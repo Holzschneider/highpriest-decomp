@@ -115,9 +115,41 @@ unsigned bf_input_vk_for_key(int key, unsigned *scan, int *extended);
  * Alt (Option) shortcuts of the game: the virtual keys for which Alt+key
  * does something in the client (UIWindowMgr::ProcessPushButton). Text that
  * a key-down with Option (and neither Ctrl nor Cmd) types is dropped when
- * its key is one of these, and typed otherwise.
+ * its key is one of these, and typed otherwise, but for the exception of
+ * bf_input_option_types.
  */
 int bf_input_is_alt_shortcut(unsigned vk);
+
+/*
+ * Whether a key-down (bf_app_event KEY_DOWN) with Option types the
+ * layout's character instead of being Alt: Option held without Ctrl and
+ * Cmd, a text field holds the keyboard (bf_input_client_text_focus), and
+ * the keyboard layout (bf_app_key_layout_text, with Shift as held) gives
+ * one printable ASCII character for it that the layout types nowhere
+ * without Option ("@" for German Option+L, "[" for Option+5, "\" for
+ * Option+Shift+7). Such a key-down is WM_KEYDOWN without the Alt bit, Alt
+ * reads up while the key is held, and its text is typed. The layout is the
+ * one in effect for AppKit's key-downs; an injected key-down (the control
+ * socket) follows a layout only when one is named (bf_app_key_layout_use),
+ * so that scripted tests do not depend on the Mac's layout.
+ */
+struct bf_app_event;
+int bf_input_option_types(const struct bf_app_event *key_down);
+
+/*
+ * The app module's text filter (bf_app_set_text_filter), installed by
+ * bf_input_window_create: 0 for a key-down whose text the rules above drop
+ * because it is an Option shortcut, so that the text system leaves no dead
+ * key pending (Option+E on a US layout would accent the next letter).
+ */
+int bf_input_text_filter(const struct bf_app_event *key_down, void *context);
+
+/*
+ * Provided by the client (port/client/src/bf_input_focus.cpp; the test
+ * program has its own): non-zero while a text field of the client holds the
+ * keyboard (UIWindowMgr::GetFocusEdit). Main thread.
+ */
+int bf_input_client_text_focus(void);
 
 /* ---------------------------------------------------------------- mouse */
 

@@ -21,6 +21,14 @@
 #include "bf_input.h"
 #include "bf_view.h"
 
+// What the client reports through bf_input_client_text_focus: whether a
+// text field holds the keyboard (in game the chat line usually does).
+bool g_text_focus = true;
+extern "C" int bf_input_client_text_focus(void)
+{
+	return g_text_focus;
+}
+
 namespace {
 
 int g_failures = 0;
@@ -383,6 +391,207 @@ void Keyboard()
 	      "VK_NUMLOCK: toggled (a Mac keypad types digits); the async state has no bit 0");
 }
 
+// The key-down AppKit would queue, for bf_input_text_filter.
+bf_app_event AppKitDown(int key, uint32_t mods, uint64_t seq)
+{
+	bf_app_event e = {};
+	e.type = BF_APP_EVENT_KEY_DOWN;
+	e.source = BF_APP_SOURCE_APPKIT;
+	e.mods = mods;
+	e.seq = seq;
+	e.key.key = (uint16_t)key;
+	e.key.mac_keycode = (uint16_t)bf_app_key_to_mac(key);
+	return e;
+}
+
+std::string LayoutText(int key, uint32_t mods, int *dead = nullptr)
+{
+	char b[16];
+	bf_app_key_layout_text((unsigned)bf_app_key_to_mac(key), mods, b, sizeof b, dead);
+	return b;
+}
+
+// Option with a layout (F1): what the layout gives with Option types in a
+// text field when the layout has it nowhere else; otherwise Option is Alt.
+// The layouts are named through bf_app_key_layout_use, which reads an
+// installed layout without selecting it, and the key-downs are injected with
+// the text AppKit would type for them, linked by key_seq.
+void OptionLayout()
+{
+	std::vector<Rec> v;
+	const uint32_t opt = BF_APP_MOD_ALT, optShift = BF_APP_MOD_ALT | BF_APP_MOD_SHIFT;
+	if (bf_app_key_layout_use("com.apple.keylayout.German") != BF_APP_OK) {
+		Skip("German layout", "com.apple.keylayout.German is not installed");
+		return;
+	}
+	Check(bf_app_key_layout_named() && strcmp(bf_app_key_layout_named(), "com.apple.keylayout.German") == 0,
+	      "bf_app_key_layout_use: German named");
+
+	// What the German layout gives.
+	struct { int key; uint32_t mods; const char *want; const char *name; } de[] = {
+		{BF_KEY_L, opt, "@", "Option+L"}, {BF_KEY_5, opt, "[", "Option+5"}, {BF_KEY_6, opt, "]", "Option+6"},
+		{BF_KEY_7, opt, "|", "Option+7"}, {BF_KEY_7, optShift, "\\", "Option+Shift+7"}, {BF_KEY_8, opt, "{", "Option+8"},
+		{BF_KEY_9, opt, "}", "Option+9"}, {BF_KEY_N, opt, "~", "Option+N"}, {BF_KEY_E, opt, "\xe2\x82\xac", "Option+E"},
+		{BF_KEY_A, opt, "\xc3\xa5", "Option+A"}};
+	std::string got;
+	bool all = true;
+	for (const auto &k : de) {
+		std::string t = LayoutText(k.key, k.mods);
+		got += Fmt("%s \"%s\" ", k.name, t.c_str());
+		all = all && t == k.want;
+	}
+	Check(all, "German layout: Option+L @, 5 [, 6 ], 7 |, Shift+7 \\, 8 {, 9 }, N ~, E \xe2\x82\xac, A \xc3\xa5", got);
+	int dead = 0;
+	LayoutText(BF_KEY_N, opt, &dead);
+	Check(dead == 1, "German Option+N is a dead key (its accent \"~\")");
+	Check(!bf_app_key_layout_types_plain("@") && !bf_app_key_layout_types_plain("[") && bf_app_key_layout_types_plain("#") &&
+	      bf_app_key_layout_types_plain("<") && bf_app_key_layout_types_plain("^"),
+	      "German layout: @ and [ only with Option; #, <, ^ (dead) on keys of their own");
+
+	// German, a text field holds the keyboard: Option+L types "@".
+	g_text_focus = true;
+	Down(BF_KEY_LALT);
+	uint64_t s = Down(BF_KEY_L);
+	Text("@", s);
+	v = Run();
+	const Rec *l = Find(v, WM_KEYDOWN);
+	Check(Is(l, 'L', 0x260001) && !l->alt && !Find(v, WM_SYSKEYDOWN, 1) && Chars(v) == "@",
+	      "German, text field: Option+L is WM_KEYDOWN 'L' without the Alt bit, Alt reads up, WM_CHAR '@' (no emotion list)",
+	      Describe(v));
+	Check(!HIBYTE(bf_input_async_key_state(VK_MENU)) && !HIBYTE(bf_input_key_state(VK_LMENU)),
+	      "German, text field: VK_MENU and VK_LMENU read up while L is held");
+	s = Down(BF_KEY_L, 1);
+	Text("@", s);
+	v = Run();
+	Check(Is(Find(v, WM_KEYDOWN), 'L', 0x40260001) && Chars(v) == "@", "German, text field: Option+L repeat types '@' again", Describe(v));
+	Up(BF_KEY_L);
+	v = Run();
+	Check(Is(Find(v, WM_KEYUP), 'L', 0xc0260001) && HIBYTE(bf_input_async_key_state(VK_MENU)),
+	      "German, text field: L up is WM_KEYUP; Alt reads down again (Option still held)", Describe(v));
+
+	// The other characters German has only with Option; Option+E (euro) and
+	// Option+A (a ring) stay Alt+E (inventory) and Alt+A (status).
+	struct { int key; bool shift; const char *text; } typed[] = {
+		{BF_KEY_5, false, "["}, {BF_KEY_6, false, "]"}, {BF_KEY_7, false, "|"}, {BF_KEY_7, true, "\\"},
+		{BF_KEY_8, false, "{"}, {BF_KEY_9, false, "}"}};
+	for (const auto &k : typed) {
+		if (k.shift)
+			Down(BF_KEY_LSHIFT);
+		s = Down(k.key);
+		Text(k.text, s);
+		Up(k.key);
+		if (k.shift)
+			Up(BF_KEY_LSHIFT);
+	}
+	v = Run();
+	int sysDigits = 0;
+	for (const Rec &r : v)
+		sysDigits += r.msg == WM_SYSKEYDOWN && r.w >= '0' && r.w <= '9';
+	Check(Chars(v) == "[]|\\{}" && sysDigits == 0,
+	      "German, text field: Option+5, 6, 7, Shift+7, 8, 9 type [ ] | \\ { } as WM_KEYDOWN, no Alt+digit", Describe(v));
+	s = Down(BF_KEY_E);
+	Text("\xe2\x82\xac", s);
+	Up(BF_KEY_E);
+	s = Down(BF_KEY_A);
+	Text("\xc3\xa5", s);
+	Up(BF_KEY_A);
+	v = Run();
+	Check(Find(v, WM_SYSKEYDOWN) && Find(v, WM_SYSKEYDOWN)->w == 'E' && Find(v, WM_SYSKEYDOWN, 1) &&
+	      Find(v, WM_SYSKEYDOWN, 1)->w == 'A' && Count(v, WM_CHAR) == 0,
+	      "German, text field: Option+E (euro, not ASCII) and Option+A stay Alt+E, Alt+A: WM_SYSKEYDOWN, no WM_CHAR", Describe(v));
+
+	// Ctrl+Option+L reaches Alt+L in a text field.
+	Down(BF_KEY_LCTRL);
+	s = Down(BF_KEY_L);
+	Text("@", s);   // AppKit would type nothing with Ctrl; dropped anyway
+	Up(BF_KEY_L);
+	Up(BF_KEY_LCTRL);
+	v = Run();
+	l = nullptr;
+	for (const Rec &r : v)
+		if ((r.msg == WM_KEYDOWN || r.msg == WM_SYSKEYDOWN) && r.w == 'L')
+			l = &r;
+	Check(l && l->alt && l->ctrl && Count(v, WM_CHAR) == 0,
+	      "German, text field: Ctrl+Option+L is 'L' with Alt (and Ctrl) held: Alt+L, the emotion list; no '@'", Describe(v));
+	Up(BF_KEY_LALT);
+	Run();
+
+	// German, no text field: Option is Alt.
+	g_text_focus = false;
+	Down(BF_KEY_LALT);
+	s = Down(BF_KEY_L);
+	Text("@", s);
+	Up(BF_KEY_L);
+	s = Down(BF_KEY_5);
+	Text("[", s);
+	Up(BF_KEY_5);
+	Up(BF_KEY_LALT);
+	v = Run();
+	Check(Is(Find(v, WM_SYSKEYDOWN, 1), 'L', 0x20260001) && Find(v, WM_SYSKEYDOWN, 1)->alt && Find(v, WM_SYSKEYDOWN, 2) &&
+	      Find(v, WM_SYSKEYDOWN, 2)->w == '5' && Count(v, WM_CHAR) == 0,
+	      "German, no text field: Option+L, Option+5 are Alt+L, Alt+5 (WM_SYSKEYDOWN, bit 29), no WM_CHAR", Describe(v));
+
+	// The text filter, for AppKit's key-downs: what reaches the text system.
+	g_text_focus = true;
+	bf_app_event e = AppKitDown(BF_KEY_L, opt, 0);
+	int deL = bf_input_text_filter(&e, nullptr);
+	e = AppKitDown(BF_KEY_E, opt, 0);
+	int deE = bf_input_text_filter(&e, nullptr);
+	g_text_focus = false;
+	e = AppKitDown(BF_KEY_L, opt, 0);
+	int deLout = bf_input_text_filter(&e, nullptr);
+	g_text_focus = true;
+	Check(deL == 1 && deE == 0 && deLout == 0, "text filter, German: Option+L in a text field reaches the text system; "
+	      "Option+E, and Option+L outside one, do not", Fmt("%d %d %d", deL, deE, deLout));
+
+	// US layout: no Option character is ASCII, so every shortcut stays.
+	Check(bf_app_key_layout_use("com.apple.keylayout.US") == BF_APP_OK, "bf_app_key_layout_use: US named");
+	std::string usL = LayoutText(BF_KEY_L, opt), usE = LayoutText(BF_KEY_E, opt, &dead);
+	int usGraveDead = 0;
+	std::string usGrave = LayoutText(BF_KEY_GRAVE, opt, &usGraveDead);
+	Check(usL == "\xc2\xac" && usE == "\xc2\xb4" && dead == 1 && usGrave == "`" && usGraveDead && bf_app_key_layout_types_plain("`") &&
+	      bf_app_key_layout_types_plain("@"),
+	      "US layout: Option+L \xc2\xac, Option+E \xc2\xb4 (dead), Option+` ` (dead, also on its own key), @ on Shift+2",
+	      Fmt("\"%s\" \"%s\" \"%s\"", usL.c_str(), usE.c_str(), usGrave.c_str()));
+	Down(BF_KEY_LALT);
+	s = Down(BF_KEY_L);
+	Text("\xc2\xac", s);
+	Up(BF_KEY_L);
+	s = Down(BF_KEY_F);
+	Text("\xc6\x92", s);
+	Up(BF_KEY_F);
+	Up(BF_KEY_LALT);
+	v = Run();
+	Check(Is(Find(v, WM_SYSKEYDOWN, 1), 'L', 0x20260001) && Chars(v) == "\x83",
+	      "US, text field: Option+L is Alt+L (emotion list), no character; Option+F (no shortcut) types \xc6\x92", Describe(v));
+	e = AppKitDown(BF_KEY_E, opt, 0);
+	int usEf = bf_input_text_filter(&e, nullptr);
+	e = AppKitDown(BF_KEY_N, opt, 0);
+	int usNf = bf_input_text_filter(&e, nullptr);
+	e = AppKitDown(BF_KEY_A, 0, 0);
+	int usAf = bf_input_text_filter(&e, nullptr);
+	e = AppKitDown(BF_KEY_E, BF_APP_MOD_ALT | BF_APP_MOD_CTRL, 0);
+	int usCEf = bf_input_text_filter(&e, nullptr);
+	Check(usEf == 0 && usNf == 1 && usAf == 1 && usCEf == 1,
+	      "text filter, US: Option+E (Alt+E, a dead key) is kept from the text system, so no accent is left pending; "
+	      "Option+N (no shortcut: n tilde), A, Ctrl+Option+E reach it", Fmt("%d %d %d %d", usEf, usNf, usAf, usCEf));
+
+	// No layout named: injected key-downs do not follow the Mac's layout.
+	bf_app_key_layout_use(nullptr);
+	Check(bf_app_key_layout_named() == nullptr, "bf_app_key_layout_use(NULL): back to the layout in effect");
+	Down(BF_KEY_LALT);
+	s = Down(BF_KEY_L);
+	Text("@", s);
+	Up(BF_KEY_L);
+	Up(BF_KEY_LALT);
+	v = Run();
+	Check(Is(Find(v, WM_SYSKEYDOWN, 1), 'L', 0x20260001) && Count(v, WM_CHAR) == 0,
+	      "no layout named, text field: an injected Option+L is Alt+L whatever the Mac's layout (scripted tests)", Describe(v));
+	char active[16];
+	bf_app_key_layout_text((unsigned)bf_app_key_to_mac(BF_KEY_L), opt, active, sizeof active, nullptr);
+	printf("info the layout in effect types \"%s\" for Option+L\n", active);
+}
+
 void Clipboard()
 {
 	std::vector<Rec> v;
@@ -656,6 +865,7 @@ int main(int argc, char **argv)
 	Run();
 
 	Keyboard();
+	OptionLayout();
 	Clipboard();
 	Mouse();
 	Resize();

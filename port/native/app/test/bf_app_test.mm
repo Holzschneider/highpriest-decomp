@@ -23,6 +23,7 @@
 #include <string.h>
 #include <sys/file.h>
 #include <sys/wait.h>
+#include <string>
 #include <thread>
 #include <unistd.h>
 #include <vector>
@@ -486,6 +487,38 @@ int RunChecks(const char *exe)
 		      p.x_px, p.y_px, p.x_pt, p.y_pt, held ? "yes" : "no", !(after.buttons & 2) ? "yes" : "no", dx, dy, wantDx, wantDy, wheel);
 	}
 
+	// --- the keyboard layout, read through the system without selecting it
+	{
+		char b[16];
+		int dead = 0;
+		bool de = bf_app_key_layout_use("com.apple.keylayout.German") == BF_APP_OK;
+		std::string deL, deN;
+		int deNdead = 0, dePlainAt = 1;
+		if (de) {
+			bf_app_key_layout_text(0x25, BF_APP_MOD_ALT, b, sizeof b, &dead);
+			deL = b;
+			bf_app_key_layout_text(0x2D, BF_APP_MOD_ALT, b, sizeof b, &deNdead);
+			deN = b;
+			dePlainAt = bf_app_key_layout_types_plain("@");
+		}
+		bool us = bf_app_key_layout_use("com.apple.keylayout.US") == BF_APP_OK;
+		std::string usL, usShift2;
+		if (us) {
+			bf_app_key_layout_text(0x25, BF_APP_MOD_ALT, b, sizeof b, nullptr);
+			usL = b;
+			bf_app_key_layout_text(0x13, BF_APP_MOD_SHIFT, b, sizeof b, nullptr);
+			usShift2 = b;
+		}
+		bool bogus = bf_app_key_layout_use("com.example.no-such-layout") == BF_APP_ERROR &&
+		             bf_app_key_layout_named() && strcmp(bf_app_key_layout_named(), "com.apple.keylayout.US") == 0;
+		bf_app_key_layout_use(nullptr);
+		CHECK(de && us && deL == "@" && !dead && deN == "~" && deNdead && !dePlainAt && usL == "\xc2\xac" && usShift2 == "@" && bogus &&
+		      !bf_app_key_layout_named(),
+		      "key-layout", "German Option+L \"%s\", Option+N \"%s\" (dead %d), @ without Option %d; US Option+L \"%s\", "
+		      "Shift+2 \"%s\"; an unknown id refused, the choice kept; NULL back to the layout in effect",
+		      deL.c_str(), deN.c_str(), deNdead, dePlainAt, usL.c_str(), usShift2.c_str());
+	}
+
 	// --- the AppKit path, with synthetic NSEvents through the window server queue
 	focused = bf_app_window_is_focused();
 	const bool locked = ScreenLocked();
@@ -527,6 +560,34 @@ int RunChecks(const char *exe)
 		CHECK(optDown && (optDown->mods & BF_APP_MOD_ALT) && optText && strcmp(optText->text.utf8, "å") == 0,
 		      "appkit-option", "Option+A: key_down with Alt %s, its text \"%s\" (separate, so the adapter can drop it)",
 		      optDown ? "seen" : "MISSING", optText ? optText->text.utf8 : "(none)");
+
+		// The text filter keeps a key-down from the text system: no text.
+		static uint64_t filterSeq = 0;
+		bf_app_set_text_filter([](const bf_app_event *k, void *) {
+			filterSeq = k->seq;
+			return (k->mods & BF_APP_MOD_ALT) ? 0 : 1;
+		}, nullptr);
+		g_seen.clear();
+		Deliver(KeyEvent(NSEventTypeKeyDown, 0x00, NSEventModifierFlagOption, @"å", @"a"));
+		Deliver(KeyEvent(NSEventTypeKeyUp, 0x00, NSEventModifierFlagOption, @"å", @"a"));
+		Deliver(KeyEvent(NSEventTypeKeyDown, 0x00, 0, @"a", @"a"));
+		Deliver(KeyEvent(NSEventTypeKeyUp, 0x00, 0, @"a", @"a"));
+		Drain(300);
+		bf_app_set_text_filter(nullptr, nullptr);
+		const bf_app_event *fDown = nullptr, *fText = nullptr, *pText = nullptr;
+		uint64_t plainSeq = 0;
+		for (const bf_app_event &x : g_seen) {
+			if (x.source != BF_APP_SOURCE_APPKIT)
+				continue;
+			if (x.type == BF_APP_EVENT_KEY_DOWN && (x.mods & BF_APP_MOD_ALT)) fDown = &x;
+			else if (x.type == BF_APP_EVENT_KEY_DOWN) plainSeq = x.seq;
+			else if (x.type == BF_APP_EVENT_TEXT && fDown && x.text.key_seq == fDown->seq) fText = &x;
+			else if (x.type == BF_APP_EVENT_TEXT && plainSeq && x.text.key_seq == plainSeq) pText = &x;
+		}
+		CHECK(fDown && !fText && pText && filterSeq == plainSeq, "appkit-text-filter",
+		      "Option+A kept from the text system: key_down %s, text %s; A then typed \"%s\"; the filter saw seq %llu (want %llu)",
+		      fDown ? "seen" : "MISSING", fText ? "WRONGLY typed" : "none", pText ? pText->text.utf8 : "(none)",
+		      (unsigned long long)filterSeq, (unsigned long long)plainSeq);
 
 		// Modifiers through flagsChanged, with device bits for the left Shift.
 		g_seen.clear();

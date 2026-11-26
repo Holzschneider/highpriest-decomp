@@ -262,6 +262,7 @@ set(BF_CLIENT_PORT_SOURCES
 	port/client/src/bf_crash.cpp
 	port/client/src/bf_client_state.cpp
 	port/client/src/bf_client_game.cpp
+	port/client/src/bf_input_focus.cpp
 	port/client/src/bf_replay.cpp)
 # The entry point and the start-up glue (main, the zlib wrappers, the C
 # runtime names macOS lacks), compiled as port code (bf_port_flags) with the

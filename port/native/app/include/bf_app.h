@@ -224,6 +224,59 @@ const char *bf_app_key_name(int key);
 /* The reverse of bf_app_key_name, for the control socket; BF_KEY_NONE if unknown. Any thread. */
 int bf_app_key_from_name(const char *name);
 
+/* --------------------------------------------------------- keyboard layout */
+
+/*
+ * What the keyboard layout types, through the system (UCKeyTranslate), so
+ * that a consumer can tell an Option combination that types a character the
+ * layout has nowhere else ("@" on German Option+L) from one that only
+ * decorates a letter. The layout is the one in effect for typing (the
+ * current keyboard layout, also while an input method is active), or the one
+ * bf_app_key_layout_use named. Main thread.
+ */
+
+/*
+ * The characters one press of the key types with the modifiers
+ * (BF_APP_MOD_SHIFT, BF_APP_MOD_ALT and BF_APP_MOD_CAPSLOCK count; the
+ * others are ignored), with no dead key pending, as UTF-8 into buf
+ * (NUL-terminated, truncated to fit size). A dead key gives the accent it
+ * leaves pending (Option+E on a US layout: "´") and sets *dead to 1 (dead
+ * may be NULL). Returns the length in bytes without the NUL; 0 when the key
+ * types nothing, is unknown, or no layout data is available.
+ */
+size_t bf_app_key_layout_text(unsigned mac_keycode, uint32_t mods, char *buf, size_t size, int *dead);
+
+/*
+ * Non-zero when the layout types utf8 (the whole string) with one key alone
+ * or with Shift: without Option. A dead key's accent counts (it is typed by
+ * the dead key and Space).
+ */
+int bf_app_key_layout_types_plain(const char *utf8);
+
+/*
+ * Uses the installed keyboard layout with this input source id (for example
+ * "com.apple.keylayout.German") for the two functions above, without
+ * selecting it in the system; NULL goes back to the layout in effect. For
+ * tests. Returns BF_APP_OK, or BF_APP_ERROR (traced) when no such layout is
+ * installed; the previous choice then stands.
+ */
+int bf_app_key_layout_use(const char *source_id);
+
+/* The id bf_app_key_layout_use named, or NULL while the layout in effect is used. */
+const char *bf_app_key_layout_named(void);
+
+/*
+ * A test applied to every key-down from AppKit (not to injected ones) after
+ * it is queued and before the text system sees it: returning 0 keeps the key
+ * from the text system, so that it types nothing and leaves no dead key or
+ * input-method composition pending. key_down is the queued event, its seq
+ * set. Cmd combinations never reach the text system and are not passed.
+ * NULL (the default) passes every key on. Main thread.
+ */
+struct bf_app_event;
+typedef int (*bf_app_text_filter)(const struct bf_app_event *key_down, void *context);
+void bf_app_set_text_filter(bf_app_text_filter filter, void *context);
+
 /* Modifier flags. Option is Alt. */
 enum {
 	BF_APP_MOD_SHIFT    = 1 << 0,
