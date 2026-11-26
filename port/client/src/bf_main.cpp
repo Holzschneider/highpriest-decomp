@@ -592,6 +592,16 @@ extern "C" void bf_port_frame(void)
 
 // ---- the entry point
 
+// A start that ends before WinMain: EndProcess (atexit) exits with
+// g_exit_status, so the status is set here, and the line stands in for
+// "exit: WinMain returned N", which the harness reads for a bundle launch.
+static int RefuseStart(int status, const char *why)
+{
+	BF_TRACE(BFT_MODE, "exit: start refused, status %d (%s)", status, why);
+	g_exit_status = status;
+	return status;
+}
+
 int main(int argc, char **argv)
 {
 	bf_trace_init();   // BF_TRACE reads the mask before any first use would
@@ -630,7 +640,7 @@ int main(int argc, char **argv)
 		char why[256];
 		if (!bf_file_game_folder_fits(bf_file_location(BF_LOCATION_GAME), why, sizeof why)) {
 			bf_tracef(BFT_ERR, "start: game folder not usable: %s", why);
-			return 1;
+			return RefuseStart(1, "game folder");
 		}
 	} else {
 		// The application first: the game-folder chooser and the window need NSApp.
@@ -641,7 +651,7 @@ int main(int argc, char **argv)
 			return 0;
 		if (r != BF_APP_OK) {
 			bf_tracef(BFT_ERR, "start: bf_app_init failed (%d)", r);
-			return 1;
+			return RefuseStart(1, "bf_app_init");
 		}
 		bf_app_set_clock(ClockMs);
 		// The chooser refuses a folder over the limit (and says why), so the
@@ -651,9 +661,9 @@ int main(int argc, char **argv)
 		case 1:
 			break;
 		case 0:
-			return 0;   // the user cancelled
+			return RefuseStart(0, "the game-folder chooser was cancelled");
 		default:
-			return 1;   // no folder and nobody to ask; traced
+			return RefuseStart(1, "no usable game folder");   // and nobody to ask; traced
 		}
 		bf_prefs_install_menu_item();
 		// Display/UIScale, as the settings window writes it; absent: auto (0),
