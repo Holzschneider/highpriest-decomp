@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include <initializer_list>
+#include <vector>
 
 namespace {
 
@@ -218,10 +219,17 @@ static BFPrefsController *g_controller;
 {
 	g_refreshing = true;
 	bf_settings *s = bf_settings_shared();
-	char buf[1024];
+	// The stored folder at any length (a too-long one is shown, not the default).
+	size_t length = 0;
+	std::vector<char> buf;
+	if (bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, NULL, 0, &length) != 0) {
+		buf.resize(length + 1);
+		if (bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, buf.data(), buf.size(), NULL) != 1)
+			buf.clear();
+	}
 	NSString *path;
-	if (bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, buf, sizeof buf, NULL) == 1 && buf[0])
-		path = Ns(buf);
+	if (!buf.empty() && buf[0])
+		path = Ns(buf.data());
 	else
 		path = Ns(bf_file_location(BF_LOCATION_GAME));
 	self.folderField.toolTip = path ?: @"";
@@ -235,8 +243,9 @@ static BFPrefsController *g_controller;
 	self.effectSlider.integerValue = effect;
 	self.musicValue.integerValue = self.musicSlider.integerValue;
 	self.effectValue.integerValue = self.effectSlider.integerValue;
-	if (bf_settings_account_name(s, buf, sizeof buf) == 1)
-		self.accountField.stringValue = Ns(buf) ?: @"";
+	char name[1024];
+	if (bf_settings_account_name(s, name, sizeof name) == 1)
+		self.accountField.stringValue = Ns(name) ?: @"";
 	else
 		self.accountField.stringValue = @"";
 	[self updateForget];

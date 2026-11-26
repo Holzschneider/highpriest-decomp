@@ -437,27 +437,50 @@ bool MakeFolders(const std::string &path)
 	return MakeFolderPath(path, 0755) == 0 || errno == EEXIST;
 }
 
+// Paths/GameFolder at whatever length it was stored; "" when absent or empty.
+std::string GameFolderSetting()
+{
+	bf_settings *s = bf_settings_shared();
+	size_t length = 0;
+	if (bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, NULL, 0, &length) == 0)
+		return std::string();
+	std::vector<char> value(length + 1);
+	if (bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, value.data(), value.size(), NULL) != 1)
+		return std::string();   // changed by another thread in between: as absent
+	return std::string(value.data(), length);
+}
+
+// The first source that is set wins, whether or not its folder is usable: a
+// folder that is too long (or holds no archive, bf_prefs) is refused by the
+// client, never replaced by the default one.
 const std::string &GameFolder()
 {
 	if (!g_gameFolderReady) {
 		std::string folder;
 		const char *env = getenv("BF_CLIENT_DIR");
-		char fromSettings[1024];
+		const char *source;
+		std::string fromSettings;
 		if (g_hasExplicitGameFolder) {
 			folder = g_explicitGameFolder;
+			source = "set";
 		} else if (env && *env) {
 			folder = env;
-		} else if (bf_settings_get_string(bf_settings_shared(), BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER,
-		                                  fromSettings, sizeof(fromSettings), NULL) == 1 && fromSettings[0]) {
+			source = "BF_CLIENT_DIR";
+		} else if (!(fromSettings = GameFolderSetting()).empty()) {
 			folder = fromSettings;
+			source = "setting Paths/GameFolder";
 		} else {
 			folder = RealHome() + "/Games/" BF_APP_NAME;
+			source = "default";
 		}
 		if (folder.size() > 1 && folder[0] == '~' && folder[1] == '/')
 			folder = RealHome() + folder.substr(1);
 		g_gameFolder = StripTrailingSlash(folder);
 		g_gameFolderReady = true;
-		BF_TRACE(BFT_FILE, "file: game folder %s", g_gameFolder.c_str());
+		BF_TRACE(BFT_FILE, "file: game folder %s (%s)", g_gameFolder.c_str(), source);
+		char why[256];
+		if (!bf_file_game_folder_fits(g_gameFolder.c_str(), why, sizeof why))
+			bf_tracef(BFT_ERR, "file: game folder from %s refused: %s", source, why);
 	}
 	return g_gameFolder;
 }
@@ -756,6 +779,26 @@ extern "C" const char *bf_file_location(bf_location location)
 {
 	std::lock_guard<std::recursive_mutex> guard(g_lock);
 	return Location(location);
+}
+
+extern "C" int bf_file_game_folder_fits(const char *path, char *reason, size_t reason_size)
+{
+	if (!path) {
+		if (reason && reason_size)
+			snprintf(reason, reason_size, "No game folder is set.");
+		return 0;
+	}
+	size_t n = strlen(path);
+	while (n > 1 && path[n - 1] == '/')
+		--n;
+	if (n <= BF_FILE_FOLDER_MAX)
+		return 1;
+	if (reason && reason_size)
+		snprintf(reason, reason_size,
+		         "The folder's path is %zu bytes long; a game folder's path may be at most %d bytes. "
+		         "Move the folder to a place with a shorter path, or choose another one.",
+		         n, BF_FILE_FOLDER_MAX);
+	return 0;
 }
 
 extern "C" const char *bf_file_home(void)

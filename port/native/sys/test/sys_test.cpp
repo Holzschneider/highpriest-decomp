@@ -594,7 +594,71 @@ void TestLongPaths(const std::string &root, const std::string &game)
 	errno = 0;
 	Check(bf_file_resolve(client, BF_RESOLVE_READ, out, 1024) == -1 && errno == ENAMETOOLONG,
 	      "long paths: into a PATH_MAX buffer it does not fit (ENAMETOOLONG)");
+	Check(bf_file_game_folder_fits(folder.c_str(), NULL, 0) == 0,
+	      "long paths: a 1000-byte folder is over BF_FILE_FOLDER_MAX, though bf_file still reaches it");
 	bf_file_set_game_folder(game.c_str());
+
+	// Gone again: a path this long blocks `git worktree remove` and most tools.
+	dirfd = open(folder.c_str(), O_RDONLY | O_DIRECTORY);
+	bool removed = dirfd >= 0 && unlinkat(dirfd, "Data/luafiles514/lua files/msgStringTable.txt", 0) == 0
+	               && unlinkat(dirfd, "Data/luafiles514/lua files", AT_REMOVEDIR) == 0
+	               && unlinkat(dirfd, "Data/luafiles514", AT_REMOVEDIR) == 0 && unlinkat(dirfd, "Data", AT_REMOVEDIR) == 0;
+	if (dirfd >= 0)
+		close(dirfd);
+	RemoveTree(root + "/long");
+	Check(removed && stat((root + "/long").c_str(), &st) != 0, "long paths: the long folders are removed");
+}
+
+// The limit on the game folder's length (BF_FILE_FOLDER_MAX): at the limit it
+// is accepted; one byte more is refused with a reason that names both; a
+// folder over it, from the setting or the environment, is still the game
+// folder (reported as not fitting), never replaced by the default.
+void TestFolderLimit(const std::string &root)
+{
+	std::string atLimit = root + "/limit/";
+	while (atLimit.size() < BF_FILE_FOLDER_MAX)
+		atLimit += 'F';
+	char why[256] = "";
+	Check(atLimit.size() == BF_FILE_FOLDER_MAX && bf_file_game_folder_fits(atLimit.c_str(), why, sizeof why) == 1
+	      && bf_file_game_folder_fits((atLimit + "//").c_str(), why, sizeof why) == 1,
+	      Format("folder limit: a %d-byte folder fits (also with trailing slashes)", BF_FILE_FOLDER_MAX).c_str());
+	std::string over = atLimit + "F";
+	why[0] = 0;
+	int r = bf_file_game_folder_fits(over.c_str(), why, sizeof why);
+	Check(r == 0 && strstr(why, Format("%d bytes long", BF_FILE_FOLDER_MAX + 1).c_str())
+	      && strstr(why, Format("at most %d bytes", BF_FILE_FOLDER_MAX).c_str()),
+	      Format("folder limit: %d bytes is refused: \"%s\"", BF_FILE_FOLDER_MAX + 1, why).c_str());
+	Check(bf_file_game_folder_fits(NULL, why, sizeof why) == 0, "folder limit: no folder does not fit");
+
+	bf_settings *shared = bf_settings_shared();
+	const char *env = getenv("BF_CLIENT_DIR");
+	std::string saved = env ? env : "";
+	unsetenv("BF_CLIENT_DIR");
+	for (size_t length : { (size_t)1100, (size_t)2500 }) {
+		std::string stored = root + "/stored/";
+		while (stored.size() < length)
+			stored += 'S';
+		bf_settings_set_string(shared, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, stored.c_str());
+		bf_file_set_game_folder(NULL);
+		std::string location = bf_file_location(BF_LOCATION_GAME);
+		Check(location == stored && bf_file_game_folder_fits(location.c_str(), NULL, 0) == 0,
+		      Format("folder limit: a %zu-byte Paths/GameFolder is the game folder (not the default) and does not fit",
+		             length).c_str(),
+		      location.substr(0, 80).c_str());
+	}
+	bf_settings_set_string(shared, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, atLimit.c_str());
+	bf_file_set_game_folder(NULL);
+	Check(bf_file_location(BF_LOCATION_GAME) == atLimit, "folder limit: a Paths/GameFolder at the limit is the game folder");
+	setenv("BF_CLIENT_DIR", over.c_str(), 1);
+	bf_file_set_game_folder(NULL);
+	Check(bf_file_location(BF_LOCATION_GAME) == over && bf_file_game_folder_fits(over.c_str(), NULL, 0) == 0,
+	      "folder limit: a BF_CLIENT_DIR over the limit is the game folder (not the setting) and does not fit");
+	if (env)
+		setenv("BF_CLIENT_DIR", saved.c_str(), 1);
+	else
+		unsetenv("BF_CLIENT_DIR");
+	bf_settings_remove(shared, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER);
+	bf_file_set_game_folder(NULL);
 }
 
 void TestConcurrentLookups()
@@ -861,6 +925,8 @@ int main()
 	TestWritePaths(game);
 	TestConcurrentLookups();
 	TestLongPaths(root, game);
+	TestFolderLimit(root);
+	bf_file_set_game_folder(game.c_str());
 	TestSettings(home, game);
 	TestKeychain();
 	TestShell();

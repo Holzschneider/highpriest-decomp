@@ -64,10 +64,12 @@ extern "C" {
 void bf_prefs_set_archives(const char *const *names, int count);
 
 /*
- * 1 if path (absolute UTF-8) is a usable game folder: a readable folder
- * holding at least one of the archives (see above) whose header is a GRF
- * header ("Master of Magic"). 0 if not, with the reason as one English
- * sentence in reason (may be NULL), for showing to the user.
+ * 1 if path (absolute UTF-8) is a usable game folder: a path of at most
+ * BF_FILE_FOLDER_MAX bytes (bf_file.h; checked first, the reason names the
+ * length and the limit), a readable folder holding at least one of the
+ * archives (see above) whose header is a GRF header ("Master of Magic").
+ * 0 if not, with the reason as one English sentence in reason (may be
+ * NULL), for showing to the user.
  */
 int bf_prefs_game_folder_valid(const char *path, char *reason, size_t reason_size);
 

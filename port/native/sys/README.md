@@ -17,13 +17,13 @@ cmake --build build/native/sys
 build/native/sys/bifrost-sys-test
 ```
 
-With sanitizers: add `-DBF_SYS_SANITIZE=ON` (address and undefined behaviour) and use another build folder. The test writes only below its build folder (`sys-test/`, with `BF_HOME` pointed at `sys-test/home`). Checks on the real game folder read `BF_CLIENT_DIR` (default `~/Games/<name>`) and are skipped when it is absent. The Keychain check is skipped when the login keychain is locked or the session has no window server (an SSH or background session); it then needs a run from a logged-in desktop session.
+With sanitizers: add `-DBF_SYS_SANITIZE=ON` (address and undefined behaviour) and use another build folder. The test writes only below its build folder (`sys-test/`, with `BF_HOME` pointed at `sys-test/home`); the 1000-byte folder of the long-path checks is removed again when they end, since a path that long blocks `git worktree remove`. Checks on the real game folder read `BF_CLIENT_DIR` (default `~/Games/<name>`) and are skipped when it is absent. The Keychain check is skipped when the login keychain is locked or the session has no window server (an SSH or background session); it then needs a run from a logged-in desktop session.
 
 ## Environment
 
 | Variable | Effect |
 |---|---|
-| `BF_CLIENT_DIR` | The game folder. Wins over the setting `Paths/GameFolder`; `bf_file_set_game_folder` wins over both. Default `~/Games/<name>` |
+| `BF_CLIENT_DIR` | The game folder. Wins over the setting `Paths/GameFolder`; `bf_file_set_game_folder` wins over both. Default `~/Games/<name>`. At most `BF_FILE_FOLDER_MAX` bytes ("Long paths") |
 | `BF_HOME` | Replaces the home folder for the write locations and the settings file (tests). The default game folder still uses the real home |
 | `BF_NO_ALERTS` | Alerts are logged as a `BFT_ERR` line and answered with their first button. Also the behaviour without a window-server session or off the main thread |
 | `BF_NO_OPEN` | `bf_sys_open_url` and `bf_sys_open_path` log instead of opening |
@@ -32,9 +32,15 @@ With sanitizers: add `-DBF_SYS_SANITIZE=ON` (address and undefined behaviour) an
 
 ## Client paths
 
-The client's paths are bytes: backslashes, any letter case, Korean names in CP949, relative to its current folder (which is the game folder) or below `g_baseDir3`, which the client sets to the drive letter `C:` (not the folder's path, so that a folder path of any length up to `PATH_MAX` stays out of the client's fixed buffers). `bf_file_resolve` and every `bf_file_*` function translate them: both separators split, `.`/`..` are applied (never above the root), a drive letter or leading separator means "relative to the game folder", an absolute path inside the game folder is made relative to it, and each component is found without regard to case or Unicode normalisation (NFC and NFD both match) through a per-folder listing cache that is rescanned when the folder's modification time changes. Resolved paths carry the names as they are on disk.
+The client's paths are bytes: backslashes, any letter case, Korean names in CP949, relative to its current folder (which is the game folder) or below `g_baseDir3`, which the client sets to the drive letter `C:` (not the folder's path, so that the folder's path stays out of the client's fixed buffers). `bf_file_resolve` and every `bf_file_*` function translate them: both separators split, `.`/`..` are applied (never above the root), a drive letter or leading separator means "relative to the game folder", an absolute path inside the game folder is made relative to it, and each component is found without regard to case or Unicode normalisation (NFC and NFD both match) through a per-folder listing cache that is rescanned when the folder's modification time changes. Resolved paths carry the names as they are on disk.
 
 Names are decoded as CP949 under the game folder, and as the user code page (`bf_file_set_user_codepage`: 949 by default, 1252 for the English service) under the write locations, where names come from chat titles and character names. An absolute path under a write location is taken as UTF-8, because native code built it.
+
+## Long paths
+
+The game folder's path may be at most `BF_FILE_FOLDER_MAX` = 768 bytes (UTF-8, trailing slashes not counted). The kernel takes paths of at most `PATH_MAX` − 1 = 1023 bytes, and the C library and the frameworks the client hands a whole path to (AVFoundation for the music under `BGM/`, the strings table `data/bf_strings.tsv`) go through it; so a folder can work only when every name the client opens below it fits in what is left: 1023 − 768 − 1 = 254 bytes. The longest measured (2026-11, the game folder of the run): 172 bytes, `data\texture\effect\destructive_hurricane\…\destructive_hurricane_cast_bottom.str` in rdata.grf; 209 bytes for `data\sprite\인간족\페코페코_룬나이트\페코페코_룬나이트_남_양손도끼_검광.act` of data.grf if a loose copy is named in NFD (75 bytes in CP949, 101 in NFC; data.grf's longest in NFC is 126); 97 bytes for the longest loose file in `data/`; `data/video/openning.bik` 23, `data/bf_strings.tsv` 19, `BGM/997.mp3` 11. That leaves 45 bytes of margin over the worst case and 82 over the longest NFC name.
+
+`bf_file_game_folder_fits` is the check; `bf_prefs_game_folder_valid` makes it first, the client's headless start makes it before anything else (`start: game folder not usable: ...`, exit 1), and the trace line `file: game folder from <source> refused: ...` (`err`) follows `file: game folder <path> (<source>)` (`file`) whenever the folder is over the limit. A folder over the limit is still the game folder: the first source set (setter, `BF_CLIENT_DIR`, `Paths/GameFolder` at any length) wins whether or not it is usable, and the client refuses to start with it instead of using `~/Games/<name>`. Below the limit, `bf_file` still opens a path of `PATH_MAX` or more with the `*at` calls (a write location under a long `BF_HOME`, a client name longer than 254 bytes).
 
 ## Where the client writes
 

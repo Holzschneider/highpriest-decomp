@@ -56,8 +56,12 @@ a valid folder never sees the chooser.
 
 ## What it does
 
-- **Validation** (`bf_prefs_game_folder_valid`): the path must be a readable
-  folder. It must hold one of the archives (`bf_prefs_set_archives`; until
+- **Validation** (`bf_prefs_game_folder_valid`): first, the path may be at
+  most `BF_FILE_FOLDER_MAX` (768) bytes long (`bf_file_game_folder_fits`,
+  [sys README](../sys/README.md#long-paths)); a longer one is refused with
+  "The folder's path is N bytes long; a game folder's path may be at most
+  768 bytes. ...", in the panel as in the chooser's start-up message. Then
+  the path must be a readable folder. It must hold one of the archives (`bf_prefs_set_archives`; until
   the client names its list, any `*.grf`), compared without regard to case,
   whose first 15 bytes are `Master of Magic`. The reason for a refusal is one
   English sentence, shown to the user. Only the folder listing and 16 bytes
@@ -70,7 +74,11 @@ a valid folder never sees the chooser.
   panel's delegate refuses an invalid folder while the panel is still open,
   and shows the reason. The choice is stored in `Paths/GameFolder`, saved,
   and set for this process. It never runs without a window-server session or
-  with `BF_NO_ALERTS` (returns -1), the same rule `bf_sys_alert` follows.
+  with `BF_NO_ALERTS` (returns -1), the same rule `bf_sys_alert` follows;
+  the reason is then the trace line `prefs: configured game folder is not
+  usable: ...`. A refused folder is never replaced by another one (the
+  default `~/Games/<name>` included): the stored value is read at any length
+  and kept.
 - **The settings window**: one non-resizable window titled "Settings", laid
   out with an `NSGridView`. Every change is written with `bf_settings_*` and
   saved at once. While a volume slider is dragged, the value is set and

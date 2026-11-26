@@ -95,6 +95,24 @@ void WriteGrf(const std::string &path)
 	WriteFile(path, head, sizeof head);
 }
 
+// A folder path of exactly `length` bytes below base (components of at most 200 bytes).
+std::string LongFolder(const std::string &base, size_t length)
+{
+	std::string path = base;
+	while (path.size() < length) {
+		size_t room = length - path.size() - 1;
+		size_t n = room > 200 ? 200 : room;
+		if (n == 0) {   // one byte left: lengthen the last component instead
+			path += 'L';
+			break;
+		}
+		if (room - n == 1)   // never leave a single byte for a new component
+			--n;
+		path += "/" + std::string(n, 'L');
+	}
+	return path;
+}
+
 std::string RealHome()
 {
 	struct passwd *pw = getpwuid(getuid());
@@ -203,6 +221,27 @@ void CheckValidation()
 	CHECK(withoutListed == 0 && strstr(whyList.c_str(), "rdata.grf") && withListed == 1, "valid-archive-list",
 	      "list {rdata.grf}: %d \"%s\"; list {rdata.grf, data.grf}: %d", withoutListed, whyList.c_str(), withListed);
 
+	// The length limit (BF_FILE_FOLDER_MAX): checked first, at the limit a
+	// folder with an archive is usable, one byte more is refused with a
+	// reason that names the length and the limit.
+	std::string atLimit = LongFolder(base + "/limit", BF_FILE_FOLDER_MAX);
+	MakeFolder(atLimit);
+	WriteGrf(atLimit + "/data.grf");
+	why[0] = 0;
+	r = bf_prefs_game_folder_valid(atLimit.c_str(), why, sizeof why);
+	CHECK(r == 1 && atLimit.size() == BF_FILE_FOLDER_MAX, "valid-at-limit", "%d for a %zu-byte folder with data.grf%s%s",
+	      r, atLimit.size(), r ? "" : ": ", why);
+	std::string over = LongFolder(base + "/limit", BF_FILE_FOLDER_MAX + 1);
+	MakeFolder(over);
+	WriteGrf(over + "/data.grf");
+	why[0] = 0;
+	r = bf_prefs_game_folder_valid(over.c_str(), why, sizeof why);
+	char want[64], wantMax[64];
+	snprintf(want, sizeof want, "%d bytes long", BF_FILE_FOLDER_MAX + 1);
+	snprintf(wantMax, sizeof wantMax, "at most %d bytes", BF_FILE_FOLDER_MAX);
+	CHECK(r == 0 && strstr(why, want) && strstr(why, wantMax), "valid-over-limit", "%d for a %zu-byte folder with data.grf: \"%s\"",
+	      r, over.size(), why);
+
 	std::string real = RealHome() + "/Games/" BF_APP_NAME;
 	struct stat st;
 	if (stat((real + "/data.grf").c_str(), &st) == 0) {
@@ -279,6 +318,35 @@ void CheckChooser()
 	r = bf_prefs_choose_game_folder(out, sizeof out);
 	CHECK(r == -1, "chooser-invalid-env", "%d", r);
 	unsetenv("BF_CLIENT_DIR");
+	bf_file_set_game_folder(NULL);
+
+	// At the limit: the fast path, into the client's buffer of BF_FILE_FOLDER_MAX + 1.
+	std::string atLimit = LongFolder(g_dir + "/folders/limit", BF_FILE_FOLDER_MAX);
+	bf_settings_set_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, atLimit.c_str());
+	bf_file_set_game_folder(NULL);
+	char limitOut[BF_FILE_FOLDER_MAX + 1] = "";
+	r = bf_prefs_choose_game_folder(limitOut, sizeof limitOut);
+	CHECK(r == 1 && atLimit == limitOut, "chooser-at-limit", "%d for the stored %zu-byte folder", r, atLimit.size());
+
+	// Stored, too long (one byte over, 1,100 and 2,500 bytes): refused with the
+	// reason, nobody to ask; the setting is kept and no other folder is used.
+	for (size_t length : { (size_t)BF_FILE_FOLDER_MAX + 1, (size_t)1100, (size_t)2500 }) {
+		std::string tooLong = LongFolder(g_dir + "/folders/limit", length);
+		bf_settings_set_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, tooLong.c_str());
+		bf_file_set_game_folder(NULL);
+		r = bf_prefs_choose_game_folder(limitOut, sizeof limitOut);
+		std::string location = Location();
+		size_t storedLength = 0;
+		bf_settings_get_string(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER, NULL, 0, &storedLength);
+		char why[256] = "";
+		int valid = bf_prefs_game_folder_valid(location.c_str(), why, sizeof why);
+		char name[64];
+		snprintf(name, sizeof name, "chooser-stored-%zu", length);
+		CHECK(r == -1 && location == tooLong && storedLength == length && !valid && strstr(why, "at most"), name,
+		      "%d; game folder is the stored %zu-byte one (%s), setting kept; reason \"%s\"", r, location.size(),
+		      location == tooLong ? "not the default" : location.c_str(), why);
+	}
+	bf_settings_remove(s, BF_SETTINGS_PATHS, BF_SETTING_GAME_FOLDER);
 	bf_file_set_game_folder(NULL);
 	unsetenv("BF_NO_ALERTS");
 
@@ -577,6 +645,7 @@ int main(int argc, char **argv)
 		CheckChooser();
 		CheckMenu();
 		CheckWindow();
+		system(("rm -rf '" + g_dir + "/folders/limit'").c_str());   // long paths block worktree removal
 		bf_app_shutdown();
 		printf("%s: %d failure(s)\n", g_failures ? "FAILED" : "passed", g_failures);
 	}

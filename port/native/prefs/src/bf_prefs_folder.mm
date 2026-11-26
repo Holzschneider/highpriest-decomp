@@ -104,6 +104,13 @@ extern "C" int bf_prefs_game_folder_valid(const char *path, char *reason, size_t
 		Say(reason, reason_size, "No game folder is set.");
 		return 0;
 	}
+	// First, before the path reaches the kernel: a path over the limit may
+	// still be one it takes, but not every file below it would be.
+	char tooLong[256];
+	if (!bf_file_game_folder_fits(path, tooLong, sizeof tooLong)) {
+		Say(reason, reason_size, "%s", tooLong);
+		return 0;
+	}
 	struct stat st;
 	if (stat(path, &st) != 0) {
 		if (errno == ENOENT)

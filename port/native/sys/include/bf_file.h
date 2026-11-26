@@ -31,7 +31,9 @@
  *
  * Locations, relative to the home folder:
  *   game folder       bf_file_set_game_folder, else $BF_CLIENT_DIR, else the
- *                     setting Paths/GameFolder, else ~/Games/<name>
+ *                     setting Paths/GameFolder (at any length), else
+ *                     ~/Games/<name>; the first one set is used even when it
+ *                     is not usable
  *   support           ~/Library/Application Support/<name>
  *   pictures          ~/Pictures/<name>
  *   documents         ~/Documents/<name>
@@ -39,12 +41,18 @@
  * home folder for the three write locations (tests write under the build
  * directory with it); the default game folder always uses the real home.
  *
- * Long paths: a folder (the game folder, a write location) may have any
- * path the kernel takes, up to PATH_MAX (1024 bytes) less one; a file in it
- * whose whole path is longer is still reached by every function here (they
- * open it relative to a folder above, with the *at calls). A resolved path
- * of PATH_MAX or more (bf_file_resolve, bf_file_path) works only with these
- * functions, not with the C library or another framework.
+ * Long paths: the game folder's path may be at most BF_FILE_FOLDER_MAX
+ * bytes (below), so that every file the client opens in it, also through
+ * the C library or a framework that takes a whole path (AVFoundation for
+ * music), has a path the kernel takes. A longer folder is still the game
+ * folder (it is never replaced by another one), but GameFolder's trace says
+ * it is refused and bf_file_game_folder_fits reports it, so that the client
+ * refuses to start with it. A write location may have any path up to
+ * PATH_MAX (1024 bytes) less one; a file in it whose whole path is longer is
+ * still reached by every function here (they open it relative to a folder
+ * above, with the *at calls). A resolved path of PATH_MAX or more
+ * (bf_file_resolve, bf_file_path) works only with these functions, not with
+ * the C library or another framework.
  *
  * Every function may be called from any thread. Paths returned as
  * `const char *` stay valid until the process ends.
@@ -75,6 +83,27 @@ typedef enum bf_location {
  * never created. NULL if a write location cannot be created.
  */
 const char *bf_file_location(bf_location location);
+
+/*
+ * The longest game-folder path the client accepts: bytes of UTF-8, without
+ * the NUL and without trailing slashes. The kernel takes paths of at most
+ * PATH_MAX - 1 = 1023 bytes, so a file below the folder has 1023 - 768 - 1 =
+ * 254 bytes for its name relative to the folder. The longest the client
+ * opens, in UTF-8: 172 bytes for the longest name in rdata.grf; 209 for a
+ * name of data.grf with its Korean decomposed (NFD, as a loose override
+ * copied from another volume may be named; data.grf's longest in NFC is
+ * 126); 97 for the longest loose file of the game's data/; 23 for
+ * data/video/openning.bik, 19 for data/bf_strings.tsv, 11 for BGM/997.mp3
+ * (README.md, "Long paths").
+ */
+#define BF_FILE_FOLDER_MAX 768
+
+/*
+ * 1 if path (trailing slashes ignored) is at most BF_FILE_FOLDER_MAX bytes
+ * long. 0 if not, with the reason as one English sentence naming the length
+ * and the limit in reason (may be NULL). 0 for NULL.
+ */
+int bf_file_game_folder_fits(const char *path, char *reason, size_t reason_size);
 
 /* The home folder in use for the write locations ($BF_HOME or the real one). */
 const char *bf_file_home(void);
