@@ -369,3 +369,9 @@ The result: `cmake --preset debug && cmake --build --preset debug` builds `build
 ## 2026-11-26: owner's decision — the intro movie criterion is withdrawn
 
 The owner: "no need for the intro movie. scratch that." M12's criterion "the intro movie plays with sound" is struck from the implementation plan (marked, not deleted); the third verifier's verdicts on the other three criteria were all pass, so M12 counts as passed, and the final report's parked item 2 and the intro in hand-test item 4 fall away. The intro player itself stays as it is (M12.4a; `intro` still passes with a stand-in). Parked now: only M4's pacing.
+
+## 2026-11-26: owner's hand test, first findings
+
+- **Crash fixed** (`41a50c8`): equipment window open, back to character selection, into the map again → black screen after the loading window, then a beachball. `UIEquipWnd::OnCreate` never makes `m_openEquipWndCheckBox` (recovery gap); the window reopens from its saved state on map entry, and `Zc_Config_Notify` (the server's equipment-open setting) sends it `UM_REFRESH`, which read the uninitialised pointer. Under `BF_PORT` the pointer starts NULL and is skipped; the check box itself is F4. The hang: `bf_render`'s lazy-lock fault handler chains to `bf_crash_handler`, whose `raise()` was caught again by the lazy-lock handler, forever; the crash handler now sets the default action, unblocks the signal and raises it. `logout.py` opens the equipment window before leaving and checks the client after re-entering: fails without the fix (exit −11, so the handler now ends the process), passes with it; fast check and gate PASS.
+- Owner's list for after the test run (checklist, "After the owner's test run"): F1 German Option+L types "@"; F2 the login wallpaper by the cover rule; F3 the UI 25 % smaller (on hold); F4 the equipment window's check box.
+- The owner's account `philipp` was raised to group 99 on the local server at the owner's request.
