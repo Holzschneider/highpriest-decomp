@@ -1132,6 +1132,19 @@ void UIWindowMgr::BfOnResize(int cx, int cy)
 		if (x != window->m_x || y != window->m_y)
 			window->Move(x, y);
 	}
+	// The minimap's zoom buttons belong to the minimap, which
+	// CGameMode::DrawMiniMap draws at the right edge at every size; they keep
+	// MakeWindow's place beside it (17 px from the edge, not touching it).
+	if (m_minimapZoomWnd)
+		m_minimapZoomWnd->Move(cx - 29, m_minimapZoomWnd->m_y);
+	// The status icons (CRagEffect::StatusState) are laid out from the
+	// screen's width and height when the state list changes; lay them out
+	// again, as a state change does (Zc_Msg_State_Change: AM_SETCOUNT 1).
+	if (CGameMode *game = g_modeMgr.GetGameMode()) {   // NULL outside the game
+		CWorld *world = game->GetWorld();
+		if (world && world->m_player && world->m_player->m_statusEffect)
+			world->m_player->m_statusEffect->SendMsg(NULL, AM_SETCOUNT, 1, 0, 0);
+	}
 	InvalidateAll();
 }
 #endif
