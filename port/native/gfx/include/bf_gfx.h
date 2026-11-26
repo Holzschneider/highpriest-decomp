@@ -412,6 +412,17 @@ int bf_gfx_present(bf_gfx_device *dev);
 /* Display sync of the layer (on by default). */
 void bf_gfx_set_vsync(bf_gfx_device *dev, int enabled);
 
+/*
+ * The least time, in seconds, between two presents (0, the default: none).
+ * Display sync alone does not pace a windowed layer to the display: the
+ * window server hands drawables back at its own rate (120 a second on 60 Hz
+ * displays seen on a Mac Studio). With an interval, each drawable is shown
+ * no sooner than that after the previous one (presentDrawable:
+ * afterMinimumDuration:); the drawables are then held longer and
+ * bf_gfx_present's wait for the next one paces the caller.
+ */
+void bf_gfx_set_frame_interval(bf_gfx_device *dev, double seconds);
+
 /* Submits pending work and waits until the GPU has finished it. */
 int bf_gfx_finish(bf_gfx_device *dev);
 

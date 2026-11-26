@@ -842,7 +842,7 @@ int main(int argc, char **argv)
 	setvbuf(stdout, nullptr, _IOLBF, 0);
 	char id[64];
 	snprintf(id, sizeof id, "input-test-%d", (int)getpid());
-	bf_app_config c = {id, 1};
+	bf_app_config c = {id, 1, 0};
 	if (bf_app_init(&c) != BF_APP_OK) {
 		printf("FAIL bf_app_init\n");
 		return 1;

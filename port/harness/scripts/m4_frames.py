@@ -39,6 +39,8 @@ import tempfile
 import time
 import zlib
 
+from bfharness.play import own_home
+
 NAME = "m4"
 MILESTONE = "M4"
 DESCRIPTION = "login screen at UI scale 1, 2, 3, at 4:3 and wide; clean blocks; pacing"
@@ -188,7 +190,9 @@ def screen_locked():
 
 def run(t):
     with t.step("launch", "client opens its control socket and shows the login screen") as s:
-        ctl = t.launch()
+        # Its own home: a saved account in the user's settings fills the ID
+        # field and moves the caret into the password field, outside CARET_BOX.
+        ctl = t.launch(env=own_home(t))
         s.state("hello", ctl.info)
         st = ctl.wait_mode("login", 60)
         s.state("mode", st)

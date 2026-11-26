@@ -430,6 +430,12 @@ void CLanguage :: OnKeyDown(WPARAM wParam, LPARAM lParam)
 		case 'V':
 			CopyTextFromClipBoard();
 			break;
+#if defined(BF_PORT)
+		case 'A':   // Cmd+A (bf_input): select the whole text
+			m_selectionOrigin = 0;
+			m_selectionCursor = m_input.size();
+			break;
+#endif
 		}
 	} else {
 		switch(wParam) {

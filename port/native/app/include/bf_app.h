@@ -72,6 +72,17 @@ typedef struct bf_app_config {
 	 * The environment variable BF_MULTI_INSTANCE=1 turns this off.
 	 */
 	int single_instance;
+	/*
+	 * Non-zero: the application never activates itself. The window is
+	 * shown in front (orderFrontRegardless) but does not become key, so
+	 * the keyboard stays with whatever had it, and the pointer passing over
+	 * the window is ignored (no moves, enter, leave or wheel) while the
+	 * application is not active; a click on the window activates it as
+	 * usual. For test clients driven through the control
+	 * socket while someone works at the Mac. The environment variable
+	 * BF_BACKGROUND (non-empty, not "0") turns it on too.
+	 */
+	int background;
 } bf_app_config;
 
 /*
@@ -161,6 +172,13 @@ int bf_app_window_is_fullscreen(void);
 
 /* Non-zero when some part of the window is visible on a screen. */
 int bf_app_window_is_visible(void);
+
+/*
+ * The shortest refresh interval, in seconds, of the screen the window is
+ * on (NSScreen.minimumRefreshInterval: 1/60 on a 60 Hz display, 1/120 on
+ * a ProMotion one); 0 without a window or a screen.
+ */
+double bf_app_window_refresh_interval(void);
 /* Non-zero when the window is the key window of the active application. */
 int bf_app_window_is_focused(void);
 

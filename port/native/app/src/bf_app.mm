@@ -30,6 +30,7 @@ namespace {
 const short kWakeSubtype = 0x4246;   // an NSEventTypeApplicationDefined that only ends a wait
 
 bool g_initialised = false;
+bool g_background = false;   // bf_app_config.background / BF_BACKGROUND
 id<NSObject> g_activity = nil;
 NSWindow *g_window = nil;
 BFAppView *g_view = nil;
@@ -129,6 +130,8 @@ NSString *SupportFolder()
 
 void BringToFront()
 {
+	if (g_background)
+		return;
 	if (g_window) {
 		if (g_window.miniaturized)
 			[g_window deminiaturize:nil];
@@ -458,6 +461,13 @@ NSMenuItem *AddItem(NSMenu *menu, NSString *title, SEL action, NSString *key, id
 
 - (void)bfPointer:(NSEvent *)event type:(uint32_t)type button:(uint32_t)button
 {
+	// In the background (a test client), the pointer of whoever works at the
+	// Mac passing over the window is not the client's: the tracking area is
+	// active always, so moves, enter, leave and the wheel are dropped while
+	// the application is not active. A click is kept: it activates the
+	// application, and from then on the window takes the pointer as usual.
+	if (g_background && !NSApp.active && type != BF_APP_EVENT_BUTTON_DOWN && type != BF_APP_EVENT_BUTTON_UP)
+		return;
 	NSPoint p;
 	if (event.window == self.window)
 		p = [self convertPoint:event.locationInWindow fromView:nil];
@@ -698,6 +708,10 @@ extern "C" int bf_app_init(const bf_app_config *config)
 	}
 	const char *instanceId = config && config->instance_id ? config->instance_id : "main";
 	bool single = config ? config->single_instance != 0 : true;
+	g_background = config && config->background != 0;
+	if (const char *bg = getenv("BF_BACKGROUND"))
+		if (*bg && strcmp(bg, "0") != 0)
+			g_background = true;
 	const char *multi = getenv("BF_MULTI_INSTANCE");
 	if (multi && strcmp(multi, "1") == 0)
 		single = false;
@@ -746,9 +760,11 @@ extern "C" int bf_app_init(const bf_app_config *config)
 	g_blankCursor = [[NSCursor alloc] initWithImage:blank hotSpot:NSZeroPoint];
 
 	bf_app_wake_hook = WakeHook;
-	[NSApp activate];
+	if (!g_background)
+		[NSApp activate];
 	g_initialised = true;
-	BF_TRACE(BFT_INPUT, "app: initialised (instance '%s', single instance %s)", instanceId, single ? "on" : "off");
+	BF_TRACE(BFT_INPUT, "app: initialised (instance '%s', single instance %s%s)", instanceId, single ? "on" : "off",
+	         g_background ? ", background" : "");
 	return BF_APP_OK;
 }
 
@@ -880,9 +896,13 @@ extern "C" int bf_app_window_create(double width_pt, double height_pt, const cha
 			break;
 		}
 	}
-	[w makeKeyAndOrderFront:nil];
 	[w makeFirstResponder:view];
-	[NSApp activate];
+	if (g_background) {
+		[w orderFrontRegardless];   // shown, but the keyboard stays where it is
+	} else {
+		[w makeKeyAndOrderFront:nil];
+		[NSApp activate];
+	}
 	bf_app_size s = view.bfSize;
 	BF_TRACE(BFT_INPUT, "app: window %.0fx%.0f pt, %dx%d px, scale %.1f",
 	         s.width_pt, s.height_pt, s.width_px, s.height_px, s.scale);
@@ -999,6 +1019,12 @@ extern "C" int bf_app_window_is_fullscreen(void)
 extern "C" int bf_app_window_is_visible(void)
 {
 	return g_window && (g_window.occlusionState & NSWindowOcclusionStateVisible) != 0 && !g_window.miniaturized;
+}
+
+extern "C" double bf_app_window_refresh_interval(void)
+{
+	NSScreen *screen = g_window ? g_window.screen : nil;
+	return screen ? screen.minimumRefreshInterval : 0.0;
 }
 
 extern "C" int bf_app_window_is_focused(void)

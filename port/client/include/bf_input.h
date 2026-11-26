@@ -39,6 +39,14 @@ typedef LRESULT (*bf_input_proc)(HWND window, UINT message, WPARAM wparam, LPARA
 void bf_input_set_scale_setting(int setting);
 
 /*
+ * Cmd+Plus and Cmd+Minus step the UI scale in effect up and down (1..3),
+ * Cmd+0 sets it back to auto; each change is handed to fn (0 = auto) so that
+ * main can keep it (Display/UIScale). NULL: not kept.
+ */
+typedef void (*bf_input_scale_saver)(int setting);
+void bf_input_set_scale_saver(bf_input_scale_saver fn);
+
+/*
  * Creates the one window: content width x height points (the client's
  * logical size), title in the client's code page (CP1252), the view started
  * at the scale setting, the system pointer shown. Sends WM_NCCREATE and

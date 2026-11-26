@@ -32,7 +32,7 @@ The captures are bit-identical between runs on one machine. Another GPU or OS ve
 
 ## Untested or open
 
-- Present to a layer in a visible window: the test presents to a window-less layer only (it vends drawables, so `bf_gfx_present` runs its full path). Pacing at 120 Hz is for the application module to verify.
+- Present to a layer in a visible window: the test presents to a window-less layer only (it vends drawables, so `bf_gfx_present` runs its full path). Pacing: display sync alone did not hold a windowed layer to the display (the window server returned drawables 120 times a second on 60 Hz displays, F7); the client sets `bf_gfx_set_frame_interval` to the window's screen's refresh interval, and `m4_frames` measures the result.
 - Behaviour under memory pressure and with thousands of textures (the client creates ~50 atlases at start and loads textures as maps need them).
 - Sprites drawn on top of the UI (cursor, numbers) at UI scale 2–3: see D3D-USAGE.md section 8.
 - The fog colour: the client never sets it (`CRenderer::DoFog` is not called), so fog fades to black; see D3D-USAGE.md section 3.

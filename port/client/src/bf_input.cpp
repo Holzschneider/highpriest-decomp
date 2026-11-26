@@ -201,6 +201,12 @@ uint32_t g_last_mods = 0;
 uint8_t g_vk[256];                    // held, by the state VK (VK_LSHIFT, ..., 'A')
 uint16_t g_down_as[BF_KEY_COUNT];     // the key whose entry a held key's WM_KEYDOWN used, 0: none sent
 int g_cmd_ctrl_key = 0;               // Cmd+X or Cmd+C held: reads as Ctrl+X, Ctrl+C
+bf_input_scale_saver g_scale_saver = nullptr;   // bf_input_set_scale_saver
+
+int Clamp(int v, int lo, int hi)
+{
+	return v < lo ? lo : v > hi ? hi : v;
+}
 int g_option_typing_key = 0;          // a key typing with Option held (bf_input_option_types): Alt reads up
 
 // What bf_input_option_types decided for an AppKit key-down when the text
@@ -360,6 +366,52 @@ void SendKeyDown(int key, int as, bool repeat, bool alt, bool ctrl)
 	Post(sys ? WM_SYSKEYDOWN : WM_KEYDOWN, k.vk, lp);
 }
 
+// Cmd+Plus and Cmd+Minus step the UI scale in effect up or down within
+// 1..3, Cmd+0 goes back to auto (the view's rule). The keys are the ones the
+// layout types "+" (or "=", its unshifted key on a US layout), "-" and "0"
+// on, so a German "+" key works; the key's position for a scripted key
+// (control socket) unless a test named a layout (bf_app_key_layout_use).
+void ScaleKey(const bf_app_event &e)
+{
+	// Scripted keys go by position unless a test names a layout, as for the
+	// Option rule (bf_input_text_filter).
+	char plain[8] = "", shifted[8] = "";
+	if (e.source == BF_APP_SOURCE_APPKIT || bf_app_key_layout_named()) {
+		bf_app_key_layout_text(e.key.mac_keycode, 0, plain, sizeof plain, nullptr);
+		bf_app_key_layout_text(e.key.mac_keycode, BF_APP_MOD_SHIFT, shifted, sizeof shifted, nullptr);
+	}
+	int key = e.key.key;
+	bool known = plain[0] != 0;
+	int step = 0;
+	bool reset = false;
+	if (known ? strcmp(plain, "+") == 0 || strcmp(plain, "=") == 0 || strcmp(shifted, "+") == 0
+	          : key == BF_KEY_EQUAL || key == BF_KEY_KP_PLUS)
+		step = 1;
+	else if (known ? strcmp(plain, "-") == 0 : key == BF_KEY_MINUS || key == BF_KEY_KP_MINUS)
+		step = -1;
+	else if (known ? strcmp(plain, "0") == 0 : key == BF_KEY_0 || key == BF_KEY_KP_0)
+		reset = true;
+	else
+		return;
+	if (!g_view_running)
+		return;
+	bf_view_metrics m;
+	bf_view_get(&m);
+	int setting = reset ? 0 : Clamp(m.ui_scale + step, 1, 3);
+	if (!reset && setting == m.ui_scale && m.scale_setting != 0)
+		return;
+	if (bf_view_set_scale_setting(setting) < 0) {
+		bf_tracef(BFT_ERR, "input: UI scale %d refused by the view\n", setting);
+		return;
+	}
+	g_scale_setting = setting;
+	bf_view_get(&m);
+	BF_TRACE(BFT_INPUT, "input: Cmd+%s: UI scale setting %d, %d in effect\n", reset ? "0" : step > 0 ? "Plus" : "Minus",
+	         setting, m.ui_scale);
+	if (g_scale_saver)
+		g_scale_saver(setting);
+}
+
 void PasteAsTyped()
 {
 	std::string bytes = Utf8ToCp1252(ClipboardUtf8().c_str());
@@ -419,6 +471,14 @@ void OnKeyDown(const bf_app_event &e)
 			g_cmd_ctrl_key = key;
 			SendKeyDown(key, key, repeat, alt, true);
 			return;
+		case BF_KEY_A:
+			// Select all, as Ctrl+A (CLanguage::OnKeyDown under BF_PORT), in
+			// a text field only: without one, Ctrl+A is a battle-mode hotkey.
+			if (bf_input_client_text_focus()) {
+				g_cmd_ctrl_key = key;
+				SendKeyDown(key, key, repeat, alt, true);
+			}
+			return;
 		case BF_KEY_I:
 			// The Insert substitute (sit): Cmd+I, Cmd+Option+I for Alt+Insert.
 			SendKeyDown(key, BF_KEY_INSERT, repeat, alt, ctrl);
@@ -431,6 +491,8 @@ void OnKeyDown(const bf_app_event &e)
 				SendKeyDown(key, BF_KEY_PRINTSCREEN, repeat, alt, ctrl);
 			return;
 		default:
+			if (!repeat)
+				ScaleKey(e);   // Cmd+Plus, Cmd+Minus, Cmd+0
 			return;   // Cmd+H, Cmd+M, ...: the system's
 		}
 	}
@@ -582,14 +644,14 @@ LRESULT Send(UINT message, WPARAM wparam, LPARAM lparam)
 	return g_proc(kWindow, message, wparam, lparam);
 }
 
-int Clamp(int v, int lo, int hi)
-{
-	return v < lo ? lo : v > hi ? hi : v;
-}
-
 }  // namespace
 
 // ------------------------------------------------------------------ window
+
+extern "C" void bf_input_set_scale_saver(bf_input_scale_saver fn)
+{
+	g_scale_saver = fn;
+}
 
 extern "C" void bf_input_set_scale_setting(int setting)
 {

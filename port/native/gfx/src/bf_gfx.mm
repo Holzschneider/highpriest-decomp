@@ -131,6 +131,7 @@ struct bf_gfx_device {
 	id<MTLDepthStencilState> ds_off, ds_write_always;
 
 	long long n_draws = 0, n_pipes = 0, n_readbacks = 0, n_frames = 0;
+	double frame_interval = 0;   // bf_gfx_set_frame_interval
 };
 
 // ---- command buffers and encoders -----------------------------------------
@@ -1132,7 +1133,10 @@ extern "C" int bf_gfx_present(bf_gfx_device *d)
 		[e setFragmentTexture:d->target atIndex:0];
 		[e drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
 		[e endEncoding];
-		[d->cb presentDrawable:drawable];
+		if (d->frame_interval > 0)
+			[d->cb presentDrawable:drawable afterMinimumDuration:d->frame_interval];
+		else
+			[d->cb presentDrawable:drawable];
 		submit(d);
 		return BF_GFX_OK;
 	}
@@ -1141,6 +1145,11 @@ extern "C" int bf_gfx_present(bf_gfx_device *d)
 extern "C" void bf_gfx_set_vsync(bf_gfx_device *d, int enabled)
 {
 	if (d && d->layer) d->layer.displaySyncEnabled = enabled ? YES : NO;
+}
+
+extern "C" void bf_gfx_set_frame_interval(bf_gfx_device *d, double seconds)
+{
+	if (d) d->frame_interval = seconds > 0 && seconds < 1 ? seconds : 0;
 }
 
 extern "C" int bf_gfx_finish(bf_gfx_device *d)

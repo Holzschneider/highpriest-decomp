@@ -6,6 +6,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 namespace {
@@ -124,6 +125,15 @@ extern "C" int bf_sys_keychain_delete(const char *account)
 
 extern "C" int bf_sys_keychain_available(void)
 {
+	// BF_NO_KEYCHAIN=1 (the test harness sets it): never touch the Keychain.
+	// A rebuilt, ad-hoc signed client is not on the item's access list, and
+	// reading it raises a prompt on the screen of whoever works at the Mac,
+	// with the client's main thread waiting for an answer.
+	if (const char *off = getenv("BF_NO_KEYCHAIN"))
+		if (*off && strcmp(off, "0") != 0) {
+			BF_TRACE(BFT_FILE, "sys: keychain not available (BF_NO_KEYCHAIN)");
+			return 0;
+		}
 	// A search succeeds in a locked keychain; only adding needs it unlocked,
 	// so ask for the lock state. The SecKeychain calls are deprecated but are
 	// the only way to learn it without touching an item.

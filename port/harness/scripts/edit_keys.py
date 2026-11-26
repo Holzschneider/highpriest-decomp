@@ -6,7 +6,8 @@ Shift+ and Ctrl+ variants), WndProc at 0x696D1A in the reference executable.
 
 Played, in the login window's account field: "abcdef", Left twice, "X"
 gives "abcdXef"; Home, Delete gives "bcdXef"; End, Backspace gives "bcdXe";
-Right at the end and Left at the start move nothing. Then, in game as
+Right at the end and Left at the start move nothing; Cmd+A selects the
+whole text (F10), so "Z" typed after it leaves "Z". Then, in game as
 bftest/BFProbe: "hello world" typed into the chat line, Home, "X", Enter;
 chatlog has "Xhello world"; then "hello world", Left x4, Delete, End and a
 token gives "hello wrld <token>".
@@ -22,7 +23,7 @@ from bfharness.sql import wait_rows
 
 NAME = "edit_keys"
 MILESTONE = "M5"
-DESCRIPTION = "Left, Right, Home, End, Delete, Backspace in the login field and the chat line"
+DESCRIPTION = "Left, Right, Home, End, Delete, Backspace, Cmd+A in the login field and the chat line"
 MANIFEST = None
 NEEDS_SERVER = True
 
@@ -109,6 +110,17 @@ def run(t):
         keys(ctl, "right", "right", "right")
         ctl.type_text("b")
         s.equal(id_text(ctl), "cdXbe!", "Right x3, b")
+
+    with t.step("Cmd+A", "F10: Cmd+A selects the whole text; typing replaces it, Backspace deletes it") as s:
+        keys(ctl, "home", "right")
+        ctl.press("a", "cmd")
+        ctl.type_text("Z")
+        s.equal(id_text(ctl), "Z", "Cmd+A, Z")
+        ctl.type_text("yx")
+        ctl.press("a", "cmd")
+        ctl.press("backspace")
+        s.equal(id_text(ctl), "", "Cmd+A, Backspace")
+        ctl.type_text("cdXbe!")
         ctl.press("end")
         for _ in range(len(id_text(ctl))):
             ctl.press("backspace")

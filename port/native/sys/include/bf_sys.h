@@ -92,7 +92,9 @@ void bf_sys_mutex_destroy(bf_sys_mutex *mutex);
 /*
  * 1 if the Keychain can be used from this session without asking anyone:
  * 0 when it is locked or unreachable (a background session without the
- * window server, errSecInteractionNotAllowed). Thread: any.
+ * window server, errSecInteractionNotAllowed), and always while the
+ * environment variable BF_NO_KEYCHAIN is set (non-empty, not "0"; test
+ * clients, whose rebuilt signature would raise an access prompt). Thread: any.
  */
 int bf_sys_keychain_available(void);
 /* Stores or replaces the password. 1 or 0 (trace line with the OSStatus). */

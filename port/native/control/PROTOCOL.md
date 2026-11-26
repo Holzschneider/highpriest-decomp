@@ -94,7 +94,7 @@ Arguments: `path` (absolute path of the PNG to write; its directory must exist).
 
 The next completed frame (the first frame finished after the request) is written as an 8-bit RGBA PNG at the size of the drawable, in device pixels (the logical size times the UI scale, on a Retina display times the backing factor as well). The client writes the file and nothing else.
 
-Result: `path`, `width`, `height` (device pixels), `scale` (UI scale), `logical` (`{"w": ..., "h": ...}`), `frame` (the number of the frame captured), `sha256` (hex digest of the file's bytes). A relative `path` is `bad_request`, a missing directory `io`; when no frame is completed within 20 seconds the answer is `bad_state`.
+Result: `path`, `width`, `height` (device pixels), `scale` (UI scale in effect), `scale_setting` (0 auto, 1..3: the settings window's, or Cmd+Plus/Minus/0), `logical` (`{"w": ..., "h": ...}`), `frame` (the number of the frame captured), `sha256` (hex digest of the file's bytes). A relative `path` is `bad_request`, a missing directory `io`; when no frame is completed within 20 seconds the answer is `bad_state`.
 
 ### `state`
 

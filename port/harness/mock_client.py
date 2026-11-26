@@ -2790,7 +2790,7 @@ class Mock(MinimapMixin, AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOpt
         put("mode", self.mode)
         put("detail", DETAIL.get(self.mode, self.mode))
         put("frame", self.frame)
-        put("view", {"width": self.width, "height": self.height, "scale": self.scale,
+        put("view", {"width": self.width, "height": self.height, "scale": self.scale, "scale_setting": 0,
                      "logical": {"w": L[0], "h": L[1]}, "fullscreen": self.fullscreen, "focused": True})
         put("pointer", {"x": self.pointer[0], "y": self.pointer[1], "buttons": sorted(self.buttons),
                         "cell": self.cell_at(*self.pointer)})

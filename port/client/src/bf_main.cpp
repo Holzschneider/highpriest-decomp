@@ -11,6 +11,9 @@
 //   --mute                no sound output (or BF_MUTE=1): the sound module
 //                         runs and counts as usual, the output is silenced
 //                         (bf_audio_set_muted); for instrumented test runs
+//   --background          the window shows but never takes the keyboard (or
+//                         BF_BACKGROUND=1; bf_app_config.background): test
+//                         clients beside someone working at the Mac
 //   --server <host[:port]>, --account <name>, --password <text>,
 //   --character <name or slot>
 //                         launch arguments (or --flag=value, or BF_SERVER,
@@ -91,6 +94,8 @@ extern "C" void objc_autoreleasePoolPop(void *pool);
 namespace {
 
 bool g_headless = false;
+bool g_background = false;   // --background
+double g_frame_interval = -1;   // the last bf_gfx_set_frame_interval
 bf_gfx_device *g_gfx = nullptr;
 long long g_frames_reported = 0;
 std::string g_mode;   // the last `mode` reported as an event
@@ -215,6 +220,8 @@ void WriteView(bf_control_writer *w, void *)
 	bf_control_write_int(w, m.drawable_h);
 	bf_control_write_key(w, "scale");
 	bf_control_write_int(w, m.ui_scale);
+	bf_control_write_key(w, "scale_setting");   // 0 auto, 1..3
+	bf_control_write_int(w, m.scale_setting);
 	bf_control_write_key(w, "logical");
 	bf_control_write_begin_object(w);
 	bf_control_write_key(w, "w");
@@ -586,7 +593,7 @@ void LaunchFromEnvironment()
 bool IsPortFlag(const char *arg)
 {
 	const char *unused;
-	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--mute") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
+	return strcmp(arg, "--headless") == 0 || strcmp(arg, "--mute") == 0 || strcmp(arg, "--background") == 0 || strcmp(arg, "--control") == 0 || strncmp(arg, "--control=", 10) == 0
 	       || strncmp(arg, "-psn_", 5) == 0   // Finder's process serial number
 	       || LaunchFlag(arg, &unused);
 }
@@ -688,6 +695,15 @@ extern "C" void bf_port_frame(void)
 		// listener resizes the client (InstallResizePath).
 		InstallResizePath();
 		bf_view_sync();
+		// One present per refresh of the window's screen (it may move to
+		// another screen): display sync alone let the window server take
+		// 120 frames a second on 60 Hz displays (bf_gfx_set_frame_interval).
+		double interval = bf_app_window_refresh_interval();
+		if (interval != g_frame_interval) {
+			g_frame_interval = interval;
+			bf_gfx_set_frame_interval(g_gfx, interval);
+			BF_TRACE(BFT_GFX, "render: presents paced to %.1f Hz", interval > 0 ? 1.0 / interval : 0.0);
+		}
 	}
 	if (!control)
 		return;
@@ -697,6 +713,18 @@ extern "C" void bf_port_frame(void)
 	bf_control_sound_frame();
 	bf_control_movie_frame();
 	bf_control_poll();
+}
+
+// Cmd+Plus, Cmd+Minus, Cmd+0 (bf_input): kept as the settings window keeps
+// it, Display/UIScale 1..3, absent for auto.
+static void SaveScaleSetting(int setting)
+{
+	bf_settings *s = bf_settings_shared();
+	if (setting > 0)
+		bf_settings_set_int(s, BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE, setting);
+	else
+		bf_settings_remove(s, BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE);
+	bf_settings_save(s);
 }
 
 // ---- the entry point
@@ -722,6 +750,8 @@ int main(int argc, char **argv)
 			g_headless = true;
 		if (strcmp(argv[i], "--mute") == 0)
 			bf_audio_set_muted(1);
+		if (strcmp(argv[i], "--background") == 0)
+			g_background = true;
 		if (IsPortFlag(argv[i])) {
 			const char *value = nullptr;
 			if (LaunchArg *a = LaunchFlag(argv[i], &value)) {
@@ -766,6 +796,7 @@ int main(int argc, char **argv)
 		// The application first: the game-folder chooser and the window need NSApp.
 		bf_app_config app = {};
 		app.single_instance = 1;
+		app.background = g_background;   // --background; bf_app reads BF_BACKGROUND itself
 		int r = bf_app_init(&app);
 		if (r == BF_APP_ALREADY_RUNNING)
 			return 0;
@@ -789,6 +820,7 @@ int main(int argc, char **argv)
 		// Display/UIScale, as the settings window writes it; absent: auto (0),
 		// the view's rule.
 		bf_input_set_scale_setting(bf_settings_int(bf_settings_shared(), BF_PREFS_DISPLAY, BF_PREFS_UI_SCALE, 0));
+		bf_input_set_scale_saver(SaveScaleSetting);   // Cmd+Plus, Cmd+Minus, Cmd+0
 	}
 
 	const char *control = bf_control_path_from_args(argc, argv);

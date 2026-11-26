@@ -197,6 +197,10 @@ class Client:
         # No sound out of the speakers during test runs (the owner works at this Mac);
         # the sound module still runs and counts. BF_MUTE=0 in the environment to listen.
         env.setdefault("BF_MUTE", "1")
+        # No Keychain: a rebuilt client is not on the saved password's access
+        # list, and reading it puts a prompt on the owner's screen while the
+        # client waits. BF_NO_KEYCHAIN=0 to test the saved password.
+        env.setdefault("BF_NO_KEYCHAIN", "1")
         env.update(self.extra_env)
         return env
 
@@ -255,12 +259,21 @@ class Client:
             return links
         return Path(want).expanduser() if want else game
 
+    def background_args(self):
+        """`--background` unless BF_BACKGROUND=0: the window shows but never
+        takes the keyboard from the owner working at this Mac; the input
+        comes through the control socket anyway. A bundle is also opened
+        with `open -g`, so LaunchServices does not bring it forward."""
+        if self.mock or os.environ.get("BF_BACKGROUND", "1") == "0":
+            return []
+        return ["--background"]
+
     def start(self):
         if self.control_path.exists():
             self.control_path.unlink()
         if self.app:
             return self.start_app()
-        argv = self.command + ["--control", str(self.control_path)] + self.args
+        argv = self.command + ["--control", str(self.control_path)] + self.background_args() + self.args
         self._out = open(self.stdout_file, "wb")
         env = self.environment()
         self.game_folder = None if self.mock else Path(env["BF_CLIENT_DIR"])
@@ -275,10 +288,10 @@ class Client:
         """The bundle through LaunchServices (module docstring)."""
         env = self.app_environment()
         exe = app_executable(self.app)
-        argv = ["open", "-n", "--stdout", str(self.stdout_file), "--stderr", str(self.stdout_file)]
+        argv = ["open", "-n"] + (["-g"] if self.background_args() else []) + ["--stdout", str(self.stdout_file), "--stderr", str(self.stdout_file)]
         for k in sorted(env):
             argv += ["--env", "%s=%s" % (k, env[k])]
-        argv += [str(self.app), "--args", "--control", str(self.control_path)] + self.args
+        argv += [str(self.app), "--args", "--control", str(self.control_path)] + self.background_args() + self.args
         self.stdout_file.write_bytes(b"")
         if self.trace_file.exists():   # AppProcess reads the exit line of this launch only
             self.trace_file.unlink()
