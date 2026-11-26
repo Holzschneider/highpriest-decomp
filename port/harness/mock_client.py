@@ -1158,6 +1158,10 @@ class Mock(MinimapMixin, AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOpt
         self.mode_timer = timer
         self.trace("mode", "%s -> %s" % (prev, mode))
         self.emit("mode", mode=mode, previous=prev, detail=DETAIL.get(mode, mode))
+        if prev == "game":
+            # The client saves which windows were shown (EquipWndInfo.show and the like)
+            # and opens them again on the next map entry.
+            self.reopen_windows = [w.name for w in self.windows if w.name in ALT_WINDOWS.values()]
         for w in list(self.windows):
             self.close_window(w.name)
         L = self.logical()
@@ -1197,6 +1201,11 @@ class Mock(MinimapMixin, AltKeysMixin, AuctionMixin, OptionPagesMixin, SkillsOpt
                                     [ctl("chat_edit", "edit", 4, L[1] - 20, 392, 16),
                                      ctl("whisper_edit", "edit", 4, L[1] - 40, 90, 16)]))
             self.window("CHATWND").focus_control = "chat_edit"
+            for name in getattr(self, "reopen_windows", []):
+                rect = {"ITEMWND": [0, 120, 280, 102], "STATUSWND": [185, 300, 280, 120]}.get(name, [300, 100, 280, 200])
+                self.open_window(Window(name, rect, data={"tab": "item"}))
+            if getattr(self, "reopen_windows", []):
+                self.item_windows()
             self.tip_of_the_day()
             self.minimap_entry()
 
