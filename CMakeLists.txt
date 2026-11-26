@@ -382,6 +382,14 @@ add_test(NAME setting-key COMMAND ${BF_EXE}-setting-key-test WORKING_DIRECTORY $
 set_tests_properties(setting-key PROPERTIES LABELS headless TIMEOUT 300
 	ENVIRONMENT "BF_NO_ALERTS=1;BF_TEST_OUT=${CMAKE_CURRENT_BINARY_DIR}")
 
+# foldercheck: the headless start refuses folders that are not usable game
+# folders (bf_prefs_game_folder_valid) with a reason and status 1, never a
+# crash, and starts on the least a folder must hold (generated files only).
+# Skipped (77) when the client is not built (fastcheck without --client).
+add_test(NAME foldercheck COMMAND python3 ${BF_ROOT}/port/client/test/foldercheck_test.py
+	$<TARGET_FILE:${BF_EXE}> ${CMAKE_CURRENT_BINARY_DIR}/foldercheck-test ${BF_APP_NAME})
+set_tests_properties(foldercheck PROPERTIES LABELS headless TIMEOUT 600 SKIP_RETURN_CODE 77)
+
 # bifrost-crt-test: the C runtime names of bf_crt.cpp (bf_crt.h's file calls
 # on client paths, the Visual C++ helpers) called as the client calls them:
 # crt_client_calls.cpp is compiled with the client's flags (headless).
