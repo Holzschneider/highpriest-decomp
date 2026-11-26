@@ -4042,9 +4042,18 @@ void	CSession :: InitPetTables()
 void	CSession :: InitPetTalkTable()
 {
 	CFile fp;
+#if defined(BF_PORT)
+	// Missing: no pet speaks (GetPetSpeak finds no element).
+	if (fp.Open(g_language->LanguageFile("PetTalkTable.xml"), CFile::modeRead)) {
+		m_petTalkXmlTable.ReadDocument((const char*)fp.GetBuf(), (const char*)fp.GetBuf() + fp.GetLength());
+		fp.Close();
+	} else
+		bf_port_missing(BFT_FILE, "table.missing", "PetTalkTable.xml");
+#else
 	fp.Open(g_language->LanguageFile("PetTalkTable.xml"), CFile::modeRead);
 	m_petTalkXmlTable.ReadDocument((const char*)fp.GetBuf(), (const char*)fp.GetBuf() + fp.GetLength());
 	fp.Close();
+#endif
 
 	CFile fp2;
 	if (fp2.Open("MonsterSkillInfo.xml", CFile::modeRead)) {

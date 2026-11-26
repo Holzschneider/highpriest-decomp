@@ -1534,6 +1534,13 @@ extern CModeMgr g_modeMgr;
 
 const char* UIBmp(const char* uiBmpName)
 {
+#if defined(BF_PORT)
+	// Shorter than the interface folder's prefix (15 bytes): the loops below
+	// ran to size() - 15 as an unsigned count. An empty name is what a
+	// UIBitmapButton keeps when SetBitmapName met a missing bitmap.
+	if (strlen(uiBmpName) < 15)
+		return uiBmpName;
+#endif
 	if (g_skinMgr.GetNumSkin() && g_skinMgr.GetCurrentSkinNum() != -1 && g_modeMgr.GetGameMode()) {
 		std::string skinFolder = g_skinMgr.GetSkinCurrentFolderName();
 

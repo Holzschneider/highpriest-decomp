@@ -10,6 +10,9 @@
 #include "File.h"
 #include "../window/UISys.h"
 #include "bf_types.h"
+#if defined(BF_PORT)
+#include "../resource/Bitmap.h"
+#endif
 #include <stdio.h>
 
 
@@ -199,7 +202,20 @@ CRes *	CResMgr :: Get(const char *fNameInput, bool bRefresh)
 				placeholder = "sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.spr";
 			else if (!strcmp(ext, "act"))
 				placeholder = "sprite\\\xb8\xf3\xbd\xba\xc5\xcd\\poring.act";
-			if (placeholder && newRes->Load(placeholder))
+			bool isBitmap = !strcmp(ext, "bmp") || !strcmp(ext, "tga") || !strcmp(ext, "jpg");
+			if (isBitmap)
+			{
+				// A missing bitmap (an interface image; a texture, which
+				// CTexMgr::LoadTexture drew as one magenta texel before) is a
+				// magenta square: nearly every caller reads its size or its
+				// colours without asking for NULL. 0xF0 blue keeps it off the
+				// colour key 0xFF00FF, which the interface draws as clear.
+				CBitmapRes* bitmap = (CBitmapRes*)newRes;
+				bitmap->CreateNull(32, 32);
+				for (int i = 0; i < 32 * 32; ++i)
+					bitmap->m_data[i] = 0xffff00f0;
+			}
+			if (isBitmap || (placeholder && newRes->Load(placeholder)))
 			{
 				MakeOpenName(openFileName, fName, m_typeDir[extIndex]);
 				newRes->UpdateInfo(openFileName, extIndex);

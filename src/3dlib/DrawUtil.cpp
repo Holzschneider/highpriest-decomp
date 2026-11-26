@@ -400,6 +400,13 @@ void	DrawDC :: SetFont(int fontType, int fontHeight, bool bold)
 			fontType	= 10;
 			fontHeight += 3;
 			break;
+#if defined(BF_PORT)
+		case LanguageKorean:
+			// Font 0 is the Korean font: nothing to choose. The original had
+			// no case, so the Korean service (sclientinfo.xml absent or
+			// naming it) asserted on every text drawn (about 4,400 in 25 s).
+			break;
+#endif
 		default:
 			sAssertM(false, "Unknown Language Type !!");
 			break;

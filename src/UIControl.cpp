@@ -222,6 +222,10 @@ void UIStaticBitmap::SetBitmap(char const *bitmapName)
 		bitmap = (CBitmapRes *)g_resMgr().Get(m_bitmapName.c_str(), false);
 	else
 		bitmap = (CBitmapRes *)g_resMgr().Get(UIBmp(m_bitmapName.c_str()), false);
+#if defined(BF_PORT)
+	if (!bitmap)
+		return;	// missing (res.missing counted): no size, as UIBitmapButton
+#endif
 	m_w = bitmap->m_width;
 	m_h = bitmap->m_height;
 }
@@ -264,8 +268,14 @@ void UICheckBox::SetBitmap(char const *onBitmapName, char const *offBitmapName)
 		bitmap = (CBitmapRes *)g_resMgr().Get(m_onBitmapName.c_str(), false);
 	else
 		bitmap = (CBitmapRes *)g_resMgr().Get(UIBmp(m_onBitmapName.c_str()), false);
+#if defined(BF_PORT)
+	if (bitmap) {	// missing (res.missing counted): no size, as UIBitmapButton
+#endif
 	m_w = bitmap->m_width;
 	m_h = bitmap->m_height;
+#if defined(BF_PORT)
+	}
+#endif
 	if (g_serviceType == ServiceKorea)
 		g_resMgr().Get(m_offBitmapName.c_str(), false);
 	else
@@ -304,12 +314,20 @@ void UICheckBox::OnDraw()
 	switch (m_state) {
 	case 0: {
 		CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(UIBmp(m_offBitmapName.c_str()), false);
+#if defined(BF_PORT)
+		if (!bmp)
+			break;	// missing (res.missing counted): nothing drawn
+#endif
 		int y = (m_h - bmp->m_height) / 2;
 		DrawBitmap(0, y, bmp, false);
 		break;
 	}
 	case 1: {
 		CBitmapRes* bmp = (CBitmapRes*)g_resMgr().Get(UIBmp(m_onBitmapName.c_str()), false);
+#if defined(BF_PORT)
+		if (!bmp)
+			break;
+#endif
 		DrawBitmap(0, (m_h - bmp->m_height) / 2, bmp, false);
 		break;
 	}
