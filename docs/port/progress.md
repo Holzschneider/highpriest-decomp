@@ -324,3 +324,44 @@ Third verifier (fresh agent, Done-when and `8647842` only; clean worktree, empty
 
 **Parked:** the intro's sound with the game's own movie (evidence above). To retry: put `openning.bik` from a 2008 client into `<game folder>/data/` (or wherever the 2008 lookup finds it, see M12.4a) and run `intro`, then listen. M12 is closed with a parked criterion.
 - **Game-folder content check** (`foldercheck`, `769353b`..`988ae0f`), the verifier's defect: one check, `bf_prefs_game_folder_valid`, serves the chooser, its panel, a stored setting, `BF_CLIENT_DIR` and the headless start. Decision, what a usable folder holds: a full path of at most 768 bytes; at least one of the archives the client opens (`DATA.INI`'s `[Data]` list as `AddPaksFromDataIni` reads it, else `data.grf`), each present one opening as the client's reader opens it; and, loose or in those archives (case and normalisation ignored), `data/sclientinfo.xml` (without it the client runs the Korean service against Gravity's server), `data/msgstringtable.txt` and the default sprite `poring.spr`/`.act`; everything else may be missing. Crashes fixed under `BF_PORT`: `InitPetTalkTable` (a missing `PetTalkTable.xml` counted, no pet speaks), `CResMgr::Get` (a missing `.bmp`/`.tga`/`.jpg` is a 32×32 magenta square, like the poring for sprites; ~490 call sites read a bitmap's size unchecked), NULL guards in `UIStaticBitmap`/`UICheckBox`, `MsgStrings.cpp`'s `UIBmp` copy loop past a short name; the "Unknown Language Type" flood was Korean having no case in `DrawDC::SetFont` (font 0 now). Worker: empty, missing, relative, only `rdata.grf`, only an empty GRF, only `data.grf` refused with their reasons (headless and bundle, status 1); full folder by links starts; the minimum folder enters the game; zero-byte tables start; `bifrost-prefs-test` 0 failures, new ctest `foldercheck` 8 cases. Lead's checks after the merge: fastcheck (16 tests), self-test, `m11_frames` 25 of 25, `m4_frames`, `gate`, `options`, `english_session` PASS, bundle `gate` with a folder of links PASS. Open: interface bitmaps missing on paths no script reaches now show as magenta squares (the spec's placeholder) instead of nothing; a zero-byte `sclientinfo.xml` stopped a `--server` login after the account was sent (not examined); the worker left test account `bfhfoldchk` with character `BfhFoldChk` on the server.
+
+## 2026-11-26: final report — run stopped, everything done or parked
+
+The run stops because every step is done or parked (CLAUDE.md, "Stopping"). `macos-port` at the commit of this entry; no package branch or worktree is left.
+
+**What passed.** Every milestone exit was judged by a fresh verifier given only the Done-when list and the commit:
+
+| Milestone | Exit |
+|---|---|
+| M1 Recover the client source | passed |
+| M2 Compiles for arm64 | passed |
+| M3 Links and starts without a window | passed |
+| M4 First pixels | closed with a parked criterion (pacing) |
+| M5 Input and login | passed |
+| M6 In the world | passed (the session script's stall after an NPC dialog was carried as a defect and fixed before M8's soak) |
+| M7 Sound | passed |
+| M8 Playable (gate test, soak, sanitizers) | passed |
+| M9 English | passed |
+| M10 Protocol seam | passed |
+| M11 Native calls only | passed: no Windows or DirectX header, `port/compat` and the Wine headers gone, links Apple frameworks, zlib and Apple's runtimes only, gate test and the 25 reference frames match |
+| M12 Application | closed with a parked criterion (the intro's sound with the game's own movie); the bundle criterion passed on the third verification, after two fixes (long game-folder paths, then the 768-byte limit) and a third for a defect that verifier found (the content check) |
+
+The result: `cmake --preset debug && cmake --build --preset debug` builds `build/cmake/debug/Bifrost.app` (ad-hoc signed, arm64, macOS 14), a general Ragnarok Online client for the 2008-04 protocol that plays the gate test against the stock rAthena in `port/server` (create, kill, pick up, buy, sell, job change, chat, all confirmed in SQL), in English, with sound, music, Granny models (guild flags, Emperium, guardians) and Bink movies through its own readers. `port/tools/fastcheck.sh --client` is the fast check (about 50 s); `port/harness/run.py <script>` runs the live scripts ([port/harness/README.md](../../port/harness/README.md)).
+
+**What is parked.**
+
+1. **M4: one frame per display refresh.** While the screen is locked the window server, not the display, sets the frame rate (120 frames per second, steady, were measured). To retry: `m4_frames` in an unlocked, logged-in session; the script then requires the display's refresh rate.
+2. **M12: the intro movie with sound, with the game's own `openning.bik`.** No data source on hand holds it (`data.grf` has only `01.bik`, which has no sound track). Stand-in movies under that name play to their end with their sound voice running, and the 2008 lookup finds them. To retry: put a 2008 client's `openning.bik` where the 2008 lookup finds it (M12.4a entry), run `intro`, and listen.
+
+**What the owner should try by hand** (none of it can be shown on a locked, unattended machine):
+
+1. Start `Bifrost.app` from Finder with no stored game folder: the chooser panel opens; choose `~/Games/Bifrost` (or another folder) and play. Choose a folder that is not usable once (an empty one) and read its reason. In the settings window: Choose…, the four options, the volumes, Forget Saved Password. (AppKit then writes the panel's size to `~/Library/Preferences/com.example.bifrost.plist`, as for any application.)
+2. The pacing of item 1 above: smoothness at 60 and 120 Hz, in a window and in native fullscreen, and moving the window between the Retina and the non-Retina display.
+3. The real keyboard and pointer (every test went through the control socket): typing in chat and in the login fields, the Alt shortcuts on Option, German Option+L (it is Alt+L now, so no "@"), Option dead keys on a US layout (an accent can stay pending), the wheel, the right-drag camera, the clipboard (Cmd+C/V).
+4. Listen: music, effects and their volumes, stereo panning, ambient sounds on maps that have them; the intro of item 2 above.
+5. Play for a while: walk, fight, warp, NPC dialogues and shops, a party or a trade with a second client (`BF_MULTI_INSTANCE=1`), resizing the window and changing the UI scale.
+6. On another Mac: the bundle is ad-hoc signed, so Gatekeeper asks before the first start (Control-click, Open).
+
+**Known open items** (no step depends on them; each has its entry above): some lit patches of prt_in's floor come out in one of two versions per run; `CSurface::Update` on the render target writes only the changed rectangle (no call site reaches it); `strings.py --check` was stale before M11.11 and `review.txt` still names deleted files; with a non-ASCII game folder the control socket's `sound.stream.file` shows the path decoded as CP949, and a newline in a folder name splits trace lines; a zero-byte `sclientinfo.xml` stops a `--server` login after the account is sent; interface bitmaps missing on paths no script reaches now show as magenta squares; harness weaknesses: `sound.py` ends with `@killmonster2` on the shared field, `session.py`'s default account is shared between runs, `granny.py`'s guardians kill its character; test accounts and characters stay on the local server (`bftest`, `bfadmin`, the bots' BfBotA/BfBotB/BfBotGM, `bfhfoldchk`/`BfhFoldChk` and the harness's generated ones). The client keeps Windows-shaped names (`HRESULT`, `D3DMATRIX`, `TCHAR`, its own `D3dutil`) defined by `bf_types.h`; no Windows header is read.
+
+**Fences.** Two worker runs made AppKit write `~/Library/Preferences/com.example.bifrost.plist` (an open panel saves its size); both times it was deleted and the lead checked that it is gone. Nothing else was written outside the allowed locations as far as the logs show; the owner's other Mac was only read from.

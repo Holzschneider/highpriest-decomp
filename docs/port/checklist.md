@@ -181,4 +181,4 @@ The state of the run. Step ids are the milestone and step numbers of the [implem
 
 | | Step |
 |---|---|
-| [ ] | Final report in `progress.md`: what passed, what is parked, what the owner should try by hand |
+| [x] | Final report in `progress.md`: what passed, what is parked, what the owner should try by hand |
